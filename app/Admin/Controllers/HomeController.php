@@ -14,7 +14,7 @@ class HomeController extends Controller
     {
         return $content
             ->title('Main Dashboard')
-            ->description('Description...')
+            ->description('Description...Roomina 1')
             ->row('<h2>E-Tag Uganda</h2>')
             ->row(function (Row $row) {
 
