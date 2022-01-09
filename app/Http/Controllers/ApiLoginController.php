@@ -46,7 +46,7 @@ class ApiLoginController extends Controller
 
         return Utils::response([
             'status' => 0,
-            'message' => "You entered a wrong password. => ".$request->password+" hash => ".$user->password
+            'message' => "You entered a wrong password. => ".$request->password." hash => ".$user->password
         ]);
     }
 }
