@@ -34,7 +34,7 @@ class ApiLoginController extends Controller
             ]);
         }
 
-        if(password_verify($request->password,$user->password)){
+        if(password_verify(trim($request->password),$user->password)){
             unset($user->password);
             $user->roles = $user->roles;
             return Utils::response([
