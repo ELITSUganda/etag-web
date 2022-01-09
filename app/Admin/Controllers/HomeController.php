@@ -17,7 +17,6 @@ class HomeController extends Controller
             ->description('Description...Roomina 1')
             ->row('<h2>E-Tag Uganda</h2>')
             ->row(function (Row $row) {
-
                 $row->column(4, function (Column $column) {
                     //$column->append(Dashboard::environment());
                 });
