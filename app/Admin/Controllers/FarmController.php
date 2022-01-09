@@ -129,8 +129,7 @@ class FarmController extends AdminController
 
         $form->hidden('district_id', __('District id'))->default(1);
         $form->hidden('sub_county_id', __('Sub county id'))->default(1);
-
-
+        $form->text('name', __('Farm name'))->required();
         $form->select('administrator_id', __('Farm owner'))
             ->options($admins)
             ->required();

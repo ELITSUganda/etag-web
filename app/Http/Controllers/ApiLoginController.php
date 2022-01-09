@@ -8,6 +8,11 @@ use Illuminate\Http\Request;
 
 class ApiLoginController extends Controller
 {
+    public function create_account(Request $request)
+    {
+        return $request;
+    }
+
     public function index(Request $request)
     {
         if (

@@ -14,6 +14,7 @@ Route::delete('districts/{id}',[DistrictController::class, 'delete'] );
 
 // ========== lofin starts ============== //
 Route::post('login', [ApiLoginController::class, 'index']);
+Route::post('login/create-account', [ApiLoginController::class, 'create_account']);
 // ========== lofin ends ============== //
 
 
