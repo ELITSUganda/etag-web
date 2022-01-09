@@ -7,11 +7,11 @@ use Encore\Admin\Grid\Model;
 class Utils extends Model
 {
     public static function response($data = []){
-        $resp['satus'] = 1;
+        $resp['status'] = 1;
         $resp['message'] = "Success";
         $resp['data'] = null;
-        if(isset($data['satus'] )){
-            $resp['satus'] = $data['satus'];
+        if(isset($data['status'] )){
+            $resp['status'] = $data['status'];
         }
         if(isset($data['message'] )){
             $resp['message'] = $data['message'];
