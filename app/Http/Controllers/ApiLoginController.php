@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Utils;
 use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ApiLoginController extends Controller
 {
@@ -36,7 +37,7 @@ class ApiLoginController extends Controller
                 'message' => "User with same email address already exist."
             ]);
         }
-        $u = Administrator::where('email',$request->phone_number)->first();
+        $u = Administrator::where('phone_number',$request->phone_number)->first();
         if($u != null){
             return Utils::response([
                 'status' => 0,
@@ -65,6 +66,12 @@ class ApiLoginController extends Controller
             ]);
         }
 
+        DB::table('admin_role_users')->insert([
+            'user_id' => $u->id,
+            'role_id' => 3
+        ]);
+        
+
         return Utils::response([
             'status' => 1,
             'message' => "Account created successfuo.",
@@ -90,7 +97,7 @@ class ApiLoginController extends Controller
             $user = Administrator::where("email", trim($request->username))->first();
         }
         if ($user == null) {
-            $user = Administrator::where("phone_number", trim($request->username))->first();
+            $user = Administrator::where("phone_number", trim($request->phone_number))->first();
         }
 
         if ($user == null) {
