@@ -10,7 +10,10 @@ use Illuminate\Support\Facades\Auth;
 class Farm extends Model
 {
     use HasFactory;
-
+    
+    public function animals(){
+        return $this->hasMany(Animal::class);
+    }
     public static function boot()
     {
         parent::boot();

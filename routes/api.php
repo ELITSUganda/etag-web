@@ -15,6 +15,7 @@ Route::delete('districts/{id}',[DistrictController::class, 'delete'] );
 
 // ========== users starts ============== //
 Route::get('users', [ApiUserController::class, 'index']);
+Route::get('farms/{id}', [ApiUserController::class, 'farm']);
 // ========== users ends ============== //
 
 

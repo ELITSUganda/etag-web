@@ -2,6 +2,7 @@
 
 namespace Encore\Admin\Auth\Database;
 
+use App\Models\Farm;
 use Encore\Admin\Traits\DefaultDatetimeFormat;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
@@ -21,6 +22,15 @@ class Administrator extends Model implements AuthenticatableContract
     use DefaultDatetimeFormat;
 
     protected $fillable = ['username', 'password', 'name', 'avatar'];
+
+
+    
+    
+    public function farms(){
+        return $this->hasMany(Farm::class,'administrator_id');
+    }
+
+
 
     /**
      * Create a new Eloquent model instance.
