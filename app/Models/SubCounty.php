@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SubCounty extends Model
 {
+    protected $fillable = ['name', 'detail','district_id'];
     use HasFactory; 
     public function district()
     {

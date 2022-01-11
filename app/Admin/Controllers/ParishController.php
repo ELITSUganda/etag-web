@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Models\Parish;
 use App\Models\SubCounty;
 use Encore\Admin\Controllers\AdminController;
+use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
@@ -68,6 +69,10 @@ class ParishController extends AdminController
     protected function form()
     {
         $form = new Form(new Parish());
+
+
+
+        
         $form->setWidth(8, 4);
         $items = [];
         foreach (SubCounty::all() as $key => $v) { 
@@ -82,4 +87,6 @@ class ParishController extends AdminController
 
         return $form;
     }
+
+
 }
