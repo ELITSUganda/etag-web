@@ -16,6 +16,19 @@ class ApiUserController extends Controller
         return Administrator::paginate($per_page)->withQueryString()->items();
     }
  
+    public function farm($id)
+    
+        $f = Administrator::find($id);
+        $f->farms_count =  count($f->farms);
+        $f->farms = $f->farms;
+        $f->animals_count = 0;
+        unset($f->password);
+        foreach ($f->farms as $key => $value) {
+            $f->animals_count+=count($value->animals);
+        }
+        return $f;
+    }
+ 
     public function show($id)
     {
         return Administrator::find($id);
