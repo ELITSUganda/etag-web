@@ -31,6 +31,55 @@ class AnimalController extends AdminController
     protected function grid()
     { 
         $grid = new Grid(new Animal());
+
+        $grid->filter(function ($filter) {
+
+            $parishes = [];
+            foreach (Parish::all() as $key => $p) {
+                $parishes[$p->id] = $p->name . ", " .
+                    $p->sub_county->name . ", " .
+                    $p->sub_county->district->name . ".";
+            }
+            
+            $sub_counties = [];
+            foreach (SubCounty::all() as $key => $p) {
+                $sub_counties[$p->id] = $p->name . ", " .
+                    $p->district->name . ".";
+            }
+            
+            $districts = [];
+            foreach (District::all() as $key => $p) {
+                $districts[$p->id] = $p->name . "m  ";
+            }
+            
+            $admins = [];
+            foreach (Administrator::all() as $key => $v) {
+                if (!$v->isRole('farmer')) {
+                    continue;
+                }
+                $admins[$v->id] = $v->name . " - " . $v->id;
+            }
+
+            $filter->equal('administrator_id', "Owner")->select($admins);
+            $filter->equal('sex', "Sex")->select([
+                'Male' => 'Male',
+                'Female' => 'Female', 
+            ]);
+            $filter->equal('type', "Animal type")->select(Array(
+                'Cow' => "Cow",
+                'Goat' => "Goat",
+                'Sheep' => "Sheep"
+            ));
+
+            $filter->equal('district_id', "District")->select($districts);
+            $filter->equal('sub_county_id', "Sub county")->select($sub_counties);
+            $filter->equal('parish_id', "Parish")->select($parishes);
+            $filter->equal('e_id', "E-ID");
+            $filter->equal('v_id', "V-ID");
+        
+        });
+        
+
  
         $grid->column('created_at', __('Created'))
         ->display(function ($f) {
@@ -138,7 +187,7 @@ class AnimalController extends AdminController
         $form->select('farm_id', __('Farm'))
         ->options($items)
         ->required();
-         
+          
         $form->select('type', __('Animal Type'))
         ->options(Array(
             'Cow' => "Cow",

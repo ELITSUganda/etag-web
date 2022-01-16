@@ -21,13 +21,26 @@ class Administrator extends Model implements AuthenticatableContract
     use HasPermissions;
     use DefaultDatetimeFormat;
 
-    protected $fillable = ['username', 'password', 'name', 'avatar'];
+    protected $fillable = [
+        'username',
+        'password',
+        'name',
+        'avatar',
+        'details',
+        'email',
+        'gender',
+        'nin',
+        'phone_number',
+        'phone_number_2',
+        'address',
+    ];
+  
 
 
-    
-    
-    public function farms(){
-        return $this->hasMany(Farm::class,'administrator_id');
+
+    public function farms()
+    {
+        return $this->hasMany(Farm::class, 'administrator_id');
     }
 
 

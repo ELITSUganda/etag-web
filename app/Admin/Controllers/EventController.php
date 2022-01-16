@@ -26,12 +26,103 @@ class EventController extends AdminController
 
     /**
      * Make a grid builder.
-     *
+    
+     administrator_id
+     
+district_id
+sub_county_id
+parish_id
+farm_id
+type
+
+detail
+
+animal_type
+
+
      * @return Grid
      */
     protected function grid()
     {
         $grid = new Grid(new Event());
+        /*$faker = \Faker\Factory::create();
+        
+        $types = Array(
+            'Sick' => 'Sick',
+            'Healed' => 'Healed',
+            'Vaccinated' => 'Vaccinated',
+            'Gave birth' => 'Gave birth',
+            'Sold' => 'Sold',
+            'Died' => 'Died',
+            'Slautered' => 'Slautered',
+            'Stolen' => 'Stolen',
+        );
+        Event::truncate();
+        for($i = 0;$i<300;$i++){
+            $e = new Event();
+            shuffle($types); 
+            $e->type = $types[0];
+            $e->detail = $faker->sentence();
+            $e->approved_by = 1;
+            $e->animal_id = rand(1,400);
+            $e->save();
+        }
+        dd("Done");*/
+
+
+        $grid->filter(function ($filter) {
+
+            $parishes = [];
+            foreach (Parish::all() as $key => $p) {
+                $parishes[$p->id] = $p->name . ", " .
+                    $p->sub_county->name . ", " .
+                    $p->sub_county->district->name . ".";
+            }
+            
+            $sub_counties = [];
+            foreach (SubCounty::all() as $key => $p) {
+                $sub_counties[$p->id] = $p->name . ", " .
+                    $p->district->name . ".";
+            }
+            
+            $districts = [];
+            foreach (District::all() as $key => $p) {
+                $districts[$p->id] = $p->name . "m  ";
+            }
+            
+            $admins = [];
+            foreach (Administrator::all() as $key => $v) {
+                if (!$v->isRole('farmer')) {
+                    continue;
+                }
+                $admins[$v->id] = $v->name . " - " . $v->id;
+            }
+
+            $animals = [];
+            foreach (Animal::all() as $key => $v) {
+                $animals[$v->id] = $v->e_id . " - " . $v->v_id;
+            }
+
+            $filter->equal('administrator_id', "Owner")->select($admins);
+ 
+            $filter->equal('type', "Animal type")->select(Array(
+                'Cow' => "Cow",
+                'Goat' => "Goat",
+                'Sheep' => "Sheep"
+            ));
+
+            $filter->equal('district_id', "District")->select($districts);
+            $filter->equal('sub_county_id', "Sub county")->select($sub_counties);
+            $filter->equal('parish_id', "Parish")->select($parishes);
+            $filter->like('animal_id', "Animal")->select($animals);
+            $filter->equal('animal_type', "Event type")->select([
+                'Cow' => 'Cow',
+                'Goat' => 'Goat',
+                'Sheep' => 'Sheep',
+            ]);
+        
+        });
+        
 
         $grid->column('created_at', __('Created'))
             ->display(function ($f) {
@@ -151,7 +242,7 @@ class EventController extends AdminController
             ->required();
 
         $form->radio('type', __('Event type'))
-            ->options(array(
+            ->options(Array(
                 'Sick' => 'Sick',
                 'Healed' => 'Healed',
                 'Vaccinated' => 'Vaccinated',

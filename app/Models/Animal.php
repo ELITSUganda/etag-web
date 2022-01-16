@@ -8,6 +8,22 @@ use Illuminate\Database\Eloquent\Model;
 class Animal extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'administrator_id', 
+        'district_id', 
+        'sub_county_id',
+        'parish_id', 
+        'status',
+        'type',
+        'breed',
+        'sex',
+        'e_id',
+        'v_id',
+        'lhc',
+        'dob',
+        'color',
+        'farm_id', 
+    ]; 
     public static function boot()
     {
         parent::boot();

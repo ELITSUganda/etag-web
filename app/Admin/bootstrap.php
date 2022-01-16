@@ -20,6 +20,8 @@
 
 use Encore\Admin\Facades\Admin;
 
-Admin::disablePjax();
+//Admin::disablePjax();
+
+
 
 Encore\Admin\Form::forget(['map', 'editor']);
