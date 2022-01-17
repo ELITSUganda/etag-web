@@ -20,7 +20,7 @@
     } 
 
 ?><canvas id="myChartStatus" style="width: 100%;"></canvas>
-<script>
+<script>x
 $(function () {
     var ctx = document.getElementById("myChartStatus").getContext('2d');
     var myChart = new Chart(ctx, {
