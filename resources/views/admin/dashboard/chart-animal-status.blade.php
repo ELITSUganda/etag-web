@@ -31,8 +31,8 @@ $(function () {
                 label: '# of Votes',
                 data: <?= json_encode($data); ?>,
                 backgroundColor: [
-                    'rgba(255, 99, 132)',
                     'rgba(54, 162, 235)',
+                    'rgba(255, 99, 132)',
                     'rgba(255, 206, 86)',
                     'rgba(75, 192, 192)',
                     'rgba(153, 102, 255)',
