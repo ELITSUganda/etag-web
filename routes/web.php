@@ -1,5 +1,6 @@
 <?php
 
+use Encore\Admin\Grid\Tools\Header;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,5 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
+    header( "Location: ". admin_url());
+    die();
     return view('welcome');
 });

@@ -77,7 +77,7 @@ class SubCountiesTableSeeder extends Seeder
             'Mixed' => "Mixed",
         );
         $type = Array(
-            'Cow' => "Cow",
+            'Cattle' => "Cattle",
             'Goat' => "Goat",
             'Sheep' => "Sheep"
         );

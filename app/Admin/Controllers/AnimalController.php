@@ -223,7 +223,7 @@ class AnimalController extends AdminController
           
         $form->select('type', __('Animal Type'))
         ->options(Array(
-            'Cow' => "Cow",
+            'Cattle' => "Cattle",
             'Goat' => "Goat",
             'Sheep' => "Sheep"
         ))

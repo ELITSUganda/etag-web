@@ -106,7 +106,7 @@ animal_type
             $filter->equal('administrator_id', "Owner")->select($admins);
  
             $filter->equal('type', "Animal type")->select(Array(
-                'Cow' => "Cow",
+                'Cattle' => "Cattle",
                 'Goat' => "Goat",
                 'Sheep' => "Sheep"
             ));
@@ -116,7 +116,7 @@ animal_type
             $filter->equal('parish_id', "Parish")->select($parishes);
             $filter->like('animal_id', "Animal")->select($animals);
             $filter->equal('animal_type', "Event type")->select([
-                'Cow' => 'Cow',
+                'Cattle' => 'Cattle',
                 'Goat' => 'Goat',
                 'Sheep' => 'Sheep',
             ]);

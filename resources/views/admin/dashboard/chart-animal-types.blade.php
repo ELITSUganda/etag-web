@@ -2,7 +2,7 @@
     use App\Models\District;
     use App\Models\Animal;
     $types = [
-        'Cow',
+        'Cattle',
         'Goat',
         'Sheep',
     ];
