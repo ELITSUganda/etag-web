@@ -29,7 +29,40 @@ class AnimalController extends AdminController
      * @return Grid
      */
     protected function grid()
-    { 
+    {  
+
+        /*for ($i=0; $i < 500; $i++) {  
+            $faker = \Faker\Factory::create();
+            $a = new Animal();
+            $types = ['Cattle','Goat','Sheep'];
+            shuffle($types);
+            $a->type = $types[0]; 
+            $a->e_id = $faker->numberBetween(100000000000,10000000000000); 
+            $a->v_id = $faker->numberBetween(10000,100000); 
+            $a->farm_id = $faker->numberBetween(1,100); 
+            
+            $breeds = Array(
+                'Ankole' => "Ankole",
+                'Short horn zebu' => "Short horn zebu",
+                'Holstein' => "Holstein",
+                'Other' => "Other"
+            );
+            shuffle($breeds);
+            $a->breed = $breeds[0];
+
+            
+            $sexs = ['Male','Female'];
+            shuffle($sexs);
+            $a->sex = $sexs[0];
+            $a->dob = '2021-1-1';
+             
+            $colors = ['Black','Brown','Black and white','Brown and white','Mixed'];
+            shuffle($colors);
+            $a->color = $colors[0];
+            $a->save();
+            
+        }*/
+
         $grid = new Grid(new Animal());
 
         $grid->filter(function ($filter) {
@@ -66,7 +99,7 @@ class AnimalController extends AdminController
                 'Female' => 'Female', 
             ]);
             $filter->equal('type', "Animal type")->select(Array(
-                'Cow' => "Cow",
+                'Cattle' => "Cattle",
                 'Goat' => "Goat",
                 'Sheep' => "Sheep"
             ));
@@ -74,8 +107,8 @@ class AnimalController extends AdminController
             $filter->equal('district_id', "District")->select($districts);
             $filter->equal('sub_county_id', "Sub county")->select($sub_counties);
             $filter->equal('parish_id', "Parish")->select($parishes);
-            $filter->equal('e_id', "E-ID");
-            $filter->equal('v_id', "V-ID");
+            $filter->equal('e_id', "E-ID")->select($parishes);
+            $filter->equal('v_id', "V-ID")->select($parishes);
         
         });
         
@@ -88,7 +121,7 @@ class AnimalController extends AdminController
 
 
         $grid->column('e_id', __('E id'))->sortable();
-        $grid->column('v_id', __('V id'))->sortable();
+        $grid->column('lhc', __('LHC'))->sortable();
 
         $grid->column('type', __('Type'))->sortable();
         $grid->column('sex', __('Sex'))->sortable(); 
@@ -227,9 +260,8 @@ class AnimalController extends AdminController
         $form->text('v_id', __('Tag id'))->required();
         
         $form->date('dob', __('Date of birth'))->default(date('Y-m-d'))->required();
-        $form->text('lhc', __('Lhc'))->required();
-
         $form->text('status', __('Status'))->readonly()->default("Live");
+        $form->text('lhc', __('LHC'))->readonly();
 
         return $form;
     }

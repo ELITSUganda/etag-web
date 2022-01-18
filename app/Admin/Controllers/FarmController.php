@@ -29,6 +29,22 @@ class FarmController extends AdminController
      */
     protected function grid()
     {
+        /*Farm::truncate();
+        for ($i=0; $i < 100; $i++) { 
+            $faker = \Faker\Factory::create();
+            $f = new Farm();
+            $f->name = $faker->sentence(2);
+            $f->dfm = $faker->sentence(2);
+            $f->administrator_id = rand(7,20);
+            $f->parish_id = rand(1,9); 
+            $types = ['Diary','Beef','Mixed'];
+            shuffle($types);
+            $f->farm_type = $types[0]; 
+            $f->size = rand(1,45); 
+            $f->latitude = "0.0"; 
+            $f->longitude = "0.0"; 
+            $f->save();
+        }*/
         $grid = new Grid(new Farm());
 
         $grid->filter(function ($filter) {
@@ -48,7 +64,7 @@ class FarmController extends AdminController
             
             $districts = [];
             foreach (District::all() as $key => $p) {
-                $districts[$p->id] = $p->name . "m  ";
+                $districts[$p->id] = $p->name . "  ";
             }
             
             $admins = [];

@@ -27,11 +27,11 @@ input.label {
 }
 
 a.editable-empty {
-    color: #3c8dbc;
+    color: #309900;
     border-bottom: none !important;
 }
 
-.form-group > label.asterisk:before {
+.form-group>label.asterisk:before {
     content: "* ";
     color: red;
 }
@@ -43,7 +43,6 @@ a.editable-empty {
 .table-has-many .form-group {
     margin-bottom: 0 !important;
 }
-
 
 .table-has-many label.control-label[for=inputError] {
     position: absolute;

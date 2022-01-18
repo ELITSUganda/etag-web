@@ -28,17 +28,41 @@ class SubCountyController extends AdminController
     {
         $grid = new Grid(new SubCounty());
 
+        /*$d[] = 'Adjumani Tc';
+        $d[] = 'Adropi';
+        $d[] = 'Ciforo';
+        $d[] = 'Dzaipi';
+        $d[] = 'Ofua';
+        $d[] = 'Pakelle';
+        foreach ($d as $key => $value) {
+            $sub = new SubCounty();
+            $sub->name = $value;
+            $sub->district_id = 2;
+            $sub->administrator_id = 2;
+            $sub->save();
+        }
+        dd($d);*/
 
-        $grid->column('id', __('Id'))->sortable();
-        $grid->column('name', __('Name'))->sortable();
-        $grid->column('district_id', __('S.V.O'))->display(function ($district_id) {
+
+        $grid->filter(function ($filter) {
+            $districts = [];
+            foreach (District::all() as $key => $p) {
+                $districts[$p->id] = $p->name . " - ".$p->code;
+            }
+            $filter->equal('district_id', "District")->select($districts);
+        });
+
+        $grid->column('id', __('Id'))->sortable()->width(40);
+        $grid->column('name', __('Name'))->sortable()->width(100);
+        $grid->column('code', __('CODE'))->sortable()->width(80);
+        $grid->column('district_id', __('District'))->display(function ($district_id) {
             $d = District::find($district_id);
             if (!$d) {
                 return "-";
             }
             return $d->name;
-        })->sortable();
-        
+        })->sortable()->width(100);
+
         $grid->column('administrator_id', __('S.V.O'))->display(function ($user) {
             $_user = Administrator::find($user);
             if (!$_user) {
@@ -77,20 +101,22 @@ class SubCountyController extends AdminController
      */
     protected function form()
     {
+
         $form = new Form(new SubCounty());
         $form->setWidth(8, 4);
         $admins = [];
         foreach (Administrator::all() as $key => $v) {
-            if(!$v->isRole('veterinary')){
+            if (!$v->isRole('veterinary')) {
                 continue;
             }
-            $admins[$v->id] = $v->name." - ".$v->id;
+            $admins[$v->id] = $v->name . " - " . $v->id;
         }
-        
+
 
         $form->text('name', __('Subcounty Name'))->required();
+        $form->text('code', __('CODE'))->readonly();
         $form->select('district_id', __('District'))
-            ->options(District::all()->pluck("name",'id'))
+            ->options(District::all()->pluck("name", 'id'))
             ->required();
 
         $form->select('administrator_id', __('SubCounty veterinary officer'))

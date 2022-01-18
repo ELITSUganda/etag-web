@@ -42,18 +42,45 @@ class Animal extends Model
                 return false;
             }
 
-            $f = Farm::find($model->farm_id)->first();
+            $f = Farm::find($model->farm_id);
             if($f == null){
+                die("Farm not found.");
+                return null;
+            }
+            if($f->parish == null){
+                die("Farm parish not found.");
+                return null;
+            }
+            if($f->parish->code == null){
+                die("Farm parish code not found.");
                 return null;
             }
              
-
             $model->status = "Live";
             $model->administrator_id = $f->administrator_id;
             $model->district_id = $f->district_id;
             $model->sub_county_id = $f->sub_county_id;
             $model->parish_id = $f->parish_id;
 
+            $num = (int) (Animal::where(['parish_id'=>$model->parish_id])->count());
+            $num++;
+            $num = $num."";
+            if(strlen($num)<2){
+                $num = "000000".$num;
+            }else if(strlen($num)<3){
+                $num = "00000".$num;
+            }else if(strlen($num)<4){
+                $num = "000".$num;
+            }else if(strlen($num)<5){
+                $num = "00".$num;
+            }else if(strlen($num)<6){
+                $num = "0".$num;
+            }else{
+                $num = "".$num;
+            }
+
+            $model->lhc = $f->parish->code."-".$num;
+ 
             return $model;
         });
 

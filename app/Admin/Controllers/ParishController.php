@@ -26,12 +26,36 @@ class ParishController extends AdminController
      */
     protected function grid()
     {
+ 
+ 
+        
+        /*$d[] = 'Koya';
+        $d[] = 'Loyoroit';
+        $d[] = 'Otumpili';
+        $d[] = 'Wilela';
+        foreach ($d as $key => $value) {
+            $sub = new Parish();
+            $sub->name = $value;
+            $sub->sub_county_id = 2; 
+            $sub->save();
+        }
+        dd($d);*/
+
+
         $grid = new Grid(new Parish());
  
+        $grid->filter(function ($filter) {
+            $districts = [];
+            foreach (SubCounty::all() as $key => $p) {
+                $districts[$p->id] = $p->name . " - ".$p->code;
+            }
+            $filter->equal('sub_county_id', "Sub county")->select($districts);
+        });
 
 
         $grid->column('id', __('Id'))->sortable();
         $grid->column('name', __('Name'))->sortable();
+        $grid->column('code', __('Code'))->sortable();
         $grid->column('sub_county_id', __('Sub county'))->display(function ($sub_county_id) {
             $d = SubCounty::find($sub_county_id);
             return $d->name;
@@ -57,7 +81,6 @@ class ParishController extends AdminController
         $show->field('sub_county_id', __('Sub county id'));
         $show->field('detail', __('Detail'));
         
-
         return $show;
     }
 
@@ -68,21 +91,19 @@ class ParishController extends AdminController
      */
     protected function form()
     {
-        $form = new Form(new Parish());
-
-
-
+        $form = new Form(new Parish()); 
         
         $form->setWidth(8, 4);
         $items = [];
         foreach (SubCounty::all() as $key => $v) { 
-            $items[$v->id] = $v->name.", ".$v->district->name.".";
+            $items[$v->id] =$v->code." - ".$v->name.", ".$v->district->name.".";
         }
         $form->text('name', __('Sub county Name'))->required();
+        $form->text('code', __('ISO-CODE'))->readonly();
         $form->select('sub_county_id', __('Sub county'))
             ->options($items)
             ->required();
-
+ 
         $form->textarea('detail', __('Detail'));
 
         return $form;
