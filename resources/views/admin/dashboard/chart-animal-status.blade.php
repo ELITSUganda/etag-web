@@ -20,7 +20,7 @@
     } 
 
 ?><canvas id="myChartStatus" style="width: 100%;"></canvas>
-<script>x
+<script>
 $(function () {
     var ctx = document.getElementById("myChartStatus").getContext('2d');
     var myChart = new Chart(ctx, {
@@ -28,7 +28,7 @@ $(function () {
         data: {
             labels: <?= json_encode($types); ?>,
             datasets: [{
-                label: '# of Votes',
+                label: '# Animals status',
                 data: <?= json_encode($data); ?>,
                 backgroundColor: [
                     'rgba(54, 162, 235)',

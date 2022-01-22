@@ -14,5 +14,5 @@
 
     </div>
     <!-- Default to the left -->
-    <strong>Developed by <a href="javascript:;" >M. Muhindo</a> AND <a href="javascript:;" >M. Rashid</a></strong>
+    <strong>All rights reserved &copy <a href="javascript:;" >mobp</a> 2022</strong>
 </footer>

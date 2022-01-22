@@ -11,7 +11,7 @@ return [
     | login page.
     |
     */
-    'name' => 'E-TAG Uganda',
+    'name' => 'MOBIP Uganda',
 
     /*
     |--------------------------------------------------------------------------
@@ -22,7 +22,7 @@ return [
     | `img` tag, eg '<img src="http://logo-url" alt="Admin logo">'.
     |
     */
-    'logo' => '<b>E-TAG</b>',
+    'logo' => '<b>MOBIP</b>',
 
     /*
     |--------------------------------------------------------------------------
@@ -34,7 +34,7 @@ return [
     | '<img src="http://logo-url" alt="Admin logo">'.
     |
     */
-    'logo-mini' => '<b>E-TAG</b>',
+    'logo-mini' => '<b>MOBIP</b>',
 
     /*
     |--------------------------------------------------------------------------
@@ -223,7 +223,7 @@ return [
          * or specific method to path like: get:admin/auth/logs.
          */
         'except' => [
-            env('ADMIN_ROUTE_PREFIX', 'admin').'/auth/logs*',
+            env('ADMIN_ROUTE_PREFIX', 'admin') . '/auth/logs*',
         ],
     ],
 
@@ -348,9 +348,7 @@ return [
     'minify_assets' => [
 
         // Assets will not be minified.
-        'excepts' => [
-
-        ],
+        'excepts' => [],
 
     ],
 
@@ -405,9 +403,46 @@ return [
     |
     */
     'extensions' => [
+        'chartjs' => [
+
+            // Set to `false` if you want to disable this extension
+            'enable' => true,
+        ],
         'material-ui' => [
             // If the value is set to false, this extension will be disabled
             'enable' => false
-        ]
+        ],
+        'latlong' => [
+
+            // Whether to enable this extension, defaults to true
+            'enable' => true,
+
+            // Specify the default provider
+            'default' => 'google',
+
+            // According to the selected provider above, fill in the corresponding api_key
+            'providers' => [
+
+                'google' => [
+                    'api_key' => 'AIzaSyAcctJQgkbQQI37Ae_2rAeck-l6nyDRQj0',
+                ],
+
+                'yandex' => [
+                    'api_key' => '',
+                ],
+
+                'baidu' => [
+                    'api_key' => 'xck5u2lga9n1bZkiaXIHtMufWXQnVhdx',
+                ],
+
+                'tencent' => [
+                    'api_key' => 'VVYBZ-HRJCX-NOJ4Z-ZO3PU-ZZA2J-QPBBT',
+                ],
+
+                'amap' => [
+                    'api_key' => '3693fe745aea0df8852739dac08a22fb',
+                ],
+            ]
+        ],
     ],
 ];

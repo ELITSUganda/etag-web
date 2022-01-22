@@ -1,11 +1,11 @@
 <?php return array(
     'root' => array(
-        'pretty_version' => 'dev-main',
-        'version' => 'dev-main',
+        'pretty_version' => 'dev-master',
+        'version' => 'dev-master',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => '108c8f942d93c28db1573a62246eab4a57a51348',
+        'reference' => '16b3c93396579fd4aed44c0d52d37da7fe203aa8',
         'name' => 'laravel/laravel',
         'dev' => true,
     ),
@@ -430,6 +430,15 @@
                 0 => '*',
             ),
         ),
+        'laravel-admin-ext/latlong' => array(
+            'pretty_version' => 'v2.0.2',
+            'version' => '2.0.2.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../laravel-admin-ext/latlong',
+            'aliases' => array(),
+            'reference' => '01eeb930eea478dbfb4aeca274f238ee2d9dd477',
+            'dev_requirement' => false,
+        ),
         'laravel/framework' => array(
             'pretty_version' => 'v8.68.1',
             'version' => '8.68.1.0',
@@ -440,12 +449,12 @@
             'dev_requirement' => false,
         ),
         'laravel/laravel' => array(
-            'pretty_version' => 'dev-main',
-            'version' => 'dev-main',
+            'pretty_version' => 'dev-master',
+            'version' => 'dev-master',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => '108c8f942d93c28db1573a62246eab4a57a51348',
+            'reference' => '16b3c93396579fd4aed44c0d52d37da7fe203aa8',
             'dev_requirement' => false,
         ),
         'laravel/sail' => array(

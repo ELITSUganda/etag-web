@@ -22,7 +22,7 @@ $(function () {
         data: {
             labels: <?= json_encode($label); ?>,
             datasets: [{
-                label: '# of Votes',
+                label: '# Animals types',
                 data: <?= json_encode($data); ?>,
                 backgroundColor: [
                     'rgba(255, 99, 132)',

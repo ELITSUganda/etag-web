@@ -54,8 +54,8 @@ class HomeController extends Controller
             ));
             $row->column(4, new InfoBox(
                 ''
-                    . number_format(Farm::where('farm_type', 'Diary')->count()) . " Diary, "
-                    . number_format(Farm::where('farm_type', 'Beef')->count()) . " Beef, "
+                    . number_format(Farm::where('farm_type', 'Dairy')->count()) . "Dairy,"
+                    . number_format(Farm::where('farm_type', 'Beef')->count()) . " Beef,"
                     . number_format(Farm::where('farm_type', 'Mixed')->count()) . " Mixed, ",
                 'All farms',
                 'green',
@@ -64,7 +64,7 @@ class HomeController extends Controller
             ));
             $row->column(4, new InfoBox(
                 ''
-                    . number_format(Farm::where('farm_type', 'Diary')->count()) . " Diary, "
+                    . number_format(Farm::where('farm_type', 'Dairy')->count()) . " Dairy, "
                     . number_format(Farm::where('farm_type', 'Beef')->count()) . " Beef, "
                     . number_format(Farm::where('farm_type', 'Mixed')->count()) . " Mixed, ",
                 'All animals',

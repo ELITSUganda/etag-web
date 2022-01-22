@@ -54,7 +54,7 @@ class Farm extends Model
             $num = (int) (Farm::where(['sub_county_id' => $model->sub_county_id])->count());
             $num++;
  
-            $model->holding_code = $p->code."-F".$num;
+            $model->holding_code = $p->code.$num;
             
             return $model;
         });
