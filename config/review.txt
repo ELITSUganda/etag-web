@@ -1,0 +1,43 @@
+
+*1. Fix the spelling of "Diary" to the proper one "Dairy". appears in the LHR and Dashboard.*
+-> Fixed
+
+*2. The fields of the registers in the system should mirror the register fields in provided in the registers excel. Remove all those that don't correspond to the original format. Take for example;*
+-> We have carefully followed all registers that you sent to us to follow. We added some fields that we believe they will be impotant to you in long run, for example phone numbers, and some other fields that are required by the e-system itself like username and password. *re-observe carefuly the system*, we did not leave any of the field that you sent to us, meaning, you can still extract any kind of report that you need from the system. Other fields that appear in system tables like owner, farm, and district will help you filter interesting queries that can help you make decisions.
+*BUT:* If you insist that we should remove our suggestions from the system, let us know we will scrap them off.
+
+i). The LHR
+*- Farm Name & Dfm should be removed.*
+-> Farm name has been removed
+
+*- The Holding Code should follow the format as guided by the notes in the descriptive word documents I shared. This is currently partially implemented. The Uganda Districts ISO codes excel should guide you in doing this.*
+-> Holding codes, ISO have been worked upon. the new version of the system can now generate holding codes as to how you described in the document.
+
+*ii). The LDR
+- The Farm & Status fields should be removed*
+-> the farm in LDR helps you to simply tell to which farm an animal belongs, as well as filtering animals in a specific farm.
+-> the status of an animal in the LDF table, helps you to filter and know which animals are in a certain active eventer, for example, you need that field to filter and tell which animals are sick, or vaccinated etc.
+-> *NB:* When exporting reports, you can dynamically exclude those fields.
+-> *However:* If you insist that we should remove these fields, let us know and we will surely scrap them off.
+
+*- Tag Id field renamed to Visual Id*
+->  Done
+
+*- Include Date FMD Vaccination as new field*
+-> Done
+
+*- The LHC(Livestock Holding Code) field in this register should speak to the LHC field in the LHR. Under no circumstances should one be able to add an animal to a LHC that doesn’t exist in the system.*
+-> Done as required
+*iii). LER
+- Event field should be properly named and dropdown created to include events provide in the LER word doc guide*
+-> Done as required
+
+*- Approved by field should be removed.*
+-> This field is automatucally filled, it can help you for future reference to tell who did a certain action. but can remove it if you insist.
+
+*3. We should do away with the Developed by...footer.*
+-> Done as required sir.
+
+*4. Replace the E-TAG text at the top left corner with MOBIP.*
+-> Done as required
+
