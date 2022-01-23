@@ -3,10 +3,13 @@
 namespace App\Admin\Controllers;
 
 use App\Models\Animal;
+use App\Models\Disease;
 use App\Models\District;
 use App\Models\Event;
+use App\Models\Medicine;
 use App\Models\Parish;
 use App\Models\SubCounty;
+use App\Models\Vaccine;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Controllers\AdminController;
@@ -78,18 +81,18 @@ animal_type
                     $p->sub_county->name . ", " .
                     $p->sub_county->district->name . ".";
             }
-            
+
             $sub_counties = [];
             foreach (SubCounty::all() as $key => $p) {
                 $sub_counties[$p->id] = $p->name . ", " .
                     $p->district->name . ".";
             }
-            
+
             $districts = [];
             foreach (District::all() as $key => $p) {
                 $districts[$p->id] = $p->name . "m  ";
             }
-            
+
             $admins = [];
             foreach (Administrator::all() as $key => $v) {
                 if (!$v->isRole('farmer')) {
@@ -104,8 +107,8 @@ animal_type
             }
 
             $filter->equal('administrator_id', "Owner")->select($admins);
- 
-            $filter->equal('type', "Animal type")->select(Array(
+
+            $filter->equal('type', "Animal type")->select(array(
                 'Cattle' => "Cattle",
                 'Goat' => "Goat",
                 'Sheep' => "Sheep"
@@ -115,14 +118,26 @@ animal_type
             $filter->equal('sub_county_id', "Sub county")->select($sub_counties);
             $filter->equal('parish_id', "Parish")->select($parishes);
             $filter->like('animal_id', "Animal")->select($animals);
-            $filter->equal('animal_type', "Event type")->select([
-                'Cattle' => 'Cattle',
-                'Goat' => 'Goat',
-                'Sheep' => 'Sheep',
-            ]);
-        
+            $filter->equal('type', "Event type")->select(array(
+                'Disease' => 'Disease',
+                'Drug' => 'Teatment',
+                'Vaccination' => 'Vaccination',
+                'Death' => 'Death',
+                'Slaughter' => 'Slaughter',
+                'Other' => 'Other',
+
+            ));
+            $filter->equal('disease_id', "Event type")->select(
+                Disease::all()->pluck('name', 'id')
+            );
+            $filter->equal('medicine_id', "Drug")->select(
+                Medicine::all()->pluck('name', 'id')
+            );
+            $filter->equal('vaccine_id', "Vaccine")->select(
+                Vaccine::all()->pluck('name', 'id')
+            );
         });
-        
+
 
         $grid->column('created_at', __('Created'))
             ->display(function ($f) {
@@ -130,26 +145,47 @@ animal_type
             })->sortable();
 
         $grid->column('animal_id', __('Animal'))
-        ->display(function ($id) {
-            $u = Animal::find($id);
-            if (!$u) {
-                return $id;
-            }
-            return $u->e_id." - ".$u->v_id;
-        })->sortable();
+            ->display(function ($id) {
+                $u = Animal::find($id);
+                if (!$u) {
+                    return $id;
+                }
+                return $u->e_id . " - " . $u->v_id;
+            })->sortable();
 
 
         $grid->column('animal_type', __('Animal type'))->sortable();
         $grid->column('type', __('Event Type'))->sortable();
-        $grid->column('approved_by', __('Approved by'))
-        ->display(function ($id) {
-            $u = Administrator::find($id);
-            if (!$u) {
-                return $id;
-            }
-            return $u->name;
-        })->sortable();
-        
+
+
+        $grid->column('vaccine_id', __('Vaccine'))
+            ->display(function ($id) {
+                $u = Vaccine::find($id);
+                if (!$u) {
+                    return $id;
+                }
+                return $u->name;
+            })->sortable();
+
+        $grid->column('disease_id', __('Disease'))
+            ->display(function ($id) {
+                $u = Disease::find($id);
+                if (!$u) {
+                    return $id;
+                }
+                return $u->name;
+            })->sortable();
+
+        $grid->column('medicine_id', __('Drug'))
+            ->display(function ($id) {
+                $u = Medicine::find($id);
+                if (!$u) {
+                    return $id;
+                }
+                return $u->name;
+            })->sortable();
+
+
 
         $grid->column('district_id', __('District'))
             ->display(function ($id) {
@@ -184,9 +220,9 @@ animal_type
                 }
                 return $u->name;
             })->sortable();
- 
 
-        
+
+
 
         return $grid;
     }
@@ -242,21 +278,37 @@ animal_type
             ->required();
 
         $form->radio('type', __('Event type'))
-            ->options(Array(
-                'Sick' => 'Sick',
-                'Healed' => 'Healed',
-                'Vaccinated' => 'Vaccinated',
-                'Gave birth' => 'Gave birth',
-                'Sold' => 'Sold',
-                'Died' => 'Died',
-                'Slautered' => 'Slautered',
-                'Stolen' => 'Stolen',
+            ->options(array(
+                'Disease' => 'Disease',
+                'Drug' => 'Teatment',
+                'Vaccination' => 'Vaccination',
+                'Death' => 'Death',
+                'Slaughter' => 'Slaughter',
+                'Other' => 'Other',
+
             ))
-            ->required();
+            ->required()
+            ->when('Disease', function (Form $form) {
+                $form->select('disease_id', __('Select disease'))
+                    ->options(Disease::all()->pluck('name', 'id'))
+                    ->help('Please select disease')
+                    ->rules('required');
+            })
+            ->when('Drug', function (Form $form) {
+                $form->select('medicine_id', __('Please select Drug'))
+                    ->options(Medicine::all()->pluck('name', 'id'))
+                    ->rules('required');
+            })
+            ->when('Vaccination', function (Form $form) {
+                $form->select('vaccine_id', __('Please select Vaccine'))
+                    ->options(Vaccine::all()->pluck('name', 'id'))
+                    ->rules('required');
+            });
+
         $form->text('detail', __('Detail'))->required()
             ->help("Specify the event and be as brief as possible. For example, if Sick, only enter the name of disease in
         this detail field.");
-        
+
         $user = Auth::user();
         $form->select('approved_by', __('Approved by'))
             ->options(array(

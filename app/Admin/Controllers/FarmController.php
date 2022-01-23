@@ -128,6 +128,7 @@ class FarmController extends AdminController
         $grid->column('farm_type', __('Farm type'))->sortable();
         $grid->column('holding_code', __('Holding code'))->sortable();
         $grid->column('size', __('Size'))->sortable();
+        $grid->column('animals_count', __('Animals'))->sortable()->width(50);
         $grid->column('dfm', __('Detail'));
 
         return $grid;
@@ -192,15 +193,17 @@ class FarmController extends AdminController
         $form->select('parish_id', __('Parish'))
             ->options($parishes)
             ->required();
-        $form->text('village', __('Village'))->required();
 
+        $form->text('village', __('Village'))->required();
+        
         $form->select('farm_type', __('Farm type'))
-            ->options(array(
-                'Dairy' => 'Dairy',
-                'Beef' => 'Beef',
-                'Mixed' => 'Mixed'
+        ->options(array(
+            'Dairy' => 'Dairy',
+            'Beef' => 'Beef',
+            'Mixed' => 'Mixed'
             ))
             ->required();
+        $form->text('animals_count', __('Number of Livestock'))->required();
         $form->text('size', __('Size (in Ha)'))->attribute('type', 'number')->required();
 
         $form->latlong('latitude', 'longitude', 'Location of the farm')->default(['lat' => 0.3130291, 'lng' => 32.5290854])->required();

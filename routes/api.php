@@ -1,5 +1,7 @@
 <?php
 
+use App\Admin\Controllers\FarmController;
+use App\Http\Controllers\ApiFarmController;
 use App\Http\Controllers\ApiLoginController;
 use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\UtilsController;
@@ -20,6 +22,7 @@ Route::get('parishes', [UtilsController::class, 'parishes']);
 // ========== users starts ============== //
 Route::get('users', [ApiUserController::class, 'index']);
 Route::get('farms/{id}', [ApiUserController::class, 'farm']);
+Route::post('farms', [ApiFarmController::class, 'create']);
 // ========== users ends ============== //
 
 
@@ -32,3 +35,4 @@ Route::post('login/create-account', [ApiLoginController::class, 'create_account'
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+

@@ -56,10 +56,7 @@ class AnimalController extends AdminController
             $a->sex = $sexs[0];
             $a->dob = '2021-1-1';
              
-            $colors = ['Black','Brown','Black and white','Brown and white','Mixed'];
-            shuffle($colors);
-            $a->color = $colors[0];
-            $a->save();
+
             
         }*/
 
@@ -107,8 +104,18 @@ class AnimalController extends AdminController
             $filter->equal('district_id', "District")->select($districts);
             $filter->equal('sub_county_id', "Sub county")->select($sub_counties);
             $filter->equal('parish_id', "Parish")->select($parishes);
-            $filter->equal('e_id', "E-ID")->select($parishes);
-            $filter->equal('v_id', "V-ID")->select($parishes);
+            $filter->equal('status', "Status")->select(Array(
+                'Diagonized' => 'Diagonized',
+                'Healed' => 'Healed',
+                'Vaccinated' => 'Vaccinated',
+                'Gave birth' => 'Gave birth',
+                'Sold' => 'Sold',
+                'Died' => 'Died',
+                'Slautered' => 'Slautered',
+                'Stolen' => 'Stolen',
+            ));
+            $filter->equal('e_id', "E-ID");
+            $filter->equal('v_id', "V-ID");
         
         });
         
@@ -125,7 +132,10 @@ class AnimalController extends AdminController
 
         $grid->column('type', __('Type'))->sortable();
         $grid->column('sex', __('Sex'))->sortable(); 
+        $grid->column('dob', __('Year'))->sortable(); 
+        $grid->column('fmd', __('FMD'))->sortable();
         $grid->column('status', __('Status'))->sortable();
+        
 
         $grid->column('administrator_id', __('Owner'))
         ->display(function ($id) {
@@ -191,8 +201,7 @@ class AnimalController extends AdminController
         $show->field('lhc', __('Lhc'));
         $show->field('breed', __('Breed'));
         $show->field('sex', __('Sex'));
-        $show->field('dob', __('Dob'));
-        $show->field('color', __('Color'));
+        $show->field('dob', __('Year of birth'));
 
         return $show;
     }
@@ -244,22 +253,14 @@ class AnimalController extends AdminController
             'Other' => "Other"
         ))
         ->required();
- 
-        $form->select('color', __('Color'))
-        ->options(Array(
-            'Black' => "Black",
-            'Brown' => "Brown",
-            'Black and white' => "Black and white",
-            'Brown and white' => "Brown and white",
-            'Mixed' => "Mixed",
-        ))
-        ->required();
+  
  
 
         $form->text('e_id', __('Electronic id'))->required();
         $form->text('v_id', __('Tag id'))->required();
         
-        $form->date('dob', __('Date of birth'))->default(date('Y-m-d'))->required();
+        $form->year('dob', __('Year of birth'))->default(date('Y-m-d'))->required();
+        $form->year('fmd', __('Date of last FMD vaccince'))->default(date('Y-m-d'))->required();
         $form->text('status', __('Status'))->readonly()->default("Live");
         $form->text('lhc', __('LHC'))->readonly();
 

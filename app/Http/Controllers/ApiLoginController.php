@@ -74,7 +74,7 @@ class ApiLoginController extends Controller
 
         return Utils::response([
             'status' => 1,
-            'message' => "Account created successfuo.",
+            'message' => "Account created successfully.",
             'data' => $u
         ]);
 

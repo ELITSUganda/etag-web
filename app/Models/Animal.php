@@ -47,10 +47,11 @@ class Animal extends Model
                 die("Farm not found.");
                 return null;
             }
-            if($f->parish == null){
-                die("Farm parish not found.");
+            if($f->holding_code == null){
+                die("holding_code  not found.");
                 return null;
             }
+            /*
             if($f->parish->code == null){
                 die("Farm parish code not found.");
                 return null;
@@ -62,14 +63,14 @@ class Animal extends Model
             $model->sub_county_id = $f->sub_county_id;
             $model->parish_id = $f->parish_id;
 
-            $num = (int) (Animal::where(['parish_id'=>$model->parish_id])->count());
+             $num = (int) (Animal::where(['parish_id'=>$model->parish_id])->count());
             $num++;
             $num = $num."";
             if(strlen($num)<2){
                 $num = "000000".$num;
             }else if(strlen($num)<3){
                 $num = "00000".$num;
-            }else if(strlen($num)<4){
+            }else if(strlen($num)<4){ 
                 $num = "000".$num;
             }else if(strlen($num)<5){
                 $num = "00".$num;
@@ -77,9 +78,9 @@ class Animal extends Model
                 $num = "0".$num;
             }else{
                 $num = "".$num;
-            }
+            }*/
 
-            $model->lhc = $f->parish->code."-".$num;
+            $model->lhc = $f->holding_code;
  
             return $model;
         });
