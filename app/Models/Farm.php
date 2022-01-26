@@ -92,6 +92,21 @@ class Farm extends Model
         return $this->belongsTo(Parish::class);
     }
 
+    public function user()
+    {
+        return $this->belongsTo(Administrator::class,'administrator_id');
+    }
+
+    public function district()
+    {
+        return $this->belongsTo(District::class);
+    }
+
+    public function sub_county()
+    {
+        return $this->belongsTo(SubCounty::class);
+    }
+
     public function owner()
     {
         return Administrator::findOrFail($this->administrator_id);

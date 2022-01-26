@@ -19,14 +19,30 @@ class ApiFarmController extends Controller
             }
         }
         
+        $items = [];
         if($has_search){
-            return Farm::where(
+            $items = Farm::where(
                 'holding_code', 'like', '%'.trim($request->s).'%',
             )->paginate(1000)->withQueryString()->items();
         }else{
-            return Farm::paginate(1000)->withQueryString()->items();
+            $items = Farm::paginate(1000)->withQueryString()->items();
         }
 
+        foreach ($items as $key => $value) {
+            $items[$key]->owner_name = "";
+            $items[$key]->district_name = "";
+            if($value->user!=null){
+                $items[$key]->owner_name = $value->user->name;
+            }
+            if($value->district!=null){
+                $items[$key]->district_name = $value->district->name;
+            }
+            if($value->sub_county!=null){
+                $items[$key]->sub_county_name = $value->sub_county->name;
+            }
+        }
+
+        return $items;
     }
  
     public function show($id)
