@@ -21,7 +21,7 @@ Route::get('parishes', [UtilsController::class, 'parishes']);
 
 // ========== users starts ============== //
 Route::get('users', [ApiUserController::class, 'index']);
-Route::get('farms/{id}', [ApiUserController::class, 'farm']);
+Route::get('farms/{id}', [ApiFarmController::class, 'show']);
 Route::post('farms', [ApiFarmController::class, 'create']);
 Route::get('farms', [ApiFarmController::class, 'index']);
 // ========== users ends ============== //

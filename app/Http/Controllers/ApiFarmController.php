@@ -47,7 +47,23 @@ class ApiFarmController extends Controller
  
     public function show($id)
     {
-        return Farm::find($id);
+        $item = Farm::find($id);
+        if($item ==null){
+            return '{}';
+        }
+        $item->owner_name = "";
+        $item->district_name = "";
+        if($item->user!=null){
+            $item->owner_name = $item->user->name;
+        }
+        if($item->district!=null){
+            $item->district_name = $item->district->name;
+        }
+        if($item->sub_county!=null){
+            $item->sub_county_name = $item->sub_county->name;
+        }
+
+        return $item;
     }
 
     public function create(Request $request) 
