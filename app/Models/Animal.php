@@ -117,8 +117,20 @@ class Animal extends Model
         });
     }
 
-    public function before_save(){
-        dd($this);
+
+    public function farm()
+    {
+        return $this->belongsTo(Farm::class);
+    }
+
+    public function district()
+    {
+        return $this->belongsTo(District::class);
+    }
+
+    public function sub_county()
+    {
+        return $this->belongsTo(SubCounty::class);
     }
     
 }

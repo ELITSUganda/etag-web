@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Farm;
 use App\Models\Utils;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ApiFarmController extends Controller
@@ -31,6 +32,7 @@ class ApiFarmController extends Controller
         foreach ($items as $key => $value) {
             $items[$key]->owner_name = "";
             $items[$key]->district_name = "";
+            $items[$key]->created = Carbon::parse($value->created)->toFormattedDateString(); 
             if($value->user!=null){
                 $items[$key]->owner_name = $value->user->name;
             }
@@ -53,6 +55,7 @@ class ApiFarmController extends Controller
         }
         $item->owner_name = "";
         $item->district_name = "";
+        $item->created = $item->created;
         if($item->user!=null){
             $item->owner_name = $item->user->name;
         }

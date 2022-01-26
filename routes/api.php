@@ -1,6 +1,7 @@
 <?php
 
 use App\Admin\Controllers\FarmController;
+use App\Http\Controllers\ApiAnimalController;
 use App\Http\Controllers\ApiFarmController;
 use App\Http\Controllers\ApiLoginController;
 use App\Http\Controllers\DistrictController;
@@ -18,6 +19,11 @@ Route::delete('districts/{id}',[DistrictController::class, 'delete'] );
 // parishes
 Route::get('parishes', [UtilsController::class, 'parishes']);
 //Utils
+
+
+// animal //
+Route::get('animals', [ApiAnimalController::class, 'index']);
+// Animal controler //
 
 // ========== users starts ============== //
 Route::get('users', [ApiUserController::class, 'index']);
