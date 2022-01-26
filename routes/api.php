@@ -23,6 +23,7 @@ Route::get('parishes', [UtilsController::class, 'parishes']);
 
 // animal //
 Route::get('animals', [ApiAnimalController::class, 'index']);
+Route::get('animals/{id}', [ApiAnimalController::class, 'show']);
 // Animal controler //
 
 // ========== users starts ============== //

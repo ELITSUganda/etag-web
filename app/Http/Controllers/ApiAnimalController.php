@@ -33,30 +33,47 @@ class ApiAnimalController extends Controller
             if($value->sub_county!=null){
                 $items[$key]->sub_county_name = $value->sub_county->name;
             }
-
+            unset($items[$key]->farm);
+            unset($items[$key]->district); 
+            unset($items[$key]->sub_county); 
 
         }
 
         return $items;
     }
- 
-    public function farm($id){
-    
-        $f = Administrator::find($id);
-        $f->farms_count =  count($f->farms);
-        $f->farms = $f->farms;
-        $f->animals_count = 0;
-        unset($f->password);
-        foreach ($f->farms as $key => $value) {
-            $f->animals_count+=count($value->animals);
-        }
-        return $f;
-    }
- 
+
+
     public function show($id)
     {
-        return Administrator::find($id);
+        $item = Animal::find($id);
+
+        $item->owner_name  = "";
+        if($item->farm!=null){  
+            if($item->farm->user !=null){
+                $item->owner_name = $item->farm->user->name;
+            }
+        } 
+
+        $item->owner_name = "";
+        $item->district_name = "";
+        $item->created = Carbon::parse($item->created)->toFormattedDateString(); 
+        if($item->district!=null){
+            $item->district_name = $item->district->name;
+        }
+        if($item->sub_county!=null){
+            $item->sub_county_name = $item->sub_county->name;
+        }
+        unset($item->farm);
+        unset($item->district); 
+        unset($item->sub_county);
+
+
+        return $item;
     }
+
+
+
+  
 
     public function store(Request $request)
     {

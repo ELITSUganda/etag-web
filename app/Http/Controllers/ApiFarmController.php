@@ -42,6 +42,9 @@ class ApiFarmController extends Controller
             if($value->sub_county!=null){
                 $items[$key]->sub_county_name = $value->sub_county->name;
             }
+            unset($items[$key]->farm);
+            unset($items[$key]->district); 
+            unset($items[$key]->sub_county); 
         }
 
         return $items;
