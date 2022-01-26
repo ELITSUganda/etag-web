@@ -23,6 +23,7 @@ Route::get('parishes', [UtilsController::class, 'parishes']);
 Route::get('users', [ApiUserController::class, 'index']);
 Route::get('farms/{id}', [ApiUserController::class, 'farm']);
 Route::post('farms', [ApiFarmController::class, 'create']);
+Route::get('farms', [ApiFarmController::class, 'index']);
 // ========== users ends ============== //
 
 

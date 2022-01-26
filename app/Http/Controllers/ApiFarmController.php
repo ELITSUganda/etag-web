@@ -8,9 +8,25 @@ use Illuminate\Http\Request;
 
 class ApiFarmController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return Farm::paginate(1000)->withQueryString()->items();
+        $has_search = false;
+        if(isset($request->s)){
+            if($request->s !=null){
+                if(strlen($request->s)>0){
+                    $has_search = true; 
+                }
+            }
+        }
+        
+        if($has_search){
+            return Farm::where(
+                'holding_code', 'like', '%'.trim($request->s).'%',
+            )->paginate(1000)->withQueryString()->items();
+        }else{
+            return Farm::paginate(1000)->withQueryString()->items();
+        }
+
     }
  
     public function show($id)
@@ -29,7 +45,7 @@ class ApiFarmController extends Controller
                 'status' => 0,
                 'message' => "You must provide farm owner."
             ]);
-        }
+        } 
 
         if (
             !isset($request->parish_id)
@@ -63,7 +79,6 @@ class ApiFarmController extends Controller
     {
         $Farm = Farm::findOrFail($id);
         $Farm->update($request->all());
-
         return $Farm;
     }
 
