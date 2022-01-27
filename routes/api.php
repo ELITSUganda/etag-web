@@ -2,6 +2,7 @@
 
 use App\Admin\Controllers\FarmController;
 use App\Http\Controllers\ApiAnimalController;
+use App\Http\Controllers\ApiEventController;
 use App\Http\Controllers\ApiFarmController;
 use App\Http\Controllers\ApiLoginController;
 use App\Http\Controllers\DistrictController;
@@ -24,6 +25,9 @@ Route::get('parishes', [UtilsController::class, 'parishes']);
 // animal //
 Route::get('animals', [ApiAnimalController::class, 'index']);
 Route::get('animals/{id}', [ApiAnimalController::class, 'show']);
+
+Route::get('events', [ApiEventController::class, 'index']);
+Route::get('events/{id}', [ApiEventController::class, 'show']);
 // Animal controler //
 
 // ========== users starts ============== //
