@@ -29,27 +29,7 @@ class ApiEventController extends Controller
                 }
                 unset($items[$key]->animal);
             }
-            $items[$key]->created = Carbon::parse($value->created)->toFormattedDateString(); 
-
-            //animal
-            // if($items[$key]->farm!=null){  
-            //     if($items[$key]->farm->user !=null){
-            //         $items[$key]->owner_name = $items[$key]->farm->user->name;
-            //     }
-            // } 
-
-            // $items[$key]->owner_name = "";
-            // $items[$key]->district_name = "";
-
-            // if($value->district!=null){
-            //     $items[$key]->district_name = $value->district->name;
-            // }
-            // if($value->sub_county!=null){
-            //     $items[$key]->sub_county_name = $value->sub_county->name;
-            // }
-            // unset($items[$key]->farm);
-            // unset($items[$key]->district); 
-            // unset($items[$key]->sub_county); 
+            $items[$key]->created = Carbon::parse($value->created)->toFormattedDateString();  
 
         }
 
@@ -59,27 +39,26 @@ class ApiEventController extends Controller
 
     public function show($id)
     {
-        $item = Animal::find($id);
-
-        $item->owner_name  = "";
-        if ($item->farm != null) {
-            if ($item->farm->user != null) {
-                $item->owner_name = $item->farm->user->name;
-            }
-        }
+        $item = Event::find($id); 
+        $item->owner_name  = ""; 
 
         $item->owner_name = "";
         $item->district_name = "";
         $item->created = Carbon::parse($item->created)->toFormattedDateString();
-        if ($item->district != null) {
-            $item->district_name = $item->district->name;
-        }
-        if ($item->sub_county != null) {
-            $item->sub_county_name = $item->sub_county->name;
-        }
-        unset($item->farm);
-        unset($item->district);
-        unset($item->sub_county);
+
+        $item->e_id  = "";
+        $item->v_id  = "";
+        $item->lhc  = "";
+        if ($item->animal != null) {
+            if ($item->animal->e_id != null) {
+                $item->e_id  = $item->animal->e_id;
+                $item->v_id  = $item->animal->v_id;
+                $item->lhc  = $item->animal->lhc;
+            }
+            unset($item->animal);
+        } 
+
+
 
 
         return $item;
