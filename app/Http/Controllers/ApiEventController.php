@@ -11,14 +11,27 @@ use Illuminate\Http\Request;
 class ApiEventController extends Controller
 {
     public function index(Request $request)
-    { 
+    {
         $per_page = 100;
-        if(isset($request->per_page)){
+        if (isset($request->per_page)) {
             $per_page = $request->per_page;
         }
         $items = Event::paginate($per_page)->withQueryString()->items();
         foreach ($items as $key => $value) {
-            // $items[$key]->owner_name  = "";
+            $items[$key]->e_id  = "";
+            $items[$key]->v_id  = "";
+            $items[$key]->lhc  = "";
+            if ($items[$key]->animal != null) {
+                if ($items[$key]->animal->e_id != null) {
+                    $items[$key]->e_id  = $items[$key]->animal->e_id;
+                    $items[$key]->v_id  = $items[$key]->animal->v_id;
+                    $items[$key]->lhc  = $items[$key]->animal->lhc;
+                }
+                unset($items[$key]->animal);
+            }
+            $items[$key]->created = Carbon::parse($value->created)->toFormattedDateString(); 
+
+            //animal
             // if($items[$key]->farm!=null){  
             //     if($items[$key]->farm->user !=null){
             //         $items[$key]->owner_name = $items[$key]->farm->user->name;
@@ -27,7 +40,7 @@ class ApiEventController extends Controller
 
             // $items[$key]->owner_name = "";
             // $items[$key]->district_name = "";
-            // $items[$key]->created = Carbon::parse($value->created)->toFormattedDateString(); 
+
             // if($value->district!=null){
             //     $items[$key]->district_name = $value->district->name;
             // }
@@ -49,23 +62,23 @@ class ApiEventController extends Controller
         $item = Animal::find($id);
 
         $item->owner_name  = "";
-        if($item->farm!=null){  
-            if($item->farm->user !=null){
+        if ($item->farm != null) {
+            if ($item->farm->user != null) {
                 $item->owner_name = $item->farm->user->name;
             }
-        } 
+        }
 
         $item->owner_name = "";
         $item->district_name = "";
-        $item->created = Carbon::parse($item->created)->toFormattedDateString(); 
-        if($item->district!=null){
+        $item->created = Carbon::parse($item->created)->toFormattedDateString();
+        if ($item->district != null) {
             $item->district_name = $item->district->name;
         }
-        if($item->sub_county!=null){
+        if ($item->sub_county != null) {
             $item->sub_county_name = $item->sub_county->name;
         }
         unset($item->farm);
-        unset($item->district); 
+        unset($item->district);
         unset($item->sub_county);
 
 
@@ -74,7 +87,7 @@ class ApiEventController extends Controller
 
 
 
-  
+
 
     public function store(Request $request)
     {
@@ -96,5 +109,4 @@ class ApiEventController extends Controller
 
         return 204;
     }
-    
 }

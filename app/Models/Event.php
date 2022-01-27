@@ -79,4 +79,10 @@ class Event extends Model
         });
     }
 
+
+    public function animal()
+    {
+        return $this->belongsTo(Animal::class);
+    }
+
 }
