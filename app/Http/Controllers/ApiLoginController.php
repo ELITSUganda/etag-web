@@ -109,7 +109,11 @@ class ApiLoginController extends Controller
 
         if (password_verify(trim($request->password), $user->password)) {
             unset($user->password);
-            $user->roles = $user->roles;
+            $user->is_admin = false;
+            if($user->isRole('veterinary')){
+                $user->is_admin = true;
+            }
+            $user->roles = $user->roles; 
             return Utils::response([
                 'status' => 1,
                 'message' => "Logged in successfully.",
