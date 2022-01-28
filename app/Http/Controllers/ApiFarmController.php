@@ -11,6 +11,10 @@ class ApiFarmController extends Controller
 {
     public function index(Request $request)
     {
+
+        $is_admin = Utils::is_admin($request);
+        $user_id = Utils::get_user_id($request);
+
         $has_search = false;
         if(isset($request->s)){
             if($request->s !=null){
@@ -29,6 +33,8 @@ class ApiFarmController extends Controller
             $items = Farm::paginate(1000)->withQueryString()->items();
         }
 
+
+        $filtered_items = [];
         foreach ($items as $key => $value) {
             $items[$key]->owner_name = "";
             $items[$key]->district_name = "";
@@ -45,9 +51,16 @@ class ApiFarmController extends Controller
             unset($items[$key]->farm);
             unset($items[$key]->district); 
             unset($items[$key]->sub_county); 
+            if($is_admin){
+                $filtered_items[] = $items[$key]; 
+            }else{ 
+                if($user_id == $items[$key]->administrator_id){
+                    $filtered_items[] = $items[$key]; 
+                }
+            }
         }
 
-        return $items;
+        return $filtered_items;
     }
  
     public function show($id)
