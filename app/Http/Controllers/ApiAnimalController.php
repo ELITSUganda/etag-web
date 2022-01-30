@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Animal;
 use App\Models\Farm;
+use App\Models\Utils;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Http\Request;
@@ -97,7 +98,8 @@ class ApiAnimalController extends Controller
     }
 
 
-
+    
+ 
   
 
     public function store(Request $request)
@@ -120,5 +122,92 @@ class ApiAnimalController extends Controller
 
         return 204;
     }
+
+    public function create(Request $request) 
+    { 
+        if (
+            !isset($request->farm_id )
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "You must provide farm."
+            ]);
+        }  
+
+        if (
+            !isset($request->e_id)
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "You must provide e_id."
+            ]);
+        } 
+
+        if (
+            !isset($request->type)
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "You must provide type."
+            ]);
+        } 
+
+        if (
+            !isset($request->e_id)
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "You must provide e_id."
+            ]);
+        } 
+
+        if (
+            !isset($request->breed)
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "You must provide breed."
+            ]);
+        } 
+
+        if (
+            !isset($request->sex)
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "You must provide sex."
+            ]);
+        } 
+
+        if (
+            !isset($request->fmd)
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "You must provide fmd."
+            ]);
+        } 
+        
+        $f = new Animal(); 
+        $f->e_id = $request->e_id;
+        $f->farm_id = $request->farm_id; 
+        $f->type = $request->type;
+        $f->v_id = $request->v_id;
+        $f->lhc = $request->lhc;
+        $f->breed = $request->breed;
+        $f->sex = $request->sex;
+        $f->dob = $request->dob;
+        $f->fmd = $request->fmd;
+        $f->status = 'live';
+         
+
+        $f->save();
+        return Utils::response([
+            'status' => 1,
+            'message' => "Animal created successfully.",
+            'data' => $f
+        ]);
+    }
+
     
 }

@@ -23,6 +23,7 @@ Route::get('parishes', [UtilsController::class, 'parishes']);
 
 
 // animal //
+Route::post('animals', [ApiAnimalController::class, 'create']); 
 Route::get('animals', [ApiAnimalController::class, 'index']);
 Route::get('animals/{id}', [ApiAnimalController::class, 'show']);
 
@@ -33,7 +34,7 @@ Route::get('events/{id}', [ApiEventController::class, 'show']);
 // ========== users starts ============== //
 Route::get('users', [ApiUserController::class, 'index']);
 Route::get('farms/{id}', [ApiFarmController::class, 'show']);
-Route::post('farms', [ApiFarmController::class, 'create']);
+Route::post('farms', [ApiFarmController::class, 'create']); 
 Route::get('farms', [ApiFarmController::class, 'index']);
 // ========== users ends ============== //
 

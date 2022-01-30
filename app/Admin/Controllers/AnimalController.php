@@ -95,7 +95,7 @@ class AnimalController extends AdminController
                 'Male' => 'Male',
                 'Female' => 'Female', 
             ]);
-            $filter->equal('type', "Animal type")->select(Array(
+            $filter->equal('type', "Animal species")->select(Array(
                 'Cattle' => "Cattle",
                 'Goat' => "Goat",
                 'Sheep' => "Sheep"
@@ -131,7 +131,7 @@ class AnimalController extends AdminController
         $grid->column('lhc', __('LHC'))->sortable();
 
         $grid->column('type', __('Type'))->sortable();
-        $grid->column('sex', __('Sex'))->sortable(); 
+        $grid->column('sex', __('Gender'))->sortable(); 
         $grid->column('dob', __('Year'))->sortable(); 
         $grid->column('fmd', __('FMD'))->sortable();
         $grid->column('status', __('Status'))->sortable();
@@ -230,7 +230,7 @@ class AnimalController extends AdminController
         ->options($items)
         ->required();
           
-        $form->select('type', __('Animal Type'))
+        $form->select('type', __('Animal species'))
         ->options(Array(
             'Cattle' => "Cattle",
             'Goat' => "Goat",
@@ -238,7 +238,7 @@ class AnimalController extends AdminController
         ))
         ->required();
 
-        $form->radio('sex', __('Sex'))
+        $form->radio('sex', __('Gender'))
         ->options(Array(
             'Male' => "Male",
             'Female' => "Female", 
@@ -260,7 +260,7 @@ class AnimalController extends AdminController
         $form->text('v_id', __('Tag id'))->required();
         
         $form->year('dob', __('Year of birth'))->default(date('Y-m-d'))->required();
-        $form->year('fmd', __('Date of last FMD vaccince'))->default(date('Y-m-d'))->required();
+        $form->year('fmd', __('Date of last FMD vaccine'))->default(date('Y-m-d'))->required();
         $form->text('status', __('Status'))->readonly()->default("Live");
         $form->text('lhc', __('LHC'))->readonly();
 
