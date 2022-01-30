@@ -55,6 +55,7 @@ class ApiFarmController extends Controller
                 $filtered_items[] = $items[$key]; 
             }else{ 
                 if($user_id == $items[$key]->administrator_id){
+                    unset($items[$key]->user); 
                     $filtered_items[] = $items[$key]; 
                 }
             }

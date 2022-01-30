@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Animal;
+use App\Models\Farm;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Http\Request;
@@ -11,11 +12,30 @@ class ApiAnimalController extends Controller
 {
     public function index(Request $request)
     { 
-        $per_page = 100;
-        if(isset($request->per_page)){
-            $per_page = $request->per_page;
+        $s = $request->s;
+        $items = [];
+        
+        if($s != null){
+            if(strlen($s)>0){
+                $f = Farm::where("holding_code",$s)->first();
+                if($f != null){
+                    $items = $f->animals;
+                }
+                if(empty($items)){
+                    return [];
+                }
+            }
         }
-        $items = Animal::paginate($per_page)->withQueryString()->items();
+
+
+        if(empty($items)){
+            $per_page = 1000;
+            if(isset($request->per_page)){
+                $per_page = $request->per_page;
+            }
+            $items = Animal::paginate($per_page)->withQueryString()->items();            
+        }
+ 
         foreach ($items as $key => $value) {
             $items[$key]->owner_name  = "";
             if($items[$key]->farm!=null){  
@@ -36,9 +56,7 @@ class ApiAnimalController extends Controller
             unset($items[$key]->farm);
             unset($items[$key]->district); 
             unset($items[$key]->sub_county); 
-
         }
-
         return $items;
     }
 
