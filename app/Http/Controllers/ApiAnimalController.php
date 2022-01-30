@@ -22,7 +22,9 @@ class ApiAnimalController extends Controller
                     $items = $f->animals;
                 }
                 if(empty($items)){
+                    //
                     return [];
+
                 }
             }
         }
