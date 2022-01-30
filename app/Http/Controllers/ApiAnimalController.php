@@ -17,18 +17,23 @@ class ApiAnimalController extends Controller
         
         if($s != null){
             if(strlen($s)>0){
-                $f = Farm::where("holding_code",$s)->first();
-                if($f != null){
-                    $items = $f->animals;
-                }
-                if(empty($items)){
-                    //
-                    return [];
 
+                if(str_contains($s,'UG')){
+                    $f = Farm::where("holding_code",$s)->first();
+                    if($f != null){
+                        $items = $f->animals;
+                    }
+                }else{
+                    $items = Animal::where(
+                        'e_id', 'like', '%'.trim($request->s).'%',
+                    )->paginate(1000)->withQueryString()->items();
+                }
+
+                if(empty($items)){ 
+                    return [];
                 }
             }
         }
-
 
         if(empty($items)){
             $per_page = 1000;
