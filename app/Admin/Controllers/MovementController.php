@@ -179,7 +179,7 @@ class MovementController extends AdminController
             }
             return $s->name;
         })->sortable();
-        
+
         $grid->column('district_to', __('To district'))->display(function ($user) {
             $s = District::find($user);
             if (!$s) {
@@ -194,19 +194,19 @@ class MovementController extends AdminController
             }
             return $s->name;
         })->sortable();
-        
+
 
         $grid->column('reason', __('Purpose.'));
         $grid->column('valid_to_Date', __('Valid until'));
         $grid->column('permit_Number', __('Permit Number.'));
         $grid->column('status', __('Permit status'));
         $grid->column('id', __('Print'))
-        ->display(function ($f) {
-            return '<a href="javascript:;">Print permit</a>';
-        });
-        
- 
- 
+            ->display(function ($f) {
+                return '<a href="javascript:;">Print permit</a>';
+            });
+
+
+
         return $grid;
     }
 
@@ -365,9 +365,17 @@ status
 
         $form->hasMany('movement_has_movement_animals', null, function (NestedForm $form) {
             $_items = [];
-            foreach (Animal::where('administrator_id', '=', Admin::user()->id)->get()  as $key => $item) {
-                $_items[$item->id] = $item->e_id . " - " . $item->v_id;
+
+            if (!Admin::user()->isRole('farmer')) {
+                foreach (Animal::where('administrator_id', '=', Admin::user()->id)->get()  as $key => $item) {
+                    $_items[$item->id] = $item->e_id . " - " . $item->v_id;
+                }
+            } else {
+                foreach (Animal::all()  as $key => $item) {
+                    $_items[$item->id] = $item->e_id . " - " . $item->v_id;
+                }
             }
+
             $form->select('movement_animal_id', 'Select animal')->options($_items)
                 ->required();
         });
