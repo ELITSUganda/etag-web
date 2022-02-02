@@ -366,7 +366,7 @@ status
         $form->hasMany('movement_has_movement_animals', null, function (NestedForm $form) {
             $_items = [];
 
-            if (!Admin::user()->isRole('farmer')) {
+            if (Admin::user()->isRole('farmer')) {
                 foreach (Animal::where('administrator_id', '=', Admin::user()->id)->get()  as $key => $item) {
                     $_items[$item->id] = $item->e_id . " - " . $item->v_id;
                 }
