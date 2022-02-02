@@ -4,12 +4,12 @@ namespace App\Admin\Controllers;
 
 use App\Models\Animal;
 use App\Models\District;
-use App\Models\Farm;
-use App\Models\Parish;
+use App\Models\Farm; 
 use App\Models\SubCounty;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Controllers\AdminController;
+use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
@@ -31,15 +31,16 @@ class AnimalController extends AdminController
     protected function grid()
     {  
 
-        /*for ($i=0; $i < 500; $i++) {  
+        /*Animal::truncate();
+        for ($i=0; $i < 200; $i++) {  
             $faker = \Faker\Factory::create();
             $a = new Animal();
             $types = ['Cattle','Goat','Sheep'];
             shuffle($types);
             $a->type = $types[0]; 
-            $a->e_id = $faker->numberBetween(100000000000,10000000000000); 
+            $a->e_id = $faker->numberBetween(1000000000,100000000000); 
             $a->v_id = $faker->numberBetween(10000,100000); 
-            $a->farm_id = $faker->numberBetween(1,100); 
+            $a->farm_id = $faker->numberBetween(1,400); 
             
             $breeds = Array(
                 'Ankole' => "Ankole",
@@ -49,28 +50,29 @@ class AnimalController extends AdminController
             );
             shuffle($breeds);
             $a->breed = $breeds[0];
-
-            
             $sexs = ['Male','Female'];
             shuffle($sexs);
             $a->sex = $sexs[0];
             $a->dob = '2021-1-1';
-             
-
-            
+            $a->fmd = '2021-2-1';
+            $a->save();
         }*/
 
         $grid = new Grid(new Animal());
+        if (Admin::user()->isRole('farmer')) {
+            $grid->model()->where('administrator_id', '=', Admin::user()->id);
+            $grid->actions(function ($actions) {
+                $actions->disableDelete();
+                $actions->disableEdit();
+            });
+            $grid->disableCreateButton();
+        }
+
 
         $grid->filter(function ($filter) {
 
-            $parishes = [];
-            foreach (Parish::all() as $key => $p) {
-                $parishes[$p->id] = $p->name . ", " .
-                    $p->sub_county->name . ", " .
-                    $p->sub_county->district->name . ".";
-            }
-            
+        
+          
             $sub_counties = [];
             foreach (SubCounty::all() as $key => $p) {
                 $sub_counties[$p->id] = $p->name . ", " .
@@ -102,8 +104,7 @@ class AnimalController extends AdminController
             ));
 
             $filter->equal('district_id', "District")->select($districts);
-            $filter->equal('sub_county_id', "Sub county")->select($sub_counties);
-            $filter->equal('parish_id', "Parish")->select($parishes);
+            $filter->equal('sub_county_id', "Sub county")->select($sub_counties); 
             $filter->equal('status', "Status")->select(Array(
                 'Diagonized' => 'Diagonized',
                 'Healed' => 'Healed',
@@ -131,7 +132,7 @@ class AnimalController extends AdminController
         $grid->column('lhc', __('LHC'))->sortable();
 
         $grid->column('type', __('Type'))->sortable();
-        $grid->column('sex', __('Gender'))->sortable(); 
+        $grid->column('sex', __('Sex'))->sortable(); 
         $grid->column('dob', __('Year'))->sortable(); 
         $grid->column('fmd', __('FMD'))->sortable();
         $grid->column('status', __('Status'))->sortable();
@@ -162,17 +163,7 @@ class AnimalController extends AdminController
                 }
                 return $u->name;
             })->sortable();
-        $grid->column('parish_id', __('Parish'))
-            ->display(function ($id) {
-                $u = Parish::find($id);
-                if (!$u) {
-                    return $id;
-                }
-                return $u->name;
-            })->sortable();
-   
-
-
+ 
 
         return $grid;
     }
@@ -186,14 +177,21 @@ class AnimalController extends AdminController
     protected function detail($id)
     {
         $show = new Show(Animal::findOrFail($id));
-
+        $show = new Show(Farm::findOrFail($id));
+        if (Admin::user()->isRole('farmer')) {
+            $show->panel()
+                ->tools(function ($tools) {
+                    $tools->disableEdit();
+                    $tools->disableDelete();
+                });
+        }
+        
         $show->field('id', __('Id'));
         $show->field('created_at', __('Created at'));
         $show->field('updated_at', __('Updated at'));
         $show->field('administrator_id', __('Administrator id'));
         $show->field('district_id', __('District id'));
         $show->field('sub_county_id', __('Sub county id'));
-        $show->field('parish_id', __('Parish id'));
         $show->field('status', __('Status'));
         $show->field('type', __('Type'));
         $show->field('e_id', __('E id'));
@@ -223,8 +221,7 @@ class AnimalController extends AdminController
 
         $form->hidden('administrator_id', __('Administrator id'))->default(1);
         $form->hidden('district_id', __('District id'))->default(1);
-        $form->hidden('sub_county_id', __('Sub county id'))->default(1);
-        $form->hidden('parish_id', __('Parish id'))->default(1);
+        $form->hidden('sub_county_id', __('Subcounty'))->default(1);
 
         $form->select('farm_id', __('Farm'))
         ->options($items)
@@ -238,7 +235,7 @@ class AnimalController extends AdminController
         ))
         ->required();
 
-        $form->radio('sex', __('Gender'))
+        $form->radio('sex', __('Sex'))
         ->options(Array(
             'Male' => "Male",
             'Female' => "Female", 
@@ -259,8 +256,8 @@ class AnimalController extends AdminController
         $form->text('e_id', __('Electronic id'))->required();
         $form->text('v_id', __('Tag id'))->required();
         
-        $form->year('dob', __('Year of birth'))->default(date('Y-m-d'))->required();
-        $form->year('fmd', __('Date of last FMD vaccine'))->default(date('Y-m-d'))->required();
+        $form->year('dob', __('Year of birth'))->attribute('autocomplete','false')->default(date('Y-m-d'))->required();
+        $form->date('fmd', __('Date of last FMD vaccine'))->default(date('Y-m-d'))->required();
         $form->text('status', __('Status'))->readonly()->default("Live");
         $form->text('lhc', __('LHC'))->readonly();
 

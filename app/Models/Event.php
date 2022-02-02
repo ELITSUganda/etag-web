@@ -61,7 +61,7 @@ class Event extends Model
         });
 
         self::updated(function($model){
-            $animal = Animal::find($model->animal_id)->first();
+            $animal = Animal::find($model->animal_id);
             if($animal == null){
                 die("Animal with same elecetronic ID aready exist in the system.");
                 return false;

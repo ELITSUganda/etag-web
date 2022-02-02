@@ -6,13 +6,13 @@ use App\Models\Animal;
 use App\Models\Disease;
 use App\Models\District;
 use App\Models\Event;
-use App\Models\Medicine;
-use App\Models\Parish;
+use App\Models\Medicine; 
 use App\Models\SubCounty;
 use App\Models\Vaccine;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Controllers\AdminController;
+use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
@@ -29,19 +29,7 @@ class EventController extends AdminController
 
     /**
      * Make a grid builder.
-    
-     administrator_id
      
-district_id
-sub_county_id
-parish_id
-farm_id
-type
-
-detail
-
-animal_type
-
 
      * @return Grid
      */
@@ -72,15 +60,20 @@ animal_type
         }
         dd("Done");*/
 
+        if (Admin::user()->isRole('farmer')) {
+            $grid->model()->where('administrator_id', '=', Admin::user()->id);
+            $grid->actions(function ($actions) {
+                $actions->disableDelete();
+                $actions->disableEdit();
+            });
+            $grid->disableCreateButton();
+        }
+
+
 
         $grid->filter(function ($filter) {
 
-            $parishes = [];
-            foreach (Parish::all() as $key => $p) {
-                $parishes[$p->id] = $p->name . ", " .
-                    $p->sub_county->name . ", " .
-                    $p->sub_county->district->name . ".";
-            }
+ 
 
             $sub_counties = [];
             foreach (SubCounty::all() as $key => $p) {
@@ -116,7 +109,6 @@ animal_type
 
             $filter->equal('district_id', "District")->select($districts);
             $filter->equal('sub_county_id', "Sub county")->select($sub_counties);
-            $filter->equal('parish_id', "Parish")->select($parishes);
             $filter->like('animal_id', "Animal")->select($animals);
             $filter->equal('type', "Event type")->select(array(
                 'Disease' => 'Disease',
@@ -203,14 +195,7 @@ animal_type
                 }
                 return $u->name;
             })->sortable();
-        $grid->column('parish_id', __('Parish'))
-            ->display(function ($id) {
-                $u = Parish::find($id);
-                if (!$u) {
-                    return $id;
-                }
-                return $u->name;
-            })->sortable();
+ 
 
         $grid->column('administrator_id', __('Animal owner'))
             ->display(function ($id) {
@@ -237,13 +222,22 @@ animal_type
     {
         $show = new Show(Event::findOrFail($id));
 
+        $show = new Show(Farm::findOrFail($id));
+        if (Admin::user()->isRole('farmer')) {
+            $show->panel()
+                ->tools(function ($tools) {
+                    $tools->disableEdit();
+                    $tools->disableDelete();
+                });
+        }
+        
+
         $show->field('id', __('Id'));
         $show->field('created_at', __('Created at'));
         $show->field('updated_at', __('Updated at'));
         $show->field('administrator_id', __('Administrator id'));
         $show->field('district_id', __('District id'));
         $show->field('sub_county_id', __('Sub county id'));
-        $show->field('parish_id', __('Parish id'));
         $show->field('farm_id', __('Farm id'));
         $show->field('animal_id', __('Animal id'));
         $show->field('type', __('Type'));
@@ -262,10 +256,10 @@ animal_type
     {
         $form = new Form(new Event());
 
+
         $form->hidden('administrator_id', __('Administrator id'))->default(1);
         $form->hidden('district_id', __('District id'))->default(1);
         $form->hidden('sub_county_id', __('Sub county id'))->default(1);
-        $form->hidden('parish_id', __('Parish id'))->default(1);
         $form->hidden('farm_id', __('Farm id'))->default(1);
 
         $animals = [];

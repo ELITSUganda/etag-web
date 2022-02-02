@@ -14,7 +14,6 @@ Route::group([
     $router->get('/', 'HomeController@index')->name('home');
     $router->resource('districts', DistrictController::class);
     $router->resource('sub-counties', SubCountyController::class);
-    $router->resource('parishes', ParishController::class);
     $router->resource('farms', FarmController::class);
     $router->resource('animals', AnimalController::class);
     $router->resource('events', EventController::class);
@@ -22,5 +21,6 @@ Route::group([
     $router->resource('diseases', DiseaseController::class);
     $router->resource('medicines', MedicineController::class);
     $router->resource('vaccines', VaccineController::class);
+    $router->resource('movement-items', MovementsItemsController::class);
 
 });

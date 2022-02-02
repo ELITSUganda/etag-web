@@ -34,41 +34,27 @@ class Farm extends Model
 
         self::creating(function ($model) {
 
-            $p = Parish::find($model->parish_id)->first();
-            if ($p == null) {
-                dd("Parish not found.");
+            $s = SubCounty::find($model->sub_county_id); 
+            if ($s == null) {
+                dd("SubCounty not found.");
                 return null;
             }
-            if ($p->sub_county == null) {
-                dd("Sub county not found.");
-                return null;
-            }
-            $model->sub_county_id = $p->sub_county->id;
+           
 
-            if ($p->sub_county->district == null) {
+            if ($s->district == null) {
                 dd("District not found.");
                 return null;
             }
-            $model->district_id = $p->sub_county->district->id;
+            $model->district_id = $s->district->id;
 
             $num = (int) (Farm::where(['sub_county_id' => $model->sub_county_id])->count());
             $num++;
  
-            $model->holding_code = $p->code.$num;
+            $model->holding_code = $s->code."-".$num;
             
             return $model;
         });
-
-        self::created(function ($model) {
-            $p = Parish::find($model->parish_id)->first();
-            if ($p == null) {
-                return null;
-            }
-            $model->sub_county_id = $p->sub_county->id;
-            $model->district_id = $p->sub_county->district->id;
-
-            return $model;
-        });
+ 
 
         self::updating(function ($model) {
             // ... code here
