@@ -82,18 +82,14 @@ class Animal extends Model
             $f = Farm::find($model->farm_id);
             if($f == null){
                 return false;
-            }
-
-            $model->status = "Live";
+            } 
             $model->administrator_id = $f->administrator_id;
             $model->district_id = $f->district_id;
             $model->sub_county_id = $f->sub_county_id;
-
             return $model;
         });
 
-        self::updated(function($model){
-            // ... code here
+        self::updated(function($an){ 
         });
 
         self::deleting(function($model){

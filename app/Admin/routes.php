@@ -22,5 +22,6 @@ Route::group([
     $router->resource('medicines', MedicineController::class);
     $router->resource('vaccines', VaccineController::class);
     $router->resource('movement-items', MovementsItemsController::class);
+    $router->resource('sales', AnimalSalesController::class);
 
 });

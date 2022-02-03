@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PrintController;
 use Encore\Admin\Grid\Tools\Header;
 use Illuminate\Support\Facades\Route;
 
@@ -13,6 +14,8 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::match(['get', 'post'], '/print', [PrintController::class, 'index']);
 
 Route::get('/', function () {
     header( "Location: ". admin_url());
