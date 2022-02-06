@@ -207,6 +207,35 @@ class MovementController extends AdminController
 "dob" => "2001-11-18"
 "color" => "Mixed"
 "farm_id" => 93
+
+admin_menu
+Expand/CollapseStructureadmin_operation_log
+Expand/CollapseStructureadmin_permissions
+Expand/CollapseStructureadmin_roles
+Expand/CollapseStructureadmin_role_menu
+Expand/CollapseStructureadmin_role_permissions
+Expand/CollapseStructureadmin_role_users
+Expand/CollapseStructureadmin_users
+Expand/CollapseStructureadmin_user_permissions
+Expand/CollapseStructureanimals
+Expand/CollapseStructurearchived_animals
+Expand/CollapseStructurediseases
+Expand/CollapseStructuredistricts
+Expand/CollapseStructureevents
+Expand/CollapseStructurefailed_jobs
+Expand/CollapseStructurefarms
+Expand/CollapseStructuremedicines
+Expand/CollapseStructuremigrations
+Expand/CollapseStructuremovements
+Expand/CollapseStructuremovement_animals
+Expand/CollapseStructuremovement_has_movement_animals
+Expand/CollapseStructurepassword_resets
+Expand/CollapseStructurepersonal_access_tokens
+Expand/CollapseStructureslaughter_records
+Expand/CollapseStructuresub_counties
+Expand/CollapseStructureusers
+Expand/CollapseStructurevaccines
+
 */
 
 
