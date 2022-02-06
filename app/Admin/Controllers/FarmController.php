@@ -184,8 +184,9 @@ class FarmController extends AdminController
         }
         $sub_counties = [];
         foreach (SubCounty::all() as $key => $p) {
-            $sub_counties[$p->id] = $p->name . ", " .
-                $p->district->name . ".";
+            $sub_counties[$p->id] = $p->code . "  - ".
+            $p->name . ", " .
+                $p->district->name . " ";
         }
 
 
