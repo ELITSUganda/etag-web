@@ -66,7 +66,8 @@ class FarmController extends AdminController
             $sub_counties = [];
             foreach (SubCounty::all() as $key => $p) {
                 $sub_counties[$p->id] = $p->name . ", " .
-                    $p->district->name . ".";
+                    $p->district->name . " - " .
+                    $p->code . ".";
             }
 
             $districts = [];
@@ -79,7 +80,7 @@ class FarmController extends AdminController
                 if (!$v->isRole('farmer')) {
                     continue;
                 }
-                $admins[$v->id] = $v->name . " - " . $v->code;
+                $admins[$v->id] = $v->name . " - " . $v->id;
             }
 
             $filter->equal('administrator_id', "Owner")->select($admins);
