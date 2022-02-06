@@ -79,7 +79,7 @@ class FarmController extends AdminController
                 if (!$v->isRole('farmer')) {
                     continue;
                 }
-                $admins[$v->id] = $v->name . " - " . $v->id;
+                $admins[$v->id] = $v->name . " - " . $v->code;
             }
 
             $filter->equal('administrator_id', "Owner")->select($admins);
