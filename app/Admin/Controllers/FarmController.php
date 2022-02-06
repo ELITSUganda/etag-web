@@ -206,7 +206,9 @@ class FarmController extends AdminController
                 'Mixed' => 'Mixed'
             ))
             ->required();
-        $form->text('animals_count', __('Number of Livestock'))->required();
+        $form->text('sheep_count', __('Number of sheep'))->required();
+        $form->text('goats_count', __('Number of goats'))->required();
+        $form->text('cattle_count', __('Number of cattle'))->required();
         $form->text('size', __('Size (in Ha)'))->attribute('type', 'number')->required();
 
         $form->latlong('latitude', 'longitude', 'Location of the farm')->default(['lat' => 0.3130291, 'lng' => 32.5290854])->required();
