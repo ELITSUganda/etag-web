@@ -131,7 +131,7 @@ class AnimalController extends AdminController
         $grid->column('e_id', __('E id'))->sortable();
         $grid->column('lhc', __('LHC'))->sortable();
 
-        $grid->column('type', __('Type'))->sortable();
+        $grid->column('type', __('Species'))->sortable();
         $grid->column('sex', __('Sex'))->sortable(); 
         $grid->column('dob', __('Year'))->sortable(); 
         $grid->column('fmd', __('FMD'))->sortable();

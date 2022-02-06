@@ -6,8 +6,9 @@ use App\Models\Animal;
 use App\Models\Disease;
 use App\Models\District;
 use App\Models\Event;
-use App\Models\Medicine; 
+use App\Models\Medicine;
 use App\Models\SubCounty;
+use App\Models\Utils;
 use App\Models\Vaccine;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
@@ -73,7 +74,7 @@ class EventController extends AdminController
 
         $grid->filter(function ($filter) {
 
- 
+
 
             $sub_counties = [];
             foreach (SubCounty::all() as $key => $p) {
@@ -195,7 +196,7 @@ class EventController extends AdminController
                 }
                 return $u->name;
             })->sortable();
- 
+
 
         $grid->column('administrator_id', __('Animal owner'))
             ->display(function ($id) {
@@ -230,7 +231,7 @@ class EventController extends AdminController
                     $tools->disableDelete();
                 });
         }
-        
+
 
         $show->field('id', __('Id'));
         $show->field('created_at', __('Created at'));
@@ -257,6 +258,24 @@ class EventController extends AdminController
         $form = new Form(new Event());
 
 
+        if (
+            isset($_POST['type']) &&
+            isset($_POST['animal_id'])
+        ) {
+            $type = trim($_POST['type']);
+            $events = ['Stolen', 'Home slaughter', 'Death'];
+            $user = Auth::user();
+            if (in_array($type, $events)) {
+                $d['event'] = $type;
+                $d['details'] =  $type . " By " . $user->name . " - " . $user->id;
+                $d['animal_id'] = $_POST['animal_id'];
+                Utils::archive_animal($d);
+
+                header('Location: ' . admin_url("events"));
+                die();
+            }
+        }
+
         $form->hidden('administrator_id', __('Administrator id'))->default(1);
         $form->hidden('district_id', __('District id'))->default(1);
         $form->hidden('sub_county_id', __('Sub county id'))->default(1);
@@ -276,10 +295,10 @@ class EventController extends AdminController
                 'Disease' => 'Disease',
                 'Drug' => 'Teatment',
                 'Vaccination' => 'Vaccination',
-                'Death' => 'Death',
-                'Slaughter' => 'Slaughter',
                 'Birth' => 'Birth',
-                'Moved' => 'Movement',
+                'Stolen' => 'Stolen',
+                'Home slaughter' => 'Home slaughter',
+                'Death' => 'Death',
                 'Other' => 'Other',
 
             ))
@@ -302,7 +321,7 @@ class EventController extends AdminController
             });
 
         $form->text('detail', __('Detail'))->required()
-            ->help("Specify the event and be as brief as possible. For example, if Sick, only enter the name of disease in
+            ->help("Specify the event and be as brief as possible. For example, if Death, only enter the cause of death in
         this detail field.");
 
         $user = Auth::user();

@@ -39,7 +39,7 @@ class ArchivedAnimalController extends AdminController
         $grid->column('dob', __('Dob'));
         $grid->column('owner', __('Owner'));
         $grid->column('last_event', __('Last event'));
-        $grid->column('type', __('Event Type'));
+        $grid->column('type', __('Speicies'));
         
         $grid->column('district', __('District'));
         $grid->column('sub_county', __('Sub county'));
