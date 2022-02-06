@@ -33,6 +33,7 @@ class PrintController extends Controller
         $i = 0;
         $animals = "";
         foreach ($m->movement_has_movement_animals as $key => $v) {
+            dd($v);
             $i++;
             $animals .= '<tr>
                 <th class="" >' . $i . '</th>
