@@ -100,7 +100,7 @@ class AnimalController extends AdminController
             $filter->equal('type', "Animal species")->select(Array(
                 'Cattle' => "Cattle",
                 'Goat' => "Goat",
-                'Sheep' => "Sheep"
+                'Sheep' => "Sheep" 
             ));
 
             $filter->equal('district_id', "District")->select($districts);
