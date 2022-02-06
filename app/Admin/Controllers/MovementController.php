@@ -10,6 +10,7 @@ use App\Models\Movement;
 use App\Models\MovementAnimal;
 use App\Models\MovementHasMovementAnimal;
 use App\Models\SubCounty;
+use App\Models\Utils;
 use Carbon\Carbon;
 use Encore\Admin\Widgets\Table;
 use Encore\Admin\Auth\Database\Administrator;
@@ -40,95 +41,64 @@ class MovementController extends AdminController
      */
     protected function grid()
     {
-        if (isset($_GET['accept'])) {
-            $delete = (int)(trim($_GET['accept']));
-            if ($delete > 0) {
-                $move = Movement::where('status', 'pending')->first();
-                if ($move != null) {
-                    foreach ($move->movement_has_movement_animals as $key => $ani) {
 
-                        $e = new Event();
-                        $e->administrator_id = $move->to_farm->administrator_id;
-                        $e->district_id = $move->to_farm->district_id;
-                        $e->sub_county_id = $move->to_farm->sub_county_id;
-                        $e->parish_id = $move->to_farm->parish_id;
-                        $e->farm_id = $move->to_farm->id;
-                        $e->animal_id = $ani->movement_animal_id;
-                        $e->type = "Moved";
-                        $e->approved_by = $move->administrator_id;
-                        $e->detail = "Animal moved from form  " . $move->to_farm->holding_code . " TO farm " . $move->from_farm->holding_code;
 
-                        $new_animal = Animal::find($ani->movement_animal_id)->first();
-                        if ($new_animal != null) {
-                            $new_animal->administrator_id = $move->to_farm->administrator_id;
-                            $new_animal->district_id = $move->to_farm->district_id;
-                            $new_animal->sub_county_id = $move->to_farm->sub_county_id;
-                            $new_animal->parish_id = $move->to_farm->parish_id;
-                            $new_animal->farm_id = $move->to_farm->id;
+        /* $d =  Movement::find(16);
+        $d->status = "Approveds";
+        $d->save();  
+        dd("time => "$d->status);*/
 
-                            $new_animal->save();
-                        }
-                    }
 
-                    $move->status = "Completed";
-                    $e->save();
-                    $move->save();
-                }
-            }
-            return redirect(admin_url('movements'));
-        }
-
-        if (isset($_GET['delete'])) {
-            $delete = (int)(trim($_GET['delete']));
-            if ($delete > 0) {
-                $move = Movement::where('status', 'pending')->first();
-                if ($move != null) {
-                    $move->delete();
-                }
-            }
-            return redirect(admin_url('movements'));
-        }
         $grid = new Grid(new Movement());
+
+        if (Admin::user()->isRole('slaughter')) {
+            $grid->model()->where('destination_slaughter_house', '=', Admin::user()->id)
+                ->where('status', '=', 'Approved');
+            $grid->actions(function ($actions) {
+                $actions->disableDelete();
+                $actions->disableEdit(); 
+            });
+        } else if (Admin::user()->isRole('administrator') ||
+         Admin::user()->isRole('veterinary') ||
+         Admin::user()->isRole('livestock-officer')
+        
+        ) {
+        } else {
+            $grid->model()->where('administrator_id', '=', Admin::user()->id);
+            $grid->actions(function ($actions) {
+                $status = ((($actions->row['status'])));
+                if (
+                    $status == 'Pending' ||
+                    $status == 'Halted'
+                ) {
+                } else {
+                    $actions->disableDelete();
+                    $actions->disableEdit();
+                }
+            });
+        }
+
+
+
+
+
+        if (Admin::user()->isRole('trader') || Admin::user()->isRole('farmer')) {
+        } else {
+            $grid->disableCreateButton();
+        }
         //admin_toastr('Message...', 'success');
 
-        if (!Admin::user()->isRole('farmer')) {
+
+
+        if (Admin::user()->isRole('administrator')) {
 
             $grid->header(function ($query) {
                 $move = Movement::where('status', 'pending')->first();
                 if ($move != null) {
 
                     $content  = '';
-                    if ($move->to == $move->from) {
-                        $content = '<p>Invalid movement. You cannot move animals from one farm to same farm. You Either need to rectify this form or delete it.</p>';
-                        $content .= '<p><a href="' . admin_url('movements/' . $move->id . '/edit') . '" class="btn btn-success  ">Rectify form</a></p>';
-                        $content .= '<p><a href="' . admin_url('movements?delete=' . $move->id . '') . '" class="btn btn-danger  ">Delete form</a></p>';
-                    } else {
-                        if ($move->movement_has_movement_animals != null) {
-                            $found = [];
-                            $_found = [];
-                            foreach ($move->movement_has_movement_animals as $key => $m) {
-                                if (in_array($m->movement_animal_id, $found)) {
-                                    $m->delete();
-                                } else {
-                                    $found[] = $m->movement_animal_id;
-                                    $_found[] = $m;
-                                }
-                            }
-                        }
-
-                        $content .= "Following animals are going to be transfered from farm <b>" .
-                            $move->from_farm->holding_code . " - By " . $move->from_farm->owner()->name . "</b> TO farm <b>" .
-                            $move->to_farm->holding_code . " - By " . $move->to_farm->owner()->name . "</b>";
-                        $content .= "<h4><u>Animals</u></h4><ol>";
-                        foreach ($_found as $key => $animal) {
-                            $content .= '<li> TAG ID: ' . $animal->animal->v_id . ', E-ID: ' . $animal->animal->e_id . '</li>';
-                        }
-                        $content .= "</ol>";
-
-                        $content .= '<p><a href="' . admin_url('movements/' . $move->id . '/edit') . '" class="btn btn-primary  ">EDIT MOVEMENT</a></p>';
-                        $content .= '<p><a href="' . admin_url('movements?delete=' . $move->id . '') . '" class="btn btn-danger  ">CACNEL MOVEMENT</a></p>';
-                        $content .= '<p><a href="' . admin_url('movements?accept=' . $move->id . '') . '" class="btn btn-success  ">CONFIRM MOVEMENT</a></p>';
-                    }
+                    $content  = 'There is a movement permit application that is prending for verification.';
+                    $content .= '<p><a href="' . admin_url('movements/' . $move->id . '/edit') . '" class="btn btn-success  ">Review Application</a></p>';
 
                     if ($content != "") {
                         $box = new Box('Confirm pending movement - form #' . $move->id, $content);
@@ -145,48 +115,12 @@ class MovementController extends AdminController
                 return Carbon::parse($f)->toFormattedDateString();
             })->sortable();
 
-        $grid->column('administrator_id', __('Applied By'))->display(function ($user) {
-            $_user = Administrator::find($user);
-            if (!$_user) {
-                return "-";
-            }
-            return $_user->name;
-        })->sortable();
 
-        $grid->column('trader_name', __('Trader name'));
-        $grid->column('trader_nin', __('Trader NIN'));
-        $grid->column('transporter_name', __('Transporter name'));
-        $grid->column('transporter_nin', __('Transporter NIN'));
+
+        $grid->column('trader_name', __('Applicant'));
+        $grid->column('transporter_name', __('Transporter'));
         $grid->column('vehicle', __('Vehicle Reg. No.'));
-        $grid->column('district_from', __('From district'))->display(function ($user) {
-            $s = District::find($user);
-            if (!$s) {
-                return "-";
-            }
-            return $s->name;
-        })->sortable();
-        $grid->column('district_from', __('From district'))->display(function ($user) {
-            $s = District::find($user);
-            if (!$s) {
-                return "-";
-            }
-            return $s->name;
-        })->sortable();
-        $grid->column('sub_county_from', __('From subcounty'))->display(function ($user) {
-            $s = SubCounty::find($user);
-            if (!$s) {
-                return "-";
-            }
-            return $s->name;
-        })->sortable();
 
-        $grid->column('district_to', __('To district'))->display(function ($user) {
-            $s = District::find($user);
-            if (!$s) {
-                return "-";
-            }
-            return $s->name;
-        })->sortable();
         $grid->column('sub_county_to', __('To subcounty'))->display(function ($user) {
             $s = SubCounty::find($user);
             if (!$s) {
@@ -195,14 +129,23 @@ class MovementController extends AdminController
             return $s->name;
         })->sortable();
 
-
-        $grid->column('reason', __('Purpose.'));
-        $grid->column('valid_to_Date', __('Valid until'));
-        $grid->column('permit_Number', __('Permit Number.'));
-        $grid->column('status', __('Permit status'));
+        $grid->column('status', __('Permit status'))->display(function ($s) {
+            if ($s == null) {
+                return $s;
+            } else if ($s == "Pending") {
+                return '<span class="badge badge-warning" style="background-color: #f9c803; font-size: 18px; color: black; padding: 2px; border-radius: 8px;">Pending</span>';
+            } else if ($s == "Approved") {
+                return '<span class="badge badge-danger" style="background-color: #a2fc79; font-size: 18px; color: black; padding: 2px; border-radius: 8px;">Approved</span>';
+            } else if ($s == "Halted") {
+                return '<a class="badge bg-danger" style="background-color: #ff7777; font-size: 18px; color: black; padding: 2px; border-radius: 8px;"   border-radius: 8px;">Halted</span>';
+            } else if ($s == "Rejected") {
+                return '<span class="badge badge-danger" style="background-color: #ff7777; font-size: 18px; color: black; padding: 2px; border-radius: 8px;">Rejected</span>';
+            }
+            return $s;
+        });
         $grid->column('id', __('Print'))
             ->display(function ($f) {
-                return '<a href="javascript:;">Print permit</a>';
+                return '<a target="_blank" href="' . url("print?id=" . $this->id) . '">Print permit</a>';
             });
 
 
@@ -329,49 +272,225 @@ status
 
 
         $form = new Form(new Movement());
+
+
+        $u =   Admin::user();
+
         $form->setTitle("Applying for Livestock Movement Permit [LMP]");
         $form->hidden('<h4 style="padding: 0px!important; margin: 0px!important;">Teader\'s info.</h4>')->readonly();
         $form->hidden('administrator_id')->default(Admin::user()->id)->required();
-        $form->text('trader_name', __('Trader \'s name'))->required();
-        $form->text('trader_nin', __('Trader\'s NIN'))->required();
-        $form->text('trader_phone', __('Trader\'s Phone no.'));
+        $form->text('trader_name', __('Trader \'s name'))->default($u->name)->readonly()->required();
+        $form->text('trader_nin', __('Trader\'s NIN'))->default($u->nin)->readonly()->required();
+        $form->text('trader_phone', __('Trader\'s Phone no.'))->default($u->phone_number)->readonly();
+
+
+
         $form->divider();
-        $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Teader\'s desitination info.</h4>');
-        $items = [];
-        foreach (SubCounty::all() as $key => $f) {
-            $items[$f->id] = $f->name . ", " . $f->district->name;
+
+
+        if (
+            Admin::user()->isRole('trader') ||
+            Admin::user()->isRole('farmer')
+        ) {
+
+            $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Animals\' depature info. <b>(FROM)</b></h4>');
+            $items = [];
+            foreach (SubCounty::all() as $key => $f) {
+                $items[$f->id] = $f->name . ", " . $f->district->name;
+            }
+            $form->select('sub_county_from', __('Subcounty from'))
+                ->options($items)
+                ->required();
+            $form->text('village_from', __('Village from'))->required();
+            $form->divider();
+            $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Animals\' desitination info. <b>(TO)</b></h4>');
+            $form->radio('destination', __('Destination of movement'))
+                ->options(array(
+                    'To farm' => 'To another farm',
+                    'To slaughter' => 'To slaughter house',
+                    'Other' => 'Other',
+
+                ))
+                ->required()
+                ->when('To farm', function (Form $form) {
+                    $farms = [];
+                    foreach (Farm::all() as $key => $f) {
+                        $farms[$f->id] = $f->holding_code . "";
+                    }
+                    $form->select('destination_farm', __('Select Farm'))
+                        ->options($farms);
+                })
+                ->when('To slaughter', function (Form $form) {
+                    $farms = Administrator::all();
+                    $_farms = [];
+                    foreach ($farms as $key => $f) {
+                        if (!$f->isRole("slaughter")) {
+                            continue;
+                        }
+                        $_farms[$f->id] = $f->name . " - " . $f->id;
+                    }
+
+                    $form->select('destination_slaughter_house', __('Select slaughter house'))
+                        ->options($_farms)
+                        ->help('Please select slaughter house');
+                })
+                ->when('Other', function (Form $form) {
+                    $items = [];
+                    foreach (SubCounty::all() as $key => $f) {
+                        $items[$f->id] = $f->name . ", " . $f->district->name;
+                    }
+                    $form->text('reason', __('Specify purpose of movement'));
+                    $form->select('sub_county_to', __('Subcounty to'))
+                        ->options($items);
+                    $form->text('village_to', __('Village to'));
+                });
+            $form->text('transportation_route', __('Transportation route'))->required();
+
+
+            $form->divider();
+            $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Transpotation info.</h4>');
+            $form->text('vehicle', __('Vehicle\'s reg\' no. '))->required();
+            $form->text('transporter_name', __('Transporter name'))->required();
+            $form->text('transporter_nin', __('Transporter\'s NIN'))->required();
+            $form->text('transporter_Phone', __('transporter\'s Phone'));
+            $form->divider();
+            $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Payment info.</h4>');
+
+            $form->radio('is_paid', __('Payment status'))
+                ->options(array(
+                    'Paid' => 'Paid',
+                    'Not paid' => 'Not paid',
+                ))
+                ->required()
+                ->when('Paid', function (Form $form) {
+                    $form->radio('paid_method', __('Payment method'))
+                        ->options(array(
+                            'Mobile money' => 'Mobile money',
+                            'Bank' => 'Bank',
+                            'Cash' => 'Cash',
+                        ));
+                    $form->text('paid_id', __('Transaction ID'));
+                });
+            $form->divider();
+
+
+            $form->textarea('details', __('Movement details'));
+
+
+            $form->disableEditingCheck();
+            $form->disableViewCheck();
+            $form->disableCreatingCheck();
+
+
+            $form->html('<h3>Click on "New" to Add animals to move.</h3>');
+        } else if (Admin::user()->isRole('administrator')) {
+
+            $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Animals\' depature info. <b>(FROM)</b></h4>');
+            $items = [];
+            foreach (SubCounty::all() as $key => $f) {
+                $items[$f->id] = $f->name . ", " . $f->district->name;
+            }
+            $form->select('sub_county_from', __('Subcounty from'))
+                ->options($items)
+                ->readOnly();
+            $form->text('village_from', __('Village from'))
+                ->readOnly();
+            $form->divider();
+            $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Animals\' desitination info. <b>(TO)</b></h4>');
+            $form->radio('destination', __('Destination of movement'))
+                ->options(array(
+                    'To farm' => 'To another farm',
+                    'To slaughter' => 'To slaughter house',
+                    'Other' => 'Other',
+
+                ))
+                ->readOnly()
+                ->when('To farm', function (Form $form) {
+                    $farms = [];
+                    foreach (Farm::all() as $key => $f) {
+                        $farms[$f->id] = $f->holding_code . "";
+                    }
+                    $form->select('destination_farm', __('Select Farm'))
+                        ->options($farms)
+                        ->readOnly()
+                        ->readOnly();
+                })
+                ->when('To slaughter', function (Form $form) {
+                    $farms = Administrator::all();
+                    $_farms = [];
+                    foreach ($farms as $key => $f) {
+                        if (!$f->isRole("slaughter")) {
+                            continue;
+                        }
+                        $_farms[$f->id] = $f->name . " - " . $f->id;
+                    }
+
+                    $form->select('destination_slaughter_house', __('Select slaughter house'))
+                        ->options($_farms)
+                        ->help('Please select slaughter house')
+                        ->readOnly()
+                        ->readOnly();
+                })
+                ->when('Other', function (Form $form) {
+                    $items = [];
+                    foreach (SubCounty::all() as $key => $f) {
+                        $items[$f->id] = $f->name . ", " . $f->district->name;
+                    }
+                    $form->text('reason', __('Specify purpose of movement'))
+                        ->readOnly()
+                        ->readOnly();
+                    $form->select('sub_county_to', __('Subcounty to'))
+                        ->options($items)
+                        ->readOnly()
+                        ->readOnly();
+                    $form->text('village_to', __('Village to'))
+                        ->readOnly()
+                        ->readOnly();
+                });
+            $form->text('transportation_route', __('Transportation route'))
+                ->readOnly()
+                ->readOnly();
+
+
+            $form->divider();
+            $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Transpotation info.</h4>');
+            $form->text('vehicle', __('Vehicle\'s reg\' no. '))
+                ->readOnly()
+                ->readOnly();
+            $form->text('transporter_name', __('Transporter name'))
+                ->readOnly()
+                ->readOnly();
+            $form->text('transporter_nin', __('Transporter\'s NIN'))
+                ->readOnly()
+                ->readOnly();
+            $form->text('transporter_Phone', __('transporter\'s Phone'));
+            $form->divider();
+            $form->textarea('details', __('Movement details'))
+                ->readOnly()
+                ->readOnly();
+            $form->html('<h3>Animals</h3>');
         }
-        $form->select('sub_county_from', __('Subcounty from'))
-            ->options($items)
-            ->required();
-        $form->text('village_from', __('Village from'))->required();
-        $form->select('sub_county_to', __('Subcounty to'))
-            ->options($items)
-            ->required();
-        $form->text('village_to', __('Village to'))->required();
-        $form->text('transportation_route', __('Transportation route'))->required();
-
-        $form->divider();
-        $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Transpotation info.</h4>');
-        $form->text('vehicle', __('Vehicle\'s reg\' no. '))->required();
-        $form->text('transporter_name', __('Transporter name'))->required();
-        $form->text('transporter_nin', __('Transporter\'s NIN'))->required();
-        $form->text('transporter_Phone', __('transporter\'s Phone'));
-        $form->divider();
-        $form->textarea('reason', __('Movement purpose'))->required();
-
-
-        $form->html('<h3>Click on "New" to Add animals to move.</h3>');
 
         $form->hasMany('movement_has_movement_animals', null, function (NestedForm $form) {
             $_items = [];
 
-            if (Admin::user()->isRole('farmer')) {
-                foreach (Animal::where('administrator_id', '=', Admin::user()->id)->get()  as $key => $item) {
+            if (
+                Admin::user()->isRole('administrator') ||
+                Admin::user()->isRole('livestock-officer') 
+            
+            ) {
+                foreach (Animal::all()  as $key => $item) {
                     $_items[$item->id] = $item->e_id . " - " . $item->v_id;
                 }
-            } else {
-                foreach (Animal::all()  as $key => $item) {
+            } else if (Admin::user()->isRole('trader')) {
+                foreach (Animal::where('trader', '=', Admin::user()->id)->get()  as $key => $item) {
+                    $_items[$item->id] = $item->e_id . " - " . $item->v_id;
+                }
+            } else if (Admin::user()->isRole('farmer')) {
+                foreach (Animal::where('administrator_id', '=', Admin::user()->id)
+                    ->where('status', '!=', 'sold')
+                    ->where('trader', '<', 1)
+                    ->get()  as $key => $item) {
                     $_items[$item->id] = $item->e_id . " - " . $item->v_id;
                 }
             }
@@ -379,6 +498,54 @@ status
             $form->select('movement_animal_id', 'Select animal')->options($_items)
                 ->required();
         });
+
+
+
+        if (Admin::user()->isRole('administrator')) {
+            $form->divider();
+            $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Payment info.</h4>');
+
+            $form->radio('is_paid', __('Payment status'))
+                ->options(array(
+                    'Paid' => 'Paid',
+                    'Not paid' => 'Not paid',
+                ))
+                ->required()
+                ->when('Paid', function (Form $form) {
+                    $form->radio('paid_method', __('Payment method'))
+                        ->options(array(
+                            'Mobile money' => 'Mobile money',
+                            'Bank' => 'Bank',
+                            'Cash' => 'Cash',
+                        ))
+                        ->required();
+                    $form->text('paid_id', __('Transaction ID'))->required();
+                });
+
+            $form->divider();
+            $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Review permit.</h4>');
+
+            $form->radio('status', __('Review permit'))
+                ->options(array(
+                    'Approved' => 'Approve',
+                    'Halted' => 'Halt',
+                    'Rejected' => 'Reject',
+
+                ))
+                ->required()
+                ->when('Halted', function (Form $form) {
+                    $form->textarea('details', __('Reason for halt'));
+                })
+                ->when('Rejected', function (Form $form) {
+                    $form->textarea('details', __('Reason for rejection'));
+                })
+                ->when('Approved', function (Form $form) {
+
+                    $form->date('valid_from_Date', __('Valid from Date'));
+                    $form->date('valid_to_Date', __('Valid until'));
+                });
+        }
+
 
 
         return $form;

@@ -278,6 +278,8 @@ class EventController extends AdminController
                 'Vaccination' => 'Vaccination',
                 'Death' => 'Death',
                 'Slaughter' => 'Slaughter',
+                'Birth' => 'Birth',
+                'Moved' => 'Movement',
                 'Other' => 'Other',
 
             ))

@@ -17,6 +17,7 @@ class Movement extends Model
         self::creating(function ($model) {
             $model->status = "Pending";
 
+            /*
             $s = SubCounty::find($model->sub_county_to); 
             if ($s == null) {
                 die("SubCounty to not found.");
@@ -39,16 +40,32 @@ class Movement extends Model
                 die("District from not found.");
                 return false;
             }
-            $model->district_from = $s1->district->id;
+            $model->district_from = $s1->district->id;*/
             return $model;
         });
-        
+
 
         self::created(function ($model) {
         });
 
         self::updating(function ($model) {
-            // ... code here
+            if ($model->status == "Approved") {
+
+                if ($model->destination == "To farm") {
+                    if ($model->destination_farm != null) {
+                        foreach ($model->movement_has_movement_animals as $key => $value) {
+                            if ($value->movement_animal_id != null) {
+                                $transfer['animal_id'] = $value->movement_animal_id;
+                                $transfer['destination_farm_id'] = $model->destination_farm;
+                                Utils::move_animal($transfer);
+                            }
+                        }
+                        $transfer['destination'] = $model->destination_farm;
+                        $model->permit_Number = time() . rand(100, 1000);
+                    }
+                }
+            }
+            return $model;
         });
 
         self::updated(function ($model) {
@@ -56,7 +73,7 @@ class Movement extends Model
         });
 
         self::deleting(function ($model) {
-            
+
             MovementAnimal::where('movement_id', $model->id)->delete();
             MovementHasMovementAnimal::where('movement_id', $model->id)->delete();
 
@@ -83,12 +100,11 @@ class Movement extends Model
 
     public function from_farm()
     {
-        return $this->belongsTo(Farm::class,'from');
-    } 
+        return $this->belongsTo(Farm::class, 'from');
+    }
 
     public function to_farm()
     {
-        return $this->belongsTo(Farm::class,'to');
-    } 
-
+        return $this->belongsTo(Farm::class, 'to');
+    }
 }

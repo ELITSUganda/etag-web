@@ -9,8 +9,8 @@ class Animal extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'administrator_id', 
-        'district_id', 
+        'administrator_id',
+        'district_id',
         'sub_county_id',
         'status',
         'type',
@@ -21,82 +21,87 @@ class Animal extends Model
         'lhc',
         'dob',
         'color',
-        'farm_id', 
-    ]; 
+        'farm_id',
+    ];
     public static function boot()
     {
         parent::boot();
 
-        self::creating(function($model){ 
+        self::creating(function ($model) {
 
-            $animal = Animal::where('e_id',$model->e_id)->first();
-            if($animal != null){
+            $animal = Animal::where('e_id', $model->e_id)->first();
+            if ($animal != null) {
                 die("Animal with same elecetronic ID aready exist in the system.");
                 return false;
             }
 
-            $animal = Animal::where('v_id',$model->v_id)->first();
-            if($animal != null){
+            $animal = Animal::where('v_id', $model->v_id)->first();
+            if ($animal != null) {
                 die("Animal with same Tag ID aready exist in the system.");
                 return false;
             }
 
             $f = Farm::find($model->farm_id);
-            if($f == null){
+            if ($f == null) {
                 die("Farm not found.");
                 return false;
             }
-            if($f->holding_code == null){
+            if ($f->holding_code == null) {
                 die("holding_code  not found.");
                 return false;
             }
-        
-             
+
+
             $model->status = "Live";
             $model->administrator_id = $f->administrator_id;
             $model->district_id = $f->district_id;
             $model->sub_county_id = $f->sub_county_id;
-            $num = (int) (Animal::where(['sub_county_id'=>$model->sub_county_id])->count());
- 
-            $num = $num."";
-            if(strlen($num)<2){
-                $num = "000000".$num;
-            }else if(strlen($num)<3){
-                $num = "00000".$num;
-            }else if(strlen($num)<4){ 
-                $num = "000".$num;
-            }else if(strlen($num)<5){
-                $num = "00".$num;
-            }else if(strlen($num)<6){
-                $num = "0".$num;
-            }else{
-                $num = "".$num;
+            $num = (int) (Animal::where(['sub_county_id' => $model->sub_county_id])->count());
+
+            $num = $num . "";
+            if (strlen($num) < 2) {
+                $num = "000000" . $num;
+            } else if (strlen($num) < 3) {
+                $num = "00000" . $num;
+            } else if (strlen($num) < 4) {
+                $num = "000" . $num;
+            } else if (strlen($num) < 5) {
+                $num = "00" . $num;
+            } else if (strlen($num) < 6) {
+                $num = "0" . $num;
+            } else {
+                $num = "" . $num;
             }
 
             $model->lhc = $f->holding_code;
- 
+
             return $model;
         });
-  
-        self::updating(function($model){ 
+
+        self::updating(function ($model) {
             $f = Farm::find($model->farm_id);
-            if($f == null){
+            if ($f == null) {
                 return false;
-            } 
+            }
             $model->administrator_id = $f->administrator_id;
             $model->district_id = $f->district_id;
             $model->sub_county_id = $f->sub_county_id;
             return $model;
         });
 
-        self::updated(function($an){ 
+        self::updated(function ($an) {
         });
 
-        self::deleting(function($model){
-            // ... code here
+        self::deleting(function ($model) {
+            if ($model->events != null) {
+                foreach ($model->events as $key => $eve) {
+                    $eve->delete();
+                }
+            }
+            return $model;
         });
 
-        self::deleted(function($model){
+        self::deleted(function ($model) {
             // ... code here
         });
     }
@@ -105,6 +110,11 @@ class Animal extends Model
     public function farm()
     {
         return $this->belongsTo(Farm::class);
+    }
+
+    public function events()
+    {
+        return $this->hasMany(Event::class);
     }
 
     public function district()
@@ -116,5 +126,4 @@ class Animal extends Model
     {
         return $this->belongsTo(SubCounty::class);
     }
-    
 }

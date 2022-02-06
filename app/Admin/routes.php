@@ -22,6 +22,7 @@ Route::group([
     $router->resource('medicines', MedicineController::class);
     $router->resource('vaccines', VaccineController::class);
     $router->resource('movement-items', MovementsItemsController::class);
-    $router->resource('sales', AnimalSalesController::class);
-
+    $router->resource('slaughter-records', SlaughterRecordController::class);
+    $router->resource('archived-animals', ArchivedAnimalController::class);
+    
 });

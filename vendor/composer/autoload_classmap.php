@@ -7,6 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'App\\Admin\\Controllers\\AnimalController' => $baseDir . '/app/Admin/Controllers/AnimalController.php',
+    'App\\Admin\\Controllers\\AnimalSalesController' => $baseDir . '/app/Admin/Controllers/AnimalSalesController.php',
     'App\\Admin\\Controllers\\AuthController' => $baseDir . '/app/Admin/Controllers/AuthController.php',
     'App\\Admin\\Controllers\\DiseaseController' => $baseDir . '/app/Admin/Controllers/DiseaseController.php',
     'App\\Admin\\Controllers\\DistrictController' => $baseDir . '/app/Admin/Controllers/DistrictController.php',
@@ -17,6 +18,7 @@ return array(
     'App\\Admin\\Controllers\\MovementController' => $baseDir . '/app/Admin/Controllers/MovementController.php',
     'App\\Admin\\Controllers\\MovementsItemsController' => $baseDir . '/app/Admin/Controllers/MovementsItemsController.php',
     'App\\Admin\\Controllers\\ParishController' => $baseDir . '/app/Admin/Controllers/ParishController.php',
+    'App\\Admin\\Controllers\\SlaughterRecordController' => $baseDir . '/app/Admin/Controllers/SlaughterRecordController.php',
     'App\\Admin\\Controllers\\SubCountyController' => $baseDir . '/app/Admin/Controllers/SubCountyController.php',
     'App\\Admin\\Controllers\\VaccineController' => $baseDir . '/app/Admin/Controllers/VaccineController.php',
     'App\\Console\\Kernel' => $baseDir . '/app/Console/Kernel.php',
@@ -50,6 +52,7 @@ return array(
     'App\\Models\\MovementAnimal' => $baseDir . '/app/Models/MovementAnimal.php',
     'App\\Models\\MovementHasMovementAnimal' => $baseDir . '/app/Models/MovementHasMovementAnimal.php',
     'App\\Models\\Parish' => $baseDir . '/app/Models/Parish.php',
+    'App\\Models\\SlaughterRecord' => $baseDir . '/app/Models/SlaughterRecord.php',
     'App\\Models\\SubCounty' => $baseDir . '/app/Models/SubCounty.php',
     'App\\Models\\User' => $baseDir . '/app/Models/User.php',
     'App\\Models\\Utils' => $baseDir . '/app/Models/Utils.php',

@@ -581,6 +581,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
 
     public static $classMap = array (
         'App\\Admin\\Controllers\\AnimalController' => __DIR__ . '/../..' . '/app/Admin/Controllers/AnimalController.php',
+        'App\\Admin\\Controllers\\AnimalSalesController' => __DIR__ . '/../..' . '/app/Admin/Controllers/AnimalSalesController.php',
         'App\\Admin\\Controllers\\AuthController' => __DIR__ . '/../..' . '/app/Admin/Controllers/AuthController.php',
         'App\\Admin\\Controllers\\DiseaseController' => __DIR__ . '/../..' . '/app/Admin/Controllers/DiseaseController.php',
         'App\\Admin\\Controllers\\DistrictController' => __DIR__ . '/../..' . '/app/Admin/Controllers/DistrictController.php',
@@ -591,6 +592,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'App\\Admin\\Controllers\\MovementController' => __DIR__ . '/../..' . '/app/Admin/Controllers/MovementController.php',
         'App\\Admin\\Controllers\\MovementsItemsController' => __DIR__ . '/../..' . '/app/Admin/Controllers/MovementsItemsController.php',
         'App\\Admin\\Controllers\\ParishController' => __DIR__ . '/../..' . '/app/Admin/Controllers/ParishController.php',
+        'App\\Admin\\Controllers\\SlaughterRecordController' => __DIR__ . '/../..' . '/app/Admin/Controllers/SlaughterRecordController.php',
         'App\\Admin\\Controllers\\SubCountyController' => __DIR__ . '/../..' . '/app/Admin/Controllers/SubCountyController.php',
         'App\\Admin\\Controllers\\VaccineController' => __DIR__ . '/../..' . '/app/Admin/Controllers/VaccineController.php',
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
@@ -624,6 +626,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'App\\Models\\MovementAnimal' => __DIR__ . '/../..' . '/app/Models/MovementAnimal.php',
         'App\\Models\\MovementHasMovementAnimal' => __DIR__ . '/../..' . '/app/Models/MovementHasMovementAnimal.php',
         'App\\Models\\Parish' => __DIR__ . '/../..' . '/app/Models/Parish.php',
+        'App\\Models\\SlaughterRecord' => __DIR__ . '/../..' . '/app/Models/SlaughterRecord.php',
         'App\\Models\\SubCounty' => __DIR__ . '/../..' . '/app/Models/SubCounty.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
         'App\\Models\\Utils' => __DIR__ . '/../..' . '/app/Models/Utils.php',
