@@ -50,26 +50,28 @@ class PrintController extends Controller
 
         $d =  District::find($m->district_from);
         $district_from = "-";
-        if ($d != null) {
-            $district_from = $d->name . " ($d->code)";
-        }
+        
 
         $d =  District::find($m->district_to);
         $district_to = "-";
-        if ($d != null) {
-            $district_to = $d->name . " ($d->code)";
-        }
+         
 
         $sub =  SubCounty::find($m->sub_county_from);
         $sub_county_from = "-";
         if ($sub != null) {
             $sub_county_from = $sub->name . " ($sub->code)";
+            if($sub->district != null){
+                $district_from = $sub->district->name;
+            }
         }
 
         $sub =  SubCounty::find($m->sub_county_to);
         $sub_county_to = "-";
         if ($sub != null) {
             $sub_county_to = $sub->name . " ($sub->code)";
+            if($sub->district != null){
+                $district_to = $sub->district->name;
+            }
         }
 
 
