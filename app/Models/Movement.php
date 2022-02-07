@@ -51,6 +51,8 @@ class Movement extends Model
         self::updating(function ($model) {
             if ($model->status == "Approved") {
 
+                $model->permit_Number = time() . rand(1, 100);
+
                 if ($model->destination == "To farm") {
                     if ($model->destination_farm != null) {
                         foreach ($model->movement_has_movement_animals as $key => $value) {
@@ -61,7 +63,6 @@ class Movement extends Model
                             }
                         }
                         $transfer['destination'] = $model->destination_farm;
-                        $model->permit_Number = time() . rand(100, 1000);
                     }
                 }
             }
