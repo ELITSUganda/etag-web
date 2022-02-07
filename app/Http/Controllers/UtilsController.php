@@ -16,7 +16,7 @@ class UtilsController extends Controller
             unset($value->created_at);
             unset($value->updated_at);
             unset($value->detail);
-            $value->name .= ", ".$value->name.", ".$value->district->name;
+            $value->name = $value->name.", ".$value->district->name;
   
             $data[] = $value;
         }
