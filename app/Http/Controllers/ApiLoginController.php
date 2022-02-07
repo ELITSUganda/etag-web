@@ -56,8 +56,7 @@ class ApiLoginController extends Controller
                 'message' => "Failed to create ACCOUNT."
             ]);
         }
-        
-        $user->save();
+         
         $u = Administrator::where('username',$request->username)->first();
         if($u === null){
             return Utils::response([
