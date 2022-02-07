@@ -106,6 +106,10 @@ class ApiUserController extends Controller
             $ad->phone_number = $request->phone_number;
         }
 
+        if (isset($request->temp_id)) {
+            $ad->temp_id = $request->temp_id;
+        }
+
         $ad->password = password_hash(trim($request->password),PASSWORD_DEFAULT);
 
         if(!$ad->save()){
