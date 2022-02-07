@@ -4,20 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\District;
 use App\Models\Parish;
+use App\Models\SubCounty;
 use Illuminate\Http\Request;
 
 class UtilsController extends Controller
 {
-    public function parishes()
+    public function sub_counties()
     {
         $data = [];
-        foreach (Parish::paginate(1000)->withQueryString()->items() as $key => $value) {
+        foreach (SubCounty::paginate(1000)->withQueryString()->items() as $key => $value) {
             unset($value->created_at);
             unset($value->updated_at);
             unset($value->detail);
-            $value->name .= ", ".$value->sub_county->name.", ".$value->sub_county->district->name;
-            unset($value->sub_county);
-            unset($value->sub_county_id);
+            $value->name .= ", ".$value->name.", ".$value->district->name;
+  
             $data[] = $value;
         }
         return $data;

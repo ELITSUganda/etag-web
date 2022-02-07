@@ -17,8 +17,8 @@ Route::post('districts', [DistrictController::class, 'store'] );
 Route::put('districts/{id}', [DistrictController::class, 'update'] );
 Route::delete('districts/{id}',[DistrictController::class, 'delete'] );
 
-// parishes
-Route::get('parishes', [UtilsController::class, 'parishes']);
+// sub_counties
+Route::get('sub_counties', [UtilsController::class, 'sub_counties']);
 //Utils
 
 
