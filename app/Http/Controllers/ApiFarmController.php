@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Farm;
 use App\Models\Utils;
 use Carbon\Carbon;
+use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Http\Request;
 
 class ApiFarmController extends Controller
@@ -100,22 +101,49 @@ class ApiFarmController extends Controller
         } 
 
         if (
-            !isset($request->parish_id)
+            !isset($request->sub_county_id)
         ) {
             return Utils::response([
                 'status' => 0,
-                'message' => "You must provide parish_id."
+                'message' => "You must provide sub_county_id."
             ]);
         } 
+        $administrator_id = 0;
+        if(isset($request->administrator_id)){
+            $administrator_id = (int)($request->administrator_id);            
+        } 
+        $admin = Administrator::find($administrator_id);
+
+        if($admin ==null){
+            $owner_temp_id = "";
+            if(isset($request->owner_temp_id)){
+                $owner_temp_id = $request->owner_temp_id;            
+            } 
+            if(strlen($owner_temp_id)>2){
+                $admin = Administrator::where('temp_id',$owner_temp_id)->first();
+            }
+        }
+        if($admin == null){
+            return Utils::response([
+                'status' => 0,
+                'message' => "Farm owner not found."
+            ]);
+        }
+        if(!isset($admin->id)){
+            return Utils::response([
+                'status' => 0,
+                'message' => "Farm owner ID not found."
+            ]);
+        }
         
         $f = new Farm(); 
-        $f->administrator_id = $request->administrator_id;
+        $f->administrator_id = $admin->id;
         $f->animals_count = $request->animals_count;
         $f->dfm = $request->dfm;
         $f->farm_type = $request->farm_type;
         $f->latitude = $request->latitude;
         $f->longitude = $request->longitude;
-        $f->parish_id = $request->parish_id;
+        $f->sub_county_id = $request->sub_county_id;
         $f->size = $request->size; 
         $f->village = $request->village;
 
