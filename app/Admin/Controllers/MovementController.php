@@ -322,7 +322,7 @@ status
             Admin::user()->isRole('farmer')
         ) {
 
-            $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Animals\' depature info. <b>(FROM)</b></h4>');
+            $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Animals\' departure info. <b>(FROM)</b></h4>');
             $items = [];
             foreach (SubCounty::all() as $key => $f) {
                 $items[$f->id] = $f->name . ", " . $f->district->name;
@@ -332,7 +332,7 @@ status
                 ->required();
             $form->text('village_from', __('Village from'))->required();
             $form->divider();
-            $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Animals\' desitination info. <b>(TO)</b></h4>');
+            $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Animals\' destination info. <b>(TO)</b></h4>');
             $form->radio('destination', __('Destination of movement'))
                 ->options(array(
                     'To farm' => 'To another farm',
@@ -414,7 +414,7 @@ status
             $form->html('<h3>Click on "New" to Add animals to move.</h3>');
         } else if (Admin::user()->isRole('administrator')) {
 
-            $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Animals\' depature info. <b>(FROM)</b></h4>');
+            $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Animals\' departure info. <b>(FROM)</b></h4>');
             $items = [];
             foreach (SubCounty::all() as $key => $f) {
                 $items[$f->id] = $f->name . ", " . $f->district->name;
@@ -425,7 +425,7 @@ status
             $form->text('village_from', __('Village from'))
                 ->readOnly();
             $form->divider();
-            $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Animals\' desitination info. <b>(TO)</b></h4>');
+            $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Animals\' destination info. <b>(TO)</b></h4>');
             $form->radio('destination', __('Destination of movement'))
                 ->options(array(
                     'To farm' => 'To another farm',

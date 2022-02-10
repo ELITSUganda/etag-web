@@ -5,6 +5,7 @@ use App\Http\Controllers\ApiAnimalController;
 use App\Http\Controllers\ApiEventController;
 use App\Http\Controllers\ApiFarmController;
 use App\Http\Controllers\ApiLoginController;
+use App\Http\Controllers\ApiMovement;
 use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\UtilsController;
 use App\Http\Controllers\ApiUserController; 
@@ -35,6 +36,7 @@ Route::get('events/{id}', [ApiEventController::class, 'show']);
 Route::get('users', [ApiUserController::class, 'index']);
 Route::get('farms/{id}', [ApiFarmController::class, 'show']);
 Route::post('farms', [ApiFarmController::class, 'create']); 
+Route::post('movements', [ApiMovement::class, 'create']); 
 Route::post('users', [ApiUserController::class, 'store']); 
 Route::get('farms', [ApiFarmController::class, 'index']);
 // ========== users ends ============== //
