@@ -17,50 +17,18 @@ class ApiMovement extends Controller
         $is_admin = Utils::is_admin($request);
         $user_id = Utils::get_user_id($request);
 
-        $has_search = false;
-        if(isset($request->s)){
-            if($request->s !=null){
-                if(strlen($request->s)>0){
-                    $has_search = true; 
-                }
-            }
-        }
-        
         $items = [];
-        if($has_search){
-            $items = Farm::where(
-                'holding_code', 'like', '%'.trim($request->s).'%',
-            )->paginate(1000)->withQueryString()->items();
-        }else{
-            $items = Farm::paginate(1000)->withQueryString()->items();
-        }
-
-
         $filtered_items = [];
+
+        if($is_admin){
+            $items = Movement::paginate(1000)->withQueryString()->items();
+        }else{
+            $items = Movement::where(['administrator_id' => $user_id])->get();
+        }
+ 
+
         foreach ($items as $key => $value) {
-            $items[$key]->owner_name = "";
-            $items[$key]->district_name = "";
-            $items[$key]->created = Carbon::parse($value->created)->toFormattedDateString(); 
-            if($value->user!=null){
-                $items[$key]->owner_name = $value->user->name;
-            }
-            if($value->district!=null){
-                $items[$key]->district_name = $value->district->name;
-            }
-            if($value->sub_county!=null){
-                $items[$key]->sub_county_name = $value->sub_county->name;
-            }
-            unset($items[$key]->farm);
-            unset($items[$key]->district); 
-            unset($items[$key]->sub_county); 
-            if($is_admin){
-                $filtered_items[] = $items[$key]; 
-            }else{ 
-                if($user_id == $items[$key]->administrator_id){
-                    unset($items[$key]->user); 
-                    $filtered_items[] = $items[$key]; 
-                }
-            }
+            $filtered_items[] = $value;
         }
 
         return $filtered_items;
@@ -90,11 +58,12 @@ class ApiMovement extends Controller
 
     public function create(Request $request) 
     {
-        return $_POST;
+
+ 
         $requirements = [
-            'administrator_id',
-            'paid_method',
             'transporter_nin',
+            'paid_method',
+            'administrator_id',
             'transporter_name',
             'transportation_route',
             'vehicle',
@@ -137,27 +106,52 @@ class ApiMovement extends Controller
         }
  
         foreach ($requirements as $key => $value) {
-            if(in_array($value,$avaiable)){
+            if(isset($request->$value)){
                continue; 
             }
             return Utils::response([
                 'status' => 0,
                 'message' => "You must provide {$value}.",
-                $_POST
+                $request
             ]);
         }
 
         $movement = new Movement();
-        foreach ($_POST as $key => $value) {
-            if(in_array($key,$valids)){
-                $movement->$key = $value;
-            }  
-        }
+
+        $movement->administrator_id = $request->administrator_id;
+        $movement->vehicle = $request->vehicle;
+        $movement->reason = $request->reason;
+        $movement->status = $request->status;
+        $movement->trader_nin = $request->trader_nin;
+        $movement->trader_name = $request->trader_name;
+        $movement->trader_phone = $request->trader_phone;
+        $movement->transporter_name = $request->transporter_name;
+        $movement->transporter_nin = $request->transporter_nin;
+        $movement->transporter_Phone = $request->transporter_Phone;
+        $movement->district_from = $request->district_from;
+        $movement->sub_county_from = $request->sub_county_from;
+        $movement->village_from = $request->village_from;
+        $movement->district_to = $request->district_to;
+        $movement->sub_county_to = $request->sub_county_to;
+        $movement->village_to = $request->village_to;
+        $movement->transportation_route = $request->transportation_route;
+        $movement->permit_Number = $request->permit_Number;
+        $movement->valid_from_Date = $request->valid_from_Date;
+        $movement->valid_to_Date = $request->valid_to_Date;
+        $movement->status_comment = $request->status_comment;
+        $movement->destination = $request->destination;
+        $movement->destination_slaughter_house = $request->destination_slaughter_house;
+        $movement->details = $request->details;
+        $movement->destination_farm = $request->destination_farm;
+        $movement->is_paid = $request->is_paid;
+        $movement->paid_id = $request->paid_id;
+        $movement->paid_method = $request->paid_method;    
+
 
         $movement->save(); 
         
         return Utils::response([
-            'status' => 0,
+            'status' => 1,
             'message' => "Movement permit application submited successfully.",
             'data' => $movement
         ]);
