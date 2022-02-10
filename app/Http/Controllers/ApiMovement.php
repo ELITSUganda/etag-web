@@ -18,22 +18,20 @@ class ApiMovement extends Controller
         $user_id = Utils::get_user_id($request);
 
         $has_search = false;
-        if (isset($request->s)) {
-            if ($request->s != null) {
-                if (strlen($request->s) > 0) {
-                    $has_search = true;
+        if(isset($request->s)){
+            if($request->s !=null){
+                if(strlen($request->s)>0){
+                    $has_search = true; 
                 }
             }
         }
-
+        
         $items = [];
-        if ($has_search) {
+        if($has_search){
             $items = Farm::where(
-                'holding_code',
-                'like',
-                '%' . trim($request->s) . '%',
+                'holding_code', 'like', '%'.trim($request->s).'%',
             )->paginate(1000)->withQueryString()->items();
-        } else {
+        }else{
             $items = Farm::paginate(1000)->withQueryString()->items();
         }
 
@@ -42,56 +40,57 @@ class ApiMovement extends Controller
         foreach ($items as $key => $value) {
             $items[$key]->owner_name = "";
             $items[$key]->district_name = "";
-            $items[$key]->created = Carbon::parse($value->created)->toFormattedDateString();
-            if ($value->user != null) {
+            $items[$key]->created = Carbon::parse($value->created)->toFormattedDateString(); 
+            if($value->user!=null){
                 $items[$key]->owner_name = $value->user->name;
             }
-            if ($value->district != null) {
+            if($value->district!=null){
                 $items[$key]->district_name = $value->district->name;
             }
-            if ($value->sub_county != null) {
+            if($value->sub_county!=null){
                 $items[$key]->sub_county_name = $value->sub_county->name;
             }
             unset($items[$key]->farm);
-            unset($items[$key]->district);
-            unset($items[$key]->sub_county);
-            if ($is_admin) {
-                $filtered_items[] = $items[$key];
-            } else {
-                if ($user_id == $items[$key]->administrator_id) {
-                    unset($items[$key]->user);
-                    $filtered_items[] = $items[$key];
+            unset($items[$key]->district); 
+            unset($items[$key]->sub_county); 
+            if($is_admin){
+                $filtered_items[] = $items[$key]; 
+            }else{ 
+                if($user_id == $items[$key]->administrator_id){
+                    unset($items[$key]->user); 
+                    $filtered_items[] = $items[$key]; 
                 }
             }
         }
 
         return $filtered_items;
     }
-
+ 
     public function show($id)
     {
         $item = Farm::find($id);
-        if ($item == null) {
+        if($item ==null){
             return '{}';
         }
         $item->owner_name = "";
         $item->district_name = "";
         $item->created = $item->created;
-        if ($item->user != null) {
+        if($item->user!=null){
             $item->owner_name = $item->user->name;
         }
-        if ($item->district != null) {
+        if($item->district!=null){
             $item->district_name = $item->district->name;
         }
-        if ($item->sub_county != null) {
+        if($item->sub_county!=null){
             $item->sub_county_name = $item->sub_county->name;
         }
 
         return $item;
     }
 
-    public function create(Request $request)
+    public function create(Request $request) 
     {
+        return $_POST;
         $requirements = [
             'administrator_id',
             'paid_method',
@@ -102,7 +101,7 @@ class ApiMovement extends Controller
             'destination',
         ];
         $valids = [
-            'id',
+            'id', 
             'administrator_id',
             'vehicle',
             'reason',
@@ -130,22 +129,16 @@ class ApiMovement extends Controller
             'destination_farm',
             'is_paid',
             'paid_id',
-            'paid_method',
+            'paid_method',            
         ];
-        return Utils::response([
-            'status' => 0,
-            'message' => "Romina",
-            'data' => $_POST
-        ]);
-
         $avaiable = [];
         foreach ($_POST as $key => $value) {
             $avaiable[] = $key;
         }
-
+ 
         foreach ($requirements as $key => $value) {
-            if (in_array($value, $avaiable)) {
-                continue;
+            if(in_array($value,$avaiable)){
+               continue; 
             }
             return Utils::response([
                 'status' => 0,
@@ -156,18 +149,20 @@ class ApiMovement extends Controller
 
         $movement = new Movement();
         foreach ($_POST as $key => $value) {
-            if (in_array($key, $valids)) {
+            if(in_array($key,$valids)){
                 $movement->$key = $value;
-            }
+            }  
         }
 
-        $movement->save();
-
+        $movement->save(); 
+        
         return Utils::response([
             'status' => 0,
             'message' => "Movement permit application submited successfully.",
             'data' => $movement
         ]);
+
+  
     }
 
     public function update(Request $request, $id)
@@ -184,4 +179,5 @@ class ApiMovement extends Controller
 
         return 204;
     }
+    
 }
