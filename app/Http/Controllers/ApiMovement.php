@@ -122,8 +122,8 @@ class ApiMovement extends Controller
             'transportation_route',
             'permit_Number',
             'valid_from_Date',
-            'status_comment',
             'valid_to_Date',
+            'status_comment',
             'destination',
             'destination_slaughter_house',
             'details',
@@ -132,6 +132,12 @@ class ApiMovement extends Controller
             'paid_id',
             'paid_method',
         ];
+        return Utils::response([
+            'status' => 0,
+            'message' => "Movement permit application submited successfully.",
+            'data' => $_POST
+        ]);
+
         $avaiable = [];
         foreach ($_POST as $key => $value) {
             $avaiable[] = $key;
@@ -143,7 +149,7 @@ class ApiMovement extends Controller
             }
             return Utils::response([
                 'status' => 0,
-                'message' => "You must provide {$value}. <==",
+                'message' => "You must provide {$value}.",
                 $_POST
             ]);
         }
