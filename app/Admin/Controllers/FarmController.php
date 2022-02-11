@@ -81,7 +81,7 @@ class FarmController extends AdminController
                 if (!$v->isRole('farmer')) {
                     continue;
                 }
-                $admins[$v->id] = $v->name . " - " . $v->id;
+                $admins[$v->id] = $v->name . " - " . $v->id." - ({$v->username})";
             }
 
             $filter->equal('holding_code', "LHC")->select(Farm::all()->pluck('holding_code','holding_code'));
