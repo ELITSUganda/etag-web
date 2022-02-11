@@ -87,7 +87,8 @@ class ApiLoginController extends Controller
         ) {
             return Utils::response([
                 'status' => 0,
-                'message' => "You must provide both username and password."
+                'message' => "You must provide both username and password.",
+                $request
             ]);
         }
 
