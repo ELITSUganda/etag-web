@@ -83,6 +83,7 @@ class FarmController extends AdminController
                 $admins[$v->id] = $v->name . " - " . $v->id;
             }
 
+            $filter->equal('holding_code', "LHC")->select(Farm::all()->pluck('holding_code','holding_code'));
             $filter->equal('administrator_id', "Owner")->select($admins);
             $filter->equal('farm_type', "Farm type")->select([
                 'Beef' => 'Beef',
