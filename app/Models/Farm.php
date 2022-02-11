@@ -57,10 +57,18 @@ class Farm extends Model
  
 
         self::updating(function ($model) {
+
+            
             // ... code here
         });
 
         self::updated(function ($model) {
+            if($model->animals!=null){
+                foreach ($model->animals as $key => $animal) {
+                    $animal->administrator_id = $model->administrator_id;
+                    $animal->save();
+                }
+            }
             // ... code here
         });
 

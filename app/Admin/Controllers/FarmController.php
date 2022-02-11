@@ -31,7 +31,8 @@ class FarmController extends AdminController
     {
 
 
-
+ 
+        
         /*Farm::truncate();
         for ($i=0; $i < 500; $i++) { 
             $faker = \Faker\Factory::create();

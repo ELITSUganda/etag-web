@@ -13,8 +13,14 @@ class ApiAnimalController extends Controller
 {
     public function index(Request $request)
     { 
+
+        
+        $administrator_id = Utils::get_user_id($request);
+        $is_admin = Utils::is_admin($request);
+   
         $s = $request->s;
         $items = [];
+        $_items = [];
         
         if($s != null){
             if(strlen($s)>0){
@@ -43,8 +49,15 @@ class ApiAnimalController extends Controller
             }
             $items = Animal::paginate($per_page)->withQueryString()->items();            
         }
- 
+
         foreach ($items as $key => $value) {
+            if(!$is_admin){
+
+                if($value->administrator_id != $administrator_id){ 
+                    continue;
+                }
+            } 
+
             $items[$key]->owner_name  = "";
             if($items[$key]->farm!=null){  
                 if($items[$key]->farm->user !=null){
@@ -64,8 +77,9 @@ class ApiAnimalController extends Controller
             unset($items[$key]->farm);
             unset($items[$key]->district); 
             unset($items[$key]->sub_county); 
+            $_items[] = $items[$key];
         }
-        return $items;
+        return $_items;
     }
 
 
