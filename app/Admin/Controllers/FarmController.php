@@ -182,7 +182,7 @@ class FarmController extends AdminController
             if (!$v->isRole('farmer')) {
                 continue;
             }
-            $admins[$v->id] = $v->name . " - " . $v->id;
+            $admins[$v->id] = $v->name . " - " . $v->id." - ({$v->username})";
         }
         $sub_counties = [];
         foreach (SubCounty::all() as $key => $p) {
