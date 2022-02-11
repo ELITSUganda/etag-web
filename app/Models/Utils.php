@@ -92,11 +92,11 @@ class Utils extends Model
 
     public static function response($data = [])
     {
-        $resp['status'] = 1;
+        $resp['status'] = "1";
         $resp['message'] = "Success";
         $resp['data'] = null;
         if (isset($data['status'])) {
-            $resp['status'] = $data['status'];
+            $resp['status'] = $data['status']."";
         }
         if (isset($data['message'])) {
             $resp['message'] = $data['message'];
