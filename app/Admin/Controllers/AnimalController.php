@@ -67,7 +67,10 @@ class AnimalController extends AdminController
             });
             $grid->disableCreateButton();
         }
-
+        $grid->actions(function ($actions) {
+            $actions->disableView();
+        });
+        
 
         $grid->filter(function ($filter) {
 
@@ -121,20 +124,14 @@ class AnimalController extends AdminController
         });
         
 
- 
-        $grid->column('created_at', __('Created'))
-        ->display(function ($f) {
-            return Carbon::parse($f)->toFormattedDateString();
-        })->sortable();
-
-
-        $grid->column('e_id', __('E id'))->sortable();
+        $grid->column('e_id', __('E-ID'))->sortable();
+        $grid->column('v_id', __('V-ID'))->sortable();
         $grid->column('lhc', __('LHC'))->sortable();
-
         $grid->column('type', __('Species'))->sortable();
-        $grid->column('sex', __('Sex'))->sortable(); 
-        $grid->column('dob', __('Year'))->sortable(); 
-        $grid->column('fmd', __('FMD'))->sortable();
+        $grid->column('breed', __('Breed'))->sortable();
+        $grid->column('sex', __('Sex'))->sortable();
+        $grid->column('dob', __('Year born'))->sortable();
+        $grid->column('fmd', __('Last FMD'))->sortable(); 
         $grid->column('status', __('Status'))->sortable();
         
 

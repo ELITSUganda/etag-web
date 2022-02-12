@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PrintController;
+use App\Http\Controllers\PrintController2;
 use Encore\Admin\Grid\Tools\Header;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::match(['get', 'post'], '/print', [PrintController::class, 'index']);
+Route::match(['get', 'post'], '/print2', [PrintController2::class, 'index']);
 
 Route::get('/', function () {
     header( "Location: ". admin_url());

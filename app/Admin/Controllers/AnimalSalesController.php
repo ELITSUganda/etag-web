@@ -116,6 +116,18 @@ class AnimalSalesController extends AdminController
             $filter->equal('v_id', "V-ID");
         });
 
+        $grid->actions(function ($actions) {
+            $actions->disableView();
+        });
+
+        $grid->column('e_id', __('E-ID'))->sortable();
+        $grid->column('v_id', __('V-ID'))->sortable();
+        $grid->column('lhc', __('LHC'))->sortable();
+        $grid->column('type', __('Species'))->sortable();
+        $grid->column('breed', __('Breed'))->sortable();
+        $grid->column('sex', __('Sex'))->sortable();
+        $grid->column('dob', __('Year born'))->sortable();
+        $grid->column('fmd', __('Last FMD'))->sortable(); 
 
 
         $grid->column('created_at', __('Created'))
@@ -124,13 +136,6 @@ class AnimalSalesController extends AdminController
             })->sortable();
 
 
-        $grid->column('e_id', __('E id'))->sortable();
-        $grid->column('lhc', __('LHC'))->sortable();
-
-        $grid->column('type', __('Species'))->sortable();
-        $grid->column('sex', __('Sex'))->sortable();
-        $grid->column('dob', __('Year'))->sortable();
-        $grid->column('fmd', __('FMD'))->sortable(); 
 
         $grid->column('trader', __('Trader'))
             ->display(function ($id) {

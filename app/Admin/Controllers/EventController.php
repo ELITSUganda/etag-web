@@ -37,6 +37,11 @@ class EventController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new Event());
+
+        $grid->actions(function ($actions) {
+            $actions->disableView();
+        });
+        
         /*$faker = \Faker\Factory::create();
         
         $types = Array(
@@ -132,30 +137,24 @@ class EventController extends AdminController
         });
 
 
-        $grid->column('created_at', __('Created'))
+        $grid->column('animal_id', __('E-ID - V-ID'))
+        ->display(function ($id) {
+            $u = Animal::find($id);
+            if (!$u) {
+                return $id;
+            }
+            return $u->e_id . " - " . $u->v_id;
+        })->sortable(); 
+        $grid->column('created_at', __('Date'))
             ->display(function ($f) {
                 return Carbon::parse($f)->toFormattedDateString();
             })->sortable();
-
-        $grid->column('animal_id', __('Animal'))
-            ->display(function ($id) {
-                $u = Animal::find($id);
-                if (!$u) {
-                    return $id;
-                }
-                return $u->e_id . " - " . $u->v_id;
-            })->sortable();
-
-
-        $grid->column('animal_type', __('Animal type'))->sortable();
-        $grid->column('type', __('Event Type'))->sortable();
-
-
+        $grid->column('type', __('Event Type'))->sortable(); 
         $grid->column('vaccine_id', __('Vaccine'))
             ->display(function ($id) {
                 $u = Vaccine::find($id);
                 if (!$u) {
-                    return $id;
+                    return "-";
                 }
                 return $u->name;
             })->sortable();
@@ -164,7 +163,7 @@ class EventController extends AdminController
             ->display(function ($id) {
                 $u = Disease::find($id);
                 if (!$u) {
-                    return $id;
+                    return "-";
                 }
                 return $u->name;
             })->sortable();
@@ -173,10 +172,13 @@ class EventController extends AdminController
             ->display(function ($id) {
                 $u = Medicine::find($id);
                 if (!$u) {
-                    return $id;
+                    return "-";
                 }
                 return $u->name;
             })->sortable();
+            
+            
+        $grid->column('animal_type', __('Animal species'))->sortable();
 
 
 
@@ -184,7 +186,7 @@ class EventController extends AdminController
             ->display(function ($id) {
                 $u = District::find($id);
                 if (!$u) {
-                    return $id;
+                    return "-";
                 }
                 return $u->name;
             })->sortable();
@@ -192,7 +194,7 @@ class EventController extends AdminController
             ->display(function ($id) {
                 $u = SubCounty::find($id);
                 if (!$u) {
-                    return $id;
+                    return "-";
                 }
                 return $u->name;
             })->sortable();
@@ -202,7 +204,7 @@ class EventController extends AdminController
             ->display(function ($id) {
                 $u = Administrator::find($id);
                 if (!$u) {
-                    return $id;
+                    return "-";
                 }
                 return $u->name;
             })->sortable();

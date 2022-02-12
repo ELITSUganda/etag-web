@@ -51,6 +51,10 @@ class MovementController extends AdminController
 
         $grid = new Grid(new Movement());
 
+        $grid->actions(function ($actions) {
+            $actions->disableView();
+        });
+        
         if (Admin::user()->isRole('slaughter')) {
             $grid->model()->where('destination_slaughter_house', '=', Admin::user()->id)
                 ->where('status', '=', 'Approved');
@@ -110,12 +114,12 @@ class MovementController extends AdminController
             });
         }
 
-        $grid->column('created_at', __('Created'))
+        $grid->column('created_at', __('Date'))
             ->display(function ($f) {
                 return Carbon::parse($f)->toFormattedDateString();
-            })->sortable();
-
-
+            })->sortable(); 
+        $grid->column('destination', __('Destination'));
+ 
 
         $grid->column('trader_name', __('Applicant'));
         $grid->column('transporter_name', __('Transporter'));
@@ -145,7 +149,8 @@ class MovementController extends AdminController
         });
         $grid->column('id', __('Print'))
             ->display(function ($f) {
-                return '<a target="_blank" href="' . url("print?id=" . $this->id) . '">Print permit</a>';
+                return '<a target="_blank" href="' . url("print?id=" . $this->id) . '">Print permit using template #1</a>'
+                .'<br><a target="_blank" href="' . url("print2?id=" . $this->id) . '">Print permit using template #2</a>';
             });
 
 

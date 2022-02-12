@@ -96,19 +96,24 @@ class FarmController extends AdminController
         });
 
 
-        $grid->column('id', __('Id'));
-        $grid->column('created_at', __('Created'))
-            ->display(function ($f) {
-                return Carbon::parse($f)->toFormattedDateString();
-            })->sortable();
+        $grid->column('id', __('Id'))->sortable();
+        $grid->column('holding_code', __('Holding code'))->sortable();
+        $grid->column('size', __('Size'))->sortable(); 
+        $grid->column('village', __('Village'))->sortable(); 
         $grid->column('administrator_id', __('Owner'))
-            ->display(function ($id) {
-                $u = Administrator::find($id);
-                if (!$u) {
-                    return $id;
-                }
-                return $u->name;
-            })->sortable();
+        ->display(function ($id) {
+            $u = Administrator::find($id);
+            if (!$u) {
+                return $id;
+            }
+            return $u->name." ({$u->phone_number}) ";
+        })->sortable();
+        $grid->column('farm_type', __('Farm type'))->sortable();
+
+
+
+   
+
         $grid->column('district_id', __('District'))
             ->display(function ($id) {
                 $u = District::find($id);
@@ -126,13 +131,10 @@ class FarmController extends AdminController
                 return $u->name;
             })->sortable();
 
-
-        $grid->column('farm_type', __('Farm type'))->sortable();
-        $grid->column('holding_code', __('Holding code'))->sortable();
-        $grid->column('size', __('Size'))->sortable();
-        $grid->column('animals_count', __('Animals'))->sortable()->width(50);
-        $grid->column('dfm', __('Detail'));
-
+            $grid->column('created_at', __('Created'))
+            ->display(function ($f) {
+                return Carbon::parse($f)->toFormattedDateString();
+            })->sortable(); 
         return $grid;
     }
 
