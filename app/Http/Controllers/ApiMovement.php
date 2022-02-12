@@ -170,8 +170,7 @@ class ApiMovement extends Controller
 
 
         if($movement->save()){
-            $movement_animal_id = $movement->id;
-            die("===> $movement_animal_id");
+            $movement_animal_id = $movement->id; 
             foreach ($animal_ids as $key => $value) {
                 $animal = Animal::find(((int)($value)));
                 if($animal == null){
@@ -182,8 +181,7 @@ class ApiMovement extends Controller
                 $move_item->movement_animal_id = $animal->id;
                 $move_item->save();
             }
-        }
-
+        } 
         
         return Utils::response([
             'status' => 1,
