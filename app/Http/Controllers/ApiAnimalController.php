@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Animal;
+use App\Models\Event;
 use App\Models\Farm;
 use App\Models\Utils;
 use Carbon\Carbon;
@@ -223,5 +224,30 @@ class ApiAnimalController extends Controller
         ]);
     }
 
-    
+    public function events(Request $request)
+    {
+        $per_page = 100;
+        if (isset($request->per_page)) {
+            $per_page = $request->per_page;
+        }
+        $items = Event::paginate($per_page)->withQueryString()->items();
+        foreach ($items as $key => $value) {
+            $items[$key]->e_id  = "";
+            $items[$key]->v_id  = "";
+            $items[$key]->lhc  = "";
+            if ($items[$key]->animal != null) {
+                if ($items[$key]->animal->e_id != null) {
+                    $items[$key]->e_id  = $items[$key]->animal->e_id;
+                    $items[$key]->v_id  = $items[$key]->animal->v_id;
+                    $items[$key]->lhc  = $items[$key]->animal->lhc;
+                }
+                unset($items[$key]->animal);
+            }
+            $items[$key]->created = Carbon::parse($value->created)->toFormattedDateString();  
+
+        }
+        return $items;
+    }
+
+
 }
