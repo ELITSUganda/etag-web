@@ -237,16 +237,23 @@ class ApiAnimalController extends Controller
         
         $is_search = false;
         $items = [];
-        $s = $request->s;
+        $s = $request->s; 
         if($s != null){
-            if(strlen($s)>0){
+            if(strlen($s)>0){ 
                 $is_search = true;
-                $items = Event::where("e_id",$s)->first();
-                if(empty($items)){
-                    $items = Event::where(
-                        'v_id', 'like', '%'.trim($request->s).'%',
-                    )->paginate(1000)->withQueryString()->items();
-                }  
+
+                $an = Animal::where("e_id",$s)->first();
+                if($an == null){
+                    $an = Animal::where("v_id",$s)->first();
+                }
+                if($an==null){ 
+                    return [];
+                }
+                if(!isset($an->id)){
+                    return [];
+                }
+
+                $items = Event::where("animal_id",$an->id)->get(); 
                 if(empty($items)){ 
                     return [];
                 }
