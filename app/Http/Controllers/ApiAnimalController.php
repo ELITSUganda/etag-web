@@ -234,7 +234,30 @@ class ApiAnimalController extends Controller
         $administrator_id = Utils::get_user_id($request);
         $is_admin = Utils::is_admin($request);
 
-        $items = Event::paginate($per_page)->withQueryString()->items();
+        
+        $is_search = false;
+        $items = [];
+        $s = $request->s;
+        if($s != null){
+            if(strlen($s)>0){
+                $is_search = true;
+                $items = Event::where("e_id",$s)->first();
+                if(empty($items)){
+                    $items = Event::where(
+                        'v_id', 'like', '%'.trim($request->s).'%',
+                    )->paginate(1000)->withQueryString()->items();
+                }  
+                if(empty($items)){ 
+                    return [];
+                }
+            }
+        }
+        
+        if(!$is_search){
+            $items = Event::paginate($per_page)->withQueryString()->items();
+        }
+        
+
         $_items = [];
         foreach ($items as $key => $value) {
 
