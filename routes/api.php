@@ -28,7 +28,7 @@ Route::post('animals', [ApiAnimalController::class, 'create']);
 Route::get('animals', [ApiAnimalController::class, 'index']);
 Route::get('animals/{id}', [ApiAnimalController::class, 'show']);
 
-Route::get('events', die("ents..."));
+Route::get('events', [ApiEventController::class, 'index']);
 Route::get('events/{id}', [ApiEventController::class, 'show']);
 // Animal controler //
 
