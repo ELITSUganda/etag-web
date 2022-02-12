@@ -2,6 +2,7 @@
 //rominah P
 namespace App\Http\Controllers;
 
+use App\Models\Animal;
 use App\Models\Farm;
 use App\Models\Movement;
 use App\Models\Utils;
@@ -78,8 +79,16 @@ class ApiMovement extends Controller
             ]);
         }
 
+        $i = 0;
+        foreach ($animal_ids as $key => $value) {
+            $animal = Animal::find(((int)($value)));
+            if($animal == null){
+                continue;
+            }
+            $i++;
+        }
+        die("found $i");
 
-        print_r($animal_ids);
         $requirements = [
             'transporter_nin',
             'paid_method',
