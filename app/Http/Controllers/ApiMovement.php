@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Animal;
 use App\Models\Farm;
 use App\Models\Movement;
+use App\Models\MovementHasMovementAnimal;
 use App\Models\Utils;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
@@ -79,16 +80,7 @@ class ApiMovement extends Controller
             ]);
         }
 
-        $i = 0;
-        foreach ($animal_ids as $key => $value) {
-            $animal = Animal::find(((int)($value)));
-            if($animal == null){
-                continue;
-            }
-            $i++;
-        }
-        die("found $i");
-
+    
         $requirements = [
             'transporter_nin',
             'paid_method',
@@ -177,7 +169,21 @@ class ApiMovement extends Controller
         $movement->paid_method = $request->paid_method;    
 
 
-        $movement->save(); 
+        if($movement->save()){
+            $movement_animal_id = $movement->id;
+            die("===> $movement_animal_id");
+            foreach ($animal_ids as $key => $value) {
+                $animal = Animal::find(((int)($value)));
+                if($animal == null){
+                    continue;
+                }
+                $move_item = new MovementHasMovementAnimal();
+                $move_item->movement_id = $movement_animal_id;
+                $move_item->movement_animal_id = $animal->id;
+                $move_item->save();
+            }
+        }
+
         
         return Utils::response([
             'status' => 1,
