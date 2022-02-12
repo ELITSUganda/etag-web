@@ -230,8 +230,20 @@ class ApiAnimalController extends Controller
         if (isset($request->per_page)) {
             $per_page = $request->per_page;
         }
+        
+        $administrator_id = Utils::get_user_id($request);
+        $is_admin = Utils::is_admin($request);
+
         $items = Event::paginate($per_page)->withQueryString()->items();
+        $_items = [];
         foreach ($items as $key => $value) {
+
+            if(!$is_admin){
+                if($value->administrator_id != $administrator_id){ 
+                    continue;
+                }
+            } 
+
             $items[$key]->e_id  = "";
             $items[$key]->v_id  = "";
             $items[$key]->lhc  = "";
@@ -244,9 +256,9 @@ class ApiAnimalController extends Controller
                 unset($items[$key]->animal);
             }
             $items[$key]->created = Carbon::parse($value->created)->toFormattedDateString();  
-
+            $_items[] = $items[$key];
         }
-        return $items;
+        return $_items;
     }
 
 
