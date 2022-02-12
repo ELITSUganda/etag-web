@@ -194,7 +194,7 @@ class PrintController2 extends Controller
                     <li>c) Are fit for Slaughter purposes</li>
                 </ol>
                 <p>Issued at (name of district and date): .........................................................</p>   
-                <h4>Name, rank, address and telephone of the authorized state veterinary officer:h4>
+                <h4>Name, rank, address and telephone of the authorized state veterinary officer:<h4>
                 <p>..................................................................................................................</p>   
                 <p>Signature and stamp / seal: ..................................................................................................................</p>
                 <br>
