@@ -58,8 +58,7 @@ class ApiMovement extends Controller
 
     public function create(Request $request) 
     {
-
- 
+        die($request->animal_ids);
         $requirements = [
             'transporter_nin',
             'paid_method',
