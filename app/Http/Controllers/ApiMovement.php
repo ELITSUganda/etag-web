@@ -58,7 +58,28 @@ class ApiMovement extends Controller
 
     public function create(Request $request) 
     {
-        die($request->animal_ids);
+        $has_animals = false;
+        $animal_ids = [];
+        if($request->animal_ids!=null){
+            if(strlen($request->animal_ids)>2){
+                $animal_ids = json_decode($request->animal_ids);
+                if($animal_ids == null || empty($animal_ids)){
+
+                }else{
+                    $has_animals = true;
+                }
+            }
+        }
+
+        if(!$has_animals){
+            return Utils::response([
+                'status' => 0,
+                'message' => "There must be at least one animal in your movement permit.", 
+            ]);
+        }
+
+
+        print_r($animal_ids);
         $requirements = [
             'transporter_nin',
             'paid_method',
