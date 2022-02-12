@@ -1,8 +1,7 @@
 <?php
 //rominah j
 use App\Admin\Controllers\FarmController;
-use App\Http\Controllers\ApiAnimalController;
-use App\Http\Controllers\ApiEventController;
+use App\Http\Controllers\ApiAnimalController; 
 use App\Http\Controllers\ApiFarmController;
 use App\Http\Controllers\ApiLoginController;
 use App\Http\Controllers\ApiMovement;
@@ -28,8 +27,8 @@ Route::post('animals', [ApiAnimalController::class, 'create']);
 Route::get('animals', [ApiAnimalController::class, 'index']);
 Route::get('animals/{id}', [ApiAnimalController::class, 'show']);
 
-Route::get('events', [App\Http\Controllers\ApiEventController::class, 'index']);
-Route::get('events/{id}', [ApiEventController::class, 'show']);
+Route::get('events', [\App\Http\Controllers\ApiEventController::class, 'index']);
+Route::get('events/{id}', [\App\Http\Controllers\ApiEventController::class, 'show']);
 // Animal controler //
 
 // ========== users starts ============== //
