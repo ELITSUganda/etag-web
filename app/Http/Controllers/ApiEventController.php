@@ -70,6 +70,7 @@ class ApiEventController extends Controller
 
     public function store(Request $request)
     {
+        return "good to !";
         return Administrator::create($request->all());
     }
 
