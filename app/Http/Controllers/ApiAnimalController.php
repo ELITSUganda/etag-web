@@ -28,14 +28,6 @@ class ApiAnimalController extends Controller
             ]);
         }
  
- 
-// 
-// detail
-// animal_type
-// disease_id
-// vaccine_id
-// medicine_id	
-
         $animal = Animal::find(((int)($request->animal_id)));
         if($animal == null){
             return Utils::response([
@@ -44,10 +36,25 @@ class ApiAnimalController extends Controller
             ]);
         }
 
+        $event = new Event();
+        $event->animal_id = (int)($request->animal_id);
+        $event->detail = $request->detail;
+        $event->type = $request->type;
+        $event->disease_id = $request->disease;
+        $event->medicine_id = $request->treatment;
+        $event->vaccine_id = $request->vaccination;
+        
+        if($event->save()){
+            return Utils::response([
+                'status' => 1,
+                'message' => "Event was created successfully.",
+                'data' => $event
+            ]);
+        }
         
         return Utils::response([
             'status' => 0,
-            'message' => "We are gooD!",
+            'message' => "Failed to save event on database.",
         ]);
   
     }
