@@ -29,7 +29,7 @@ Route::get('animals', [ApiAnimalController::class, 'index']);
 Route::get('animals/{id}', [ApiAnimalController::class, 'show']);
 
 Route::get('events', [ApiAnimalController::class, 'events']);
-Route::post('events', [ApiEventController::class, 'store']);
+Route::post('events', [ApiAnimalController::class, 'store_event']);
 Route::get('events/{id}', [ApiAnimalController::class, 'show']);
 // Animal controler //
 
