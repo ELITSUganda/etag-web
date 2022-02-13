@@ -70,8 +70,34 @@ class ApiEventController extends Controller
 
     public function store(Request $request)
     {
-        return "good to !";
-        return Administrator::create($request->all());
+        if($request->animal_id == null){
+            return Utils::response([
+                'status' => 0,
+                'message' => "Animal ID must be provided.",
+            ]);
+        }
+
+        if($request->type == null){
+            return Utils::response([
+                'status' => 0,
+                'message' => "Event type must be provided.",
+            ]);
+        }
+
+        if($request->type == null){
+            return Utils::response([
+                'status' => 0,
+                'message' => "Event type must be provided.",
+            ]);
+        }
+
+        return Utils::response([
+            'status' => 0,
+            'message' => "We are gooD!",
+        ]);
+        
+
+  
     }
 
     public function update(Request $request, $id)
