@@ -44,10 +44,7 @@ class ApiAnimalController extends Controller
         $event->medicine_id = $request->treatment;
         $event->vaccine_id = $request->vaccination;
 
-        return Utils::response([
-            'status' => 0,
-            'message' => "Failed to save event on database.",
-        ]);
+        
         
         if($event->save()){
             return Utils::response([
