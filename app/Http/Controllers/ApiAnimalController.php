@@ -27,20 +27,28 @@ class ApiAnimalController extends Controller
                 'message' => "Event type must be provided.",
             ]);
         }
+ 
+ 
+// 
+// detail
+// animal_type
+// disease_id
+// vaccine_id
+// medicine_id	
 
-        if($request->type == null){
+        $animal = Animal::find(((int)($request->animal_id)));
+        if($animal == null){
             return Utils::response([
                 'status' => 0,
-                'message' => "Event type must be provided.",
+                'message' => "Animal not found on our database.",
             ]);
         }
 
+        
         return Utils::response([
             'status' => 0,
             'message' => "We are gooD!",
         ]);
-        
-
   
     }
 
