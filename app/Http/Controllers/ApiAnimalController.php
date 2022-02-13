@@ -43,8 +43,7 @@ class ApiAnimalController extends Controller
         $event->disease_id = $request->disease;
         $event->medicine_id = $request->treatment;
         $event->vaccine_id = $request->vaccination;
-
-        
+        $event->approved_by = 1; 
         
         if($event->save()){
             return Utils::response([
