@@ -41,11 +41,46 @@ class HomeController extends Controller
                 $row->column(6, $box);
             });
             $content->row(function ($row) {
+                $admins = Administrator::all();
+
+                $farmers_count = 0;
+                $trader_count = 0;
+                $administrator_count = 0;
+                $veterinary_count = 0;
+                $trader_count = 0;
+                $slaughter_count = 0;
+                $livestock_count = 0;
+                foreach ($admins as $key => $_ad) {
+                    if($_ad->isRole('farmer')){
+                        $farmers_count++;
+                    }
+                    if($_ad->isRole('trader')){
+                        $trader_count++;
+                    }
+                    if($_ad->isRole('administrator')){
+                        $administrator_count++;
+                    }
+                    if($_ad->isRole('veterinary')){
+                        $veterinary_count++;
+                    }
+                    if($_ad->isRole('trader')){
+                        $trader_count++;
+                    }
+                    if($_ad->isRole('slaughter')){
+                        $slaughter_count++;
+                    }
+                    if($_ad->isRole('livestock-officer	')){
+                        $livestock_count++;
+                    }
+                }
                 $row->column(4, new InfoBox(
                     ''
-                        . AdminRoleUser::where('role_id', 1)->count() . " Admins, "
-                        . AdminRoleUser::where('role_id', 2)->count() . " Veterinaries, "
-                        . AdminRoleUser::where('role_id', 3)->count() . " Farmers ",
+                        . "{$administrator_count} Admins, "
+                        . "{$trader_count} Veterinaries, "
+                        . "{$trader_count} traders, "
+                        . "{$slaughter_count} Slaughter houses, "
+                        . "{$livestock_count} Livestock officers, "
+                        . "{$farmers_count} Farmers.",
                     'All users',
                     'green',
                     admin_url('/auth/users'),
