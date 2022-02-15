@@ -14,5 +14,5 @@
 
     </div>
     <!-- Default to the left -->
-    <strong>All rights reserved &copy <a href="javascript:;" >U-Lits</a> 2022</strong>
+    <strong>All rights reserved &copy <a href="javascript:;" >U-LITS</a> 2022</strong>
 </footer>

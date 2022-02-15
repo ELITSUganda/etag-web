@@ -231,6 +231,7 @@ class PrintController2 extends Controller
 
 
         $pdf = App::make('dompdf.wrapper');
+        
         $pdf->loadHTML($data);
         return $pdf->stream();
     }
