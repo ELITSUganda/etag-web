@@ -76,7 +76,7 @@ class HomeController extends Controller
                 $row->column(4, new InfoBox(
                     ''
                         . "{$administrator_count} Admins, "
-                        . "{$trader_count} Veterinaries, "
+                        . "{$trader_count} veterinarians, "
                         . "{$trader_count} traders, "
                         . "{$slaughter_count} Slaughter houses, "
                         . "{$livestock_count} Livestock officers, "
