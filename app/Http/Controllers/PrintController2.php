@@ -89,7 +89,6 @@ class PrintController2 extends Controller
         $font_roboto_link =  ('public/assets/fonts/Roboto/Roboto-Light.ttf');
         $logo_link =  url('assets/images/coat_of_arms-min.png');
  
-        die($logo_link);
         $title = "E-Permit";
         $sub_title = "INTER-DISTRICT VETERINARY HEALTH CERTIFICATE PERMITTING THE MOVEMENT
         OF SLAUGHTER ANIMALS (ALL SPECIES) WITHIN UGANDA ONLY";
