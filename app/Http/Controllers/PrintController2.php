@@ -36,7 +36,7 @@ class PrintController2 extends Controller
         } 
         
         Utils::make_movement_qr($m);
-        $code_link =  url('storage/codes/'.$m->id.".png");
+        $code_link =  url('public/storage/codes/'.$m->id.".png");
         $i = 0;
         $animals = "";
         foreach ($m->movement_has_movement_animals as $key => $v) {
@@ -231,7 +231,6 @@ class PrintController2 extends Controller
 
 
         $pdf = App::make('dompdf.wrapper');
-        
         $pdf->loadHTML($data);
         return $pdf->stream();
     }
