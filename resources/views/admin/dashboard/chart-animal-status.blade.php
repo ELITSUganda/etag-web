@@ -5,11 +5,9 @@
                 'Live' ,
                 'Sick' ,
                 'Healed',
-                'Vaccinated' ,
-                'Gave birth' ,
+                'Vaccinated' , 
                 'Sold',
-                'Died',
-                'Slaugtered',
+                'Died', 
                 'Stolen' ,
             );
     $data = [];

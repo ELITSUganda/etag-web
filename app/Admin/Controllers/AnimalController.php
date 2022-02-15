@@ -111,12 +111,11 @@ class AnimalController extends AdminController
             $filter->equal('status', "Status")->select(Array(
                 'Diagonized' => 'Diagonized',
                 'Healed' => 'Healed',
-                'Vaccinated' => 'Vaccinated',
-                'Gave birth' => 'Gave birth',
-                'Sold' => 'Sold',
+                'Vaccinated' => 'Vaccinated',  
                 'Died' => 'Died',
                 'Slautered' => 'Slautered',
                 'Stolen' => 'Stolen',
+                'Other' => 'Other',
             ));
             $filter->equal('e_id', "E-ID");
             $filter->equal('v_id', "V-ID");
