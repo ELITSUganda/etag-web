@@ -4,7 +4,9 @@ namespace App\Admin\Controllers;
 
 use App\Models\District;
 use App\Models\Farm;
+use App\Models\Movement;
 use App\Models\SubCounty;
+use App\Models\Utils;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Controllers\AdminController;
@@ -50,6 +52,9 @@ class FarmController extends AdminController
             $f->longitude = "0.0"; 
             $f->save();
         }*/
+
+       
+
         $grid = new Grid(new Farm());
         if (Admin::user()->isRole('farmer')) {
             $grid->model()->where('administrator_id', '=', Admin::user()->id);

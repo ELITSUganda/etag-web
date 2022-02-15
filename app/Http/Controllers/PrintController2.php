@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\District;
 use App\Models\Movement;
 use App\Models\SubCounty;
+use App\Models\Utils;
 use Encore\Admin\Facades\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -34,6 +35,8 @@ class PrintController2 extends Controller
             $m->permit_Number = "################";
         } 
         
+        Utils::make_movement_qr($m);
+        $code_link =  url('storage/codes/'.$m->id.".png");
         $i = 0;
         $animals = "";
         foreach ($m->movement_has_movement_animals as $key => $v) {
@@ -198,12 +201,27 @@ class PrintController2 extends Controller
                 <p>..................................................................................................................</p>   
                 <p>Signature and stamp / seal: ..................................................................................................................</p>
                 <br>
-                <p>Animals are to remain under isolation and none to be removed or added in transit up to the final designated slaughter / processing places
-    Emergency Slaughters to be supervised by authorized veterinary personnel and a report submitted to the final destination veterinary authorities,
-    Animals ( revention of Cruetty) Chapter 39 must be guaranteed by the certifying, loading and stock-route inspection officers. Animals here mean
-    domestic mammalian, birds and wildlife animals of terrestrial -aquatic origin. The Certificate is issued in triplicate and for only a single
-    consignment. Slaughter animals shall be identified by the SL mark on the left jaw and or centrally serialized Red ear tags. Extra inf ;
-    should be attached. <b>This is not a revenue collection receipt.</b></p>
+
+                <table>
+                    <tbody>
+
+                        <tr>
+                        <td width="20%" ><img width="100%" src="'.$code_link.'"/></td>
+                        <td>
+                        <p>
+                            Animals are to remain under isolation and none to be removed or added in transit up to the final designated slaughter / processing places 
+                            Emergency Slaughters to be supervised by authorized veterinary personnel and a report submitted to the final destination veterinary authorities,
+                            Animals ( revention of Cruetty) Chapter 39 must be guaranteed by the certifying, loading and stock-route inspection officers. Animals here mean
+                            domestic mammalian, birds and wildlife animals of terrestrial -aquatic origin. The Certificate is issued in triplicate and for only a single consignment. 
+                            Slaughter animals shall be identified by the SL mark on the left jaw and or centrally serialized Red ear tags. Extra inf; should be attached. 
+                            This is not a revenue collection receipt.
+                            </p>
+                        </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            
 
                 ';
                 

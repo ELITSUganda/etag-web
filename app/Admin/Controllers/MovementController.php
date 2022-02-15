@@ -43,6 +43,13 @@ class MovementController extends AdminController
     {
 
 
+        /*
+         $move = Movement::find(1);
+         $move->vehicle .= rand(100,1000);
+         $move->save();
+         die($move->vehicle);
+         $move->die();*/
+
         /* $d =  Movement::find(16);
         $d->status = "Approveds";
         $d->save();  

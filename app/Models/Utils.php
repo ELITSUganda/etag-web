@@ -8,6 +8,32 @@ use Encore\Admin\Grid\Model;
 
 class Utils extends Model
 {
+    
+    public static function make_movement_qr($model){
+        $p_url = url("/print?id=".$model->id);
+            $data = "ULITS E-MOVEMENT PERMIT\n".
+                    "Applicant: $model->trader_name\n".
+                    "Transporter: $model->transporter_name\n".
+                    "PERMIT No.: $model->permit_Number\n".
+                    "PERMIT Status: $model->status\n".
+                    "VERIFICATION URL: $p_url\n";
+                
+            Utils::make_qr([
+                'file_name' => $model->id.".png",
+                'data' => $data,
+            ]);
+    }
+    public static function make_qr($opts = [
+        'file_name' => '1.png',
+        'data' => 'Data',
+    ]){
+        $url = url('code_maker.php?f=png&s=qr&sf=20&ms=r&md=.8&d='.urlencode($opts['data']));
+        $data = file_get_contents($url);
+        $myfile = fopen("public/storage/codes/".$opts['file_name'], "w");
+        fwrite($myfile, $data); 
+        fclose($myfile); 
+    }
+
     public static function move_animal($transfer = [])
     {
         if (

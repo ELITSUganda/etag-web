@@ -68,8 +68,9 @@ class Movement extends Model
             return $model;
         });
 
-        self::updated(function ($model) {
-            // ... code here
+
+        self::updated(function ($model) { 
+            Utils::make_movement_qr($model);
         });
 
         self::deleting(function ($model) {
