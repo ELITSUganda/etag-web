@@ -41,7 +41,12 @@ return [
             'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
         ],
-
+        'admin' => [
+            'driver' => 'local',
+            'root' => $_SERVER['DOCUMENT_ROOT'].'/storage',
+            'url' => env('APP_URL') . '',
+            'visibility' => 'public',
+        ],
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

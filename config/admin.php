@@ -157,7 +157,7 @@ return [
 
         // Image and file upload path under the disk above.
         'directory' => [
-            'image' => 'images',
+            'image' => 'public/storage',
             'file'  => 'files',
         ],
     ],
