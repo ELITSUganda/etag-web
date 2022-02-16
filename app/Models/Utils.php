@@ -69,6 +69,16 @@ class Utils extends Model
             } 
         }
     }
+
+    public static function get_role($u = null){
+        $roles = $u->roles;
+        if(isset($roles[0])){
+            if(isset($roles[0]['slug'])){
+                return $roles[0]['slug'];
+            }
+        }
+        return "";
+    }
     public static function is_admin($request = null)
     {
         if ($request == null) {
