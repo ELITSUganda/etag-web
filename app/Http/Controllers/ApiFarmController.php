@@ -10,12 +10,12 @@ use Illuminate\Http\Request;
 
 class ApiFarmController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request) 
     {
 
-        $is_admin = Utils::is_admin($request);
         $user_id = Utils::get_user_id($request);
-
+        $user_role = Utils::is_admin($request);
+         
         $has_search = false;
         if(isset($request->s)){
             if($request->s !=null){
@@ -52,7 +52,7 @@ class ApiFarmController extends Controller
             unset($items[$key]->farm);
             unset($items[$key]->district); 
             unset($items[$key]->sub_county); 
-            if($is_admin){
+            if( $user_role == 'administrator' ){
                 $filtered_items[] = $items[$key]; 
             }else{ 
                 if($user_id == $items[$key]->administrator_id){

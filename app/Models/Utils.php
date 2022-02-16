@@ -83,6 +83,19 @@ class Utils extends Model
             return false;
         }
 
+        $roles = $u->roles;
+        if(isset($roles[0])){
+            if(isset($roles[0]['slug'])){
+                return $roles[0]['slug'];
+            }
+        }
+
+        return "";
+
+        if (!$u->isRole('veterinary')) {
+            return  false;
+        }
+
         if (!$u->isRole('veterinary')) {
             return  false;
         }

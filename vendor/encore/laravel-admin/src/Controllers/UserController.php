@@ -87,9 +87,7 @@ class UserController extends AdminController
         $show->field('roles', trans('admin.roles'))->as(function ($roles) {
             return $roles->pluck('name');
         })->label();
-        $show->field('permissions', trans('admin.permissions'))->as(function ($permission) {
-            return $permission->pluck('name');
-        })->label();
+ 
         $show->field('created_at', trans('Created'))->as(function ($f) {
             return Carbon::parse($f)->toFormattedDateString();
         });
@@ -148,8 +146,8 @@ class UserController extends AdminController
 
         $form->ignore(['password_confirmation']);
 
-        $form->multipleSelect('roles', trans('admin.roles'))->options($roleModel::all()->pluck('name', 'id'));
-        $form->multipleSelect('permissions', trans('admin.permissions'))->options($permissionModel::all()->pluck('name', 'id'));
+        $form->multipleSelect('roles', trans('admin.roles'))->options($roleModel::all()->pluck('name', 'id'))->rules('required|max:1');
+        //$form->multipleSelect('permissions', trans('admin.permissions'))->options($permissionModel::all()->pluck('name', 'id'));
  
         $form->saving(function (Form $form) {
             if ($form->password && $form->model()->password != $form->password) {
