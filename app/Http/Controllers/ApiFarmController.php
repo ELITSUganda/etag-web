@@ -146,6 +146,9 @@ class ApiFarmController extends Controller
         $f->animals_count = $request->animals_count;
         $f->dfm = $request->dfm;
         $f->farm_type = $request->farm_type;
+        $f->cattle_count = $request->cattle_count;
+        $f->sheep_count = $request->sheep_count;
+        $f->goats_count = $request->goats_count;
         $f->latitude = $request->latitude;
         $f->longitude = $request->longitude;
         $f->sub_county_id = $request->sub_county_id;
