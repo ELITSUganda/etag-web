@@ -10,27 +10,29 @@ use Illuminate\Http\Request;
 
 class ApiFarmController extends Controller
 {
-    public function index(Request $request) 
+    public function index(Request $request)
     {
 
         $user_id = Utils::get_user_id($request);
         $user_role = Utils::is_admin($request);
-         
+
         $has_search = false;
-        if(isset($request->s)){
-            if($request->s !=null){
-                if(strlen($request->s)>0){
-                    $has_search = true; 
+        if (isset($request->s)) {
+            if ($request->s != null) {
+                if (strlen($request->s) > 0) {
+                    $has_search = true;
                 }
             }
         }
-        
+
         $items = [];
-        if($has_search){
+        if ($has_search) {
             $items = Farm::where(
-                'holding_code', 'like', '%'.trim($request->s).'%',
+                'holding_code',
+                'like',
+                '%' . trim($request->s) . '%',
             )->paginate(1000)->withQueryString()->items();
-        }else{
+        } else {
             $items = Farm::paginate(1000)->withQueryString()->items();
         }
 
@@ -39,66 +41,69 @@ class ApiFarmController extends Controller
         foreach ($items as $key => $value) {
             $items[$key]->owner_name = "";
             $items[$key]->district_name = "";
-            $items[$key]->created = Carbon::parse($value->created)->toFormattedDateString(); 
-            if($value->user!=null){
+            $items[$key]->created = Carbon::parse($value->created)->toFormattedDateString();
+            if ($value->user != null) {
                 $items[$key]->owner_name = $value->user->name;
             }
-            if($value->district!=null){
+            if ($value->district != null) {
                 $items[$key]->district_name = $value->district->name;
             }
-            if($value->sub_county!=null){
+            if ($value->sub_county != null) {
                 $items[$key]->sub_county_name = $value->sub_county->name;
             }
             unset($items[$key]->farm);
-            unset($items[$key]->district); 
-            unset($items[$key]->sub_county); 
-            if( $user_role == 'administrator' ){
-                $filtered_items[] = $items[$key]; 
-            }else{ 
-                if($user_id == $items[$key]->administrator_id){
-                    unset($items[$key]->user); 
-                    $filtered_items[] = $items[$key]; 
+            unset($items[$key]->district);
+            unset($items[$key]->sub_county);
+            if (
+                ($user_role == 'administrator') ||
+                ($user_role == 'admin')
+            ) {
+                $filtered_items[] = $items[$key];
+            } else {
+                if ($user_id == $items[$key]->administrator_id) {
+                    unset($items[$key]->user);
+                    $filtered_items[] = $items[$key];
                 }
             }
         }
 
         return $filtered_items;
     }
- 
+
     public function show($id)
     {
         $item = Farm::find($id);
-        if($item ==null){
+        if ($item == null) {
             return '{}';
         }
         $item->owner_name = "";
         $item->district_name = "";
         $item->created = $item->created;
-        if($item->user!=null){
+        if ($item->user != null) {
             $item->owner_name = $item->user->name;
         }
-        if($item->district!=null){
+        if ($item->district != null) {
             $item->district_name = $item->district->name;
         }
-        if($item->sub_county!=null){
+        if ($item->sub_county != null) {
             $item->sub_county_name = $item->sub_county->name;
         }
 
         return $item;
     }
 
-    public function create(Request $request) 
+    public function create(Request $request)
     {
 
- 
+
         if (
-            !isset($request->administrator_id )
+            !isset($request->administrator_id)
         ) {
             return Utils::response([
                 'status' => 0,
                 'message' => "You must provide farm owner."
             ]);
-        } 
+        }
 
         if (
             !isset($request->sub_county_id)
@@ -107,36 +112,36 @@ class ApiFarmController extends Controller
                 'status' => 0,
                 'message' => "You must provide sub_county_id."
             ]);
-        } 
+        }
         $administrator_id = 0;
-        if(isset($request->administrator_id)){
-            $administrator_id = (int)($request->administrator_id);            
-        } 
+        if (isset($request->administrator_id)) {
+            $administrator_id = (int)($request->administrator_id);
+        }
         $admin = Administrator::find($administrator_id);
 
-        if($admin ==null){
+        if ($admin == null) {
             $owner_temp_id = "";
-            if(isset($request->owner_temp_id)){
-                $owner_temp_id = $request->owner_temp_id;            
-            } 
-            if(strlen($owner_temp_id)>2){
-                $admin = Administrator::where('temp_id',$owner_temp_id)->first();
+            if (isset($request->owner_temp_id)) {
+                $owner_temp_id = $request->owner_temp_id;
+            }
+            if (strlen($owner_temp_id) > 2) {
+                $admin = Administrator::where('temp_id', $owner_temp_id)->first();
             }
         }
-        if($admin == null){
+        if ($admin == null) {
             return Utils::response([
                 'status' => 0,
                 'message' => "Farm owner not found."
             ]);
         }
-        if(!isset($admin->id)){
+        if (!isset($admin->id)) {
             return Utils::response([
                 'status' => 0,
                 'message' => "Farm owner ID not found."
             ]);
         }
-        
-        $f = new Farm(); 
+
+        $f = new Farm();
         $f->administrator_id = $admin->id;
         $f->animals_count = $request->animals_count;
         $f->dfm = $request->dfm;
@@ -144,7 +149,7 @@ class ApiFarmController extends Controller
         $f->latitude = $request->latitude;
         $f->longitude = $request->longitude;
         $f->sub_county_id = $request->sub_county_id;
-        $f->size = $request->size; 
+        $f->size = $request->size;
         $f->village = $request->village;
 
         $f->save();
@@ -169,5 +174,4 @@ class ApiFarmController extends Controller
 
         return 204;
     }
-    
 }
