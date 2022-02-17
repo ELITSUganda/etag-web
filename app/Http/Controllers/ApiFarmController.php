@@ -54,7 +54,8 @@ class ApiFarmController extends Controller
             unset($items[$key]->farm);
             unset($items[$key]->district);
             unset($items[$key]->sub_county);
-            if (
+            $filtered_items[] = $items[$key];
+           /* if (
                 ($user_role == 'administrator') ||
                 ($user_role == 'admin')
             ) {
@@ -64,7 +65,7 @@ class ApiFarmController extends Controller
                     unset($items[$key]->user);
                     $filtered_items[] = $items[$key];
                 }
-            }
+            }*/
         }
 
         return $filtered_items;
