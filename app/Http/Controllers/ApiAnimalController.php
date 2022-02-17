@@ -124,19 +124,18 @@ class ApiAnimalController extends Controller
 
 
     public function index(Request $request)
-    { 
-
-        
+    {  
         $administrator_id = Utils::get_user_id($request);
-        $is_admin = Utils::is_admin($request);
-   
+        $user_id = Utils::get_user_id($request);
+        $u = Administrator::find($user_id); 
+        $role = Utils::get_role($u);
+         
         $s = $request->s;
         $items = [];
         $_items = [];
         
         if($s != null){
-            if(strlen($s)>0){
-
+            if(strlen($s)>0){ 
                 if(str_contains($s,'UG')){
                     $f = Farm::where("holding_code",$s)->first();
                     if($f != null){
@@ -162,13 +161,16 @@ class ApiAnimalController extends Controller
             $items = Animal::paginate($per_page)->withQueryString()->items();            
         }
 
-        foreach ($items as $key => $value) {
-            if(!$is_admin){
-
+        foreach ($items as $key => $value) { 
+            if($role == 'farmer'){
                 if($value->administrator_id != $administrator_id){ 
                     continue;
                 }
-            } 
+            }else if($role == 'dvo'){
+                if($u->dvo != $value->district_id){ 
+                    continue;
+                }
+            }
 
             $items[$key]->owner_name  = "";
             if($items[$key]->farm!=null){  

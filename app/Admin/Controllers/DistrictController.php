@@ -76,6 +76,11 @@ class DistrictController extends AdminController
             if (!$v->isRole('dvo')) {
                 continue;
             }
+            $_dvo = ((int)($v->dvo));
+            if($_dvo > 0){
+                continue;
+            }
+
             $admins[$v->id] = $v->name . " - " . $v->id;
         }
 
