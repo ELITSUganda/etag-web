@@ -2,6 +2,7 @@
 
 namespace Encore\Admin\Controllers;
 
+use App\Models\SubCounty;
 use Carbon\Carbon;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
@@ -132,7 +133,21 @@ class UserController extends AdminController
         $form->text('phone_number_2', "Phone number 2");
         $form->text('email', "Email Address");
         $form->text('nin', "National ID No.");
-        $form->text('address', trans('Address'));
+
+
+        $sub_counties = [];
+        foreach (SubCounty::all() as $key => $p) {
+            $sub_counties[$p->id] = $p->code . "  - ".
+            $p->name . ", " .
+                $p->district->name . " ";
+        } 
+        
+        $form->select('sub_county_id', __('Sub counties'))
+        ->options($sub_counties)
+        ->required();
+
+
+        $form->text('address', trans('Village'));
         $form->textarea('details', trans('Details'));
 
         $form->divider();
@@ -146,8 +161,11 @@ class UserController extends AdminController
 
         $form->ignore(['password_confirmation']);
 
-        $form->multipleSelect('roles', trans('admin.roles'))->options($roleModel::all()->pluck('name', 'id'))->rules('required|max:1');
-        $form->multipleSelect('permissions', trans('admin.permissions'))->options($permissionModel::all()->pluck('name', 'id'));
+        $form->multipleSelect('roles', trans('Role'))->options($roleModel::all()->pluck('name', 'id'))->rules('required|max:1');
+
+        
+
+        //$form->multipleSelect('permissions', trans('admin.permissions'))->options($permissionModel::all()->pluck('name', 'id'));
  
         $form->saving(function (Form $form) {
             if ($form->password && $form->model()->password != $form->password) {

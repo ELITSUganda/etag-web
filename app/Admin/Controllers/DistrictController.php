@@ -73,7 +73,7 @@ class DistrictController extends AdminController
         $form->setWidth(8, 4);
         $admins = [];
         foreach (Administrator::all() as $key => $v) {
-            if (!$v->isRole('veterinary')) {
+            if (!$v->isRole('dvo')) {
                 continue;
             }
             $admins[$v->id] = $v->name . " - " . $v->id;
