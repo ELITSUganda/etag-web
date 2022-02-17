@@ -26,8 +26,8 @@ class DistrictController extends AdminController
     protected function grid()
     {
        
-        $grid = new Grid(new District());
 
+        $grid = new Grid(new District());
         $grid->column('id', __('Id'))->sortable()->width(50);
         $grid->column('name', __('Name'))->sortable()->width(100);
         $grid->column('code', __('CODE'))->sortable()->width(80);

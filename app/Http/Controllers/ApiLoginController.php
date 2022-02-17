@@ -46,6 +46,8 @@ class ApiLoginController extends Controller
         }
 
         $user = new Administrator();
+
+
         $user->name = $request->name;
         $user->username = $request->username;
         $user->phone_number = $request->phone_number;
@@ -64,6 +66,7 @@ class ApiLoginController extends Controller
                 'message' => "Failed to create account. Plase try agains."
             ]);
         }
+ 
 
         DB::table('admin_role_users')->insert([
             'user_id' => $u->id,
