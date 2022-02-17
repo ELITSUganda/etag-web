@@ -12,6 +12,67 @@ use Illuminate\Http\Request;
 
 class ApiAnimalController extends Controller
 {
+    public function create_sale(Request $request)
+    {
+        if($request->animal_ids == null){
+            return Utils::response([
+                'status' => 0,
+                'message' => "Animals must be provided.",
+            ]);
+        }
+
+        if($request->trader == null){
+            return Utils::response([
+                'status' => 0,
+                'message' => "Trader ID must be provided.",
+            ]);
+        }
+        
+        $trader =  ((int)($request->trader));
+        if($trader < 1){
+            return Utils::response([
+                'status' => 0,
+                'message' => "Trader ID not found.",
+            ]);
+        }
+        $t = Administrator::find($trader);
+        if($t  == null){
+            return Utils::response([
+                'status' => 0,
+                'message' => "Trader not found.",
+            ]);
+        }
+        $animal = json_decode($request->animal_ids);
+        
+        if($animal == null || empty($animal)){
+            return Utils::response([
+                'status' => 0,
+                'message' => "No animals found.",
+            ]);
+        }
+        $i = 0;
+        foreach ($animal as $key => $id) {
+            $_id = ((int)($id));
+            if($_id < 1){
+                continue;
+            }
+            $an = Animal::find($_id);
+            if($an == null){
+                continue;
+            }
+            $i++;
+            $an->trader = $trader;
+            $an->save();
+        }
+
+        return Utils::response([
+            'status' => 0,
+            'message' => "{$i} Animals were assigned to trader successfully.",
+        ]);
+
+    }
+
+
     public function store_event(Request $request)
     {
         if($request->animal_id == null){

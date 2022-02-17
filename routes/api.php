@@ -25,6 +25,7 @@ Route::get('sub_counties', [UtilsController::class, 'sub_counties']);
 
 // animal //
 Route::post('animals', [ApiAnimalController::class, 'create']); 
+Route::post('create-sale', [ApiAnimalController::class, 'create_sale']); 
 Route::get('animals', [ApiAnimalController::class, 'index']);
 Route::get('animals/{id}', [ApiAnimalController::class, 'show']);
 
