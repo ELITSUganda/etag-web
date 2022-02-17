@@ -11,11 +11,17 @@ class ApiUserController extends Controller
 {
     public function index(Request $request)
     {
-        $per_page = 100;
+        $per_page = 500;
         if (isset($request->per_page)) {
             $per_page = $request->per_page;
         }
-        return Administrator::paginate($per_page)->withQueryString()->items();
+        $items = Administrator::paginate($per_page)->withQueryString()->items();
+        $_items = [];
+        foreach ($items as $key => $u) {
+            $u->role = Utils::get_role($u);
+            $_items[] = $u;
+        }
+        return $_items;
     }
 
     public function farm($id)
