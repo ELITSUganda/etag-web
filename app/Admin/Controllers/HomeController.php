@@ -21,7 +21,11 @@ class HomeController extends Controller
     public function index(Content $content)
     {
 
-        if (Admin::user()->isRole('administrator')) {
+        if (
+            Admin::user()->isRole('administrator') || 
+            Admin::user()->isRole('admin')  
+            
+            ) {
             Admin::js('/vendor/laravel-admin-ext/chartjs/Chart.bundle.min.js');
             $content->title('Main Dashboard');
 
