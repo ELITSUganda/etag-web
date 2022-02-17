@@ -126,13 +126,13 @@ class EventController extends AdminController
 
             ));
             $filter->equal('disease_id', "Event type")->select(
-                Disease::all()->pluck('name', 'id')
+                Disease::all()->pluck('name', 'name')
             );
             $filter->equal('medicine_id', "Drug")->select(
-                Medicine::all()->pluck('name', 'id')
+                Medicine::all()->pluck('name', 'name')
             );
             $filter->equal('vaccine_id', "Vaccine")->select(
-                Vaccine::all()->pluck('name', 'id')
+                Vaccine::all()->pluck('name', 'name')
             );
         });
 
@@ -307,18 +307,18 @@ class EventController extends AdminController
             ->required()
             ->when('Disease', function (Form $form) {
                 $form->select('disease_id', __('Select disease'))
-                    ->options(Disease::all()->pluck('name', 'id'))
+                    ->options(Disease::all()->pluck('name', 'name'))
                     ->help('Please select disease')
                     ->rules('required');
             })
             ->when('Drug', function (Form $form) {
                 $form->select('medicine_id', __('Please select Drug'))
-                    ->options(Medicine::all()->pluck('name', 'id'))
+                    ->options(Medicine::all()->pluck('name', 'name'))
                     ->rules('required');
             })
             ->when('Vaccination', function (Form $form) {
                 $form->select('vaccine_id', __('Please select Vaccine'))
-                    ->options(Vaccine::all()->pluck('name', 'id'))
+                    ->options(Vaccine::all()->pluck('name', 'name'))
                     ->rules('required');
             });
 

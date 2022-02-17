@@ -31,21 +31,20 @@ class ArchivedAnimalController extends AdminController
         $grid->disableBatchActions(); 
 
         $grid->column('id', __('Id'));
+        $grid->column('created_at', __('Created'));
+        $grid->column('lhc', __('Lhc'));
         $grid->column('e_id', __('E id'));
         $grid->column('v_id', __('V id'));
-        $grid->column('lhc', __('Lhc'));
-        $grid->column('sex', __('Sex'));
+        $grid->column('type', __('Speicies'));
         $grid->column('breed', __('Breed'));
-        $grid->column('dob', __('Dob'));
+        $grid->column('sex', __('Sex'));
+        $grid->column('dob', __('Year born'));
         $grid->column('owner', __('Owner'));
         $grid->column('last_event', __('Last event'));
-        $grid->column('type', __('Speicies'));
-        
         $grid->column('district', __('District'));
         $grid->column('sub_county', __('Sub county'));
         $grid->column('events', __('Events'))->hide();
         $grid->column('details', __('Details'))->hide();
-        $grid->column('created_at', __('Created at'))->hide();
 
         return $grid;
     }

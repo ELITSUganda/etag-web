@@ -253,7 +253,7 @@ class AnimalController extends AdminController
         $form->text('v_id', __('Tag id'))->required();
         
         $form->year('dob', __('Year of birth'))->attribute('autocomplete','false')->default(date('Y-m-d'))->required();
-        $form->date('fmd', __('Date of last FMD vaccine'))->default(date('Y-m-d'))->required();
+        $form->date('fmd', __('Date last FMD vaccination'))->default(date('Y-m-d'))->required();
         $form->text('status', __('Status'))->readonly()->default("Live");
         $form->text('lhc', __('LHC'))->readonly();
 

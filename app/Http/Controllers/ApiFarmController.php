@@ -14,7 +14,12 @@ class ApiFarmController extends Controller
     {
 
         $user_id = Utils::get_user_id($request);
-        $user_role = Utils::is_admin($request);
+        $u = Administrator::find($user_id);
+
+        if($u == null){
+            die("User nat foudn");
+        }
+        $user_role = Utils::get_role($u);
 
         $has_search = false;
         if (isset($request->s)) {
@@ -54,8 +59,8 @@ class ApiFarmController extends Controller
             unset($items[$key]->farm);
             unset($items[$key]->district);
             unset($items[$key]->sub_county);
-            $filtered_items[] = $items[$key];
-           /* if (
+ 
+           if (
                 ($user_role == 'administrator') ||
                 ($user_role == 'admin')
             ) {
@@ -65,7 +70,7 @@ class ApiFarmController extends Controller
                     unset($items[$key]->user);
                     $filtered_items[] = $items[$key];
                 }
-            }*/
+            } 
         }
 
         return $filtered_items;
