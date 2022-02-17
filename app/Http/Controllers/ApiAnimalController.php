@@ -66,7 +66,7 @@ class ApiAnimalController extends Controller
         }
 
         return Utils::response([
-            'status' => 0,
+            'status' => 1,
             'message' => "{$i} Animals were assigned to trader successfully.",
         ]);
 
