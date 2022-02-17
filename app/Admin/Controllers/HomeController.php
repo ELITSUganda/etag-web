@@ -33,7 +33,7 @@ class HomeController extends Controller
                 $box->solid();
                 $row->column(6, $box);
 
-                $box = new Box('Animal status', view('admin.dashboard.chart-animal-status'));
+                $box = new Box('Animal events', view('admin.dashboard.chart-animal-status'));
                 $box->removable();
                 $box->collapsable();
                 $box->style('success');

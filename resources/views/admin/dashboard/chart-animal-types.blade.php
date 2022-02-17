@@ -10,7 +10,11 @@
     $label = [];
     foreach ($types as $key => $d) {
         $data[] = Animal::where('type', $d)->count();
-        $label[] = $d;
+        if($d == "Goat"){
+            $label[] = "Goats";
+        }else{
+            $label[] = $d;
+        }
     }
 
 ?><canvas id="myChart" style="width: 100%;"></canvas>
@@ -22,7 +26,7 @@ $(function () {
         data: {
             labels: <?= json_encode($label); ?>,
             datasets: [{
-                label: '# Animals types',
+                label: 'Animals Species',
                 data: <?= json_encode($data); ?>,
                 backgroundColor: [
                     'rgba(255, 99, 132)',

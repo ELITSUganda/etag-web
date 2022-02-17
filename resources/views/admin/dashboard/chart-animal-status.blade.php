@@ -1,19 +1,24 @@
 <?php 
     use App\Models\District;
-    use App\Models\Animal;
+    use App\Models\Event;
+ 
+
+
     $types = Array(
-                'Live' ,
-                'Sick' ,
-                'Healed',
-                'Vaccinated' , 
-                'Sold',
-                'Died', 
+                'Disease' ,
+                'Drug' ,
+                'Vaccination',
+                'Birth' , 
+                'Slaughter',
+                'Home slaughter' , 
+                'Death' , 
                 'Stolen' ,
+                'Other', 
             );
     $data = [];
     $label = [];
     foreach ($types as $key => $d) {
-        $data[] = Animal::where('status', $d)->count();
+        $data[] = Event::where('type', $d)->count();
         $label[] = $d;
     } 
 
@@ -26,7 +31,7 @@ $(function () {
         data: {
             labels: <?= json_encode($types); ?>,
             datasets: [{
-                label: '# Animals status',
+                label: 'Animals\' Events',
                 data: <?= json_encode($data); ?>,
                 backgroundColor: [
                     'rgba(54, 162, 235)',
