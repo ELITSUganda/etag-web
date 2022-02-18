@@ -429,7 +429,11 @@ status
 
 
             $form->html('<h3>Click on "New" to Add animals to move.</h3>');
-        } else if (Admin::user()->isRole('administrator')) {
+        } else if (
+            Admin::user()->isRole('administrator') || 
+            Admin::user()->isRole('admin') || 
+            Admin::user()->isRole('dvo') 
+        ) {
 
             $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Animals\' departure info. <b>(FROM)</b></h4>');
             $items = [];
