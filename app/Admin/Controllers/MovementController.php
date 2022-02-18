@@ -560,22 +560,18 @@ status
             $form->divider();
             $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Payment info.</h4>');
 
-            $form->radio('is_paid', __('Payment status'))
+            $form->hidden('is_paid', __('Payment status'))
             ->value('Paid')
-            ->default('Paid')
-
-                ->options(array(
-                    'Paid' => 'Paid',
-                    'Not paid' => 'Not paid',
-                ));
+            ->default('Paid');
+            
                 
-                $form->radio('paid_method', __('Payment method'))
-                        ->options(array(
-                            'Mobile money' => 'Mobile money',
-                            'Bank' => 'Bank',
-                        ))
-                        ->required();
-                    $form->text('paid_id', __('Transaction ID'))->required();
+        $form->radio('paid_method', __('Payment method'))
+                ->options(array(
+                    'Mobile money' => 'Mobile money',
+                    'Bank' => 'Bank',
+                ))
+                ->required();
+            $form->text('paid_id', __('Transaction ID'))->required();
 
             $form->divider();
             $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Review permit.</h4>');
