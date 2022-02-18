@@ -102,7 +102,11 @@ class MovementController extends AdminController
 
 
 
-        if (Admin::user()->isRole('administrator')) {
+        if (
+            Admin::user()->isRole('administrator') ||
+            Admin::user()->isRole('admin') ||
+            Admin::user()->isRole('dvo')  
+        ) {
 
             $grid->header(function ($query) {
                 $move = Movement::where('status', 'pending')->first();
