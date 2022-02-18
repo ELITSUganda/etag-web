@@ -24,7 +24,7 @@ class SlaughterRecordController extends AdminController
      *
      * @var string
      */
-    protected $title = 'SlaughterRecord';
+    protected $title = 'Slaughter Records';
 
     /** 
      * Make a grid builder.
@@ -34,7 +34,7 @@ class SlaughterRecordController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new SlaughterRecord());
-        $grid->disableCreateButton();
+        
         $grid->disableActions();
         $grid->disableBatchActions(); 
 

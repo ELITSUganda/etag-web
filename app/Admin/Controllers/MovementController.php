@@ -61,19 +61,20 @@ class MovementController extends AdminController
         $grid->actions(function ($actions) {
             $actions->disableView();
         });
-        
+
         if (Admin::user()->isRole('slaughter')) {
             $grid->model()->where('destination_slaughter_house', '=', Admin::user()->id)
                 ->where('status', '=', 'Approved');
             $grid->actions(function ($actions) {
                 $actions->disableDelete();
-                $actions->disableEdit(); 
+                $actions->disableEdit();
             });
-        } else if (Admin::user()->isRole('administrator') ||
-         Admin::user()->isRole('dvo') ||
-         Admin::user()->isRole('admin') ||
-         Admin::user()->isRole('livestock-officer')
-        
+        } else if (
+            Admin::user()->isRole('administrator') ||
+            Admin::user()->isRole('dvo') ||
+            Admin::user()->isRole('admin') ||
+            Admin::user()->isRole('livestock-officer')
+
         ) {
         } else {
             $grid->model()->where('administrator_id', '=', Admin::user()->id);
@@ -105,7 +106,7 @@ class MovementController extends AdminController
         if (
             Admin::user()->isRole('administrator') ||
             Admin::user()->isRole('admin') ||
-            Admin::user()->isRole('dvo')  
+            Admin::user()->isRole('dvo')
         ) {
 
             $grid->header(function ($query) {
@@ -129,9 +130,9 @@ class MovementController extends AdminController
         $grid->column('created_at', __('Date'))
             ->display(function ($f) {
                 return Carbon::parse($f)->toFormattedDateString();
-            })->sortable(); 
+            })->sortable();
         $grid->column('destination', __('Destination'));
- 
+
 
         $grid->column('trader_name', __('Applicant'));
         $grid->column('transporter_name', __('Transporter'));
@@ -162,7 +163,7 @@ class MovementController extends AdminController
         $grid->column('id', __('Print'))
             ->display(function ($f) {
                 return '<a target="_blank" href="' . url("print?id=" . $this->id) . '">Print permit using template #1 (MAIFF)</a>'
-                .'<br><a target="_blank" href="' . url("print2?id=" . $this->id) . '">Print permit using template #2 (U-LITS)</a>';
+                    . '<br><a target="_blank" href="' . url("print2?id=" . $this->id) . '">Print permit using template #2 (U-LITS)</a>';
             });
 
 
@@ -430,9 +431,9 @@ status
 
             $form->html('<h3>Click on "New" to Add animals to move.</h3>');
         } else if (
-            Admin::user()->isRole('administrator') || 
-            Admin::user()->isRole('admin') || 
-            Admin::user()->isRole('dvo') 
+            Admin::user()->isRole('administrator') ||
+            Admin::user()->isRole('admin') ||
+            Admin::user()->isRole('dvo')
         ) {
 
             $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Animals\' departure info. <b>(FROM)</b></h4>');
@@ -526,8 +527,8 @@ status
 
             if (
                 Admin::user()->isRole('administrator') ||
-                Admin::user()->isRole('livestock-officer') 
-            
+                Admin::user()->isRole('livestock-officer')
+
             ) {
                 foreach (Animal::all()  as $key => $item) {
                     $_items[$item->id] = $item->e_id . " - " . $item->v_id;
@@ -553,19 +554,19 @@ status
 
         if (
             Admin::user()->isRole('administrator')
-            || 
-            Admin::user()->isRole('admin') || 
-            Admin::user()->isRole('dvo') 
-            ) {
+            ||
+            Admin::user()->isRole('admin') ||
+            Admin::user()->isRole('dvo')
+        ) {
             $form->divider();
             $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Payment info.</h4>');
 
             $form->hidden('is_paid', __('Payment status'))
-            ->value('Paid')
-            ->default('Paid');
-            
-                
-        $form->radio('paid_method', __('Payment method'))
+                ->value('Paid')
+                ->default('Paid');
+
+
+            $form->radio('paid_method', __('Payment method'))
                 ->options(array(
                     'Mobile money' => 'Mobile money',
                     'Bank' => 'Bank',
