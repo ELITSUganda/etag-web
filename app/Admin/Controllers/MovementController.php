@@ -551,7 +551,12 @@ status
 
 
 
-        if (Admin::user()->isRole('administrator')) {
+        if (
+            Admin::user()->isRole('administrator')
+            || 
+            Admin::user()->isRole('admin') || 
+            Admin::user()->isRole('dvo') 
+            ) {
             $form->divider();
             $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Payment info.</h4>');
 
