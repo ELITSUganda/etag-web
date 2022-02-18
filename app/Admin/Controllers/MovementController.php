@@ -70,7 +70,8 @@ class MovementController extends AdminController
                 $actions->disableEdit(); 
             });
         } else if (Admin::user()->isRole('administrator') ||
-         Admin::user()->isRole('veterinary') ||
+         Admin::user()->isRole('dvo') ||
+         Admin::user()->isRole('admin') ||
          Admin::user()->isRole('livestock-officer')
         
         ) {
