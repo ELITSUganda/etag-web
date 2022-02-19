@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Animal;
 use App\Models\Event;
 use App\Models\Farm;
+use App\Models\Movement;
 use App\Models\SlaughterRecord;
 use App\Models\Utils;
 use Carbon\Carbon;
@@ -238,7 +239,23 @@ class ApiAnimalController extends Controller
             if(isset($request->per_page)){
                 $per_page = $request->per_page;
             }
-            $items = Animal::paginate($per_page)->withQueryString()->items();            
+            if($role == 'slaughter'){
+                $moves = Movement::where('destination_slaughter_house', '=', $user_id)->where('status', '=', 'Approved')->get();
+                foreach ($moves as $key => $value) {
+                    if($value->movement_has_movement_animals!=null){
+                        foreach ($value->movement_has_movement_animals as $_value) {
+                            if($_value->movement_animal_id!=null){
+                                $__an = Animal::find($_value->movement_animal_id);
+                                if($__an != null){
+                                    $items[] = $__an;
+                                }
+                            }
+                        }
+                    }
+                }                
+            }else{
+                $items = Animal::paginate($per_page)->withQueryString()->items();            
+            }
         }
 
         foreach ($items as $key => $value) { 
