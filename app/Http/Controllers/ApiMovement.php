@@ -35,9 +35,11 @@ class ApiMovement extends Controller
         }else{
             $items = Movement::where(['administrator_id' => $user_id])->get();
         }
- 
 
+        
         foreach ($items as $key => $value) {
+            $value->created_at =  Carbon::parse($value->created_at)->toFormattedDateString();
+            $value->updated_at =  Carbon::parse($value->created_at)->toFormattedDateString();
             $filtered_items[] = $value;
         }
 
