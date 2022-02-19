@@ -106,8 +106,8 @@ class SubCountyController extends AdminController
         $form->setWidth(8, 4);
         $admins = [];
         foreach (Administrator::all() as $key => $v) {
-            if (!$v->isRole('veterinary')) {
-                continue;
+            if (!$v->isRole('scvo')) {
+                continue; 
             }
             $admins[$v->id] = $v->name . " - " . $v->id;
         }
