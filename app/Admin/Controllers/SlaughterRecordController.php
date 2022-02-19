@@ -57,7 +57,12 @@ class SlaughterRecordController extends AdminController
         return $grid;
     }
 
+
+  
+
+
     /**
+     * 
      * Make a show builder.
      *
      * @param mixed $id

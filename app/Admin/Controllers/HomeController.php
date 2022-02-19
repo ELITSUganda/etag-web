@@ -156,7 +156,7 @@ class HomeController extends Controller
         }
  
  
-        if (Admin::user()->isRole('trader')) {
+        if (Admin::user()->isRole('trader')) { 
             Admin::js('/vendor/laravel-admin-ext/chartjs/Chart.bundle.min.js');
             $content->title('Main Dashboard');
 
@@ -166,7 +166,7 @@ class HomeController extends Controller
                 $row->column(4, new InfoBox(
                     ''
                         . number_format(Animal::where('type', 'Cattle')->where('trader', $user->id)->count()) . " Cattle, "
-                        . number_format(Animal::where('type', 'Goat')->where('trader', $user->id)->count()) . " Goat, "
+                        . number_format(Animal::where('type', 'Goat')->where('trader', $user->id)->count()) . " Goats, "
                         . number_format(Animal::where('type', 'Sheep')->where('trader', $user->id)->count()) . " Sheep, ",
                     'All animals',
                     'green',
