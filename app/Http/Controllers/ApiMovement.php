@@ -38,7 +38,7 @@ class ApiMovement extends Controller
 
         
         foreach ($items as $key => $value) {
-            $value->created_at =  $value->created_at."kjasbkj";
+            $value->created_at =  Carbon::parse($value->created_at)->toFormattedDateString();
             $value->updated_at =  Carbon::parse($value->created_at)->toFormattedDateString();
             $filtered_items[] = $value;
         }
