@@ -216,6 +216,7 @@ class ApiAnimalController extends Controller
         
         $items = SlaughterRecord::where('administrator_id', $user_id)->get();
         foreach ($items as $key => $value) {  
+            $value->created = Carbon::parse( $value->created_at)->toFormattedDateString();
             $_items[] = $value;
         }
         return $_items;
