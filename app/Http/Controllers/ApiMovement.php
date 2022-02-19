@@ -24,16 +24,16 @@ class ApiMovement extends Controller
 
         $items = [];
         $filtered_items = [];
-
+        $role = Utils::get_role($user); 
+        
         if(
-            $user->role == 'dvo' ||
-            $user->role == 'administrator' ||
-            $user->role == 'admin' ||
-            $user->role == 'sclo'
+            $role == 'dvo' ||
+            $role == 'administrator' ||
+            $role == 'admin' ||
+            $role == 'sclo'
         ){
             $items = Movement::paginate(1000)->withQueryString()->items();
-        } else if($user->role == 'slaughter'){
-            $items = Movement::where('destination_slaughter_house' , '=',  $user_id)->get();
+        } else if($role == 'slaughter'){
             $items = Movement::where('destination_slaughter_house', '=', $user_id)->where('status', '=', 'Approved')->get();
         }else{
             $items = Movement::where(['administrator_id' => $user_id])->get();
