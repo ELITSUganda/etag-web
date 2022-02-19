@@ -166,6 +166,10 @@ class ApiAnimalController extends Controller
                 if($value->administrator_id != $administrator_id){ 
                     continue;
                 }
+            }else if($role == 'trader'){
+                if($u->id != $value->trader){  
+                    continue;
+                }
             }else if($role == 'dvo'){
                 if($u->dvo != $value->district_id){ 
                     continue;
