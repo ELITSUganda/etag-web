@@ -156,7 +156,8 @@ class HomeController extends Controller
         }
  
  
-        if (Admin::user()->isRole('trader')) { 
+        if (Admin::user()->isRole('trader')) {
+            
             Admin::js('/vendor/laravel-admin-ext/chartjs/Chart.bundle.min.js');
             $content->title('Main Dashboard');
 
