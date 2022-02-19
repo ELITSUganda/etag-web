@@ -13,6 +13,85 @@ use Illuminate\Http\Request;
 
 class ApiAnimalController extends Controller
 {
+    public function create_slaughter(Request $request)
+    {
+ 
+        if($request->animal_ids == null){
+            return Utils::response([
+                'status' => 0,
+                'message' => "Animals must be provided.",
+            ]);
+        }
+
+       
+        
+        $details =  ((String)($request->details));
+
+        $user_id = Utils::get_user_id($request);
+
+        if($user_id < 1){
+            return Utils::response([
+                'status' => 0,
+                'message' => "Slaugter house ID not found.",
+            ]);
+        }
+
+        $u = Administrator::find($user_id); 
+        if($u  == null){
+            return Utils::response([
+                'status' => 0,
+                'message' => "Slaughter house not found.",
+            ]);
+        }
+        $animal = json_decode($request->animal_ids);
+        
+        if($animal == null || empty($animal)){
+            return Utils::response([
+                'status' => 0,
+                'message' => "No animals found.",
+            ]);
+        }
+        $i = 0;  
+        foreach ($animal as $key => $id) {
+            $_id = ((int)($id));
+            if($_id < 1){
+                continue;
+            }
+            $an = Animal::find($_id);
+            if($an == null){
+                continue;
+            }
+
+            $sr = new SlaughterRecord();
+            $sr->lhc = $an->lhc;
+            $sr->v_id = $an->v_id;
+            $sr->administrator_id = $user_id;
+            $sr->e_id = $an->e_id;
+            $sr->breed = $an->breed;
+            $sr->sex = $an->sex;
+            $sr->dob = $an->dob;
+            $sr->fmd = $an->fmd; 
+            $sr->details = "Slautered by ".$u->name.", ID ".$u->id.". ".$details; 
+            $sr->destination_slaughter_house = $u->name;
+            
+            if($sr->save()){
+                Utils::archive_animal([
+                    'animal_id' => $_id,
+                    'details' => $sr->details,
+                    'event' => 'Slautered',
+                ]);
+            }
+            $i++; 
+        }
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "{$i} Slauhter records have been created successfully.",
+        ]);
+
+    }
+  
+  
     public function create_sale(Request $request)
     {
         if($request->animal_ids == null){
