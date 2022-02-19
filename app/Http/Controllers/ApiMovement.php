@@ -16,13 +16,21 @@ class ApiMovement extends Controller
     public function index(Request $request)
     {
 
-        $is_admin = Utils::is_admin($request);
-        $user_id = Utils::get_user_id($request);
+        $user_id = ((int)(Utils::get_user_id($request)));
+        $user = Administrator::find($user_id);
+        if($user == null){
+            return [];
+        }
 
         $items = [];
         $filtered_items = [];
 
-        if($is_admin){
+        if(
+            $user->role == 'dvo' ||
+            $user->role == 'administrator' ||
+            $user->role == 'admin' ||
+            $user->role == 'sclo'
+        ){
             $items = Movement::paginate(1000)->withQueryString()->items();
         }else{
             $items = Movement::where(['administrator_id' => $user_id])->get();
