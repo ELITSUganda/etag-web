@@ -113,8 +113,7 @@ class SlaughterRecordController extends AdminController
             ) {
                 foreach ($_POST['animals'] as $key => $value) {
 
-
-
+ 
                     $an = Animal::find($value);
                     if($an==null){
                         continue;
@@ -124,6 +123,7 @@ class SlaughterRecordController extends AdminController
                     $sr = new SlaughterRecord();
                     $sr->lhc = $an->lhc;
                     $sr->v_id = $an->v_id;
+                    $sr->administrator_id = Admin::user()->id;
                     $sr->e_id = $an->e_id;
                     $sr->breed = $an->breed;
                     $sr->sex = $an->sex;

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Animal;
 use App\Models\Event;
 use App\Models\Farm;
+use App\Models\SlaughterRecord;
 use App\Models\Utils;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
@@ -196,6 +197,26 @@ class ApiAnimalController extends Controller
             unset($items[$key]->district); 
             unset($items[$key]->sub_county); 
             $_items[] = $items[$key];
+        }
+        return $_items;
+    }
+
+
+
+    public function slaughters(Request $request)
+    {  
+        $user_id = Utils::get_user_id($request);
+        $u = Administrator::find($user_id); 
+        if($u == null){
+            return [];
+        }
+        
+        $items = [];
+        $_items = [];
+        
+        $items = SlaughterRecord::where('administrator_id', $user_id)->get();
+        foreach ($items as $key => $value) {  
+            $_items[] = $value;
         }
         return $_items;
     }
