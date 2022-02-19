@@ -25,7 +25,7 @@ class District extends Model
         }
         $u->save();
 
-    }
+    } 
 
     public static function boot()
     {
