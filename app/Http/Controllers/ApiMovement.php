@@ -33,7 +33,7 @@ class ApiMovement extends Controller
         ){
             $items = Movement::paginate(1000)->withQueryString()->items();
         } else if($user->role == 'slaughter'){
-            $items = Movement::where(['destination_slaughter_house' , '=',  $user_id])->get();
+            $items = Movement::where('destination_slaughter_house' , '=',  $user_id)->get();
         }else{
             $items = Movement::where(['administrator_id' => $user_id])->get();
         }
