@@ -78,7 +78,7 @@ class AnimalSalesController extends AdminController
                 'trader',
                 '=',
                 Admin::user()->id,
-            )->where('status', '=', 'sold');
+            );
             $grid->actions(function ($actions) {
                 //$actions->disableDelete();
                 //$actions->disableEdit();
