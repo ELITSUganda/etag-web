@@ -312,7 +312,7 @@ Expand/CollapseStructurevaccines
         /*
 
 district_from
-district_to
+
 permit_Number
 status
         */

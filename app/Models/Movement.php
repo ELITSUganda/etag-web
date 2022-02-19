@@ -39,7 +39,41 @@ class Movement extends Model
                 } 
                 $model->sub_county_to = $farm->sub_county->id;
                 $model->district_to = $farm->sub_county->district_id; 
-            } 
+                $model->destination_slaughter_house = 0;
+
+            }else if ($model->destination == "To slaughter") {
+                $destination_slaughter_house = (int)($model->destination_slaughter_house);
+                $dest = Administrator::find($destination_slaughter_house);
+                if($dest == null){
+                    die(json_encode(Utils::response([
+                        'status' => 0,
+                        'message' => "Slaughter house selected not found on our databse."
+                    ])));
+                }
+                $sub_county_id = (int)($dest->sub_county_id);
+                $sub = SubCounty::find($sub_county_id);
+                if($sub == null){
+                    $sub = SubCounty::all()->first();
+                    $dest->sub_county_id = $sub->id;
+                    $dest->save();
+                }
+                if($sub == null){
+                    die(json_encode(Utils::response([
+                        'status' => 0,
+                        'message' => "Destination Sub-county not found."
+                    ])));
+                }
+                
+                $model->sub_county_to = $sub->id;
+                $model->district_to = $sub->district->id;
+                $model->destination_farm = 0;
+
+ 
+            }else{
+                $model->destination_slaughter_house = 0;      
+                $model->destination_farm = 0;
+                                           
+            }
             return $model;
         });
 
