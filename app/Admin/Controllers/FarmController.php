@@ -109,8 +109,14 @@ class FarmController extends AdminController
             return Carbon::parse($f)->toFormattedDateString();
         })->sortable(); 
 
+ 
+
+
         $grid->column('holding_code', __('Holding code'))->sortable();
-        $grid->column('size', __('Size'))->sortable(); 
+        $grid->column('size', __('Size (Ha)'))->sortable(); 
+        $grid->column('sheep_count', __('Sheep count'))->sortable(); 
+        $grid->column('goats_count', __('Goats count'))->sortable(); 
+        $grid->column('cattle_count', __('Cattle count'))->sortable(); 
         $grid->column('longitude', __('GPS longitude'))->sortable(); 
         $grid->column('longitude', __('GPS Longitude'))->sortable(); 
         $grid->column('village', __('Village'))->sortable(); 
