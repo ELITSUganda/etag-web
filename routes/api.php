@@ -40,8 +40,8 @@ Route::get('events/{id}', [ApiAnimalController::class, 'show']);
 Route::get('users', [ApiUserController::class, 'index']);
 Route::get('farms/{id}', [ApiFarmController::class, 'show']);
 Route::post('farms', [ApiFarmController::class, 'create']); 
-Route::post('movements', [ApiMovement::class, 'create']); 
 Route::get('movements', [ApiMovement::class, 'index']); 
+Route::post('movements', [ApiMovement::class, 'create']); 
 Route::post('users', [ApiUserController::class, 'store']); 
 Route::get('farms', [ApiFarmController::class, 'index']);
 // ========== users ends ============== //

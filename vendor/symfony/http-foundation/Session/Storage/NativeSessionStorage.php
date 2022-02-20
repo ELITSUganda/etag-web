@@ -112,7 +112,7 @@ class NativeSessionStorage implements SessionStorageInterface
 
         $options += [
             'cache_limiter' => '',
-            'cache_expire' => 0,
+            'cache_expire' => -1,
             'use_cookies' => 1,
             'lazy_write' => 1,
             'use_strict_mode' => 1,
