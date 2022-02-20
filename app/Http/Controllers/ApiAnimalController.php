@@ -467,8 +467,12 @@ class ApiAnimalController extends Controller
         }
         
         $administrator_id = Utils::get_user_id($request);
-        $is_admin = Utils::is_admin($request);
-
+        $user_id = Utils::get_user_id($request);
+        $u = Administrator::find($user_id); 
+        if($u ==null){
+            return [];
+        } 
+        $role = Utils::get_role($u);
         
         $is_search = false;
         $items = [];
@@ -503,11 +507,15 @@ class ApiAnimalController extends Controller
         $_items = [];
         foreach ($items as $key => $value) {
 
-            if(!$is_admin){
+            if($role == 'farmer'){
                 if($value->administrator_id != $administrator_id){ 
                     continue;
                 }
-            } 
+            }else if($role == 'scvo'){
+                if($u->scvo != $value->sub_county_id){ 
+                    continue;
+                }
+            }
 
             $items[$key]->e_id  = "";
             $items[$key]->v_id  = "";
