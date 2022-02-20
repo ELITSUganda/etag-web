@@ -46,6 +46,7 @@ class SlaughterRecordController extends AdminController
         $grid->column('e_id', __('E id'))->sortable();
         $grid->column('v_id', __('V id'))->sortable();
         $grid->column('lhc', __('Lhc'))->sortable();
+        $grid->column('type', __('Species'))->sortable(); 
         $grid->column('breed', __('Breed'))->sortable(); 
         $grid->column('sex', __('Sex'))->sortable();
         $grid->column('dob', __('Dob'))->sortable();
@@ -125,6 +126,7 @@ class SlaughterRecordController extends AdminController
                     $sr->v_id = $an->v_id;
                     $sr->administrator_id = Admin::user()->id;
                     $sr->e_id = $an->e_id;
+                    $sr->type = $an->type;
                     $sr->breed = $an->breed;
                     $sr->sex = $an->sex;
                     $sr->dob = $an->dob;
