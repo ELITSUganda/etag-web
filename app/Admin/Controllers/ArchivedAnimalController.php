@@ -32,13 +32,13 @@ class ArchivedAnimalController extends AdminController
 
         $grid->column('id', __('Id'));
         $grid->column('created_at', __('Created'));
-        $grid->column('lhc', __('Lhc'));
         $grid->column('e_id', __('E id'));
         $grid->column('v_id', __('V id'));
-        $grid->column('type', __('Speicies'));
+        $grid->column('lhc', __('Lhc'));
+        $grid->column('type', __('Species'));
         $grid->column('breed', __('Breed'));
         $grid->column('sex', __('Sex'));
-        $grid->column('dob', __('Year born'));
+        $grid->column('dob', __('DoB'));
         $grid->column('owner', __('Owner'));
         $grid->column('last_event', __('Last event'));
         $grid->column('district', __('District'));
