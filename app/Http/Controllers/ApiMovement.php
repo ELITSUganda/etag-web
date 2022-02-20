@@ -37,7 +37,9 @@ class ApiMovement extends Controller
         } else if ($role == 'slaughter') {
             $items = Movement::where('destination_slaughter_house', '=', $user_id)->where('status', '=', 'Approved')->get();
         } else if ($role == 'scvo') { 
+            //if sclo
             $items = Movement::where('sub_county_from', '=', $user->scvo)->where('status', '=', 'Approved')->get();
+        
         } else {
             $items = Movement::where(['administrator_id' => $user_id])->get();
         }
