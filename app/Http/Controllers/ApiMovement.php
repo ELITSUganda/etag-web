@@ -8,6 +8,7 @@ use App\Models\Movement;
 use App\Models\MovementHasMovementAnimal;
 use App\Models\Utils;
 use Carbon\Carbon;
+use COM;
 use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Http\Request;
 
@@ -15,7 +16,7 @@ class ApiMovement extends Controller
 {
     public function index(Request $request)
     {
- 
+
         $user_id = ((int)(Utils::get_user_id($request)));
         $user = Administrator::find($user_id);
         if ($user == null) {
@@ -25,7 +26,7 @@ class ApiMovement extends Controller
         $items = [];
         $filtered_items = [];
         $role = Utils::get_role($user);
-     
+
 
         if (
             $role == 'dvo' ||
@@ -36,10 +37,9 @@ class ApiMovement extends Controller
             $items = Movement::paginate(1000)->withQueryString()->items();
         } else if ($role == 'slaughter') {
             $items = Movement::where('destination_slaughter_house', '=', $user_id)->where('status', '=', 'Approved')->get();
-        } else if ($role == 'scvo') { 
+        } else if ($role == 'scvo') {
             //if sclo
             $items = Movement::where('sub_county_from', '=', $user->scvo)->where('status', '=', 'Approved')->get();
-        
         } else {
             $items = Movement::where(['administrator_id' => $user_id])->get();
         }
@@ -205,6 +205,76 @@ class ApiMovement extends Controller
             'message' => "Movement permit application submited successfully.",
             'data' => $movement
         ]);
+    }
+
+    public function review_movement(Request $request)
+    {
+
+
+
+        $requirements = [
+            'status',
+            'valid_from_Date',
+            'details',
+            'permit_id',
+        ];
+        $avaiable = [];
+        foreach ($_POST as $key => $value) {
+            $avaiable[] = $key;
+        }
+
+        foreach ($requirements as $key => $value) {
+            if (isset($request->$value)) {
+                continue;
+            }
+            return Utils::response([
+                'status' => 0,
+                'message' => "You must provide {$value}.",
+                $request
+            ]);
+        }
+
+        $permit_id = (int)($request->permit_id);
+
+        $movement = Movement::find($permit_id);
+        if ($movement == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Movement permit not found.",
+            ]);
+        }
+        $movement->status = $request->status;
+
+        if ($movement->status == 'Approved') {
+            $movement->valid_from_Date = Carbon::now();
+            $movement->valid_to_Date = Carbon::now()->addDays(2);
+            $dates = explode(' - ', $request->valid_from_Date);
+            if (count($dates) > 1) {
+                $movement->valid_from_Date = $dates[0];
+                $movement->valid_to_Date = $dates[1];
+            }
+        } else if ($movement->status == 'Halted' || $movement->status == 'Rejected') {
+            $movement->valid_from_Date = null;
+            $movement->valid_to_Date = null;
+            $movement->reason = $request->details;
+            $movement->details = $request->details;
+        }
+  
+        if ($movement->save()) {
+            return Utils::response([
+                'status' => 1,
+                'message' => "Movement permit application {$movement->status}.",
+                'data' => $movement
+            ]);
+        }else{ 
+            return Utils::response([
+                'status' => 0,
+                'message' => "Movement permit application was not {$movement->status} due to technical issue. Please try again.",
+                'data' => $movement
+            ]);
+        }
+
+        
     }
 
     public function update(Request $request, $id)
