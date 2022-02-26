@@ -84,7 +84,7 @@ class Movement extends Model
         self::updating(function ($model) {
             if ($model->status == "Approved") {
 
-                $model->permit_Number = "00000".Movement::count('id');
+                $model->permit_Number = "00000".$model->id;
 
                 if ($model->destination == "To farm") {
                     if ($model->destination_farm != null) {
