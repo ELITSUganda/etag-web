@@ -213,8 +213,7 @@ class ApiMovement extends Controller
 
 
         $requirements = [
-            'status',
-            'valid_from_Date',
+            'status', 
             'permit_id',
         ];
         $avaiable = [];
