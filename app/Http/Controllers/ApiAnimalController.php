@@ -217,20 +217,46 @@ class ApiAnimalController extends Controller
         
         if($s != null){
             if(strlen($s)>0){ 
-                if(str_contains($s,'UG')){
-                    $f = Farm::where("holding_code",$s)->first();
-                    if($f != null){
-                        $items = $f->animals;
-                    }
-                }else{
-                    $items = Animal::where(
-                        'e_id', 'like', '%'.trim($request->s).'%',
-                    )->paginate(1000)->withQueryString()->items();
+
+                $f = Farm::where("holding_code",$s)->first();
+                if($f != null){
+                    $items = $f->animals;
                 }
 
-                if(empty($items)){ 
-                    return [];
+                $_items = Animal::where(
+                    'e_id', 'like', '%'.trim($request->s).'%',
+                )->paginate(1000)->withQueryString()->items();
+                
+                $__items = Animal::where(
+                    'v_id', 'like', '%'.trim($request->s).'%',
+                )->paginate(1000)->withQueryString()->items();
+                
+                $items_ids = [];
+                $___items = [];
+
+                foreach ($items as $key => $v) {
+                    if(!in_array($v->id,$items_ids)){
+                        $items_ids[] = $v->id;
+                        $___items[] = $v;
+                    }
                 }
+
+                foreach ($_items as $key => $v) {
+                    if(!in_array($v->id,$items_ids)){
+                        $items_ids[] = $v->id;
+                        $___items[] = $v;
+                    }
+                }
+
+                foreach ($__items as $key => $v) {
+                    if(!in_array($v->id,$items_ids)){
+                        $items_ids[] = $v->id;
+                        $___items[] = $v;
+                    }
+                }
+
+
+                return $___items;
             }
         }
 
