@@ -26,15 +26,45 @@
   <script src="//oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
   <script src="//oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
+
+  <style>
+    video {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+ 
+ 
+
+.login-box { 
+  overflow: auto;
+  color: white;
+  position: relative;
+  padding: 1rem;
+}
+  </style>
+
 </head>
-<body class="hold-transition login-page" @if(config('admin.login_background_image'))style="background: url({{config('admin.login_background_image')}}) no-repeat;background-size: cover;"@endif>
+<body class="hold-transition login-page" @if(config('admin.login_background_image'))style="background: #EDE0D0;  background-position: center;"@endif>
+
+<video src="{{ url('assets/video_1.mp4') }}" autoplay loop playsinline muted></video>
 <div class="login-box">
-  <div class="login-logo">
-    <a href="{{ admin_url('/') }}"><b>{{config('admin.name')}}</b></a>
-  </div>
+ 
   <!-- /.login-logo -->
-  <div class="login-box-body">
-    <p class="login-box-msg">{{ trans('admin.login') }}</p>
+  <div class="login-box-body" style="text-align: center;">
+      <p class="login-box-msg">UGANDA LIVESTOCK IDENTIFICATION & TRACEBILITY SYSTEM</p>
+      <img src="{{url('assets/images/logo.png')}}" width="120">
+      <br>
+      <br>
+    <div style="height: 3px; width:100%; background: black;"> </div> 
+    <div style="height: 3px; width:100%; background: yellow;"> </div> 
+    <div style="height: 3px; width:100%; background: red;"> </div> 
+    <br>
+        
+    <p class="login-box-msg"><b>{{ trans('admin.login') }}</b></p>
 
     <form action="{{ admin_url('auth/login') }}" method="post">
       <div class="form-group has-feedback {!! !$errors->has('username') ?: 'has-error' !!}">
