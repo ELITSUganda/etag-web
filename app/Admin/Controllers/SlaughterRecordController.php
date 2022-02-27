@@ -35,8 +35,13 @@ class SlaughterRecordController extends AdminController
     {
         $grid = new Grid(new SlaughterRecord());
         
+        $grid->model()->orderBy('id','DESC');            
+
         $grid->disableActions();
         $grid->disableBatchActions(); 
+        if (!Admin::user()->isRole('slaughter')) {
+            $grid->disableCreateButton();
+        }
 
         $grid->column('id', __('Id'));
         $grid->column('created_at', __('Created'))

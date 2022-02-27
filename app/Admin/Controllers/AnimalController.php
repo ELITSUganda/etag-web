@@ -60,17 +60,16 @@ class AnimalController extends AdminController
 
         $grid = new Grid(new Animal());
         if (Admin::user()->isRole('farmer')) {
-            $grid->model()->where('administrator_id', '=', Admin::user()->id);
-            $grid->actions(function ($actions) {
-                $actions->disableDelete();
-                $actions->disableEdit();
-            });
+
+         
             $grid->disableCreateButton();
-        }
-        $grid->actions(function ($actions) {
-            $actions->disableView();
-        });
-        
+
+            $grid->disableActions();
+            $grid->model()->where('administrator_id', '=', Admin::user()->id);
+           
+        } 
+
+         
 
         $grid->filter(function ($filter) {
 
@@ -122,7 +121,7 @@ class AnimalController extends AdminController
         
         });
         
-
+        $grid->model()->orderBy('id','DESC');
         $grid->column('e_id', __('E-ID'))->sortable();
         $grid->column('v_id', __('V-ID'))->sortable();
         $grid->column('lhc', __('LHC'))->sortable();

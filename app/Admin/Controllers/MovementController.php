@@ -32,7 +32,7 @@ class MovementController extends AdminController
      *
      * @var string
      */
-    protected $title = 'LM LMPR - (Permits)';
+    protected $title = 'LMPR - (Permits)';
 
     /**
      * Make a grid builder.
@@ -64,6 +64,7 @@ class MovementController extends AdminController
 
         if (Admin::user()->isRole('slaughter')) {
             $grid->model()->where('destination_slaughter_house', '=', Admin::user()->id)
+
                 ->where('status', '=', 'Approved');
             $grid->actions(function ($actions) {
                 $actions->disableDelete();
@@ -76,6 +77,7 @@ class MovementController extends AdminController
             Admin::user()->isRole('livestock-officer')
 
         ) {
+            $grid->model()->orderBy('id','DESC');            
         } else {
             $grid->model()->where('administrator_id', '=', Admin::user()->id);
             $grid->actions(function ($actions) {
@@ -362,7 +364,7 @@ status
                 ->when('To farm', function (Form $form) {
                     $farms = [];
                     foreach (Farm::all() as $key => $f) {
-                        $farms[$f->id] = $f->holding_code . "";
+                        $farms[$f->id] = $f->holding_code . " - ".$f->owner()->username;
                     }
                     $form->select('destination_farm', __('Select Farm'))
                         ->options($farms);
@@ -406,9 +408,9 @@ status
             $form->radio('paid_method', __('Payment method'))
                 ->options(array(
                     'Mobile money' => 'Mobile money',
-                    'Bank' => 'Bank', 
+                    'Bank' => 'Bank',
                 ));
- 
+
 
 
 
@@ -422,11 +424,7 @@ status
 
 
             $form->html('<h3>Click on "New" to Add animals to move.</h3>');
-        } else if (
-            Admin::user()->isRole('administrator') ||
-            Admin::user()->isRole('admin') ||
-            Admin::user()->isRole('dvo')
-        ) {
+        } else {
 
             $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Animals\' departure info. <b>(FROM)</b></h4>');
             $items = [];
@@ -508,24 +506,14 @@ status
                 ->readOnly();
             $form->text('transporter_Phone', __('transporter\'s Phone'));
             $form->divider();
-            $form->textarea('details', __('Movement details'))
-                ->readOnly()
-                ->readOnly();
+
             $form->html('<h3>Animals</h3>');
         }
 
         $form->hasMany('movement_has_movement_animals', null, function (NestedForm $form) {
             $_items = [];
 
-            if (
-                Admin::user()->isRole('administrator') ||
-                Admin::user()->isRole('livestock-officer')
-
-            ) {
-                foreach (Animal::all()  as $key => $item) {
-                    $_items[$item->id] = $item->e_id . " - " . $item->v_id;
-                }
-            } else if (Admin::user()->isRole('trader')) {
+            if (Admin::user()->isRole('trader')) {
                 foreach (Animal::where('trader', '=', Admin::user()->id)->get()  as $key => $item) {
                     $_items[$item->id] = $item->e_id . " - " . $item->v_id;
                 }
@@ -536,9 +524,14 @@ status
                     ->get()  as $key => $item) {
                     $_items[$item->id] = $item->e_id . " - " . $item->v_id;
                 }
+            } else {
+                foreach (Animal::all()  as $key => $item) {
+                    $_items[$item->id] = $item->e_id . " - " . $item->v_id;
+                }
             }
 
             $form->select('movement_animal_id', 'Select animal')->options($_items)
+                ->readOnly()
                 ->required();
         });
 
@@ -563,7 +556,7 @@ status
                     'Mobile money' => 'Mobile money',
                     'Bank' => 'Bank',
                 ))
-                ->required(); 
+                ->required();
 
             $form->divider();
             $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Review permit.</h4>');

@@ -99,7 +99,7 @@ class FarmController extends AdminController
             $filter->equal('district_id', "District")->select($districts);
             $filter->equal('sub_county_id', "Sub county")->select($sub_counties);
         });
-
+        $grid->model()->orderBy('id','DESC');
 
         $grid->column('id', __('Id'))->sortable();
         

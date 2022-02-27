@@ -25,7 +25,7 @@ class ArchivedAnimalController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new ArchivedAnimal());
-
+        $grid->model()->orderBy('id','DESC');
         $grid->disableCreateButton();
         $grid->disableActions();
         $grid->disableBatchActions(); 

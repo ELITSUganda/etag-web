@@ -76,7 +76,7 @@ class EventController extends AdminController
         }
 
 
-
+        $grid->model()->orderBy('id','DESC');
         $grid->filter(function ($filter) {
 
 
@@ -137,6 +137,7 @@ class EventController extends AdminController
         });
 
 
+        $grid->column('id', __('ID'))->sortable();
         $grid->column('animal_id', __('E-ID - V-ID'))
         ->display(function ($id) {
             $u = Animal::find($id);
@@ -154,7 +155,7 @@ class EventController extends AdminController
             ->display(function ($id) {
                 $u = Vaccine::find($id);
                 if (!$u) {
-                    return "-";
+                    return $id;
                 }
                 return $u->name;
             })->sortable();
@@ -163,7 +164,7 @@ class EventController extends AdminController
             ->display(function ($id) {
                 $u = Disease::find($id);
                 if (!$u) {
-                    return "-";
+                    return $id;
                 }
                 return $u->name;
             })->sortable();
@@ -172,7 +173,7 @@ class EventController extends AdminController
             ->display(function ($id) {
                 $u = Medicine::find($id);
                 if (!$u) {
-                    return "-";
+                    return $id;
                 }
                 return $u->name;
             })->sortable();
@@ -186,7 +187,7 @@ class EventController extends AdminController
             ->display(function ($id) {
                 $u = District::find($id);
                 if (!$u) {
-                    return "-";
+                    return $id;
                 }
                 return $u->name;
             })->sortable();
@@ -194,7 +195,7 @@ class EventController extends AdminController
             ->display(function ($id) {
                 $u = SubCounty::find($id);
                 if (!$u) {
-                    return "-";
+                    return $id;
                 }
                 return $u->name;
             })->sortable();
@@ -204,7 +205,7 @@ class EventController extends AdminController
             ->display(function ($id) {
                 $u = Administrator::find($id);
                 if (!$u) {
-                    return "-";
+                    return $id;
                 }
                 return $u->name;
             })->sortable();
