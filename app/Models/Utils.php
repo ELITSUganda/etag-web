@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Facades\Admin;
-use Encore\Admin\Grid\Model;
+use Encore\Admin\Grid\Model; 
 
 class Utils extends Model
 {
