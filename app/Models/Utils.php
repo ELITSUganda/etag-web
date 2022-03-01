@@ -11,12 +11,14 @@ class Utils extends Model
     
     public static function make_movement_qr($model){
         $p_url = url("/print?id=".$model->id);
-            $data = "ULITS E-MOVEMENT PERMIT\n".
-                    "Applicant: $model->trader_name\n".
-                    "Transporter: $model->transporter_name\n".
-                    "PERMIT No.: $model->permit_Number\n".
-                    "PERMIT Status: $model->status\n".
-                    "VERIFICATION URL: $p_url\n";
+            $data = $model->id;
+            
+            /*$data = "ULITS E-MOVEMENT PERMIT\n".
+            "Applicant: $model->trader_name\n".
+            "Transporter: $model->transporter_name\n".
+            "PERMIT No.: $model->permit_Number\n".
+            "PERMIT Status: $model->status\n".
+            "VERIFICATION URL: $p_url\n";*/
                 
             Utils::make_qr([
                 'file_name' => $model->id.".png",

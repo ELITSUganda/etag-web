@@ -28,14 +28,7 @@
   <![endif]-->
 
   <style>
-    video {
-  object-fit: cover;
-  width: 100%;
-  height: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
-}
+ 
  
  
 
@@ -49,8 +42,6 @@
 
 </head>
 <body class="hold-transition login-page" @if(config('admin.login_background_image'))style="background: #EDE0D0;  background-position: center;"@endif>
-
-<video src="{{ url('assets/video_1.mp4') }}" autoplay loop playsinline muted></video>
 <div class="login-box">
  
   <!-- /.login-logo -->
