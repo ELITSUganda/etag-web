@@ -46,7 +46,7 @@
  
   <!-- /.login-logo -->
   <div class="login-box-body" style="text-align: center;">
-      <p class="login-box-msg">UGANDA LIVESTOCK IDENTIFICATION & TRACEBILITY SYSTEM</p>
+      <p class="login-box-msg">UGANDA LIVESTOCK IDENTIFICATION & TRACEABILITY SYSTEM</p>
       <img src="{{url('assets/images/logo.png')}}" width="120">
       <br>
       <br>
