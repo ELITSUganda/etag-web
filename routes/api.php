@@ -42,7 +42,8 @@ Route::get('farms/{id}', [ApiFarmController::class, 'show']);
 Route::post('farms', [ApiFarmController::class, 'create']); 
 Route::get('movements', [ApiMovement::class, 'index']); 
 Route::post('movements', [ApiMovement::class, 'create']); 
-Route::post('review_movement', [ApiMovement::class, 'review_movement']); 
+Route::post('movements', [ApiMovement::class, 'create']); 
+Route::get('movements/{id}', [ApiMovement::class, 'show']); 
 Route::post('users', [ApiUserController::class, 'store']); 
 Route::get('farms', [ApiFarmController::class, 'index']);
 // ========== users ends ============== //

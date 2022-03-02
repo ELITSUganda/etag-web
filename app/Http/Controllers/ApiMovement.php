@@ -56,22 +56,18 @@ class ApiMovement extends Controller
 
     public function show($id)
     {
-        $item = Farm::find($id);
+        $item = Movement::find($id);
         if ($item == null) {
-            return '{}';
+            $item = Movement::where('permit_Number',$id)->first();
         }
-        $item->owner_name = "";
-        $item->district_name = "";
-        $item->created = $item->created;
-        if ($item->user != null) {
-            $item->owner_name = $item->user->name;
+        
+        if ($item == null) {
+            die("{}");
         }
-        if ($item->district != null) {
-            $item->district_name = $item->district->name;
-        }
-        if ($item->sub_county != null) {
-            $item->sub_county_name = $item->sub_county->name;
-        }
+        $animals = $item->movement_has_movement_animals;
+        $item->animals_count = count($animals);
+        $item->animals_list = $animals;
+        unset($item->movement_has_movement_animals);
 
         return $item;
     }

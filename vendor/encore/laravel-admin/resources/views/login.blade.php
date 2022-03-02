@@ -11,7 +11,7 @@
   <link rel="shortcut icon" href="{{$favicon}}">
   @endif
 
-  <!-- Bootstrap 3.3.5 -->
+  <!-- Bootstrap 3.3.5.g -->
   <link rel="stylesheet" href="{{ admin_asset("vendor/laravel-admin/AdminLTE/bootstrap/css/bootstrap.min.css") }}">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="{{ admin_asset("vendor/laravel-admin/font-awesome/css/font-awesome.min.css") }}">
