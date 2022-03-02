@@ -58,15 +58,28 @@ class ApiMovement extends Controller
     {
         $item = Movement::find($id);
         if ($item == null) {
-            $item = Movement::where('permit_Number',$id)->first();
+            $item = Movement::where('permit_Number', $id)->first();
         }
-        
+
         if ($item == null) {
             die("{}");
         }
         $animals = $item->movement_has_movement_animals;
-        $item->animals_count = count($animals);
-        $item->animals_list = $animals;
+
+        $animal_list = [];
+
+        foreach ($animals as $key => $value) {
+            $an = Animal::find($value->movement_animal_id);
+            if ($an == null)
+                continue;
+            
+            $value->v_id = $an->v_id; 
+            $value->e_id = $an->e_id;
+            $animal_list[] = $an;
+
+        }
+        $item->animals_count = count($animal_list);
+        $item->animals_list = $animal_list;
         unset($item->movement_has_movement_animals);
 
         return $item;
@@ -209,7 +222,7 @@ class ApiMovement extends Controller
 
 
         $requirements = [
-            'status', 
+            'status',
             'permit_id',
         ];
         $avaiable = [];
@@ -253,22 +266,20 @@ class ApiMovement extends Controller
             $movement->reason = $request->details;
             $movement->details = $request->details;
         }
-  
+
         if ($movement->save()) {
             return Utils::response([
                 'status' => 1,
                 'message' => "Movement permit application {$movement->status}.",
                 'data' => $movement
             ]);
-        }else{ 
+        } else {
             return Utils::response([
                 'status' => 0,
                 'message' => "Movement permit application was not {$movement->status} due to technical issue. Please try again.",
                 'data' => $movement
             ]);
         }
-
-        
     }
 
     public function update(Request $request, $id)
