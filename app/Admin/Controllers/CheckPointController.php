@@ -78,6 +78,7 @@ class CheckPointController extends AdminController
             $sub_counties[$p->id] = $p->name . ", " .
                 $p->district->name . ".";
         }
+        $admins = [];
         foreach (Administrator::all() as $key => $v) {
             if (!$v->isRole('check-point-officer')) {
                 continue;
