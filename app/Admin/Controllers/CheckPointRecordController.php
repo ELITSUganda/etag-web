@@ -25,7 +25,7 @@ class CheckPointRecordController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new CheckPointRecord());
-
+ 
         $grid->column('id', __('Id'));
         $grid->column('created_at', __('Created at'));
         $grid->column('updated_at', __('Updated at'));
