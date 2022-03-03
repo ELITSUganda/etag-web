@@ -139,7 +139,7 @@ class ApiMovement extends Controller
             if (strlen($record->checked) > 2) {
                 $checked = json_decode($record->checked);
             }
-        } 
+        }
 
         if ($record->success != null) {
             if (strlen($record->success) > 2) {
@@ -160,29 +160,36 @@ class ApiMovement extends Controller
         if ($request->found == 'yes') {
             if (!in_array($request->animal_id, $success)) {
                 $success[] = $request->animal_id;
-                $e = new Event();
-                $e->administrator_id = $request->administrator_id;
-                $e->approved_by = $request->administrator_id;
-                $e->district_id = $user->district_id;
-                $e->sub_county_id  = $user->sub_county_id;
-                $e->animal_id = $request->real_animal_id;
-                $e->type = "Check point";
-                $e->detail = "Checked and found this animal on movement permit #{$record->movement_id}";
-                $e->save();
+
+                $_an = Animal::where('v_id', $request->real_animal_id)->first();
+                if ($_an != null) {
+                    $e = new Event();
+                    $e->administrator_id = $request->administrator_id;
+                    $e->approved_by = $request->administrator_id;
+                    $e->district_id = $user->district_id;
+                    $e->sub_county_id  = $user->sub_county_id;
+                    $e->animal_id = $request->real_animal_id;
+                    $e->type = "Check point";
+                    $e->detail = "Checked and found this animal on movement permit #{$record->movement_id}";
+                    $e->save();
+                }
             }
         } else {
             if (!in_array($request->animal_id, $failed)) {
                 $failed[] = $request->animal_id;
                 $success[] = $request->animal_id;
-                $e = new Event();
-                $e->administrator_id = $request->administrator_id;
-                $e->approved_by = $request->administrator_id;
-                $e->district_id = $user->district_id;
-                $e->sub_county_id  = $user->sub_county_id;
-                $e->animal_id = $request->real_animal_id;
-                $e->type = "Check point";
-                $e->detail = "Checked this animal but not found on movement permit #{$record->movement_id}";
-                $e->save();
+                $_an = Animal::where('v_id', $request->real_animal_id)->first();
+                if ($_an != null) {
+                    $e = new Event();
+                    $e->administrator_id = $request->administrator_id;
+                    $e->approved_by = $request->administrator_id;
+                    $e->district_id = $user->district_id;
+                    $e->sub_county_id  = $user->sub_county_id;
+                    $e->animal_id = $request->real_animal_id;
+                    $e->type = "Check point";
+                    $e->detail = "Checked this animal but not found on movement permit #{$record->movement_id}";
+                    $e->save();
+                }
             }
         }
 
@@ -198,7 +205,6 @@ class ApiMovement extends Controller
             'message' => "Recorded successfully.",
             'data' => $record
         ]);
-
     }
 
     public function create(Request $request)
