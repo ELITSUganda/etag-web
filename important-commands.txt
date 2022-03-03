@@ -14,6 +14,8 @@ php artisan make:migration create_contracts_table
 php artisan make:migration create_contract_records_table
 php artisan make:migration create_stock_records_table
 php artisan make:migration create_slaughter_records_table
+php artisan make:migration create_check_points_table
+php artisan make:migration create_check_point_records_table
 
 Encore\Admin\Auth\Database\Administrator::class,
 php artisan admin:make FormSr4Controller --model=App\FormSr4
@@ -26,7 +28,10 @@ php artisan admin:make ContractController --model=App\\Models\\ContractRecords
 php artisan admin:make StockRecordController --model=App\\Models\\StockRecord
 php artisan admin:make SlaughterRecordController --model=App\\Models\\SlaughterRecord
 php artisan admin:make ArchivedAnimalController --model=App\\Models\\ArchivedAnimal
+php artisan admin:make CheckPointController --model=App\\Models\\CheckPoint
+php artisan admin:make CheckPointRecordController --model=App\\Models\\CheckPointRecord
 
 
-php artisan make:model StockRecord
+php artisan make:model CheckPoint
 php artisan make:model ArchivedAnimal
+php artisan make:model CheckPointRecord
