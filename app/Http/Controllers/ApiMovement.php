@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Animal;
+use App\Models\CheckPoint;
+use App\Models\CheckPointRecord;
+use App\Models\Event;
 use App\Models\Farm;
 use App\Models\Movement;
 use App\Models\MovementHasMovementAnimal;
@@ -72,17 +75,130 @@ class ApiMovement extends Controller
             $an = Animal::find($value->movement_animal_id);
             if ($an == null)
                 continue;
-            
-            $value->v_id = $an->v_id; 
+
+            $value->v_id = $an->v_id;
             $value->e_id = $an->e_id;
             $animal_list[] = $an;
-
         }
         $item->animals_count = count($animal_list);
         $item->animals_list = $animal_list;
         unset($item->movement_has_movement_animals);
 
         return $item;
+    }
+
+    public function create_check_record(Request $request)
+    {
+        if (
+            $request->permit == null ||
+            $request->administrator_id == null ||
+            $request->animal_id == null ||
+            $request->real_animal_id == null ||
+            $request->latitude == null ||
+            $request->longitude == null ||
+            $request->found == null
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "All required permits must be submited.",
+            ]);
+        }
+
+
+        $checkPoint = CheckPoint::where('administrator_id', $request->administrator_id)->first();
+        if ($checkPoint == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Check point not found.",
+            ]);
+        }
+
+        $user = Administrator::find($request->administrator_id);
+
+        $record = CheckPointRecord::where([
+            'movement_id' => $request->permit,
+            'administrator_id' => $request->administrator_id,
+        ])->first();
+        if ($record == null) {
+            $record = new CheckPointRecord();
+        }
+
+        $record->check_point_id = $checkPoint->id;
+        $record->administrator_id = $request->administrator_id;
+        $record->movement_id = $request->permit;
+        $record->latitude = $request->latitude;
+        $record->longitude = $request->longitude;
+        $record->on_permit = $request->on_permit;
+
+        $checked = [];
+        $success = [];
+        $failed = [];
+
+
+        if ($record->checked != null) {
+            if (strlen($record->checked) > 2) {
+                $checked = json_decode($record->checked);
+            }
+        } 
+
+        if ($record->success != null) {
+            if (strlen($record->success) > 2) {
+                $success = json_decode($record->success);
+            }
+        }
+
+        if ($record->failed != null) {
+            if (strlen($record->failed) > 2) {
+                $failed = json_decode($record->failed);
+            }
+        }
+
+        if (!in_array($request->animal_id, $checked)) {
+            $checked[] = $request->animal_id;
+        }
+
+        if ($request->found == 'yes') {
+            if (!in_array($request->animal_id, $success)) {
+                $success[] = $request->animal_id;
+                $e = new Event();
+                $e->administrator_id = $request->administrator_id;
+                $e->approved_by = $request->administrator_id;
+                $e->district_id = $user->district_id;
+                $e->sub_county_id  = $user->sub_county_id;
+                $e->animal_id = $request->real_animal_id;
+                $e->type = "Check point";
+                $e->detail = "Checked and found this animal on movement permit #{$record->movement_id}";
+                $e->save();
+            }
+        } else {
+            if (!in_array($request->animal_id, $failed)) {
+                $failed[] = $request->animal_id;
+                $success[] = $request->animal_id;
+                $e = new Event();
+                $e->administrator_id = $request->administrator_id;
+                $e->approved_by = $request->administrator_id;
+                $e->district_id = $user->district_id;
+                $e->sub_county_id  = $user->sub_county_id;
+                $e->animal_id = $request->real_animal_id;
+                $e->type = "Check point";
+                $e->detail = "Checked this animal but not found on movement permit #{$record->movement_id}";
+                $e->save();
+            }
+        }
+
+
+
+        $record->checked = json_encode($checked);
+        $record->failed = json_encode($failed);
+        $record->success = json_encode($success);
+        $record->save();
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "Recorded successfully.",
+            'data' => $record
+        ]);
+
     }
 
     public function create(Request $request)

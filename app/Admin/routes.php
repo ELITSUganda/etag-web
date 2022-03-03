@@ -25,5 +25,7 @@ Route::group([
     $router->resource('slaughter-records', SlaughterRecordController::class);
     $router->resource('archived-animals', ArchivedAnimalController::class);
     $router->resource('sales', AnimalSalesController::class);
+    $router->resource('check-points', CheckPointController::class);
+    $router->resource('check-point-records', CheckPointRecordController::class);
     
 });
