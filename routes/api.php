@@ -43,6 +43,7 @@ Route::post('farms', [ApiFarmController::class, 'create']);
 Route::get('movements', [ApiMovement::class, 'index']); 
 Route::post('movements', [ApiMovement::class, 'create']); 
 Route::post('check-point-records', [ApiMovement::class, 'create_check_record']); 
+Route::get('check-point-records', [ApiMovement::class, 'get_check_record']); 
 Route::post('movements', [ApiMovement::class, 'create']); 
 Route::get('movements/{id}', [ApiMovement::class, 'show']); 
 Route::post('users', [ApiUserController::class, 'store']); 

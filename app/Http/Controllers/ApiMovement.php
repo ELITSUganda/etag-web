@@ -207,6 +207,37 @@ class ApiMovement extends Controller
         ]);
     }
 
+    public function get_check_record(Request $request)
+    {
+        if (
+            $request->permit == null 
+        ) {
+            return [];
+        }
+ 
+
+        $records = CheckPointRecord::where([
+            'movement_id' => $request->permit, 
+        ])->get(); 
+        
+        $items = [];
+        foreach ($records as $key => $value) {
+
+            $check = CheckPoint::find($value->check_point_id);
+            if($check  == null){
+                continue;
+            }
+ 
+            $value->check_point = $check->sub_county->district->name.", ".$check->sub_county->name; 
+            $value->sub_county = $check->sub_county->name; 
+            $value->time = Carbon::parse($value->created_at)->toFormattedDateString();
+
+            $items[] = $value;
+        }
+     
+        return $items;
+    }
+
     public function create(Request $request)
     {
         $has_animals = false;
