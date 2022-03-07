@@ -1,5 +1,5 @@
 .skin-blue-light .main-header .navbar {
-    background-color: #309900
+    background-color: #6A3A00
 }
 
 .skin-blue-light .main-header .navbar .nav>li>a {
@@ -47,7 +47,7 @@
 }
 
 .skin-blue-light .main-header .logo {
-    background-color: #309900;
+    background-color: #6A3A00;
     color: #fff;
     border-bottom: 0 solid transparent
 }
@@ -57,7 +57,7 @@
 }
 
 .skin-blue-light .main-header li.user-header {
-    background-color: #309900
+    background-color: #6A3A00
 }
 
 .skin-blue-light .content-header {
@@ -103,7 +103,7 @@
 }
 
 .skin-blue-light .sidebar-menu>li.active {
-    border-left-color: #309900
+    border-left-color: #6A3A00
 }
 
 .skin-blue-light .sidebar-menu>li.active>a {
@@ -189,7 +189,7 @@
 }
 
 .skin-blue.layout-top-nav .main-header>.logo {
-    background-color: #309900;
+    background-color: #6A3A00;
     color: #fff;
     border-bottom: 0 solid transparent
 }

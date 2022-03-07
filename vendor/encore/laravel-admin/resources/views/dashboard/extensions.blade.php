@@ -4,7 +4,7 @@
         margin-left: 10px;
     }
     .installed {
-        color: #00a65a;
+        color: #6A3A00;
         margin-right: 10px;
     }
 </style>
