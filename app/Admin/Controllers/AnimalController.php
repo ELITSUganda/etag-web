@@ -99,7 +99,7 @@ class AnimalController extends AdminController
                 'Male' => 'Male',
                 'Female' => 'Female', 
             ]);
-            $filter->equal('type', "Animal species")->select(Array(
+            $filter->equal('type', "Livestock species")->select(Array(
                 'Cattle' => "Cattle",
                 'Goat' => "Goat",
                 'Sheep' => "Sheep" 
@@ -222,7 +222,7 @@ class AnimalController extends AdminController
         ->options($items)
         ->required();
           
-        $form->select('type', __('Animal species'))
+        $form->select('type', __('Livestock species'))
         ->options(Array(
             'Cattle' => "Cattle",
             'Goat' => "Goat",

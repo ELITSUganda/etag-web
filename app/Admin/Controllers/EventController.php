@@ -179,7 +179,7 @@ class EventController extends AdminController
             })->sortable();
             
             
-        $grid->column('animal_type', __('Animal species'))->sortable();
+        $grid->column('animal_type', __('Livestock species'))->sortable();
 
 
 

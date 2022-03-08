@@ -103,7 +103,7 @@ class AnimalSalesController extends AdminController
             }
 
   
-            $filter->equal('type', "Animal species")->select(array(
+            $filter->equal('type', "Livestock species")->select(array(
                 'Cattle' => "Cattle",
                 'Goat' => "Goat",
                 'Sheep' => "Sheep"
