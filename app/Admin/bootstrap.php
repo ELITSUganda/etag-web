@@ -21,6 +21,8 @@
 use Encore\Admin\Facades\Admin;
 
 //Admin::disablePjax();
+Admin::css('css.css');
+
 
 
 

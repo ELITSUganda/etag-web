@@ -178,7 +178,7 @@ h6,
 }
 
 a {
-    color: #309900
+    color: #6B3B00
 }
 
 a:hover,
@@ -1395,7 +1395,7 @@ a:focus {
 }
 
 .form-control:focus {
-    border-color: #309900;
+    border-color: #6B3B00;
     box-shadow: none
 }
 
@@ -1562,7 +1562,7 @@ a:focus {
 
 .progress-bar-light-blue,
 .progress-bar-primary {
-    background-color: #309900
+    background-color: #6B3B00
 }
 
 .progress-striped .progress-bar-light-blue,
@@ -1586,7 +1586,7 @@ a:focus {
 
 .progress-bar-aqua,
 .progress-bar-info {
-    background-color: #309900
+    background-color: #6B3B00
 }
 
 .progress-striped .progress-bar-aqua,
@@ -1717,11 +1717,11 @@ a:focus {
 }
 
 .box.box-primary {
-    border-top-color: #309900
+    border-top-color: #6B3B00
 }
 
 .box.box-info {
-    border-top-color: #309900
+    border-top-color: #6B3B00
 }
 
 .box.box-danger {
@@ -1796,13 +1796,13 @@ a:focus {
 }
 
 .box.box-solid.box-primary {
-    border: 1px solid #309900
+    border: 1px solid #6B3B00
 }
 
 .box.box-solid.box-primary>.box-header {
     color: #fff;
-    background: #309900;
-    background-color: #309900
+    background: #6B3B00;
+    background-color: #6B3B00
 }
 
 .box.box-solid.box-primary>.box-header a,
@@ -1811,13 +1811,13 @@ a:focus {
 }
 
 .box.box-solid.box-info {
-    border: 1px solid #309900
+    border: 1px solid #6B3B00
 }
 
 .box.box-solid.box-info>.box-header {
     color: #fff;
-    background: #309900;
-    background-color: #309900
+    background: #6B3B00;
+    background-color: #6B3B00
 }
 
 .box.box-solid.box-info>.box-header a,
@@ -2188,7 +2188,7 @@ a:focus {
 }
 
 .todo-list .info {
-    border-left-color: #309900
+    border-left-color: #6B3B00
 }
 
 .todo-list .success {
@@ -2196,7 +2196,7 @@ a:focus {
 }
 
 .todo-list .primary {
-    border-left-color: #309900
+    border-left-color: #6B3B00
 }
 
 .todo-list .handle {
@@ -2539,7 +2539,7 @@ a:focus {
 }
 
 .btn-primary {
-    background-color: #309900;
+    background-color: #6B3B00;
     border-color: #367fa9
 }
 
@@ -2561,7 +2561,7 @@ a:focus {
 }
 
 .btn-info {
-    background-color: #309900;
+    background-color: #6B3B00;
     border-color: #00acd6
 }
 
@@ -2771,7 +2771,7 @@ a:focus {
 .nav-pills>li.active>a,
 .nav-pills>li.active>a:hover,
 .nav-pills>li.active>a:focus {
-    border-top-color: #309900
+    border-top-color: #6B3B00
 }
 
 .nav-pills>li.active>a {
@@ -2790,7 +2790,7 @@ a:focus {
     background: transparent;
     color: #444;
     border-top: 0;
-    border-left-color: #309900
+    border-left-color: #6B3B00
 }
 
 .nav-stacked>li.header {
@@ -2847,7 +2847,7 @@ a:focus {
 }
 
 .nav-tabs-custom>.nav-tabs>li.active {
-    border-top-color: #309900
+    border-top-color: #6B3B00
 }
 
 .nav-tabs-custom>.nav-tabs>li.active>a,
@@ -2918,11 +2918,11 @@ a:focus {
 }
 
 .nav-tabs-custom.tab-primary>.nav-tabs>li.active {
-    border-top-color: #309900
+    border-top-color: #6B3B00
 }
 
 .nav-tabs-custom.tab-info>.nav-tabs>li.active {
-    border-top-color: #309900
+    border-top-color: #6B3B00
 }
 
 .nav-tabs-custom.tab-danger>.nav-tabs>li.active {
@@ -3280,14 +3280,14 @@ table.text-center th {
 }
 
 .direct-chat-primary .right>.direct-chat-text {
-    background: #309900;
-    border-color: #309900;
+    background: #6B3B00;
+    border-color: #6B3B00;
     color: #fff
 }
 
 .direct-chat-primary .right>.direct-chat-text:after,
 .direct-chat-primary .right>.direct-chat-text:before {
-    border-left-color: #309900
+    border-left-color: #6B3B00
 }
 
 .direct-chat-warning .right>.direct-chat-text {
@@ -3302,14 +3302,14 @@ table.text-center th {
 }
 
 .direct-chat-info .right>.direct-chat-text {
-    background: #309900;
-    border-color: #309900;
+    background: #6B3B00;
+    border-color: #6B3B00;
     color: #fff
 }
 
 .direct-chat-info .right>.direct-chat-text:after,
 .direct-chat-info .right>.direct-chat-text:before {
-    border-left-color: #309900
+    border-left-color: #6B3B00
 }
 
 .direct-chat-success .right>.direct-chat-text {
@@ -4803,7 +4803,7 @@ table.text-center th {
 }
 
 .select2-container--default.select2-container--open {
-    border-color: #309900
+    border-color: #6B3B00
 }
 
 .select2-dropdown {
@@ -4812,7 +4812,7 @@ table.text-center th {
 }
 
 .select2-container--default .select2-results__option--highlighted[aria-selected] {
-    background-color: #309900;
+    background-color: #6B3B00;
     color: white
 }
 
@@ -4851,7 +4851,7 @@ table.text-center th {
 .select2-dropdown .select2-search__field:focus,
 .select2-search--inline .select2-search__field:focus {
     outline: none;
-    border: 1px solid #309900
+    border: 1px solid #6B3B00
 }
 
 .select2-container--default .select2-results__option[aria-disabled=true] {
@@ -4873,7 +4873,7 @@ table.text-center th {
 }
 
 .select2-container--default .select2-selection--multiple:focus {
-    border-color: #309900
+    border-color: #6B3B00
 }
 
 .select2-container--default.select2-container--focus .select2-selection--multiple {
@@ -4881,7 +4881,7 @@ table.text-center th {
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__choice {
-    background-color: #309900;
+    background-color: #6B3B00;
     border-color: #367fa9;
     padding: 1px 10px;
     color: #fff
@@ -5042,7 +5042,7 @@ table.text-center th {
 .alert-info,
 .label-info,
 .modal-info .modal-body {
-    background-color: #309900 !important
+    background-color: #6B3B00 !important
 }
 
 .bg-blue {
@@ -5052,7 +5052,7 @@ table.text-center th {
 .bg-light-blue,
 .label-primary,
 .modal-primary .modal-body {
-    background-color: #309900 !important
+    background-color: #6B3B00 !important
 }
 
 .bg-green,
@@ -5184,7 +5184,7 @@ table.text-center th {
 }
 
 .text-aqua {
-    color: #309900 !important
+    color: #6B3B00 !important
 }
 
 .text-blue {
@@ -5196,7 +5196,7 @@ table.text-center th {
 }
 
 .text-light-blue {
-    color: #309900 !important
+    color: #6B3B00 !important
 }
 
 .text-green {
@@ -5326,12 +5326,12 @@ table.text-center th {
 }
 
 .bg-light-blue-gradient {
-    background: #309900 !important;
-    background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #309900), color-stop(1, #67a8ce)) !important;
-    background: -ms-linear-gradient(bottom, #309900, #67a8ce) !important;
-    background: -moz-linear-gradient(center bottom, #309900 0, #67a8ce 100%) !important;
-    background: -o-linear-gradient(#67a8ce, #309900) !important;
-    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#67a8ce', endColorstr='#309900', GradientType=0) !important;
+    background: #6B3B00 !important;
+    background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #6B3B00), color-stop(1, #67a8ce)) !important;
+    background: -ms-linear-gradient(bottom, #6B3B00, #67a8ce) !important;
+    background: -moz-linear-gradient(center bottom, #6B3B00 0, #67a8ce 100%) !important;
+    background: -o-linear-gradient(#67a8ce, #6B3B00) !important;
+    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#67a8ce', endColorstr='#6B3B00', GradientType=0) !important;
     color: #fff
 }
 
@@ -5346,12 +5346,12 @@ table.text-center th {
 }
 
 .bg-aqua-gradient {
-    background: #309900 !important;
-    background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #309900), color-stop(1, #14d1ff)) !important;
-    background: -ms-linear-gradient(bottom, #309900, #14d1ff) !important;
-    background: -moz-linear-gradient(center bottom, #309900 0, #14d1ff 100%) !important;
-    background: -o-linear-gradient(#14d1ff, #309900) !important;
-    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#14d1ff', endColorstr='#309900', GradientType=0) !important;
+    background: #6B3B00 !important;
+    background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #6B3B00), color-stop(1, #14d1ff)) !important;
+    background: -ms-linear-gradient(bottom, #6B3B00, #14d1ff) !important;
+    background: -moz-linear-gradient(center bottom, #6B3B00 0, #14d1ff 100%) !important;
+    background: -o-linear-gradient(#14d1ff, #6B3B00) !important;
+    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#14d1ff', endColorstr='#6B3B00', GradientType=0) !important;
     color: #fff
 }
 
@@ -5654,5 +5654,5 @@ table.text-center th {
 
 .navbar,
 .main-header a {
-    background-color: #309900!important;
+    background-color: #6B3B00!important;
 }
