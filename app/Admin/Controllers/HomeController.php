@@ -30,14 +30,14 @@ class HomeController extends Controller
             $content->title('Main Dashboard');
 
             $content->row(function ($row) {
-                $box = new Box('Livestock species', view('admin.dashboard.chart-animal-types'));
+                $box = new Box('Species', view('admin.dashboard.chart-animal-types'));
                 $box->removable();
                 $box->collapsable();
                 $box->style('success');
                 $box->solid();
                 $row->column(6, $box);
 
-                $box = new Box('Livestock events', view('admin.dashboard.chart-animal-status'));
+                $box = new Box('Events', view('admin.dashboard.chart-animal-status'));
                 $box->removable();
                 $box->collapsable();
                 $box->style('success');
@@ -98,17 +98,17 @@ class HomeController extends Controller
                     'All farms',
                     'green',
                     admin_url('/farms'),
-                    Farm::count() . " - Farms"
+                    Farm::count() . " - Holdings"
                 ));
                 $row->column(4, new InfoBox(
                     ''
                         . number_format(Farm::where('farm_type', 'Dairy')->count()) . " Dairy, "
                         . number_format(Farm::where('farm_type', 'Beef')->count()) . " Beef, "
                         . number_format(Farm::where('farm_type', 'Mixed')->count()) . " Mixed, ",
-                    'All animals',
+                    'All Livestock',
                     'green',
                     admin_url('/animals'),
-                    number_format(Animal::count()) . " - Animals"
+                    number_format(Animal::count()) . " - Livestock"
                 ));
             });
         }
