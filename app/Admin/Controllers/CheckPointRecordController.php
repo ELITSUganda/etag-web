@@ -2,7 +2,10 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\CheckPoint;
 use App\Models\CheckPointRecord;
+use Carbon\Carbon;
+use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
@@ -27,17 +30,33 @@ class CheckPointRecordController extends AdminController
         $grid = new Grid(new CheckPointRecord());
  
         $grid->column('id', __('Id'));
-        $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('Updated at'));
-        $grid->column('check_point_id', __('Check point id'));
-        $grid->column('administrator_id', __('Administrator id'));
+        $grid->column('created_at', __('Created '))
+            ->display(function ($f) {
+                return Carbon::parse($f)->diffForHumans();
+            })->sortable();
+        $grid->column('check_point_id', __('Check point'))
+        ->display(function ($id) {
+            $u = CheckPoint::find($id);
+            if (!$u) {
+                return $id;
+            }
+            return $u->name;
+        })->sortable();
+
+        $grid->column('administrator_id', __('C/P Officer'))
+        ->display(function ($id) {
+            $u = Administrator::find($id);
+            if (!$u) {
+                return $id;
+            }
+            return $u->name;
+        })->sortable();
         $grid->column('movement_id', __('Movement id'));
-        $grid->column('time', __('Time'));
         $grid->column('latitude', __('Latitude'));
         $grid->column('longitude', __('Longitude'));
-        $grid->column('on_permit', __('On permit'));
+        //$grid->column('on_permit', __('On permit'));
         $grid->column('checked', __('Checked'));
-        $grid->column('success', __('Success'));
+        $grid->column('success', __('Success'))->label();
         $grid->column('failed', __('Failed'));
         $grid->column('details', __('Details'));
 
@@ -70,7 +89,7 @@ class CheckPointRecordController extends AdminController
         $show->field('details', __('Details'));
 
         return $show;
-    }
+    } 
 
     /**
      * Make a form builder.

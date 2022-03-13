@@ -4,6 +4,7 @@ namespace App\Admin\Controllers;
 
 use App\Models\CheckPoint;
 use App\Models\SubCounty;
+use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
@@ -17,7 +18,7 @@ class CheckPointController extends AdminController
      *
      * @var string
      */
-    protected $title = 'CheckPoint';
+    protected $title = 'Check Points';
 
     /**
      * Make a grid builder.
@@ -29,14 +30,32 @@ class CheckPointController extends AdminController
         $grid = new Grid(new CheckPoint());
 
         $grid->column('id', __('Id'));
-        $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('Updated at'));
+        $grid->column('created_at', __('Created '))
+            ->display(function ($f) {
+                return Carbon::parse($f)->toFormattedDateString();
+            })->sortable();
         $grid->column('name', __('Name'));
         $grid->column('details', __('Details'));
-        $grid->column('longitude', __('Longitude'));
-        $grid->column('latitube', __('Latitube'));
-        $grid->column('administrator_id', __('Administrator id'));
-        $grid->column('sub_county_id', __('Sub county id'));
+        $grid->column('gps', __('GPS'))
+            ->display(function () {
+                return $this->longitude . "," . $this->longitude;
+            });
+        $grid->column('administrator_id', __('Checkpoint officer'))
+            ->display(function ($id) {
+                $u = Administrator::find($id);
+                if (!$u) {
+                    return $id;
+                }
+                return $u->name;
+            })->sortable();
+        $grid->column('sub_county_id', __('Sub county id'))
+            ->display(function ($id) {
+                $u = SubCounty::find($id);
+                if (!$u) {
+                    return $id;
+                }
+                return $u->name;
+            })->sortable();
 
         return $grid;
     }
