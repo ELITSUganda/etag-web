@@ -140,10 +140,24 @@ class EventController extends AdminController
         $grid->column('id', __('ID'))->sortable();
         
         
-        $grid->column('e_id', __('E-ID'))->sortable(); 
+        $grid->column('animal_id', __('E-ID'))
+        ->display(function ($id) {
+            $u = Animal::find($id);
+            if (!$u) {
+                return $id;
+            }
+            return $u->e_id;
+        })->sortable(); 
 
         
-        $grid->column('v_id', __('V-ID'))->sortable(); 
+        $grid->column('animal_id', __('V-ID'))
+        ->display(function ($id) {
+            $u = Animal::find($id);
+            if (!$u) {
+                return $id;
+            }
+            return $u->v_id;
+        })->sortable(); 
 
 
         $grid->column('created_at', __('Date'))
