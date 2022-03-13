@@ -4,7 +4,7 @@ namespace App\Admin\Controllers;
 
 use App\Models\Animal;
 use App\Models\District;
-use App\Models\Farm; 
+use App\Models\Farm;
 use App\Models\SubCounty;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
@@ -29,7 +29,7 @@ class AnimalController extends AdminController
      * @return Grid
      */
     protected function grid()
-    {  
+    {
 
         /*Animal::truncate();
         for ($i=0; $i < 200; $i++) {  
@@ -61,31 +61,30 @@ class AnimalController extends AdminController
         $grid = new Grid(new Animal());
         if (Admin::user()->isRole('farmer')) {
 
-         
-            $grid->disableCreateButton();
+
+            //$grid->disableCreateButton();
 
             $grid->disableActions();
             $grid->model()->where('administrator_id', '=', Admin::user()->id);
-           
-        } 
+        }
 
-         
+
 
         $grid->filter(function ($filter) {
 
-        
-          
+
+
             $sub_counties = [];
             foreach (SubCounty::all() as $key => $p) {
                 $sub_counties[$p->id] = $p->name . ", " .
                     $p->district->name . ".";
             }
-            
+
             $districts = [];
             foreach (District::all() as $key => $p) {
                 $districts[$p->id] = $p->name . "m  ";
             }
-            
+
             $admins = [];
             foreach (Administrator::all() as $key => $v) {
                 if (!$v->isRole('farmer')) {
@@ -97,20 +96,20 @@ class AnimalController extends AdminController
             $filter->equal('administrator_id', "Owner")->select($admins);
             $filter->equal('sex', "Sex")->select([
                 'Male' => 'Male',
-                'Female' => 'Female', 
+                'Female' => 'Female',
             ]);
-            $filter->equal('type', "Livestock species")->select(Array(
+            $filter->equal('type', "Livestock species")->select(array(
                 'Cattle' => "Cattle",
                 'Goat' => "Goat",
-                'Sheep' => "Sheep" 
+                'Sheep' => "Sheep"
             ));
 
             $filter->equal('district_id', "District")->select($districts);
-            $filter->equal('sub_county_id', "Sub county")->select($sub_counties); 
-            $filter->equal('status', "Status")->select(Array(
+            $filter->equal('sub_county_id', "Sub county")->select($sub_counties);
+            $filter->equal('status', "Status")->select(array(
                 'Diagonized' => 'Diagonized',
                 'Healed' => 'Healed',
-                'Vaccinated' => 'Vaccinated',  
+                'Vaccinated' => 'Vaccinated',
                 'Died' => 'Died',
                 'Slautered' => 'Slautered',
                 'Stolen' => 'Stolen',
@@ -118,10 +117,9 @@ class AnimalController extends AdminController
             ));
             $filter->equal('e_id', "E-ID");
             $filter->equal('v_id', "V-ID");
-        
         });
-        
-        $grid->model()->orderBy('id','DESC');
+
+        $grid->model()->orderBy('id', 'DESC');
         $grid->column('e_id', __('E-ID'))->sortable();
         $grid->column('v_id', __('V-ID'))->sortable();
         $grid->column('lhc', __('LHC'))->sortable();
@@ -129,18 +127,18 @@ class AnimalController extends AdminController
         $grid->column('breed', __('Breed'))->sortable();
         $grid->column('sex', __('Sex'))->sortable();
         $grid->column('dob', __('Year born'))->sortable();
-        $grid->column('fmd', __('Last FMD'))->sortable(); 
+        $grid->column('fmd', __('Last FMD'))->sortable();
         $grid->column('status', __('Status'))->sortable();
-        
+
 
         $grid->column('administrator_id', __('Owner'))
-        ->display(function ($id) {
-            $u = Administrator::find($id);
-            if (!$u) {
-                return $id;
-            }
-            return $u->name;
-        })->sortable();
+            ->display(function ($id) {
+                $u = Administrator::find($id);
+                if (!$u) {
+                    return $id;
+                }
+                return $u->name;
+            })->sortable();
 
         $grid->column('district_id', __('District'))
             ->display(function ($id) {
@@ -158,7 +156,7 @@ class AnimalController extends AdminController
                 }
                 return $u->name;
             })->sortable();
- 
+
 
         return $grid;
     }
@@ -180,7 +178,7 @@ class AnimalController extends AdminController
                     $tools->disableDelete();
                 });
         }
-        
+
         $show->field('id', __('Id'));
         $show->field('created_at', __('Created at'));
         $show->field('updated_at', __('Updated at'));
@@ -211,7 +209,13 @@ class AnimalController extends AdminController
 
         $items = [];
         foreach (Farm::all() as $key => $f) {
-            $items[$f->id] = $f->holding_code . " - By ".$f->owner()->name ;
+            if (Admin::user()->isRole('farmer')) {
+                if($f->administrator_id == Admin::user()->id){
+                    $items[$f->id] = $f->holding_code;
+                }
+            }else{
+                $items[$f->id] = $f->holding_code . " - By " . $f->owner()->name;
+            }
         }
 
         $form->hidden('administrator_id', __('Administrator id'))->default(1);
@@ -219,39 +223,39 @@ class AnimalController extends AdminController
         $form->hidden('sub_county_id', __('Subcounty'))->default(1);
 
         $form->select('farm_id', __('Farm'))
-        ->options($items)
-        ->required();
-          
+            ->options($items)
+            ->required();
+
         $form->select('type', __('Livestock species'))
-        ->options(Array(
-            'Cattle' => "Cattle",
-            'Goat' => "Goat",
-            'Sheep' => "Sheep"
-        ))
-        ->required();
+            ->options(array(
+                'Cattle' => "Cattle",
+                'Goat' => "Goat",
+                'Sheep' => "Sheep"
+            ))
+            ->required();
 
         $form->radio('sex', __('Sex'))
-        ->options(Array(
-            'Male' => "Male",
-            'Female' => "Female", 
-        ))
-        ->required();
- 
+            ->options(array(
+                'Male' => "Male",
+                'Female' => "Female",
+            ))
+            ->required();
+
         $form->select('breed', __('Breed'))
-        ->options(Array(
-            'Ankole' => "Ankole",
-            'Short horn zebu' => "Short horn zebu",
-            'Holstein' => "Holstein",
-            'Other' => "Other"
-        ))
-        ->required();
-  
- 
+            ->options(array(
+                'Ankole' => "Ankole",
+                'Short horn zebu' => "Short horn zebu",
+                'Holstein' => "Holstein",
+                'Other' => "Other"
+            ))
+            ->required();
+
+
 
         $form->text('e_id', __('Electronic id'))->required();
         $form->text('v_id', __('Tag id'))->required();
-        
-        $form->year('dob', __('Year of birth'))->attribute('autocomplete','false')->default(date('Y-m-d'))->required();
+
+        $form->year('dob', __('Year of birth'))->attribute('autocomplete', 'false')->default(date('Y-m-d'))->required();
         $form->date('fmd', __('Date last FMD vaccination'))->default(date('Y-m-d'))->required();
         $form->text('status', __('Status'))->readonly()->default("Live");
         $form->text('lhc', __('LHC'))->readonly();
