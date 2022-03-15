@@ -53,7 +53,7 @@ class CheckPointRecordController extends AdminController
         })->sortable();
         $grid->column('movement_id', __('Movement id'));
         $grid->column('latitude', __('GPS'))->display(function ($id) {
-            return $this->latitude.",longitude";
+            return $this->latitude.",$this->longitude";
         })->sortable(); 
         //$grid->column('on_permit', __('On permit'));
         $grid->column('checked', __('Checked'));
