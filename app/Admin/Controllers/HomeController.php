@@ -30,7 +30,7 @@ class HomeController extends Controller
             $content->title('Main Dashboard');
 
             $content->row(function ($row) {
-                $box = new Box('Species', view('admin.dashboard.chart-animal-types'));
+                $box = new Box('Livestock Species', view('admin.dashboard.chart-animal-types'));
                 $box->removable();
                 $box->collapsable();
                 $box->style('success');

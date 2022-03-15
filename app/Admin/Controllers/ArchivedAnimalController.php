@@ -44,7 +44,7 @@ class ArchivedAnimalController extends AdminController
         $grid->column('district', __('District'));
         $grid->column('sub_county', __('Sub county'));
         $grid->column('events', __('Events'))->hide();
-        $grid->column('details', __('Details'))->hide();
+        $grid->column('details', __('Details'));
 
         return $grid;
     }
