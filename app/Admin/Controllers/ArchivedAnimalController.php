@@ -32,9 +32,9 @@ class ArchivedAnimalController extends AdminController
 
         $grid->column('id', __('Id'));
         $grid->column('created_at', __('Created'));
-        $grid->column('e_id', __('E id'));
-        $grid->column('v_id', __('V id'));
-        $grid->column('lhc', __('Lhc'));
+        $grid->column('e_id', __('EID'));
+        $grid->column('v_id', __('VID'));
+        $grid->column('lhc', __('LHC'));
         $grid->column('type', __('Species'));
         $grid->column('breed', __('Breed'));
         $grid->column('sex', __('Sex'));
@@ -66,9 +66,9 @@ class ArchivedAnimalController extends AdminController
         $show->field('district', __('District'));
         $show->field('sub_county', __('Sub county'));
         $show->field('type', __('Type'));
-        $show->field('e_id', __('E id'));
-        $show->field('v_id', __('V id'));
-        $show->field('lhc', __('Lhc'));
+        $show->field('e_id', __('EID'));
+        $show->field('v_id', __('VID'));
+        $show->field('lhc', __('LHC'));
         $show->field('breed', __('Breed'));
         $show->field('sex', __('Sex'));
         $show->field('dob', __('Dob'));
@@ -92,9 +92,9 @@ class ArchivedAnimalController extends AdminController
         $form->textarea('district', __('District'));
         $form->textarea('sub_county', __('Sub county'));
         $form->textarea('type', __('Type'));
-        $form->textarea('e_id', __('E id'));
-        $form->textarea('v_id', __('V id'));
-        $form->textarea('lhc', __('Lhc'));
+        $form->textarea('e_id', __('EID'));
+        $form->textarea('v_id', __('VID'));
+        $form->textarea('lhc', __('LHC'));
         $form->textarea('breed', __('Breed'));
         $form->textarea('sex', __('Sex'));
         $form->textarea('dob', __('Dob'));
