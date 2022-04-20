@@ -48,14 +48,14 @@ class SlaughterRecordController extends AdminController
             ->display(function ($f) {
                 return Carbon::parse($f)->toFormattedDateString();
             })->sortable();
-        $grid->column('e_id', __('E id'))->sortable();
-        $grid->column('v_id', __('V id'))->sortable();
-        $grid->column('lhc', __('Lhc'))->sortable();
+        $grid->column('e_id', __('EID'))->sortable();
+        $grid->column('v_id', __('VID'))->sortable();
+        $grid->column('lhc', __('LHC'))->sortable();
         $grid->column('type', __('Species'))->sortable(); 
         $grid->column('breed', __('Breed'))->sortable(); 
         $grid->column('sex', __('Sex'))->sortable();
-        $grid->column('dob', __('Dob'))->sortable();
-        $grid->column('fmd', __('Fmd'))->sortable();
+        $grid->column('dob', __('DoB'))->sortable();
+        $grid->column('fmd', __('FMD'))->sortable();
         $grid->column('destination_slaughter_house', __('Abattoir'))->sortable();
         $grid->column('details', __('Details'))->hide();
  

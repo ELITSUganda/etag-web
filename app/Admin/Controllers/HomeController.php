@@ -23,6 +23,7 @@ class HomeController extends Controller
 
         if (
             Admin::user()->isRole('administrator') || 
+            
             Admin::user()->isRole('admin')  
             
             ) {

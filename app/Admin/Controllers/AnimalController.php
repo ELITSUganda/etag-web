@@ -68,6 +68,14 @@ class AnimalController extends AdminController
             $grid->model()->where('administrator_id', '=', Admin::user()->id);
         }
 
+        
+        $grid->tools(function ($tools) {
+            $tools->batch(function ($batch) {
+                $batch->disableDelete();
+            });
+        });
+        
+
 
 
         $grid->filter(function ($filter) {
@@ -207,6 +215,8 @@ class AnimalController extends AdminController
         $form = new Form(new Animal());
         //$form->setWidth(8, 4);
 
+        
+ 
         $items = [];
         foreach (Farm::all() as $key => $f) {
             if (Admin::user()->isRole('farmer')) {
