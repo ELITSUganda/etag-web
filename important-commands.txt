@@ -3,8 +3,8 @@ php artisan make:component Alert --inline
 php artisan migrate
 
 
+php artisan make:migration create_task_table
 php artisan make:migration create_power_stations_table
-php artisan make:migration create_engines_table
 php artisan make:migration create_archived_animals_table
 
 
@@ -26,7 +26,8 @@ php artisan admin:make ContractController --model=App\\Models\\ContractRecords
 php artisan admin:make StockRecordController --model=App\\Models\\StockRecord
 php artisan admin:make SlaughterRecordController --model=App\\Models\\SlaughterRecord
 php artisan admin:make ArchivedAnimalController --model=App\\Models\\ArchivedAnimal
+php artisan admin:make TaskController --model=App\\Models\\Task
 
 
-php artisan make:model StockRecord
+php artisan make:model Task
 php artisan make:model ArchivedAnimal

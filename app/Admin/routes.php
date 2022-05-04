@@ -11,6 +11,7 @@ Route::group([
     'as'            => config('admin.route.prefix') . '.',
 ], function (Router $router) {
 
+    $router->resource('tasks', TaskController::class);
     $router->get('/', 'HomeController@index')->name('home');
     $router->resource('districts', DistrictController::class);
     $router->resource('sub-counties', SubCountyController::class);
@@ -25,5 +26,7 @@ Route::group([
     $router->resource('slaughter-records', SlaughterRecordController::class);
     $router->resource('archived-animals', ArchivedAnimalController::class);
     $router->resource('sales', AnimalSalesController::class);
+
+
     
 });
