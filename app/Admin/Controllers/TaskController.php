@@ -9,8 +9,11 @@ use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
+use Encore\Admin\Grid\Model;
 use Encore\Admin\Show;
+use GuzzleHttp\Psr7\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request as FacadesRequest;
 
 class TaskController extends AdminController
 {
@@ -42,21 +45,21 @@ class TaskController extends AdminController
             $filter->between('start_date', 'Starts between')->datetime();
             $filter->between('submit_before', 'To be submited between')->datetime();
             $filter->equal('submision_status')->select([
-                '0' => 'Pending or missed',
-                '1' => 'Submitted',
-                '2' => 'Submitted late',
+                0 => 'Pending or missed',
+                1 => 'Submitted',
+                2 => 'Submitted late',
             ]);
             $filter->equal('review_status')->select([
-                '1' => 'Done',
-                '2' => 'Partially done',
-                '0' => 'Not Done',
+                1 => 'Done',
+                2 => 'Partially done',
+                0 => 'Not Done',
             ]);
 
             $projects = [];
             foreach (Project::all() as $key => $v) {
                 $projects[$v->id] = $v->name . " - " . $v->short_name;
             }
-            $filter->equal('project_id', 'Projects')->select($projects);
+            $filter->equal('project_id', 'Project')->select($projects);
         });
 
 
@@ -115,8 +118,11 @@ class TaskController extends AdminController
                 return $this->get_review_status();
             });
         $grid->column('review_comment', __('Review comment'));
-        $grid->column('category_id', __('Project'));
-
+        $grid->column('project_id', __('Project'))
+            ->sortable()
+            ->display(function () {
+                return $this->project->short_name;
+            });
         return $grid;
     }
 
@@ -156,6 +162,13 @@ class TaskController extends AdminController
     protected function form()
     {
         $form = new Form(new Task());
+
+        $m = new Task();
+        $id = ((int)(FacadesRequest::segment(3)));
+        if ($id > 0) {
+            $m = Task::findOrFail($id);
+        }
+
         $u = Auth::user();
         $is_manager = false;
         if ($u->isRole('manager')) {
@@ -169,12 +182,13 @@ class TaskController extends AdminController
 
         $projects = [];
         foreach (Project::all() as $key => $v) {
-            $projects[$v->id] = $v->name . " - #" . $v->short_name;
+            $projects[$v->id] = $v->name . " - " . $v->short_name;
         }
 
 
         if ($form->isCreating()) {
-            $form->hidden('assigned_by', __('Task title'))->default($u->id)->required();
+            $form->hidden('assigned_by', __('Task title'))
+                ->default($u->id)->required();
 
             if ($is_manager) {
                 $form->select('assigned_to', __('Assigned to'))
@@ -197,25 +211,44 @@ class TaskController extends AdminController
             $form->select('project_id', __('Project'))
                 ->options($projects)
                 ->required();
-            $form->text('title', __('Task title'))->required();
-            $form->textarea('body', __('Task desscription'))->required();
+            $form->text('title', __('Task title'))
+                ->help("Enter a precice but complete task title")
+                ->required();
+            $form->textarea('body', __('Task desscription'))
+                ->help("Explain the task")
+                ->required();
 
             $form->datetime('start_date', __('Start date'))->default(date('Y-m-d'))->required();
             $form->datetime('end_date', __('End date'))->required();
             $form->datetime('submit_before', __('Submit before'))->required();
         } else {
 
-            $form->textarea('submission_comment', __('Submision comment'))
-                ->required();
-            $form->textarea('review_comment', __('Review comment'))
-                ->required();
-            $form->number('review_status', __('Review status'));
-            $form->number('value', __('Value'))->default(1);
-            $form->number('category_id', __('Category id'))->default(1);
+            if ($m->assigned_to == $u->id) {
+                $form->textarea('submission_comment', __('Submision comment'))
+                    ->required();
+                $form->radio('submision_status', __('Submision status'))
+                    ->options([1 => 'I submit'])
+                    ->required();
+            }
 
-            $form->checkbox('submision_status', __('Submision status'))
-                ->options([1 => 'I submit'])
-                ->required();
+            if ($m->assignedTo->supervisor_id == $u->id) {
+                $form->textarea('review_comment', __('Review comment'))
+                    ->required();
+                $form->select('review_status', __('Review status'))
+                    ->options([
+                        1 => 'Done',
+                        2 => 'Partially Done',
+                        3 => 'Not done',
+                    ])
+                    ->required();
+            }
+
+
+
+
+
+            $form->hidden('value', __('Value'))->value(1)->default(1);
+            $form->hidden('category_id', __('Value'))->value(1)->default(1);
         }
 
 

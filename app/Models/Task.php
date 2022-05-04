@@ -47,6 +47,11 @@ class Task extends Model
         return $this->belongsTo(Administrator::class, 'assigned_to');
     }
 
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
+
     public function assignedBy()
     {
         return $this->belongsTo(Administrator::class, 'assigned_by');
