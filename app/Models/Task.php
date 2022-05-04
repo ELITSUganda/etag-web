@@ -21,7 +21,6 @@ class Task extends Model
         } else if ($this->review_status == 3) {
             return '<span class="badge" style="background-color: red;">Not Done</span>';
         }
-
         return '<span class="badge" >Pending</span>';
     }
 

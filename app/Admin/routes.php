@@ -12,6 +12,9 @@ Route::group([
 ], function (Router $router) {
 
     $router->resource('tasks', TaskController::class);
+    $router->resource('departments', DepartmentController::class);
+    $router->resource('projects', ProjectController::class);
+    
     $router->get('/', 'HomeController@index')->name('home');
     $router->resource('districts', DistrictController::class);
     $router->resource('sub-counties', SubCountyController::class);

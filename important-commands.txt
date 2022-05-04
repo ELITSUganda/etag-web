@@ -14,6 +14,8 @@ php artisan make:migration create_contracts_table
 php artisan make:migration create_contract_records_table
 php artisan make:migration create_stock_records_table
 php artisan make:migration create_slaughter_records_table
+php artisan make:migration create_departments_table
+php artisan make:migration create_projects_table
 
 Encore\Admin\Auth\Database\Administrator::class,
 php artisan admin:make FormSr4Controller --model=App\FormSr4
@@ -27,7 +29,9 @@ php artisan admin:make StockRecordController --model=App\\Models\\StockRecord
 php artisan admin:make SlaughterRecordController --model=App\\Models\\SlaughterRecord
 php artisan admin:make ArchivedAnimalController --model=App\\Models\\ArchivedAnimal
 php artisan admin:make TaskController --model=App\\Models\\Task
+php artisan admin:make DepartmentController --model=App\\Models\\Department
 
 
-php artisan make:model Task
+php artisan make:model Department
 php artisan make:model ArchivedAnimal
+php artisan make:model Project

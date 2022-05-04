@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\Project;
 use App\Models\Task;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
@@ -29,6 +30,36 @@ class TaskController extends AdminController
     {
         $grid = new Grid(new Task());
 
+
+
+        $grid->filter(function ($filter) {
+            $admins = [];
+            foreach (Administrator::all() as $key => $v) {
+                $admins[$v->id] = $v->name . " - " . $v->id . " - ({$v->username})";
+            }
+            $filter->equal('assigned_to')->select($admins);
+            $filter->between('created_at', 'Created between')->datetime();
+            $filter->between('start_date', 'Starts between')->datetime();
+            $filter->between('submit_before', 'To be submited between')->datetime();
+            $filter->equal('submision_status')->select([
+                '0' => 'Pending or missed',
+                '1' => 'Submitted',
+                '2' => 'Submitted late',
+            ]);
+            $filter->equal('review_status')->select([
+                '1' => 'Done',
+                '2' => 'Partially done',
+                '0' => 'Not Done',
+            ]);
+
+            $projects = [];
+            foreach (Project::all() as $key => $v) {
+                $projects[$v->id] = $v->name . " - " . $v->short_name;
+            }
+            $filter->equal('project_id', 'Projects')->select($projects);
+        });
+
+
         $grid->column('id', __('Id'))->sortable();
 
 
@@ -44,12 +75,19 @@ class TaskController extends AdminController
                 return Carbon::parse($this->start_date)->toFormattedDateString();
             });
 
-
         $grid->column('end_date', __('Ends'))
             ->sortable()
             ->display(function () {
                 return Carbon::parse($this->end_date)->toFormattedDateString();
             });
+
+        $grid->column('submit_before', __('Submit before'))
+            ->sortable()
+            ->display(function () {
+                return Carbon::parse($this->submit_before)->diffForHumans();
+            });
+
+
 
 
 
@@ -72,12 +110,12 @@ class TaskController extends AdminController
                 return $this->get_status();
             });
         $grid->column('title', __('Title'));
-        $grid->column('review_status', __('Review status'))->sortable();
+        $grid->column('review_status', __('Review status'))->sortable()
+            ->display(function () {
+                return $this->get_review_status();
+            });
         $grid->column('review_comment', __('Review comment'));
-
-        $grid->column('submit_before', __('Submit before'));
-        $grid->column('value', __('Value'));
-        $grid->column('category_id', __('Category id'));
+        $grid->column('category_id', __('Project'));
 
         return $grid;
     }
@@ -126,8 +164,12 @@ class TaskController extends AdminController
 
         $admins = [];
         foreach (Administrator::all() as $key => $v) {
-
             $admins[$v->id] = $v->name . " - " . $v->id . " - ({$v->username})";
+        }
+
+        $projects = [];
+        foreach (Project::all() as $key => $v) {
+            $projects[$v->id] = $v->name . " - #" . $v->short_name;
         }
 
 
@@ -151,6 +193,10 @@ class TaskController extends AdminController
 
 
 
+
+            $form->select('project_id', __('Project'))
+                ->options($projects)
+                ->required();
             $form->text('title', __('Task title'))->required();
             $form->textarea('body', __('Task desscription'))->required();
 
@@ -158,11 +204,18 @@ class TaskController extends AdminController
             $form->datetime('end_date', __('End date'))->required();
             $form->datetime('submit_before', __('Submit before'))->required();
         } else {
-            $form->textarea('review_comment', __('Review comment'));
-            $form->text('submision_status', __('Submision status'))->default(0);
+
+            $form->textarea('submission_comment', __('Submision comment'))
+                ->required();
+            $form->textarea('review_comment', __('Review comment'))
+                ->required();
             $form->number('review_status', __('Review status'));
             $form->number('value', __('Value'))->default(1);
             $form->number('category_id', __('Category id'))->default(1);
+
+            $form->checkbox('submision_status', __('Submision status'))
+                ->options([1 => 'I submit'])
+                ->required();
         }
 
 
