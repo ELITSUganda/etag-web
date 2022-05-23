@@ -13,7 +13,7 @@ use App\Models\Utils;
             {!! $grid->renderExportButton() !!}
             {!! $grid->renderCreateButton() !!}
         </div>
-        <span>
+        <span> 
             {!! $grid->renderHeaderTools() !!}
         </span>
     </div>

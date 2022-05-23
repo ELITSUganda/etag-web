@@ -27,5 +27,7 @@ Route::group([
     $router->resource('sales', AnimalSalesController::class);
     $router->resource('check-points', CheckPointController::class);
     $router->resource('check-point-records', CheckPointRecordController::class);
+    $router->resource('product-categories', ProductCategoryController::class);
+    $router->resource('products', ProductController::class);
     
 });
