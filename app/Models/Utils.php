@@ -9,20 +9,20 @@ use Encore\Admin\Grid\Model;
 class Utils extends Model
 { 
 
-    
+
     
     public static function get_file_url($name)
     {
-
-        $url = url("/storage");
-        if ($name == null || (strlen($name) < 2)) {
-            $url .= '/default.png';
-        } else if (file_exists(public_path('storage/' . $name))) {
-            $url .= "/" . $name;
-        } else {
-            $url .= '/default.png';
-        }
-        return $url;
+        //public/storage/images/7.jpg 
+        // $url = url("/storage");
+        // if ($name == null || (strlen($name) < 2)) {
+        //     $url .= '/default.png';
+        // } else if (file_exists(public_path('storage/' . $name))) {
+        //     $url .= "/" . $name;
+        // } else {
+        //     $url .= '/default.png';
+        // }
+        return url($name);
     } 
     
     public static function make_movement_qr($model){
