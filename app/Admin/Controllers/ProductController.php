@@ -3,10 +3,12 @@
 namespace App\Admin\Controllers;
 
 use App\Models\Product;
+use App\Models\ProductCategory;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
 
 class ProductController extends AdminController
@@ -39,11 +41,30 @@ class ProductController extends AdminController
         $grid->column('images', __('Images'));
         $grid->column('details', __('Details'));
 
+        $grid->filter(function ($filter) {
+
+            $items = [];
+            $cats = ProductCategory::all();
+
+            foreach ($cats as $key => $c) {
+                $items[$c->id] = $c->name;
+            }
+
+            $filter->disableIdFilter();
+            $filter->like('name', 'Search by title');
+            $filter->equal('type')->select([
+                'Drugs' => 'Drugs',
+                'Livestock' => 'Livestock',
+            ]);
+
+            $filter->equal('product_category_id')->select($items);
+        });
+
         if (Request::get('view') !== 'table') {
             $grid->setView('admin.grid.card');
         }
 
-          $grid->actions(function ($actions) {
+        $grid->actions(function ($actions) {
             $actions->disableDelete();
         });
 
@@ -83,14 +104,59 @@ class ProductController extends AdminController
     protected function form()
     {
         $form = new Form(new Product());
+        $u = Auth::user();
+        $cats = ProductCategory::all();
+        $lives = [];
+        $drugs = [];
+        foreach ($cats as $key => $c) {
+            if ($c->type == 'Livestock') {
+                $lives[$c->id] = $c->name;
+            } else {
+                $drugs[$c->id] = $c->name;
+            }
+        }
 
-        $form->number('administrator_id', __('Administrator id'))->default(1);
-        $form->number('product_category_id', __('Product category id'))->default(1);
-        $form->textarea('name', __('Name'));
-        $form->textarea('price', __('Price'));
-        $form->textarea('quantity', __('Quantity'));
-        $form->textarea('thumbnail', __('Thumbnail'));
-        $form->textarea('images', __('Images'));
+        $form->radio('type', __('Product Type'))
+            ->options([
+                'Drugs' => 'Drugs',
+                'Livestock' => 'Livestock',
+            ])
+            ->when('Drugs', function (Form $form) {
+                $items = [];
+                $lives = [];
+                $drugs = [];
+                $cats = ProductCategory::all();
+
+                foreach ($cats as $key => $c) {
+                    if ($c->type != 'Livestock') {
+                        $drugs[$c->id] = $c->name;
+                    }
+                }
+                $form->select('product_category_id', __('Livestock category'))
+                    ->options($drugs);
+            })
+            ->when('Livestock', function (Form $form) {
+                $items = [];
+                $lives = [];
+                $cats = ProductCategory::all();
+
+                foreach ($cats as $key => $c) {
+                    if ($c->type == 'Livestock') {
+                        $lives[$c->id] = $c->name;
+                    }
+                }
+                $form->select('product_category_id', __('Livestock category'))
+                    ->options($lives);
+            })
+            ->required();
+
+        $form->hidden('administrator_id', __('Administrator id'))->default($u->id)->value($u->id);
+
+        $form->text('name', __('Product title'))->required();
+        $form->text('price', __('Price'))->attribute(['type' => 'number'])->required();
+        $form->text('quantity', __('Quantity available'))->attribute(['type' => 'number'])->required();
+        $form->image('thumbnail', __('Thumbnail'))->required();
+        $form->multipleImage('images', __('Images'))->removable();
         $form->textarea('details', __('Details'));
 
         return $form;
