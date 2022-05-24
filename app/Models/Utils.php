@@ -10,6 +10,13 @@ class Utils extends Model
 { 
 
 
+    public static function start_session()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+    }
+
     
     public static function get_file_url($name)
     {
