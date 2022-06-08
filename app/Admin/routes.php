@@ -30,4 +30,8 @@ Route::group([
     $router->resource('product-categories', ProductCategoryController::class);
     $router->resource('products', ProductController::class); 
     $router->resource('orders', OrderController::class);
+    $router->resource('drug-categories', DrugCategoryController::class);
+    $router->resource('form-drug-sellers', FormDrugSellerController::class);
+    $router->resource('form-drug-stock-approvals', FormDrugStockApprovalController::class);
+
 });

@@ -17,7 +17,9 @@ php artisan make:migration create_slaughter_records_table
 php artisan make:migration create_check_points_table
 php artisan make:migration create_check_point_records_table
 php artisan make:migration create_products_table
-php artisan make:migration create_product_categories_table
+php artisan make:migration create_form_drug_sellers_table
+php artisan make:migration create_drug_categories_table 
+php artisan make:migration create_form_drug_stock_approvals_table
 
 Encore\Admin\Auth\Database\Administrator::class,
 php artisan admin:make FormSr4Controller --model=App\FormSr4
@@ -34,10 +36,16 @@ php artisan admin:make CheckPointController --model=App\\Models\\CheckPoint
 php artisan admin:make CheckPointRecordController --model=App\\Models\\CheckPointRecord
 php artisan admin:make ProductCategoryController --model=App\\Models\\ProductCategory
 php artisan admin:make ProductController --model=App\\Models\\Product
+php artisan admin:make FormDrugSellerController --model=App\\Models\\FormDrugSeller
+php artisan admin:make DrugCategoryController --model=App\\Models\\DrugCategory
+php artisan admin:make FormDrugStockApprovalController --model=App\\Models\\FormDrugStockApproval
 
 
 php artisan make:model CheckPoint
 php artisan make:model ArchivedAnimal
 php artisan make:model CheckPointRecord
 php artisan make:model ProductCategory
-php artisan make:model Product
+php artisan make:model FormDrugSeller
+php artisan make:model AdminRoleUser
+php artisan make:model DrugCategory
+php artisan make:model FormDrugStockApproval
