@@ -77,7 +77,7 @@ class MovementController extends AdminController
             Admin::user()->isRole('livestock-officer')
 
         ) {
-            $grid->model()->orderBy('id','DESC');            
+            $grid->model()->orderBy('id', 'DESC');
         } else {
             $grid->model()->where('administrator_id', '=', Admin::user()->id);
             $grid->actions(function ($actions) {
@@ -345,6 +345,9 @@ status
             $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Animals\' departure info. <b>(FROM)</b></h4>');
             $items = [];
             foreach (SubCounty::all() as $key => $f) {
+                if ($f->locked_down) {
+                    continue;
+                }
                 $items[$f->id] = $f->name . ", " . $f->district->name;
             }
             $form->select('sub_county_from', __('Subcounty from'))
@@ -364,7 +367,7 @@ status
                 ->when('To farm', function (Form $form) {
                     $farms = [];
                     foreach (Farm::all() as $key => $f) {
-                        $farms[$f->id] = $f->holding_code . " - ".$f->owner()->username;
+                        $farms[$f->id] = $f->holding_code . " - " . $f->owner()->username;
                     }
                     $form->select('destination_farm', __('Select Farm'))
                         ->options($farms);
@@ -386,6 +389,9 @@ status
                 ->when('Other', function (Form $form) {
                     $items = [];
                     foreach (SubCounty::all() as $key => $f) {
+                        if ($f->locked_down) {
+                            continue;
+                        }
                         $items[$f->id] = $f->name . ", " . $f->district->name;
                     }
                     $form->text('reason', __('Specify purpose of movement'));
@@ -429,6 +435,9 @@ status
             $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Animals\' departure info. <b>(FROM)</b></h4>');
             $items = [];
             foreach (SubCounty::all() as $key => $f) {
+                if ($f->locked_down) {
+                    continue;
+                }
                 $items[$f->id] = $f->name . ", " . $f->district->name;
             }
             $form->select('sub_county_from', __('Subcounty from'))
@@ -475,6 +484,9 @@ status
                 ->when('Other', function (Form $form) {
                     $items = [];
                     foreach (SubCounty::all() as $key => $f) {
+                        if ($f->locked_down) {
+                            continue;
+                        }
                         $items[$f->id] = $f->name . ", " . $f->district->name;
                     }
                     $form->text('reason', __('Specify purpose of movement'))

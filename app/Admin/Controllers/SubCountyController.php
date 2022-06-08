@@ -47,7 +47,7 @@ class SubCountyController extends AdminController
         $grid->filter(function ($filter) {
             $districts = [];
             foreach (District::all() as $key => $p) {
-                $districts[$p->id] = $p->name . " - ".$p->code;
+                $districts[$p->id] = $p->name . " - " . $p->code;
             }
             $filter->equal('district_id', "District")->select($districts);
         });
@@ -55,6 +55,15 @@ class SubCountyController extends AdminController
         $grid->column('id', __('Id'))->sortable()->width(40);
         $grid->column('name', __('Name'))->sortable()->width(100);
         $grid->column('code', __('CODE'))->sortable()->width(80);
+        $grid->column('locked_down', __('Quarantine'))
+            ->display(function ($l) {
+                if ($l) {
+                    return "Locked down";
+                } else {
+                    return "Open";
+                }
+            })
+            ->sortable()->width(120);
         $grid->column('district_id', __('District'))->display(function ($district_id) {
             $d = District::find($district_id);
             if (!$d) {
@@ -107,7 +116,7 @@ class SubCountyController extends AdminController
         $admins = [];
         foreach (Administrator::all() as $key => $v) {
             if (!$v->isRole('scvo')) {
-                continue; 
+                continue;
             }
             $admins[$v->id] = $v->name . " - " . $v->id;
         }
@@ -122,8 +131,14 @@ class SubCountyController extends AdminController
         $form->select('administrator_id', __('SubCounty veterinary officer'))
             ->options($admins)
             ->required();
-
         $form->textarea('detail', __('Detail'));
+
+        $form->radio('locked_down', 'Quarantine')->options([
+            0 => 'Opened',
+            1 => 'Lock down',
+        ])
+            ->default(0)
+            ->help('NOTE: Lock down means no movement of livestock will be allowed in that region  until opened.');
 
         return $form;
     }
