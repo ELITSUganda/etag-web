@@ -11,7 +11,7 @@ return [
     | login page.
     |
     */
-    'name' => 'MOBIP Uganda',
+    'name' => 'U-LITS',
 
     /*
     |--------------------------------------------------------------------------
@@ -22,7 +22,7 @@ return [
     | `img` tag, eg '<img src="http://logo-url" alt="Admin logo">'.
     |
     */
-    'logo' => '<b>MOBIP</b>',
+    'logo' => '<b>U-LITS</b>',
 
     /*
     |--------------------------------------------------------------------------
@@ -34,7 +34,7 @@ return [
     | '<img src="http://logo-url" alt="Admin logo">'.
     |
     */
-    'logo-mini' => '<b>MOBIP</b>',
+    'logo-mini' => '<b>U-LITS</b>',
 
     /*
     |--------------------------------------------------------------------------
@@ -153,14 +153,14 @@ return [
     'upload' => [
 
         // Disk in `config/filesystem.php`.
-        'disk' => 'public',
+        'disk' => 'admin',
 
         // Image and file upload path under the disk above.
         'directory' => [
-            'image' => 'public/',
-            'file'  => 'files',
+            'image' => 'public/storage/images',
+            'file'  => 'public/storage/files',
         ],
-    ], 
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -209,7 +209,7 @@ return [
     */
     'operation_log' => [
 
-        'enable' => true,
+        'enable' => false,
 
         /*
          * Only logging allowed methods in the list

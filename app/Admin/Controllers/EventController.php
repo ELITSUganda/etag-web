@@ -36,6 +36,8 @@ class EventController extends AdminController
      */
     protected function grid()
     {
+
+        Utils::display_alert_message();
         $grid = new Grid(new Event());
 
         $grid->actions(function ($actions) {
@@ -272,8 +274,22 @@ class EventController extends AdminController
      */
     protected function form()
     {
-        $form = new Form(new Event());
+        /* $e = new Event();
+        $e->administrator_id = 1;
+        $e->district_id = 1;
+        $e->sub_county_id = 1;
+        $e->farm_id = 1;
+        $e->is_batch_import = 1;
+        $e->type = 'Other';
+        $e->detail = 'Test details Other';
+        $e->approved_by = 1;
+        $e->import_file = 'public/storage/files/1.xls';
 
+        $e->save();
+        die("sone"); */
+
+        Utils::display_alert_message();
+        $form = new Form(new Event());
 
         if (
             isset($_POST['type']) &&

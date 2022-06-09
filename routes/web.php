@@ -2,12 +2,8 @@
 
 use App\Http\Controllers\PrintController;
 use App\Http\Controllers\PrintController2;
-use App\Models\Animal;
-use App\Models\Event;
 use Encore\Admin\Grid\Tools\Header;
 use Illuminate\Support\Facades\Route;
-
-
 
 /*
 |--------------------------------------------------------------------------
@@ -24,9 +20,7 @@ Route::match(['get', 'post'], '/print2', [PrintController::class, 'index']);
 Route::match(['get', 'post'], '/print', [PrintController2::class, 'index']);
 
 Route::get('/', function () {
-
- 
-    header("Location: " . admin_url());
+    header( "Location: ". admin_url());
     die();
     return view('welcome');
 });

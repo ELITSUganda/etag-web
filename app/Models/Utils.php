@@ -4,11 +4,41 @@ namespace App\Models;
 
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Facades\Admin;
-use Encore\Admin\Grid\Model; 
+use Encore\Admin\Grid\Model;
 
 class Utils extends Model
-{ 
+{
 
+
+    public static function display_alert_message()
+    {
+        Utils::start_session();
+        if (isset($_SESSION['alerts'])) {
+            if ($_SESSION['alerts'] != null) {
+                foreach ($_SESSION['alerts'] as $key => $v) {
+                    if (isset($v['type']) && isset($v['msg'])) {
+                        if ($v['type'] == 'danger') {
+                            admin_error('Warning', $v['msg']);
+                        } else if ($v['type'] == 'success') {
+                            admin_success('Success!', $v['msg']);
+                        } else {
+                            admin_info('Alert', $v['msg']);
+                        }
+                    }
+                }
+            }
+            $_SESSION['alerts'] == null;
+            unset($_SESSION['alerts']);
+        }
+    }
+
+    public static function alert_message($type, $msg)
+    {
+        Utils::start_session();
+        $alert['type'] = $type;
+        $alert['msg'] = $msg;
+        $_SESSION['alerts'][] = $alert;
+    }
 
     public static function start_session()
     {
@@ -17,11 +47,11 @@ class Utils extends Model
         }
     }
 
-    
+
     public static function get_file_url($name)
     {
         $url = url("/storage");
-        if($name == null){
+        if ($name == null) {
             $url .= '/default.png';
             return $url;
         }
@@ -32,33 +62,35 @@ class Utils extends Model
             $url .= '/default.png';
         }
         return $url;
-    } 
-    
-    public static function make_movement_qr($model){
-        $p_url = url("/print?id=".$model->id);
-            $data = $model->id;
-            
-            /*$data = "ULITS E-MOVEMENT PERMIT\n".
+    }
+
+    public static function make_movement_qr($model)
+    {
+        $p_url = url("/print?id=" . $model->id);
+        $data = $model->id;
+
+        /*$data = "ULITS E-MOVEMENT PERMIT\n".
             "Applicant: $model->trader_name\n".
             "Transporter: $model->transporter_name\n".
             "PERMIT No.: $model->permit_Number\n".
             "PERMIT Status: $model->status\n".
             "VERIFICATION URL: $p_url\n";*/
-                
-            Utils::make_qr([
-                'file_name' => $model->id.".png",
-                'data' => $data,
-            ]);
+
+        Utils::make_qr([
+            'file_name' => $model->id . ".png",
+            'data' => $data,
+        ]);
     }
     public static function make_qr($opts = [
         'file_name' => '1.png',
         'data' => 'Data',
-    ]){
-        $url = url('code_maker.php?f=png&s=qr&sf=20&ms=r&md=.8&d='.urlencode($opts['data']));
+    ])
+    {
+        $url = url('code_maker.php?f=png&s=qr&sf=20&ms=r&md=.8&d=' . urlencode($opts['data']));
         $data = file_get_contents($url);
-        $myfile = fopen("public/storage/codes/".$opts['file_name'], "w");
-        fwrite($myfile, $data); 
-        fclose($myfile); 
+        $myfile = fopen("public/storage/codes/" . $opts['file_name'], "w");
+        fwrite($myfile, $data);
+        fclose($myfile);
     }
 
     public static function move_animal($transfer = [])
@@ -91,16 +123,17 @@ class Utils extends Model
                     $event->disease_id = null;
                     $event->vaccine_id = null;
                     $event->medicine_id = null;
-                    $event->save(); 
-                } 
-            } 
+                    $event->save();
+                }
+            }
         }
     }
 
-    public static function get_role($u = null){
+    public static function get_role($u = null)
+    {
         $roles = $u->roles;
-        if(isset($roles[0])){
-            if(isset($roles[0]['slug'])){
+        if (isset($roles[0])) {
+            if (isset($roles[0]['slug'])) {
                 return $roles[0]['slug'];
             }
         }
@@ -121,8 +154,8 @@ class Utils extends Model
         }
 
         $roles = $u->roles;
-        if(isset($roles[0])){
-            if(isset($roles[0]['slug'])){
+        if (isset($roles[0])) {
+            if (isset($roles[0]['slug'])) {
                 return $roles[0]['slug'];
             }
         }
@@ -172,7 +205,7 @@ class Utils extends Model
         $resp['message'] = "Success";
         $resp['data'] = null;
         if (isset($data['status'])) {
-            $resp['status'] = $data['status']."";
+            $resp['status'] = $data['status'] . "";
         }
         if (isset($data['message'])) {
             $resp['message'] = $data['message'];
@@ -185,30 +218,30 @@ class Utils extends Model
 
     public static function archive_animal($data = [])
     {
-        if(!isset($data['animal_id'])){
+        if (!isset($data['animal_id'])) {
             return false;
         }
         $animal_id = (int)($data['animal_id']);
-        
-        if($animal_id<1){
+
+        if ($animal_id < 1) {
             return false;
         }
         $animal = Animal::find($animal_id);
-        if($animal==null){
+        if ($animal == null) {
             return false;
         }
 
         $ArchivedAnimal = new ArchivedAnimal();
         $ArchivedAnimal->owner = "-";
-        if(isset($data['event'])){
+        if (isset($data['event'])) {
             $ArchivedAnimal->last_event = $data['event'];
         }
-        if(isset($data['details'])){
+        if (isset($data['details'])) {
             $ArchivedAnimal->details = $data['details'];
         }
 
-        if(($animal->farm!=null)){
-            if(($animal->farm->owner() !=null)){
+        if (($animal->farm != null)) {
+            if (($animal->farm->owner() != null)) {
                 $ArchivedAnimal->owner = $animal->farm->owner()->name;
                 $ArchivedAnimal->district = $animal->farm->district->name;
                 $ArchivedAnimal->sub_county = $animal->farm->sub_county->name;
@@ -222,7 +255,7 @@ class Utils extends Model
         $ArchivedAnimal->sex = $animal->sex;
         $ArchivedAnimal->dob = $animal->dob;
         $ArchivedAnimal->events = json_encode($animal->events);
-        if($ArchivedAnimal->save()){
+        if ($ArchivedAnimal->save()) {
             $animal->delete();
             return true;
         }

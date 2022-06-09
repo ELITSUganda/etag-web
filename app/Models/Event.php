@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Excel;
 
 class Event extends Model
 {
@@ -16,9 +18,10 @@ class Event extends Model
         self::creating(function ($model) {
 
 
-            if($model->is_batch_import){
-                die($model->import_file);
-                die("is_batch_import"); 
+            if ($model->is_batch_import) {
+                $model->import_file = 'public/storage/files/1.xls';
+                Event::process_btach_important($model);
+                return false;
             }
 
             $animal = Animal::where('id', $model->animal_id)->first();
@@ -87,12 +90,14 @@ class Event extends Model
 
     public static function process_btach_important($m)
     {
+
+
         $file = null;
-        $file_name = "1.xls";
+        $file_path = $m->import_file;
         $event_type = "Treatment";
 
-        if (file_exists('./public/storage/' . $file_name)) {
-            $file = './public/storage/' . $file_name;
+        if (file_exists($file_path)) {
+            $file = $file_path;
         }
 
         if ($file == null) {
@@ -103,6 +108,7 @@ class Event extends Model
         $array = Excel::toArray([], $file);
         $i = 0;
         $_not_found = [];
+        $_success = [];
         $_duplicates = [];
         foreach ($array[0] as $key => $v) {
             $i++;
@@ -119,24 +125,94 @@ class Event extends Model
                 continue;
             }
 
-            $tag = $v[5];
+            $tag = trim($v[5]);
             $t = $v[3];
             $id = $v[0];
+
             $animal = Animal::where([
                 'v_id' => $tag
-            ])->first();
+            ])
+                ->orWhere([
+                    'e_id' => $tag
+                ])
+                ->first();
 
             if ($animal == null) {
                 $_not_found[] = $id;
                 continue;
             }
 
-            $e = new Event();
-            $e->type = $event_type;
-            $e->animal_id = $animal->id;
+            $time = Carbon::parse($t);
+            if ($time == null) {
+                $time = new Carbon();
+            }
 
+            $time_stamp = $time->timestamp . "";
+            $time_stamp = trim($time_stamp);
+            $exist = Event::where([
+                'animal_id' => $animal->id,
+                'time_stamp' => $time_stamp,
+            ])->first();
+
+            if ($exist != null) {
+                $_duplicates[] = $id;
+                continue;
+            }
+            $e = new Event();
+
+            $e->animal_id = $animal->id;
+            $e->district_id = $animal->district_id;
+            $e->sub_county_id = $animal->sub_county_id;
+            $e->parish_id = $animal->parish_id;
+            $e->farm_id = $animal->farm_id;
+            $e->administrator_id = $animal->administrator_id;
+            $e->animal_type = $animal->type;
+
+            $e->type = $m->type;
+            $e->detail = $m->detail;
+            $e->approved_by = $m->approved_by;
+            $e->import_file = null;
+            $e->time_stamp = $time_stamp;
+            if (isset($m->disease_id)) {
+                $e->disease_id = $m->disease_id;
+            }
+            if (isset($m->vaccine_id)) {
+                $e->vaccine_id = $m->vaccine_id;
+            }
+
+            if (isset($m->medicine_id)) {
+                $e->medicine_id = $m->medicine_id;
+            }
+
+            $_success[]  = $id;
             $e->save();
-            print($i . " $t => $tag <br>");
+        }
+
+        if (!empty($_not_found)) {
+            $error_1 = "Records ";
+            foreach ($_not_found as $key => $v) {
+                $error_1 .=  $v . ", ";
+            }
+            $error_1 .= " were skipped because animals with their respective e-tags were not round in the system.";
+            Utils::alert_message('danger', $error_1);
+        }
+
+        if (!empty($_duplicates)) {
+            $error_1 = "Records ";
+            foreach ($_duplicates as $key => $v) {
+                $error_1 .=  $v . ", ";
+            }
+            $error_1 .= " were skipped because were already recorded into the system. The system does not allow duplicates of events.";
+            Utils::alert_message('danger', $error_1);
+        }
+
+        if (!empty($_success)) {
+            $error_1 = "Records ";
+            foreach ($_success as $key => $v) {
+                $error_1 .=  $v . ", ";
+            }
+            $error_1 .= " events were successfully saved into the system.";
+            Utils::alert_message('success', $error_1);
         }
     }
 
