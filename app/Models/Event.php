@@ -19,7 +19,7 @@ class Event extends Model
 
 
             if ($model->is_batch_import) {
-                $model->import_file = 'public/storage/files/1.xls';
+                //$model->import_file = 'public/storage/files/1.xls';
                 Event::process_btach_important($model);
                 return false;
             }
