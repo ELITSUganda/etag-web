@@ -41,7 +41,7 @@ class EventController extends AdminController
         $grid->actions(function ($actions) {
             $actions->disableView();
         });
-        
+
         /*$faker = \Faker\Factory::create();
         
         $types = Array(
@@ -76,7 +76,7 @@ class EventController extends AdminController
         }
 
 
-        $grid->model()->orderBy('id','DESC');
+        $grid->model()->orderBy('id', 'DESC');
         $grid->filter(function ($filter) {
 
 
@@ -138,33 +138,33 @@ class EventController extends AdminController
 
 
         $grid->column('id', __('ID'))->sortable();
-        
-        
-        $grid->column('animal_id', __('E-ID'))
-        ->display(function ($id) {
-            $u = Animal::find($id);
-            if (!$u) {
-                return $id;
-            }
-            return $u->e_id;
-        })->sortable(); 
 
-        
+
+        $grid->column('animal_id', __('E-ID'))
+            ->display(function ($id) {
+                $u = Animal::find($id);
+                if (!$u) {
+                    return $id;
+                }
+                return $u->e_id;
+            })->sortable();
+
+
         $grid->column('animal_id', __('V-ID'))
-        ->display(function ($id) {
-            $u = Animal::find($id);
-            if (!$u) {
-                return $id;
-            }
-            return $u->v_id;
-        })->sortable(); 
+            ->display(function ($id) {
+                $u = Animal::find($id);
+                if (!$u) {
+                    return $id;
+                }
+                return $u->v_id;
+            })->sortable();
 
 
         $grid->column('created_at', __('Date'))
             ->display(function ($f) {
                 return Carbon::parse($f)->toFormattedDateString();
             })->sortable();
-        $grid->column('type', __('Event Type'))->sortable(); 
+        $grid->column('type', __('Event Type'))->sortable();
         $grid->column('vaccine_id', __('Vaccine'))
             ->display(function ($id) {
                 $u = Vaccine::find($id);
@@ -191,8 +191,8 @@ class EventController extends AdminController
                 }
                 return $u->name;
             })->sortable();
-            
-            
+
+
         $grid->column('animal_type', __('Livestock species'))->sortable();
 
 
@@ -298,14 +298,31 @@ class EventController extends AdminController
         $form->hidden('sub_county_id', __('Sub county id'))->default(1);
         $form->hidden('farm_id', __('Farm id'))->default(1);
 
-        $animals = [];
-        foreach (Animal::all() as $key => $v) {
-            $animals[$v->id] = $v->e_id . " - " . $v->v_id;
-        }
 
-        $form->select('animal_id', __('Select Animal'))
-            ->options($animals)
-            ->required();
+        $form->radio('is_batch_import', __('Event registration'))
+            ->options([
+                0 => 'Single event',
+                1 => 'BulK events',
+            ])
+            ->when(1, function (Form $form) {
+                $form->file('import_file', __('Select excel file'))
+                    ->help('A file that was exported by the reader.')
+                    ->rules('required');
+            })
+            ->default(1)
+            ->when(0, function (Form $form) {
+                $animals = [];
+                foreach (Animal::all() as $key => $v) {
+                    $animals[$v->id] = $v->e_id . " - " . $v->v_id;
+                }
+
+                $form->select('animal_id', __('Select Animal'))
+                    ->options($animals)
+                    ->help('Use animal\'s V-ID or E-ID')
+                    ->rules('required');
+            })->rules('required');
+
+
 
         $form->radio('type', __('Event type'))
             ->options(array(
@@ -319,6 +336,7 @@ class EventController extends AdminController
                 'Other' => 'Other',
 
             ))
+            ->default('Other')
             ->required()
             ->when('Disease', function (Form $form) {
                 $form->select('disease_id', __('Select disease'))
@@ -338,6 +356,7 @@ class EventController extends AdminController
             });
 
         $form->text('detail', __('Detail'))->required()
+            ->default('Test details Other')
             ->help("Specify the event and be as brief as possible. For example, if Death, only enter the cause of death in
         this detail field.");
 

@@ -13,11 +13,17 @@ class Event extends Model
     {
         parent::boot();
 
-        self::creating(function($model){ 
- 
-            $animal = Animal::where('id',$model->animal_id)->first();
-            if($animal == null){
-                die("Animal with same elecetronic ID aready exist in the system.");
+        self::creating(function ($model) {
+
+
+            if($model->is_batch_import){
+                die($model->import_file);
+                die("is_batch_import"); 
+            }
+
+            $animal = Animal::where('id', $model->animal_id)->first();
+            if ($animal == null) {
+                die("Animal ID not system.");
                 return false;
             }
             $model->district_id = $animal->district_id;
@@ -26,43 +32,42 @@ class Event extends Model
             $model->farm_id = $animal->farm_id;
             $model->administrator_id = $animal->administrator_id;
             $model->animal_type = $animal->type;
-  
+
             return $model;
         });
 
-        self::created(function($model){
+        self::created(function ($model) {
             $animal = Animal::find($model->animal_id)->first();
-            if($animal == null){
-                die("Animal with same elecetronic ID aready exist in the system.");
+            if ($animal == null) {
+                die("Animal ID not found.");
                 return false;
             }
             $animal->status = $model->type;
             $animal->save();
         });
 
-        self::updating(function($model){ 
-            
+        self::updating(function ($model) {
+
             $animal = Animal::find($model->animal_id)->first();
-            if($animal == null){
+            if ($animal == null) {
                 die("Animal with same elecetronic ID aready exist in the system.");
                 return false;
             }
 
-            
+
             $model->district_id = $animal->district_id;
             $model->sub_county_id = $animal->sub_county_id;
             $model->parish_id = $animal->parish_id;
             $model->farm_id = $animal->farm_id;
             $model->administrator_id = $animal->administrator_id;
             $model->animal_type = $animal->type;
-  
+
             return $model;
-            
         });
 
-        self::updated(function($model){
+        self::updated(function ($model) {
             $animal = Animal::find($model->animal_id);
-            if($animal == null){
+            if ($animal == null) {
                 die("Animal with same elecetronic ID aready exist in the system.");
                 return false;
             }
@@ -70,19 +75,73 @@ class Event extends Model
             $animal->save();
         });
 
-        self::deleting(function($model){
+        self::deleting(function ($model) {
             // ... code here
         });
 
-        self::deleted(function($model){
+        self::deleted(function ($model) {
             // ... code here
         });
     }
 
+
+    public static function process_btach_important($m)
+    {
+        $file = null;
+        $file_name = "1.xls";
+        $event_type = "Treatment";
+
+        if (file_exists('./public/storage/' . $file_name)) {
+            $file = './public/storage/' . $file_name;
+        }
+
+        if ($file == null) {
+            die("not found");
+            return;
+        }
+
+        $array = Excel::toArray([], $file);
+        $i = 0;
+        $_not_found = [];
+        $_duplicates = [];
+        foreach ($array[0] as $key => $v) {
+            $i++;
+            if (
+                $i <= 1 ||
+                (count($v) < 6) ||
+                (!isset($v[5])) ||
+                (!isset($v[3])) ||
+                (!isset($v[0])) ||
+                ($v[0] == null) ||
+                ($v[3] == null) ||
+                ($v[5] == null)
+            ) {
+                continue;
+            }
+
+            $tag = $v[5];
+            $t = $v[3];
+            $id = $v[0];
+            $animal = Animal::where([
+                'v_id' => $tag
+            ])->first();
+
+            if ($animal == null) {
+                $_not_found[] = $id;
+                continue;
+            }
+
+            $e = new Event();
+            $e->type = $event_type;
+            $e->animal_id = $animal->id;
+
+            $e->save();
+            print($i . " $t => $tag <br>");
+        }
+    }
 
     public function animal()
     {
         return $this->belongsTo(Animal::class);
     }
-
 }

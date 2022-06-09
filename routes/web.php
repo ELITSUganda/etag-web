@@ -2,8 +2,12 @@
 
 use App\Http\Controllers\PrintController;
 use App\Http\Controllers\PrintController2;
+use App\Models\Animal;
+use App\Models\Event;
 use Encore\Admin\Grid\Tools\Header;
 use Illuminate\Support\Facades\Route;
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -21,27 +25,7 @@ Route::match(['get', 'post'], '/print', [PrintController2::class, 'index']);
 
 Route::get('/', function () {
 
-
-    $file = null;
-    $file_name = "1.xls";
-
-    if (file_exists('./public/storage/' . $file_name)) {
-        $file = './public/storage/' . $file_name;
-    }
-
-    if ($file == null) {
-        die("not found");
-        return;
-    }
-
-    
-
-    die("File found");
-
-
-
-    die("Romina");
-
+ 
     header("Location: " . admin_url());
     die();
     return view('welcome');
