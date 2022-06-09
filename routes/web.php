@@ -21,7 +21,9 @@ Route::match(['get', 'post'], '/print2', [PrintController::class, 'index']);
 Route::match(['get', 'post'], '/print', [PrintController2::class, 'index']);
 
 Route::get('/', function () {
-    die("use Excel;");
+    $array = Excel::toArray([], 'public/storage/files/1.xls');
+    die("use Excel;"); 
+
     header( "Location: ". admin_url());
     die();
     return view('welcome');
