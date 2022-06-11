@@ -325,7 +325,7 @@ class EventController extends AdminController
                     ->help('A file that was exported by the reader.')
                     ->rules('required');
             })
-            ->default(1)
+            ->default(0)
             ->when(0, function (Form $form) {
                 $animals = [];
                 foreach (Animal::all() as $key => $v) {
@@ -352,7 +352,6 @@ class EventController extends AdminController
                 'Other' => 'Other',
 
             ))
-            ->default('Other')
             ->required()
             ->when('Disease', function (Form $form) {
                 $form->select('disease_id', __('Select disease'))
@@ -372,7 +371,6 @@ class EventController extends AdminController
             });
 
         $form->text('detail', __('Detail'))->required()
-            ->default('Test details Other')
             ->help("Specify the event and be as brief as possible. For example, if Death, only enter the cause of death in
         this detail field.");
 
