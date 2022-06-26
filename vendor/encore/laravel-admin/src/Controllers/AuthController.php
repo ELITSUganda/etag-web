@@ -126,8 +126,22 @@ class AuthController extends Controller
     protected function settingForm()
     {
         $class = config('admin.database.users_model');
-
         $form = new Form(new $class());
+
+        $form->saving(function (Form $form) {
+
+            if (preg_match('~[0-9]+~', $form->name)) {
+                return Redirect::back()->withInput()->withErrors([
+                    'name' => 'Enter valid name.'
+                ]);
+            }
+
+            if (preg_match("/[.\[^\'£$%^&*()}{@:\'#~?><>,;@\|\-=\-_+\-¬\`\]]/", $form->name)) {
+                return Redirect::back()->withInput()->withErrors([
+                    'name' => 'Enter valid name.'
+                ]);
+            }
+        });
 
         $form->display('username', trans('admin.username'));
         $form->text('name', trans('admin.name'))->rules('required');

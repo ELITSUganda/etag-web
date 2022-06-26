@@ -13,6 +13,7 @@ use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use Illuminate\Support\Facades\Redirect;
 
 class AnimalController extends AdminController
 {
@@ -68,13 +69,13 @@ class AnimalController extends AdminController
             $grid->model()->where('administrator_id', '=', Admin::user()->id);
         }
 
-        
+
         $grid->tools(function ($tools) {
             $tools->batch(function ($batch) {
                 $batch->disableDelete();
             });
         });
-        
+
 
 
 
@@ -215,15 +216,31 @@ class AnimalController extends AdminController
         $form = new Form(new Animal());
         //$form->setWidth(8, 4);
 
-        
- 
+        $form->saving(function (Form $form) {
+
+            $today = new Carbon();
+            $dob = Carbon::parse($form->dob);
+
+            if ($today->lt($dob)) {
+                return Redirect::back()->withInput()->withErrors([
+                    'dob' => 'Enter valid date of birth.'
+                ]);
+            }
+
+            if (!$dob->lt(Carbon::parse($form->fmd))) {
+                return Redirect::back()->withInput()->withErrors([
+                    'fmd' => 'Enter valid fmd date.'
+                ]);
+            }
+        });
+
         $items = [];
         foreach (Farm::all() as $key => $f) {
             if (Admin::user()->isRole('farmer')) {
-                if($f->administrator_id == Admin::user()->id){
+                if ($f->administrator_id == Admin::user()->id) {
                     $items[$f->id] = $f->holding_code;
                 }
-            }else{
+            } else {
                 $items[$f->id] = $f->holding_code . " - By " . $f->owner()->name;
             }
         }
@@ -265,7 +282,7 @@ class AnimalController extends AdminController
         $form->text('e_id', __('Electronic id'))->required();
         $form->text('v_id', __('Tag id'))->required();
 
-        $form->year('dob', __('Year of birth'))->attribute('autocomplete', 'false')->default(date('Y-m-d'))->required();
+        $form->date('dob', __('Year of birth'))->attribute('autocomplete', 'false')->default(date('Y-m-d'))->required();
         $form->date('fmd', __('Date last FMD vaccination'))->default(date('Y-m-d'))->required();
         $form->text('status', __('Status'))->readonly()->default("Live");
         $form->text('lhc', __('LHC'))->readonly();
