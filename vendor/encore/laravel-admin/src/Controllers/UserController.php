@@ -8,6 +8,7 @@ use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Redirect;
 
 class UserController extends AdminController
 {
@@ -34,12 +35,12 @@ class UserController extends AdminController
             $filter->like('name', "Name");
             $filter->like('phone_number', "Phone number");
         });
-        
+
         $grid->column('id', 'ID')->sortable();
         $grid->column('created_at', __('Created'))
-        ->display(function ($f) {
-            return Carbon::parse($f)->toFormattedDateString();
-        })->sortable();
+            ->display(function ($f) {
+                return Carbon::parse($f)->toFormattedDateString();
+            })->sortable();
 
         $grid->column('name', trans('admin.name'))->sortable();
         $grid->column('username', trans('admin.username'));
@@ -88,13 +89,13 @@ class UserController extends AdminController
         $show->field('roles', trans('admin.roles'))->as(function ($roles) {
             return $roles->pluck('name');
         })->label();
- 
+
         $show->field('created_at', trans('Created'))->as(function ($f) {
             return Carbon::parse($f)->toFormattedDateString();
         });
         $show->field('updated_at', trans('Last updated'))->as(function ($f) {
             return Carbon::parse($f)->toFormattedDateString();
-        }); 
+        });
 
         return $show;
     }
@@ -112,6 +113,21 @@ class UserController extends AdminController
 
         $form = new Form(new $userModel());
 
+        $form->saving(function (Form $form) {
+
+            if (preg_match('~[0-9]+~', $form->name)) {
+                return Redirect::back()->withInput()->withErrors([
+                    'name' => 'Enter valid name.'
+                ]);
+            }
+
+            if (preg_match("/[.\[^\'£$%^&*()}{@:\'#~?><>,;@\|\-=\-_+\-¬\`\]]/", $form->name)) {
+                return Redirect::back()->withInput()->withErrors([
+                    'name' => 'Enter valid name.'
+                ]);
+            }
+        });
+
         $userTable = config('admin.database.users_table');
         $connection = config('admin.database.connection');
 
@@ -123,28 +139,32 @@ class UserController extends AdminController
         $form->text('name', trans('admin.name'))->rules('required');
 
         $form->select('gender', __('Gender'))
-        ->options(array(
-            'Male' => 'Male',
-            'Female' => 'Female'
-        ))
-        ->required();
+            ->options(array(
+                'Male' => 'Male',
+                'Female' => 'Female'
+            ))
+            ->required();
 
-        $form->text('phone_number', "Phone number 1")->required();
-        $form->text('phone_number_2', "Phone number 2");
-        $form->text('email', "Email Address");
-        $form->text('nin', "National ID No.");
+        $form->mobile('phone_number', "Phone number 1")
+            ->options(['mask' => '999 9999 9999'])
+            ->required();
+        $form->mobile('phone_number_2', "Phone number 2")
+            ->options(['mask' => '999 9999 9999']);
+
+        $form->email('email', "Email Address")->rules('required:email');
+        $form->text('nin', "National ID No.")->rules('min:14|max:18');
 
 
         $sub_counties = [];
         foreach (SubCounty::all() as $key => $p) {
-            $sub_counties[$p->id] = $p->code . "  - ".
-            $p->name . ", " .
+            $sub_counties[$p->id] = $p->code . "  - " .
+                $p->name . ", " .
                 $p->district->name . " ";
-        } 
-        
+        }
+
         $form->select('sub_county_id', __('Sub counties'))
-        ->options($sub_counties)
-        ->required();
+            ->options($sub_counties)
+            ->required();
 
 
         $form->text('address', trans('Village'));
@@ -163,10 +183,10 @@ class UserController extends AdminController
 
         $form->multipleSelect('roles', trans('Role'))->options($roleModel::all()->pluck('name', 'id'))->rules('required|max:1');
 
-        
+
 
         //$form->multipleSelect('permissions', trans('admin.permissions'))->options($permissionModel::all()->pluck('name', 'id'));
- 
+
         $form->saving(function (Form $form) {
             if ($form->password && $form->model()->password != $form->password) {
                 $form->password = Hash::make($form->password);

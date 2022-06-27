@@ -141,6 +141,8 @@ class AuthController extends Controller
                     'name' => 'Enter valid name.'
                 ]);
             }
+
+            
         });
 
         $form->display('username', trans('admin.username'));
