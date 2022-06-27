@@ -121,6 +121,8 @@ class UserController extends AdminController
                 ]);
             }
 
+            
+
             if (preg_match("/[.\[^\'£$%^&*()}{@:\'#~?><>,;@\|\-=\-_+\-¬\`\]]/", $form->name)) {
                 return Redirect::back()->withInput()->withErrors([
                     'name' => 'Enter valid name.'
