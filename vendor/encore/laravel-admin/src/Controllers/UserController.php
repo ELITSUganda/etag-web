@@ -31,7 +31,7 @@ class UserController extends AdminController
 
         $grid = new Grid(new $userModel());
 
-        $grid->filter(function ($filter) {
+        $grid->filter(function ($filter) { 
             $filter->like('name', "Name");
             $filter->like('phone_number', "Phone number");
         });
@@ -56,7 +56,7 @@ class UserController extends AdminController
 
         $grid->tools(function (Grid\Tools $tools) {
             $tools->batch(function (Grid\Tools\BatchActions $actions) {
-                $actions->disableDelete();
+                //$actions->disableDelete();
             });
         });
 
