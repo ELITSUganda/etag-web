@@ -20,7 +20,8 @@ Route::match(['get', 'post'], '/print2', [PrintController::class, 'index']);
 Route::match(['get', 'post'], '/print', [PrintController2::class, 'index']);
 
 Route::get('/', function () {
-    header( "Location: ". admin_url());
+    die("Romina");
+    header("Location: " . admin_url());
     die();
     return view('welcome');
 });
