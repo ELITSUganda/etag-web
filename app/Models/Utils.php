@@ -88,9 +88,9 @@ class Utils extends Model
     {
         $url = url('code_maker.php?f=png&s=qr&sf=20&ms=r&md=.8&d=' . urlencode($opts['data']));
         $data = file_get_contents($url);
-        $myfile = fopen("public/storage/codes/" . $opts['file_name'], "w");
-        fwrite($myfile, $data);
-        fclose($myfile);
+        //$myfile = fopen("public/storage/codes/" . $opts['file_name'], "w");
+        //fwrite($myfile, $data);
+        //fclose($myfile);
     }
 
     public static function move_animal($transfer = [])
