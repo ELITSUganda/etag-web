@@ -164,8 +164,7 @@ class MovementController extends AdminController
         });
         $grid->column('id', __('Print'))
             ->display(function ($f) {
-                return '<a target="_blank" href="' . url("print?id=" . $this->id) . '">Print permit using template #1 (MAIFF)</a>'
-                    . '<br><a target="_blank" href="' . url("print2?id=" . $this->id) . '">Print permit using template #2 (U-LITS)</a>';
+                return '<a target="_blank" href="' . url("print?id=" . $this->id) . '">Print permit</a>';
             });
 
 
