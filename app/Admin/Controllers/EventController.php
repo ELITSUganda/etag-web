@@ -6,6 +6,7 @@ use App\Models\Animal;
 use App\Models\Disease;
 use App\Models\District;
 use App\Models\Event;
+use App\Models\Farm;
 use App\Models\Medicine;
 use App\Models\SubCounty;
 use App\Models\Utils;
@@ -74,7 +75,7 @@ class EventController extends AdminController
                 $actions->disableDelete();
                 $actions->disableEdit();
             });
-            $grid->disableCreateButton();
+            //$grid->disableCreateButton();
         }
 
 

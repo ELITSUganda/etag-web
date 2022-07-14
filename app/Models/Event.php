@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Excel;
@@ -40,9 +41,24 @@ class Event extends Model
         });
 
         self::created(function ($model) {
+
+            $type = trim($model->type);
+            $events = ['Stolen', 'Home slaughter', 'Death'];
+            $user = Administrator::find($model->administrator_id);
+            if (in_array($type, $events)) {
+                if ($user == null) {
+                    $user = new Administrator();
+                }
+                $d['event'] = $type;
+                $d['details'] =  $type . " By " . $user->name . " - " . $user->id;
+                $d['animal_id'] = $model->animal_id;
+                Utils::archive_animal($d);
+                return false;
+            }
+
+
             $animal = Animal::find($model->animal_id)->first();
             if ($animal == null) {
-                die("Animal ID not found.");
                 return false;
             }
             $animal->status = $model->type;
@@ -50,6 +66,21 @@ class Event extends Model
         });
 
         self::updating(function ($model) {
+
+            $type = trim($model->type);
+            $events = ['Stolen', 'Home slaughter', 'Death'];
+            $user = Administrator::find($model->administrator_id);
+            if (in_array($type, $events)) {
+                if ($user == null) {
+                    $user = new Administrator();
+                }
+                $d['event'] = $type;
+                $d['details'] =  $type . " By " . $user->name . " - " . $user->id;
+                $d['animal_id'] = $model->animal_id;
+                Utils::archive_animal($d);
+                return false;
+            }
+
 
             $animal = Animal::find($model->animal_id)->first();
             if ($animal == null) {
