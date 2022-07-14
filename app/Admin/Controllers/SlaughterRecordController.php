@@ -176,7 +176,7 @@ class SlaughterRecordController extends AdminController
             ->required();
 
             $form->textarea('details','Details');
-        $form->checkbox('accept', "Are sure you have slaughtered animals?")->options([1 => 'Yes'])->required();
+        $form->checkbox('accept', "Are you sure you have slaughtered animals selected?")->options([1 => 'Yes'])->required();
 
 
 
