@@ -68,7 +68,7 @@ class Event extends Model
         self::updating(function ($model) {
 
             $type = trim($model->type);
-            $events = ['Stolen', 'Home slaughter', 'Death'];
+            $events = ['Stolen', 'Home slaughter','Slaughter', 'Death'];
             $user = Administrator::find($model->administrator_id);
             if (in_array($type, $events)) {
                 if ($user == null) {
@@ -84,7 +84,7 @@ class Event extends Model
 
             $animal = Animal::find($model->animal_id)->first();
             if ($animal == null) {
-                die("Animal with same elecetronic ID aready exist in the system.");
+
                 return false;
             }
 
