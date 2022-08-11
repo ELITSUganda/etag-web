@@ -20,6 +20,7 @@ php artisan make:migration create_products_table
 php artisan make:migration create_form_drug_sellers_table
 php artisan make:migration create_drug_categories_table 
 php artisan make:migration create_form_drug_stock_approvals_table
+php artisan make:migration create_form_drug_stock_approval_items_table
 
 Encore\Admin\Auth\Database\Administrator::class,
 php artisan admin:make FormSr4Controller --model=App\FormSr4
@@ -48,4 +49,5 @@ php artisan make:model ProductCategory
 php artisan make:model FormDrugSeller
 php artisan make:model AdminRoleUser
 php artisan make:model DrugCategory
-php artisan make:model FormDrugStockApproval
+php artisan make:model FormDrugStockApproval 
+php artisan make:model FormDrugStockApprovalItem

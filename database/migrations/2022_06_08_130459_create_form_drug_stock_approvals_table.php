@@ -28,7 +28,7 @@ class CreateFormDrugStockApprovalsTable extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down() 
     {
         Schema::dropIfExists('form_drug_stock_approvals');
     }

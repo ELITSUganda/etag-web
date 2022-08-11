@@ -2,7 +2,9 @@
 
 namespace Encore\Admin\Auth\Database;
 
+use App\Models\DrugCategory;
 use App\Models\Farm;
+use App\Models\FormDrugSeller;
 use Encore\Admin\Traits\DefaultDatetimeFormat;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
@@ -17,10 +19,14 @@ use Illuminate\Support\Facades\Storage;
  */
 class Administrator extends Model implements AuthenticatableContract
 {
-    use Authenticatable;
+    use Authenticatable; 
     use HasPermissions;
     use DefaultDatetimeFormat;
 
+    function drug_seller(){
+        return $this->belongsTo(FormDrugSeller::class,'applicant_id');
+    }
+    
     protected $fillable = [
         'username',
         'password',
@@ -112,4 +118,7 @@ class Administrator extends Model implements AuthenticatableContract
 
         return $this->belongsToMany($relatedModel, $pivotTable, 'user_id', 'permission_id');
     }
+
+
+     
 }
