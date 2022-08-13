@@ -64,6 +64,7 @@ return array(
     'App\\Models\\Farm' => $baseDir . '/app/Models/Farm.php',
     'App\\Models\\FormDrugSeller' => $baseDir . '/app/Models/FormDrugSeller.php',
     'App\\Models\\FormDrugStockApproval' => $baseDir . '/app/Models/FormDrugStockApproval.php',
+    'App\\Models\\FormDrugStockApprovalItem' => $baseDir . '/app/Models/FormDrugStockApprovalItem.php',
     'App\\Models\\Medicine' => $baseDir . '/app/Models/Medicine.php',
     'App\\Models\\Movement' => $baseDir . '/app/Models/Movement.php',
     'App\\Models\\MovementAnimal' => $baseDir . '/app/Models/MovementAnimal.php',

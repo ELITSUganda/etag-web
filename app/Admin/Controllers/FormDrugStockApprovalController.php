@@ -65,7 +65,7 @@ class FormDrugStockApprovalController extends AdminController
 
 
         $grid->column('details', __('Details'))->hide();
-        $grid->column('status', __('Status'));
+        $grid->column('status', __('Status')); 
 
         return $grid;
     }
@@ -105,23 +105,75 @@ class FormDrugStockApprovalController extends AdminController
     {
         $form = new Form(new FormDrugStockApproval());
         $u = Admin::user();
-        $cert = FormDrugSeller::Where([
-            'applicant_id' => $u->id
-        ])->first();
-        if ($cert == null) {
-            return admin_error(
-                'You are not an approved drug seller or distributor.',
-                'You need to apply for drug distributor/seller aproval before you procees. 
-            You can find this form under application forms section.'
-            );
+
+        if (!$u->isRole('nda')) {
+            $cert = FormDrugSeller::Where([
+                'applicant_id' => $u->id
+            ])->first();
+            if ($cert == null) {
+                return admin_error(
+                    'You are not an approved drug seller or distributor.',
+                    'You need to apply for drug distributor/seller aproval before you procees. 
+                You can find this form under application forms section.'
+                );
+            }
         }
+
+
+        $form_data = null;
+        $id = 0;
+
+        if ($form->isEditing()) {
+
+            $cert = null;
+            $uri_path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+            $uri_segments = explode('/', $uri_path);
+            $id = ((int)($uri_segments[4]));
+            $form_data = FormDrugStockApproval::find($id);
+
+            if ($form_data == null) {
+                return admin_error(
+                    'Form not found.',
+                    ''
+                );
+            }
+
+            $cert = FormDrugSeller::Where([
+                'applicant_id' => $form_data->applicant_id
+            ])->first();
+
+            if ($cert == null) {
+                return admin_error(
+                    'Form distributor form not found.',
+                    ''
+                );
+            }
+
+
+            /* "id" => 5
+            "created_at" => "2022-08-09 16:52:25"
+            "updated_at" => "2022-08-09 16:55:26"
+            "name" => "Muhindo and Sons"
+            "phone_number" => "+256706638494"
+            "nin" => "10299100093"
+            "license" => "1021009221"
+            "address" => "Near Ndere Cultural Centre, Plot 4505 Kira Rd, Ntinda - Kisaasi Rd, Kampala."
+            "sub_county_id" => 5
+            "applicant_id" => 4
+            "approved_by" => 0 
+            "type" => "Importer"
+            "details" => "Some details ..."
+            "status" => 1 */
+        }
+
+
         $form->hidden('applicant_id', __('Applicant id'))->default($u->id);
 
-        $form->display('',  __('Applican\'s name'))->value($cert->name);
-        $form->display('',  __('Applican\'s phone number'))->value($cert->phone_number);
-        $form->display('',  __('Applican\'s NIN'))->value($cert->nin);
-        $form->display('',  __('Applican\'s license number'))->value($cert->license);
-        $form->display('',  __('Applican\'s address'))->value($cert->address);
+        $form->display('',  __('Applican\'s name'))->default($cert->name);
+        $form->display('',  __('Applican\'s phone number'))->default($cert->phone_number);
+        $form->display('',  __('Applican\'s NIN'))->default($cert->nin);
+        $form->display('',  __('Applican\'s license number'))->default($cert->license);
+        $form->display('',  __('Applican\'s address'))->default($cert->address);
 
         /*         "sub_county_id" => 7
         "applicant_id" => 10
@@ -130,8 +182,9 @@ class FormDrugStockApprovalController extends AdminController
         "details" => "Simple"
         "status" => 1 */
         $form->divider();
-        $form->hidden('status', __('Status'))->default(0);
-        $form->hasMany('items', "Click on NEW to add drugs and their quantity.", function (Form\NestedForm $form) {
+        $form->html('<h4>Click on NEW to add drugs and their quantity.</h4>');
+
+        $form->hasMany('items', "Drugs.", function (Form\NestedForm $form) {
             $cats = [];
             foreach (DrugCategory::all() as $val) {
                 $cats[$val->id] = $val->name . " - (in $val->unit)";
@@ -144,7 +197,6 @@ class FormDrugStockApprovalController extends AdminController
                 ->attribute('type', 'number')
                 ->rules('int|required');
             $form->text('note', __('Note'))->rules('required');
-            $form->hidden('status', __('Note'))->default(0)->rules('int|required');
         });
 
         $form->text('details', __('General note'))
@@ -156,6 +208,18 @@ class FormDrugStockApprovalController extends AdminController
         $form->disableEditingCheck();
         $form->disableReset();
         $form->disableViewCheck();
+
+        $form->divider();
+
+        if ($form->isEditing() && $u->isRole('nda')) {
+            $form->select('status', __('Decision'))
+                ->options([
+                    1 => 'Approve',
+                    0 => 'Not Approve',
+                ])->required();
+        } else {
+            $form->hidden('status', __('Status'))->default(0);
+        }
 
 
         return $form;
