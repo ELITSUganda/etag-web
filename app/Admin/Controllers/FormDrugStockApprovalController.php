@@ -28,6 +28,11 @@ class FormDrugStockApprovalController extends AdminController
      */
     protected function grid()
     {
+        /* $item = FormDrugStockApproval::find(2);
+        $item->details = time();
+        $item->save();
+        dd($item); */
+
         $grid = new Grid(new FormDrugStockApproval());
 
         $grid->column('id', __('Application #ID'))->sortable();
@@ -65,7 +70,7 @@ class FormDrugStockApprovalController extends AdminController
 
 
         $grid->column('details', __('Details'))->hide();
-        $grid->column('status', __('Status')); 
+        $grid->column('status', __('Status'));
 
         return $grid;
     }
@@ -193,10 +198,27 @@ class FormDrugStockApprovalController extends AdminController
             $form->select('drug_category_id', __('Select Drug'))
                 ->options($cats)
                 ->required();
+            $form->text('name', __('Drug name'))->rules('required');
+            $form->date('expiry_date', __('Expiry date'))->rules('required');
             $form->text('quantity', __('Quantity'))
                 ->attribute('type', 'number')
                 ->rules('int|required');
-            $form->text('note', __('Note'))->rules('required');
+            $form->text('manufacturer', __('Drug manufacturer'))->rules('required');
+            $form->text('batch_number', __('Batch number'))->rules('required');
+            $form->text('ingredients', __('Drug ingredients'));
+
+            $form->text('selling_price', __('Your selling price'));
+            $form->image('image', __('Drugs photo'));
+            $form->text('note', __('Details'));
+
+            /* 
+  
+
+    "" => null
+    "details" => null
+    "done_approving" => 0
+            
+            */
         });
 
         $form->text('details', __('General note'))

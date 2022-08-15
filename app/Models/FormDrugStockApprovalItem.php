@@ -15,5 +15,21 @@ class FormDrugStockApprovalItem extends Model
         'quantity',
         'note',
         'status',
-    ];
+        'name',
+        'manufacturer',
+        'batch_number',
+        'ingredients',
+        'expiry_date',
+        'original_quantity',
+        'selling_price',
+        'image',
+        'details',
+        'done_approving',
+    ]; 
+
+    function FormDrugStockApproval()
+    {
+        return $this->belongsTo(FormDrugStockApproval::class);
+    }
+    
 }

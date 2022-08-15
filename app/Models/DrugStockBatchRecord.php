@@ -5,12 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class DrugCategory extends Model
+class DrugStockBatchRecord extends Model
 {
     use HasFactory;
-
-    public function category()
-    {
-        return $this->belongsTo(DrugCategory::class,'drug_category_id');
-    }
 }

@@ -21,6 +21,8 @@ php artisan make:migration create_form_drug_sellers_table
 php artisan make:migration create_drug_categories_table 
 php artisan make:migration create_form_drug_stock_approvals_table
 php artisan make:migration create_form_drug_stock_approval_items_table
+php artisan make:migration create_drug_stock_batches_table
+php artisan make:migration create_drug_stock_batch_records_table
 
 Encore\Admin\Auth\Database\Administrator::class,
 php artisan admin:make FormSr4Controller --model=App\FormSr4
@@ -28,6 +30,7 @@ php artisan admin:make FormSr4Controller --model=App\FormSr4
 php artisan admin:controller --model=App\FormSr4
 php artisan admin:controller --model=App\SlaughterRecord
 php artisan admin:make FormSr4Controller --model=App\FormSr4
+php artisan admin:make DrugStockBatchController --model=App\DrugStockBatch
 
 php artisan admin:make ContractController --model=App\\Models\\ContractRecords
 php artisan admin:make StockRecordController --model=App\\Models\\StockRecord
@@ -40,6 +43,7 @@ php artisan admin:make ProductController --model=App\\Models\\Product
 php artisan admin:make FormDrugSellerController --model=App\\Models\\FormDrugSeller
 php artisan admin:make DrugCategoryController --model=App\\Models\\DrugCategory
 php artisan admin:make FormDrugStockApprovalController --model=App\\Models\\FormDrugStockApproval
+php artisan admin:make DrugStockBatchController --model=App\\Models\\DrugStockBatch
 
 
 php artisan make:model CheckPoint
@@ -51,3 +55,5 @@ php artisan make:model AdminRoleUser
 php artisan make:model DrugCategory
 php artisan make:model FormDrugStockApproval 
 php artisan make:model FormDrugStockApprovalItem
+php artisan make:model DrugStockBatch
+php artisan make:model DrugStockBatchRecord
