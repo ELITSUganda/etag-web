@@ -43,9 +43,15 @@ class DrugStockBatchController extends AdminController
         });
 
 
-        $grid->model()
-            //->where('administrator_id', '=', Admin::user()->id)
-            ->orderBy('id', 'desc');
+        if (Admin::user()->isRole('nda')) {
+            $grid->model()
+                ->orderBy('id', 'desc');
+        } else {
+            $grid->model()
+                ->where('administrator_id', '=', Admin::user()->id)
+                ->orderBy('id', 'desc');
+        }
+
         $grid->disableCreateButton();
         $grid->disableBatchActions();
         $grid->column('id', __('#ID'))->sortable();
@@ -116,8 +122,8 @@ class DrugStockBatchController extends AdminController
 
 
         $form->select('sub_county_id', __('Sub-county'))
-        ->options($sub_counties)
-        ->required();
+            ->options($sub_counties)
+            ->required();
         $form->text('manufacturer', __('Manufacturer'));
         $form->text('name', __('Name'));
         $form->textarea('batch_number', __('Batch number'));

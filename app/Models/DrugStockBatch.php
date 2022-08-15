@@ -22,4 +22,16 @@ class DrugStockBatch extends Model
             $rec->save();
         });
     }
+
+    function getQuantityTextAttribute($x)
+    {
+        return number_format($this->current_quantity);
+    }
+
+    function category()
+    {
+        return $this->belongsTo(DrugCategory::class);
+    }
+
+    protected $appends = ['quantity_text'];
 }

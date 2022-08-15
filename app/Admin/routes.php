@@ -34,5 +34,6 @@ Route::group([
     $router->resource('form-drug-sellers', FormDrugSellerController::class);
     $router->resource('form-drug-stock-approvals', FormDrugStockApprovalController::class);
     $router->resource('drug-stock-batches', DrugStockBatchController::class);
-
+    $router->resource('drug-stock-batch-records', DrugStockBatchRecordController::class);
+    
 });

@@ -44,6 +44,7 @@ php artisan admin:make FormDrugSellerController --model=App\\Models\\FormDrugSel
 php artisan admin:make DrugCategoryController --model=App\\Models\\DrugCategory
 php artisan admin:make FormDrugStockApprovalController --model=App\\Models\\FormDrugStockApproval
 php artisan admin:make DrugStockBatchController --model=App\\Models\\DrugStockBatch
+php artisan admin:make DrugStockBatchRecordController --model=App\\Models\\DrugStockBatchRecord
 
 
 php artisan make:model CheckPoint
@@ -56,4 +57,4 @@ php artisan make:model DrugCategory
 php artisan make:model FormDrugStockApproval 
 php artisan make:model FormDrugStockApprovalItem
 php artisan make:model DrugStockBatch
-php artisan make:model DrugStockBatchRecord
+php artisan make:model DrugStockBatchRecord 
