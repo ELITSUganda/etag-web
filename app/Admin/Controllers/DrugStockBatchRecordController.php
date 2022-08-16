@@ -120,7 +120,7 @@ class DrugStockBatchRecordController extends AdminController
             }
         }
 
-        $form->select('drug_stock_batch_id', __('Select Drug stock batch/Batch'))
+        $form->select('drug_stock_batch_id', __('Select Drug stock/Batch'))
             ->options($stocks)
             ->rules('required');
         $form->text('quantity', __('Quantity'))

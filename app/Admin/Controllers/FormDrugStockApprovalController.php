@@ -210,6 +210,7 @@ class FormDrugStockApprovalController extends AdminController
             $form->text('selling_price', __('Your selling price'));
             $form->image('image', __('Drugs photo'));
             $form->text('note', __('Details'));
+            $form->hidden('status', __('status'))->default(0);
 
             /* 
   
