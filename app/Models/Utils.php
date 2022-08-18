@@ -69,12 +69,13 @@ class Utils extends Model
         $p_url = url("/print?id=" . $model->id);
         $data = $model->id;
 
-        /*$data = "ULITS E-MOVEMENT PERMIT\n".
-            "Applicant: $model->trader_name\n".
-            "Transporter: $model->transporter_name\n".
-            "PERMIT No.: $model->permit_Number\n".
-            "PERMIT Status: $model->status\n".
-            "VERIFICATION URL: $p_url\n";*/
+        $data = "ULITS E-MOVEMENT PERMIT\n" .
+            "Applicant: $model->trader_name\n" .
+            "Transporter: $model->transporter_name\n" .
+            "PERMIT No.: $model->permit_Number\n" .
+            "PERMIT Status: $model->status\n" .
+            "VERIFICATION URL: $p_url\n";
+        return $data;
 
         Utils::make_qr([
             'file_name' => $model->id . ".png",

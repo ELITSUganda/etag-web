@@ -16,17 +16,20 @@ use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Widgets\Box;
 
+
+
 class HomeController extends Controller
 {
     public function index(Content $content)
     {
 
+
         if (
-            Admin::user()->isRole('administrator') || 
-            
-            Admin::user()->isRole('admin')  
-            
-            ) {
+            Admin::user()->isRole('administrator') ||
+
+            Admin::user()->isRole('admin')
+
+        ) {
             Admin::js('/vendor/laravel-admin-ext/chartjs/Chart.bundle.min.js');
             $content->title('Main Dashboard');
 
@@ -56,25 +59,25 @@ class HomeController extends Controller
                 $slaughter_count = 0;
                 $livestock_count = 0;
                 foreach ($admins as $key => $_ad) {
-                    if($_ad->isRole('farmer')){
+                    if ($_ad->isRole('farmer')) {
                         $farmers_count++;
                     }
-                    if($_ad->isRole('trader')){
+                    if ($_ad->isRole('trader')) {
                         $trader_count++;
                     }
-                    if($_ad->isRole('administrator')){
+                    if ($_ad->isRole('administrator')) {
                         $administrator_count++;
                     }
-                    if($_ad->isRole('veterinary')){
+                    if ($_ad->isRole('veterinary')) {
                         $veterinary_count++;
                     }
-                    if($_ad->isRole('trader')){
+                    if ($_ad->isRole('trader')) {
                         $trader_count++;
                     }
-                    if($_ad->isRole('slaughter')){
+                    if ($_ad->isRole('slaughter')) {
                         $slaughter_count++;
                     }
-                    if($_ad->isRole('livestock-officer	')){
+                    if ($_ad->isRole('livestock-officer	')) {
                         $livestock_count++;
                     }
                 }
@@ -155,10 +158,10 @@ class HomeController extends Controller
                 ));
             });
         }
- 
- 
+
+
         if (Admin::user()->isRole('trader')) {
-            
+
             Admin::js('/vendor/laravel-admin-ext/chartjs/Chart.bundle.min.js');
             $content->title('Main Dashboard');
 
@@ -187,7 +190,7 @@ class HomeController extends Controller
                 ));
             });
         }
-/*
+        /*
 	
 id
 created_at

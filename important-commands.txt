@@ -58,3 +58,5 @@ php artisan make:model FormDrugStockApproval
 php artisan make:model FormDrugStockApprovalItem
 php artisan make:model DrugStockBatch
 php artisan make:model DrugStockBatchRecord 
+
+composer require simplesoftwareio/simple-qrcode "~4"

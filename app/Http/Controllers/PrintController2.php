@@ -10,6 +10,7 @@ use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Facades\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class PrintController2 extends Controller
 {
@@ -26,6 +27,11 @@ class PrintController2 extends Controller
 
     public function index()
     {
+        
+        
+
+        
+        
         $id = (int)(trim($_GET['id']));
         $m =  Movement::find($id);
         if ($m == null) {
@@ -43,8 +49,11 @@ class PrintController2 extends Controller
         }
 
 
-        Utils::make_movement_qr($m);
-        $code_link =  url('public/storage/codes/' . $m->id . ".png");
+        $qr_code_data = Utils::make_movement_qr($m);
+        $base = base64_encode(QrCode::format('png')->size(150)->generate($qr_code_data));
+        $qr_code_image = '<img src="data:image/png;base64, '.$base.' ">';
+        
+
         $i = 0;
         $animals = "";
         foreach ($m->movement_has_movement_animals as $key => $v) {
@@ -229,7 +238,7 @@ class PrintController2 extends Controller
                     <tbody>
 
                         <tr>
-                        <td width="20%" ><img width="100%" src="' . $code_link . '"/></td>
+                        <td width="25%" >'.$qr_code_image.'</td>
                         <td>
                         <p>
                             Animals are to remain under isolation and none to be removed or added in transit up to the final designated slaughter / processing places 
