@@ -1,7 +1,7 @@
 <?php
 
 namespace Illuminate\Database;
-use PDO;
+use \PDO;
 use PDOStatement;
 
 use Closure;
