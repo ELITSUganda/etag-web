@@ -23,7 +23,9 @@ class HomeController extends Controller
     public function index(Content $content)
     {
 
-
+        echo "<pre>";
+        print_r(phpinfo());
+        die();
         if (
             Admin::user()->isRole('administrator') ||
 
