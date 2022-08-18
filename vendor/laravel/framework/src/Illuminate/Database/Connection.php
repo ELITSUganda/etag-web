@@ -1,6 +1,8 @@
 <?php
 
 namespace Illuminate\Database;
+use PDO;
+use PDOStatement;
 
 use Closure;
 use DateTimeInterface;
@@ -19,8 +21,7 @@ use Illuminate\Database\Query\Processors\Processor;
 use Illuminate\Database\Schema\Builder as SchemaBuilder;
 use Illuminate\Support\Arr;
 use LogicException;
-use PDO;
-use PDOStatement;
+
 
 class Connection implements ConnectionInterface
 {
