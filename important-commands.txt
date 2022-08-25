@@ -60,3 +60,4 @@ php artisan make:model DrugStockBatch
 php artisan make:model DrugStockBatchRecord 
 
 composer require simplesoftwareio/simple-qrcode "~4"
+composer install --ignore-platform-reqs
