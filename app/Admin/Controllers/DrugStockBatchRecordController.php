@@ -32,7 +32,7 @@ class DrugStockBatchRecordController extends AdminController
      */
     protected function grid()
     {
-
+/* 
         $batch = DrugStockBatch::find(10);
 
         $rec = new DrugStockBatchRecord();
@@ -44,7 +44,7 @@ class DrugStockBatchRecordController extends AdminController
 
         $rec->save();
         die("========done=========");
-        /*         
+                
             '' => 'Transfer to another acount',
             'animal_event' => 'Animal drug event',
             'offline_sales' => 'Offline sale',
@@ -76,9 +76,6 @@ class DrugStockBatchRecordController extends AdminController
         */
 
 
-
-
-        die("romina");
         $grid = new Grid(new DrugStockBatchRecord());
         $grid->disableActions();
 
