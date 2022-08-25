@@ -22,7 +22,7 @@ class DrugStockBatchRecord extends Model
             if ($m->is_generated != 'no') {
                 return $m;
             }
-            $batch = DrugStockBatch::find(10);
+            $batch = DrugStockBatch::find($m->drug_stock_batch_id);
             if ($batch == null) {
                 die("Drug batch not found.");
             }
