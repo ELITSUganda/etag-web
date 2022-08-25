@@ -45,8 +45,6 @@ class DrugStockBatchRecord extends Model
             }
 
 
-
-            dd($m->is_generated);
         });
     }
 }
