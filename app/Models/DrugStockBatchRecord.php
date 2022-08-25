@@ -18,7 +18,7 @@ class DrugStockBatchRecord extends Model
     {
         parent::boot();
 
-        self::creating(function ($m) {
+        self::creating(function ($m) { 
             if ($m->is_generated != 'no') {
                 return $m;
             }
@@ -26,12 +26,15 @@ class DrugStockBatchRecord extends Model
             if ($batch == null) {
                 die("Drug batch not found.");
             }
+            $m->administrator_id = $batch->administrator_id;
 
             if ($batch->current_quantity < $m->quantity) {
                 die("Insufitient quantity of selected batch.
                 $m->quantity cannot be removed from $batch->current_quantity
                 ");
             }
+            $batch->current_quantity -= $m->quantity;
+            $batch->save();
 
             if ($m->record_type == 'transfer') {
                 $reciever = User::find($m->receiver_account);
