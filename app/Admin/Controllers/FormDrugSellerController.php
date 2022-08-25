@@ -185,7 +185,7 @@ class FormDrugSellerController extends AdminController
                 ->required();
 
 
-            $form->text('nin', __('National ID  number'));
+            $form->text('nin', __('National ID  number/Passport number'));
             $form->text('phone_number', __('Phone number'))
                 ->required();
 

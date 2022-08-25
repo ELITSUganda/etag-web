@@ -39,8 +39,7 @@ class DrugStockBatchRecord extends Model
                     admin_error("Error", 'Receiver account not found.');
                     die("");
                 }
-
-                s
+ 
             } else {
                 die("record type not recorgnized.");
             }
