@@ -138,12 +138,12 @@ class FormDrugStockApprovalController extends AdminController
             $uri_path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
             $uri_segments = explode('/', $uri_path);
             $id = ((int)($uri_segments[4]));
+            dd($id);
             $form_data = FormDrugStockApproval::find($id);
 
             if ($form_data == null) {
                 return admin_error(
                     'Form not found.',
-                    ''
                 );
             }
 
