@@ -39,20 +39,20 @@ class FormDrugStockApprovalController extends AdminController
         $grid->column('id', __('Application #ID'))->sortable();
 
 
-        $grid->column('phone', __('Applican\'s number'))->display(function () {
+        $grid->column('phone', __('Applicant\'s number'))->display(function () {
             $cert = FormDrugSeller::Where([
                 'applicant_id' => $this->applicant->id
             ])->first();
             return $cert->name;
         });
 
-        $grid->column('phone_number', __('Applican\'s phone number'))->display(function () {
+        $grid->column('phone_number', __('Applicant\'s phone number'))->display(function () {
             $cert = FormDrugSeller::Where([
                 'applicant_id' => $this->applicant->id
             ])->first();
             return $cert->phone_number;
         });
-        $grid->column('NIN', __('Applican\'s phone number'))->display(function () {
+        $grid->column('NIN', __('Applicant\'s phone number'))->display(function () {
             $cert = FormDrugSeller::Where([
                 'applicant_id' => $this->applicant->id
             ])->first();
@@ -79,11 +79,11 @@ class FormDrugStockApprovalController extends AdminController
         return $grid;
     }
 
-    // $form->display('',  __('Applican\'s name'))->value($cert->name);
-    // $form->display('',  __('Applican\'s phone number'))->value($cert->);
-    // $form->display('',  __('Applican\'s phone '))->value($cert->);
-    // $form->display('',  __('Applican\'s '))->value($cert->license);
-    // $form->display('',  __('Applican\'s address'))->value($cert->address);
+    // $form->display('',  __('Applicant\'s name'))->value($cert->name);
+    // $form->display('',  __('Applicant\'s phone number'))->value($cert->);
+    // $form->display('',  __('Applicant\'s phone '))->value($cert->);
+    // $form->display('',  __('Applicant\'s '))->value($cert->license);
+    // $form->display('',  __('Applicant\'s address'))->value($cert->address);
 
     /**
      * Make a show builder.
@@ -178,11 +178,11 @@ class FormDrugStockApprovalController extends AdminController
 
         $form->hidden('applicant_id', __('Applicant id'))->default($u->id);
 
-        $form->display('',  __('Applican\'s name'))->default($cert->name);
-        $form->display('',  __('Applican\'s phone number'))->default($cert->phone_number);
-        $form->display('',  __('Applican\'s NIN'))->default($cert->nin);
-        $form->display('',  __('Applican\'s license number'))->default($cert->license);
-        $form->display('',  __('Applican\'s address'))->default($cert->address);
+        $form->display('',  __('Applicant\'s name'))->default($cert->name);
+        $form->display('',  __('Applicant\'s phone number'))->default($cert->phone_number);
+        $form->display('',  __('Applicant\'s NIN'))->default($cert->nin);
+        $form->display('',  __('Applicant\'s license number'))->default($cert->license);
+        $form->display('',  __('Applicant\'s address'))->default($cert->address);
 
         /*         "sub_county_id" => 7
         "applicant_id" => 10
