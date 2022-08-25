@@ -40,7 +40,7 @@ class DrugStockBatchRecord extends Model
                     die("");
                 }//romina
             } else {
-                die("record type not recorgnized.");
+ 
             }
         });
     }
