@@ -188,6 +188,18 @@ class Utils extends Model
         return "";
     }
 
+    public static function get_drug_status($s = 0)
+    {
+        if ($s == 0) {
+            return '<span class="badge badge-warning">pending</span>';
+        } else if ($s == 1) {
+            return '<span class="badge badge-success">approved</span>';
+        } else {
+            return '<span class="badge badge-warning">pending</span>';
+        }
+        return "";
+    }
+
     public static function get_user_id($request = null)
     {
         if ($request == null) {

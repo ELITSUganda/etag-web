@@ -32,6 +32,53 @@ class DrugStockBatchRecordController extends AdminController
      */
     protected function grid()
     {
+
+        $batch = DrugStockBatch::find(10);
+
+        $rec = new DrugStockBatchRecord();
+        $rec->drug_stock_batch_id = $batch->id;
+        $rec->record_type = 'transfer';
+        $rec->receiver_account = 4;
+        $rec->quantity = 50;
+        $rec->is_generated = 'no'; 
+
+        $rec->save();
+        die("========done=========");
+        /*         
+            '' => 'Transfer to another acount',
+            'animal_event' => 'Animal drug event',
+            'offline_sales' => 'Offline sale',
+            'other' => 'Other',
+        */
+
+        /* 
+        
+        "id" => 10
+        "created_at" => "2022-08-19 19:14:03"
+        "updated_at" => "2022-08-19 19:14:03"
+        "administrator_id" => 10
+        "drug_category_id" => 1
+        "sub_county_id" => 0
+        "source_id" => 17
+        "source_text" => "Stock approved by NDA - Beau Mayer"
+        "name" => "Drug 1"
+        "manufacturer" => "JPE"
+        "batch_number" => "1291899"
+        "ingredients" => "abhb, ahbshba,asjhas"
+        "expiry_date" => "2022-08-19"
+        "original_quantity" => 1000.0
+        "current_quantity" => 1000.0
+        "selling_price" => "4000"
+        "image" => "public/storage/images/help.jpeg"
+        "last_activity" => "Approved drugs stock of 1,000 KGs BY National Drug Authority."
+        "details" => "some details" 
+        
+        */
+
+
+
+
+        die("romina");
         $grid = new Grid(new DrugStockBatchRecord());
         $grid->disableActions();
 
@@ -43,7 +90,7 @@ class DrugStockBatchRecordController extends AdminController
                 ->orderBy('id', 'desc');
         } else {
             $grid->model()
-                ->where('administrator_id', '=', Admin::user()->id)
+                ->where('administrator_id',  Admin::user()->id)
                 ->orderBy('id', 'desc');
         }
 
@@ -109,11 +156,10 @@ class DrugStockBatchRecordController extends AdminController
     {
         $form = new Form(new DrugStockBatchRecord());
 
-
         $stocks = [];
         foreach (DrugStockBatch::where([
             'administrator_id' => Auth::user()->id
-        ]) as $v) {
+        ])->get() as $v) {
             if ($v->current_quantity > 0) {
                 $stocks[$v->id] = $v->name . " - " . $v->batch_number
                     . " Available ($v->quantity_text) ";
@@ -128,8 +174,7 @@ class DrugStockBatchRecordController extends AdminController
             ->rules('required');
 
 
-
-        $form->radio('action', 'Action')->options([
+        $form->radio('record_type', 'Action')->options([
             'transfer' => 'Transfer to another acount',
             'animal_event' => 'Animal drug event',
             'offline_sales' => 'Offline sale',
@@ -159,17 +204,17 @@ class DrugStockBatchRecordController extends AdminController
                 $animals[$v->id] = $v->e_id . " - " . $v->v_id;
             }
 
-            $f->select('event_animal', __('Select Animal'))
+            $f->select('event_animal_id', __('Select Animal'))
                 ->options($animals)
                 ->rules('required');
         })
             ->when('offline_sales', function ($form) {
-                $form->text('buyer_name', __('Buyer\'s name, Address and Contact.'))
+                $form->text('buyer_info', __('Buyer\'s name, Address and Contact.'))
                     ->rules('required');
             })
 
             ->when('other', function ($form) {
-                $form->text('Other_explantion', __('Specify'))
+                $form->text('other_explantion', __('Specify'))
                     ->rules('required');
             })
             ->rules('required');
@@ -179,6 +224,7 @@ class DrugStockBatchRecordController extends AdminController
 
 
         $form->textarea('description', __('Description'));
+        $form->hidden('is_generated', __('is_generated'))->default("no")->value('no');
 
         return $form;
     }

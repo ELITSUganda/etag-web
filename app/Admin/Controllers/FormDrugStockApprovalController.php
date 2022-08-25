@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Models\DrugCategory;
 use App\Models\FormDrugSeller;
 use App\Models\FormDrugStockApproval;
+use App\Models\Utils;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
@@ -70,7 +71,10 @@ class FormDrugStockApprovalController extends AdminController
 
 
         $grid->column('details', __('Details'))->hide();
-        $grid->column('status', __('Status'));
+        $grid->column('status', __('Status'))
+            ->display(function ($status) {
+                return Utils::get_drug_status($status);
+            });
 
         return $grid;
     }
@@ -210,7 +214,7 @@ class FormDrugStockApprovalController extends AdminController
             $form->text('selling_price', __('Your selling price'));
             $form->image('image', __('Drugs photo'));
             $form->text('note', __('Details'));
-            $form->hidden('status', __('status'))->default(0);
+            //$form->hidden('status', __('status'))->default(0);
 
             /* 
   

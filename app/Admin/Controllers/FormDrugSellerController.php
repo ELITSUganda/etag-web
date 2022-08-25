@@ -28,7 +28,7 @@ class FormDrugSellerController extends AdminController
     {
         $grid = new Grid(new FormDrugSeller());
         $u = Admin::user();
-        if (!$u->isRole('nda')) { 
+        if (!$u->isRole('nda')) {
             $grid->model()->where('applicant_id', '=', Admin::user()->id);
         }
         $has_form = false;
@@ -44,7 +44,7 @@ class FormDrugSellerController extends AdminController
         if ($app != null) {
             $has_form = false;
 
-            if (!$u->isRole('nda')) { 
+            if (!$u->isRole('nda')) {
                 if ($app->status != 0) {
                     $grid->disableActions();
                 }
@@ -87,13 +87,13 @@ class FormDrugSellerController extends AdminController
 
         $grid->column('type', __('Type'));
         $grid->column('status', __('Status'))
-        ->display(function ($s) {
-            if($s == 1){
-                return "Approved";
-            }else{
-                return "Not Approved";
-            }
-        });
+            ->display(function ($s) {
+                if ($s == 1) {
+                    return "Approved";
+                } else {
+                    return "Not Approved";
+                }
+            });
 
         if ($u->isRole('nda')) {
 
@@ -173,9 +173,10 @@ class FormDrugSellerController extends AdminController
 
             $form->select('type', __('Nature of your enterprise'))
                 ->options([
+                    'Exporter' => 'Exporter',
                     'Importer' => 'Importer',
                     'Wholesaler' => 'Wholesaler',
-                    'Retailer' => 'Wholesaler',
+                    'Retailer' => 'Retailer',
                 ])->required();
 
 
