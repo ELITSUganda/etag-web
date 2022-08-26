@@ -193,11 +193,10 @@ class DrugStockBatchRecordController extends AdminController
                 })
                 ->ajax($ajax_url)->rules('required');
         })->when('animal_event', function ($f) {
-            $u = Admin::user();
-            $animals = [];
+             $animals = [];
             foreach (Animal::where([
                 'administrator_id' => Auth::user()->id
-            ]) as $key => $v) {
+            ])->get() as $key => $v) {
                 $animals[$v->id] = $v->e_id . " - " . $v->v_id;
             }
 
