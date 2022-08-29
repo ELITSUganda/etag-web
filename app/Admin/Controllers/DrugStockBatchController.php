@@ -5,11 +5,15 @@ namespace App\Admin\Controllers;
 use App\Models\DrugCategory;
 use App\Models\DrugStockBatch;
 use App\Models\SubCounty;
+use Doctrine\DBAL\Schema\Table;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use Encore\Admin\Widgets\Box;
+use Encore\Admin\Widgets\Tab;
+
 
 class DrugStockBatchController extends AdminController
 {
@@ -18,7 +22,7 @@ class DrugStockBatchController extends AdminController
      *
      * @var string
      */
-    protected $title = 'My Drug stock batches';
+    protected $title = 'Drug batch';
 
     /**
      * Make a grid builder.
@@ -80,6 +84,26 @@ class DrugStockBatchController extends AdminController
      */
     protected function detail($id)
     {
+
+        $tab = new Tab();
+
+        $item = DrugStockBatch::findOrFail($id);
+        $recs = [];
+        foreach ($item->records as $key => $value) {
+            $recs[] = $value;
+        }
+
+        $recs = array_reverse($recs);
+
+        $tab->add('Records', view('admin.dashboard.show-drug-stock-batches', [
+            'items' => $recs
+        ]));
+        $tab->add('Livestock', '....');
+        $tab->add('People', '......');
+        $tab->add('Farms', '....');
+        $tab->add('Batch details', '....');
+
+        return $tab;
         $show = new Show(DrugStockBatch::findOrFail($id));
 
         $show->field('id', __('Id'));
@@ -101,7 +125,7 @@ class DrugStockBatchController extends AdminController
         $show->field('image', __('Image'));
         $show->field('last_activity', __('Last activity'));
         $show->field('details', __('Details'));
-
+ 
         return $show;
     }
 

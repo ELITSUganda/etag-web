@@ -23,6 +23,11 @@ class DrugStockBatch extends Model
         });
     }
 
+    function records()
+    {
+        return $this->hasMany(DrugStockBatchRecord::class);
+    }
+
     function getQuantityTextAttribute($x)
     {
         return number_format($this->current_quantity);
