@@ -38,7 +38,7 @@ foreach ($recs as $v) {
     ]);
 }
 
-foreach (DrugStockBatchRecord::all() as $x) {
+foreach (DrugStockBatchRecord::where(['batch_number' => NULL])->get() as $x) {
     $x->batch_number = $x->batch->batch_number;
     $x->save();
 }

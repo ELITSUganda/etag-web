@@ -16,13 +16,11 @@
     }
 </style>
 
-
-
 @foreach ($items as $r)
     @php
-        $description = $r->description;
+        $description = $r->record_type;
         $img = 'approve.png';
-        if ($r->record_type == 'transfer') {
+        if ($r->record_type == 'transfer' || $r->record_type == 'received_drugs') {
             $img = 'transaction.png';
             $description = 'Transfered 200grams of this drugs to John Doe';
         } elseif ($r->record_type == 'offline_sales') {
@@ -39,7 +37,7 @@
     <div class="timeline-item">
         <div class="child"> <img src="{{ url('assets/images/' . $img) }}">
             <b>{{ $r->get_created_date() }} </b>
-            {{ $r->get_details() }} 
+            {{ $r->get_details() }}
         </div>
     </div>
 @endforeach

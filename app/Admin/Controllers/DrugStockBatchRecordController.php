@@ -38,12 +38,11 @@ class DrugStockBatchRecordController extends AdminController
         $grid->disableActions();
 
 
-
-
         if (Admin::user()->isRole('nda')) {
             $grid->model()
                 ->orderBy('id', 'desc');
         } else {
+            $grid->disableActions();
             $grid->model()
                 ->where('administrator_id',  Admin::user()->id)
                 ->orderBy('id', 'desc');
@@ -57,13 +56,12 @@ class DrugStockBatchRecordController extends AdminController
             })->sortable();
 
 
-
         $grid->column('drug_stock_batch_id', __('Drug batch'))
             ->display(function ($id) {
-                return $this->batch->name . " - " . $this->batch->batch_number;
+                $batch_number = $this->batch->name . " - " . $this->batch->batch_number;
+                return
+                    '<a href="' . admin_url('drug-stock-batches/' . $this->batch->id) . '">' . $batch_number . '</a>';
             })->sortable();
-
-
 
 
         $grid->column('description', __('Description'));

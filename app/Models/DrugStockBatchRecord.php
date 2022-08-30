@@ -46,10 +46,35 @@ class DrugStockBatchRecord extends Model
     "last_activity" => "Approved drugs stock of 50,000 KGs BY National Drug Authority."
     "details" => "NDA Approval"
   ]
+
+
+      "id" => 8
+    "created_at" => "2022-08-30 08:50:15"
+    "updated_at" => "2022-08-30 08:50:15"
+    "administrator_id" => 10
+    "drug_stock_batch_id" => 1
+    "description" => "Vaccination"
+    "record_type" => "animal_event"
+    "receiver_account" => 0
+    "event_animal_id" => 6
+    "buyer_info" => null
+    "other_explantion" => null
+    "is_generated" => "no"
+    "quantity" => 50.0
+    "batch_number" => "1291899"
 */
 
-        $description = "-";
-        if ($this->record_type == 'nda_approval') {
+        $description = $this->record_type;
+        if ($this->record_type == 'offline_sales') {
+            $description = "Sold $this->quantity Units of this drug to " . $this->buyer_info;
+        } else if ($this->record_type == 'animal_event') {
+            $event_animal = Animal::find($this->event_animal_id);
+            $event_animal_name = $this->event_animal_id;
+            if ($event_animal != null) {
+                $event_animal_name = $event_animal->v_id . " - " . $event_animal->e_id;
+            }
+            $description = "Applied this drug to livestock {$event_animal_name}.";
+        } else if ($this->record_type == 'nda_approval') {
             $description = "NDA Approved " . number_format($this->batch->original_quantity) . " units this drug.";
         } else if ($this->record_type == 'transfer') {
             $reciever = Administrator::find($this->receiver_account);
@@ -58,6 +83,21 @@ class DrugStockBatchRecord extends Model
                 $reciever_name = $reciever->name;
             }
             $description = "Transfered " . number_format($this->quantity) . " Units of this drugs to {$reciever_name}.";
+        } else if ($this->record_type == 'received_drugs') {
+            $sender = Administrator::find($this->batch->administrator_id);
+            $reciever = Administrator::find($this->administrator_id);
+            $reciever_name = "-";
+            $sender_name = "-";
+            if ($sender != null) {
+                $sender_name = $sender->name;
+            }
+            if ($reciever != null) {
+                $reciever_name = $sender->name;
+            }
+
+            $description = "{$reciever_name} received drugs from {$sender_name}";
+        } else {
+            $description = $this->other_explantion;
         }
         return $description;
     }
@@ -107,6 +147,7 @@ class DrugStockBatchRecord extends Model
                 $new_batch->manufacturer = $batch->manufacturer;
                 $new_batch->batch_number = $batch->batch_number;
                 $new_batch->ingredients = $batch->ingredients;
+                $new_batch->details = 'Received drugs';
                 $new_batch->expiry_date = $batch->expiry_date;
                 $new_batch->original_quantity = $m->quantity;
                 $new_batch->current_quantity = $m->quantity;
@@ -114,7 +155,6 @@ class DrugStockBatchRecord extends Model
                 $new_batch->image = $batch->image;
                 $new_batch->source_text = "Drug of " . number_format($m->quantity) . " UNITS tarnsfered from {$sender->name} to  {$reciever->name} Account.";
                 $new_batch->last_activity = $new_batch->source_text;
-                $new_batch->details = $new_batch->source_text;
                 $new_batch->save();
             } else {
             }

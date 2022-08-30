@@ -31,35 +31,7 @@ class DrugStockBatchController extends AdminController
      * @return Grid
      */
     protected function grid()
-    {
-
-        /*  $b = DrugStockBatch::find(12);
-        $d = new DrugStockBatchRecord();
-        $d->administrator_id = $b->administrator_id;
-        $d->drug_stock_batch_id = $b->id;
-        $d->description = 'Sold drugs to some seller.';
-        $d->record_type = 'transfer';
-        $d->receiver_account = 11;
-        $d->event_animal_id = 0;
-        $d->quantity = 500;
-        $d->is_generated = 'no';
-        $d->save(); */
-
-
-        /* 
-	
-buyer_info
-other_explantion		
-	
-	
-
-        
-        
-        'transfer' => 'Transfer to another acount',
-        'animal_event' => 'Animal drug event',
-        'offline_sales' => 'Offline sale',
-        'other' => 'Other', */
-
+    { 
         $grid = new Grid(new DrugStockBatch());
         $grid->filter(function ($filter) {
             $cats = [];
@@ -78,12 +50,17 @@ other_explantion
             $grid->model()
                 ->where('administrator_id', '=', Admin::user()->id)
                 ->orderBy('id', 'desc');
+            $grid->disableActions();
         }
 
         $grid->disableCreateButton();
         $grid->disableBatchActions();
         $grid->column('id', __('#ID'))->sortable();
-        $grid->column('batch_number', __('Batch number'));
+        $grid->column('batch_number', __('Batch number'))
+            ->display(function ($batch_number) {
+                return
+                    '<a href="' . admin_url('drug-stock-batches/' . $this->id) . '">' . $batch_number . '</a>';
+            });
         $grid->column('name', __('Drug name'))->sortable();
         $grid->column('original_quantity', __('Original quantity'));
         $grid->column('current_quantity', __('Current quantity'));
@@ -119,13 +96,13 @@ other_explantion
 
         $recs = array_reverse($recs);
 
-        $tab->add('Records', view('admin.dashboard.show-drug-stock-batches', [
+        $tab->add('Timeline', view('admin.dashboard.show-drug-stock-batches', [
             'items' => $recs
         ]));
-        $tab->add('Livestock', '....');
-        $tab->add('People', '......');
-        $tab->add('Farms', '....');
-        $tab->add('Batch details', '....');
+        $tab->add('Drug batch details', view('admin.dashboard.show-drug-stock-details', [
+            'item' => $item
+        ]));
+
 
         return $tab;
         $show = new Show(DrugStockBatch::findOrFail($id));
