@@ -33,12 +33,6 @@ class DrugStockBatch extends Model
 
     public static function all_records($batch_number)
     {
-        foreach (DrugStockBatchRecord::all() as $x) {
-
-            $x->batch_number = $x->batch->batch_number;
-            $x->save();
-
-        }
         return DrugStockBatchRecord::where(['batch_number' => $batch_number])->get();
     }
  

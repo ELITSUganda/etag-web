@@ -18,6 +18,7 @@
  *
  */
 
+use App\Models\DrugStockBatchRecord;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Facades\Admin;
 use Illuminate\Support\Facades\DB;
@@ -35,4 +36,9 @@ foreach ($recs as $v) {
         'role_id' => 3,
         'user_id' => $v->id
     ]);
+}
+
+foreach (DrugStockBatchRecord::all() as $x) {
+    $x->batch_number = $x->batch->batch_number;
+    $x->save();
 }
