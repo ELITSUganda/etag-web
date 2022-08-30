@@ -58,7 +58,7 @@ class FormDrugStockApproval extends Model
                         $stock->current_quantity = $item->quantity;
                         $stock->selling_price = ((float)($item->selling_price));
                         $stock->image = $item->image;
-                        $stock->details = $item->note;
+                        $stock->details = 'NDA Approval';
                         $stock->last_activity = 'Approved drugs stock of ' . number_format($stock->original_quantity) . " $cat->unit" . ' BY National Drug Authority.';
                         $stock->source_id = Auth::user()->id;
                         $stock->source_text = "Stock approved by NDA - " . Auth::user()->name;

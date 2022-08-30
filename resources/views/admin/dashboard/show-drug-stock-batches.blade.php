@@ -38,9 +38,8 @@
     @endphp
     <div class="timeline-item">
         <div class="child"> <img src="{{ url('assets/images/' . $img) }}">
-            <b>{{ $r->created_at }} </b>
-            {{ $description }}
-            <b>{{ $r->record_type }} </b>
+            <b>{{ $r->get_created_date() }} </b>
+            {{ $r->get_details() }} 
         </div>
     </div>
 @endforeach

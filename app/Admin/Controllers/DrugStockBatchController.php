@@ -4,6 +4,7 @@ namespace App\Admin\Controllers;
 
 use App\Models\DrugCategory;
 use App\Models\DrugStockBatch;
+use App\Models\DrugStockBatchRecord;
 use App\Models\SubCounty;
 use Doctrine\DBAL\Schema\Table;
 use Encore\Admin\Controllers\AdminController;
@@ -32,12 +33,35 @@ class DrugStockBatchController extends AdminController
     protected function grid()
     {
 
+        /*  $b = DrugStockBatch::find(12);
+        $d = new DrugStockBatchRecord();
+        $d->administrator_id = $b->administrator_id;
+        $d->drug_stock_batch_id = $b->id;
+        $d->description = 'Sold drugs to some seller.';
+        $d->record_type = 'transfer';
+        $d->receiver_account = 11;
+        $d->event_animal_id = 0;
+        $d->quantity = 500;
+        $d->is_generated = 'no';
+        $d->save(); */
+
+
+        /* 
+	
+buyer_info
+other_explantion		
+	
+	
+
+        
+        
+        'transfer' => 'Transfer to another acount',
+        'animal_event' => 'Animal drug event',
+        'offline_sales' => 'Offline sale',
+        'other' => 'Other', */
+
         $grid = new Grid(new DrugStockBatch());
-
         $grid->filter(function ($filter) {
-
-
-
             $cats = [];
             foreach (DrugCategory::all() as $key => $p) {
                 $cats[$p->id] = $p->name;
@@ -89,7 +113,7 @@ class DrugStockBatchController extends AdminController
 
         $item = DrugStockBatch::findOrFail($id);
         $recs = [];
-        foreach ($item->records as $key => $value) {
+        foreach ($item->all_records($item->batch_number) as $key => $value) {
             $recs[] = $value;
         }
 
@@ -125,7 +149,7 @@ class DrugStockBatchController extends AdminController
         $show->field('image', __('Image'));
         $show->field('last_activity', __('Last activity'));
         $show->field('details', __('Details'));
- 
+
         return $show;
     }
 
@@ -143,7 +167,6 @@ class DrugStockBatchController extends AdminController
             $sub_counties[$p->id] = $p->name . ", " .
                 $p->district->name . ".";
         }
-
 
         $form->select('sub_county_id', __('Sub-county'))
             ->options($sub_counties)

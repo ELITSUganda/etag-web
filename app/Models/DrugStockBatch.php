@@ -19,6 +19,9 @@ class DrugStockBatch extends Model
             $rec->administrator_id = $m->administrator_id;
             $rec->drug_stock_batch_id = $m->id;
             $rec->description = $m->last_activity;
+            if ($m->details == 'NDA Approval') {
+                $rec->record_type = 'nda_approval';
+            }
             $rec->save();
         });
     }
@@ -28,6 +31,17 @@ class DrugStockBatch extends Model
         return $this->hasMany(DrugStockBatchRecord::class);
     }
 
+    public static function all_records($batch_number)
+    {
+        foreach (DrugStockBatchRecord::all() as $x) {
+
+            $x->batch_number = $x->batch->batch_number;
+            $x->save();
+
+        }
+        return DrugStockBatchRecord::where(['batch_number' => $batch_number])->get();
+    }
+ 
     function getQuantityTextAttribute($x)
     {
         return number_format($this->current_quantity);

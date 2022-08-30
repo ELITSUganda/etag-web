@@ -32,48 +32,6 @@ class DrugStockBatchRecordController extends AdminController
      */
     protected function grid()
     {
-/* 
-        $batch = DrugStockBatch::find(10);
-
-        $rec = new DrugStockBatchRecord();
-        $rec->drug_stock_batch_id = $batch->id;
-        $rec->record_type = 'transfer';
-        $rec->receiver_account = 4;
-        $rec->quantity = 50;
-        $rec->is_generated = 'no'; 
-
-        $rec->save();
-        die("========done=========");
-                
-            '' => 'Transfer to another acount',
-            'animal_event' => 'Animal drug event',
-            'offline_sales' => 'Offline sale',
-            'other' => 'Other',
-        */
-
-        /* 
-        
-        "id" => 10
-        "created_at" => "2022-08-19 19:14:03"
-        "updated_at" => "2022-08-19 19:14:03"
-        "administrator_id" => 10
-        "drug_category_id" => 1
-        "sub_county_id" => 0
-        "source_id" => 17
-        "source_text" => "Stock approved by NDA - Beau Mayer"
-        "name" => "Drug 1"
-        "manufacturer" => "JPE"
-        "batch_number" => "1291899"
-        "ingredients" => "abhb, ahbshba,asjhas"
-        "expiry_date" => "2022-08-19"
-        "original_quantity" => 1000.0
-        "current_quantity" => 1000.0
-        "selling_price" => "4000"
-        "image" => "public/storage/images/help.jpeg"
-        "last_activity" => "Approved drugs stock of 1,000 KGs BY National Drug Authority."
-        "details" => "some details" 
-        
-        */
 
 
         $grid = new Grid(new DrugStockBatchRecord());
@@ -193,7 +151,7 @@ class DrugStockBatchRecordController extends AdminController
                 })
                 ->ajax($ajax_url)->rules('required');
         })->when('animal_event', function ($f) {
-             $animals = [];
+            $animals = [];
             foreach (Animal::where([
                 'administrator_id' => Auth::user()->id
             ])->get() as $key => $v) {

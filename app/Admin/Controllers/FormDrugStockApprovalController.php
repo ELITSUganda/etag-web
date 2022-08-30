@@ -139,7 +139,13 @@ class FormDrugStockApprovalController extends AdminController
             $uri_segments = explode('/', $uri_path);
             $id = ((int)($uri_segments[3]));
 
+
             $form_data = FormDrugStockApproval::find($id);
+
+            if ($form_data == null) {
+                $id = ((int)($uri_segments[4]));
+                $form_data = FormDrugStockApproval::find($id);
+            }
 
             if ($form_data == null) {
                 return admin_error(
