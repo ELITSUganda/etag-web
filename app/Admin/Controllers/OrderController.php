@@ -5,6 +5,8 @@
 namespace App\Admin\Controllers;
 
 use App\Models\CropVariety;
+use App\Models\DrugStockBatch;
+use App\Models\DrugStockBatchRecord;
 use App\Models\MarketableSeed;
 use App\Models\Utils;
 
@@ -74,7 +76,7 @@ class OrderController extends AdminController
             })->sortable();
         $grid->column('product_id', __('Product'))
             ->display(function ($id) {
-                $u = Product::find($id);
+                $u = DrugStockBatch::find($id);
                 if (!$u) {
                     return "-";
                 }
@@ -90,7 +92,7 @@ class OrderController extends AdminController
                 return "UGX. " . number_format($id);
             })->sortable();
 
-     
+
 
 
         return $grid;
@@ -136,26 +138,55 @@ class OrderController extends AdminController
                 return redirect(admin_url('orders'));
             });
             $form->saving(function ($form) {
-                $id = request()->route()->parameters['order'];
+
+                $id = ((int)($form->status));
                 $order = $form->model()->find($id);
                 if (!$order) {
                     dd("Order not found");
                 }
 
-                $pro = Product::find($order->product_id);
+                $pro = DrugStockBatch::find($order->product_id);
                 if (!$pro) {
                     die("Product not found");
                 }
 
-                if ($order->quantity > $pro->quantity) {
+                if ($order->current_quantity > $pro->current_quantity) {
                     admin_error('Ooops', 'You have inadequate amount of product (' . $pro->name . ") to proceed with this 
                     order #" . $order->id);
                     return redirect(admin_url('orders'));
                 }
 
+                if (((int)($form->status)) == 3) {
 
+                    $rec = new DrugStockBatchRecord();
+                    $rec->record_type = 'transfer';
+                    $rec->administrator_id = (int)($form->order_by);
+                    $rec->receiver_account = (int)($form->order_by);
+                    $rec->drug_stock_batch_id = $order->product_id;
+                    $rec->batch_number = $pro->batch_number;
+                    $rec->quantity = $order->quantity;
+                    $rec->description = 'Drug sales';
+                    $rec->is_generated = 'no';
+                    $rec->save();
+                }
 
+                /*                 	
+		 
+administrator_id	
+crop_variety_id	
+product_id	
+quantity	
+detail	
+payment_type	
+receipt	
+status	
+total_price	
+	
+Edit Edit
+Copy Cop
  
+                
+                */
             });
 
             $id = request()->route()->parameters['order'];
@@ -179,11 +210,9 @@ class OrderController extends AdminController
                 ->value(Admin::user()->id)
                 ->readonly()
                 ->default(Admin::user()->id);
-            $product = Product::find($pro->product_id);
+            $product = DrugStockBatch::find($pro->product_id);
 
             if ($product) {
-
-
                 $form->select('crop_variety_id', __('Crop'))
                     ->options([
                         $pro->crop_variety_id => $product->name
@@ -196,15 +225,15 @@ class OrderController extends AdminController
 
 
             $form->display('quantity', __('Available quantity'))->default(
-                number_format($pro->quantity) . " "
+                number_format($pro->current_quantity) . " "
             );
-            $form->display('price', __('Unit price'))->default(
-                "UGX. " . number_format($pro->price)
+            $form->display('selling_price', __('Unit price'))->default(
+                "UGX. " . number_format($pro->selling_price)
             );
             $form->display('quantity', __('Enter Quantity'));
 
             $form->divider();
- 
+
             if ($pro->status == 3) {
                 admin_warning("Warning", "This order completed, 
                 it's stage cannot be updated anymore.");
@@ -229,15 +258,15 @@ class OrderController extends AdminController
         if ($form->isCreating()) {
             $form->saving(function ($new_order) {
                 $id = $_SESSION['product_id'];
-                $pro =  Product::find($id);
-                //$new_order = new Order();
-                $new_order->administrator_id = $_POST['administrator_id']; 
+                $pro =  DrugStockBatch::find($id);
+                $new_order = new Order();
+                $new_order->administrator_id = $_POST['administrator_id'];
                 $new_order->product_id = $_POST['product_id'];
-                $new_order->quantity = $_POST['quantity'];
+                $new_order->current_quantity = $_POST['quantity'];
                 $new_order->detail = $_POST['detail'];
                 $new_order->payment_type = null;
                 $new_order->status = 1;
-                $new_order->total_price = $new_order->quantity * $pro->price;
+                $new_order->total_price = $new_order->current_quantity * $pro->selling_price;
                 $new_order->order_by = Admin::user()->id;
                 unset($_SESSION['product_id']);
                 admin_success("Success", "Order submited successfully.");
@@ -258,20 +287,19 @@ class OrderController extends AdminController
             }
 
             if ($id < 1) {
-                dd("pro not found");
-                return ("Product ID not found. You have to create new order from market place.");
+                return admin_error('Error', "Product ID not found. You have to create new order from market place.");
             }
 
-            $pro =  Product::find($id);
+            $pro =  DrugStockBatch::find($id);
             if (!$pro) {
-                return "Product not found.";
+                return admin_error('Error', "Drug stock Batch not found.");
             }
 
             if ($pro->administrator_id == Admin::user()->id) {
-                return "You cannot order for your own product.";
+                return admin_error('Error', "You cannot order for your own drugs.");
             }
 
-            if ($pro->quantity < 1) {
+            if ($pro->current_quantity < 1) {
                 return admin_error('Out of sock.', "This product is out of stock.");
             }
 
@@ -291,10 +319,10 @@ class OrderController extends AdminController
                 ->value(Admin::user()->id)
                 ->readonly()
                 ->default(Admin::user()->id);
-            
+
 
             $form->display('type', __('Product category'))->default(
-                $pro->type
+                'Drugs'
             );
 
             $form->display('name', __('Product title'))->default(
@@ -304,19 +332,19 @@ class OrderController extends AdminController
 
             $form->hidden('product_id', __('Product id'))->default($pro->id);
             $form->display('quantity', __('Available quantity'))->default(
-                number_format($pro->quantity) . " "
+                number_format($pro->current_quantity) . " "
             );
-            $form->display('price', __('Unit price'))->default(
-                "UGX. " . number_format($pro->price)
+            $form->display('selling_price', __('Unit price'))->default(
+                "UGX. " . number_format($pro->selling_price)
             );
 
             $form->divider();
 
 
             $form->text('quantity', __('Enter Quantity'))->required()
-                ->value($pro->quantity)
-                ->default($pro->quantity)
-                ->help("MAX: " . number_format($pro->quantity) . " ")
+                ->value($pro->current_quantity)
+                ->default($pro->current_quantity)
+                ->help("MAX: " . number_format($pro->current_quantity) . " ")
                 ->attribute('type', 'number');
 
             // $form->radio('payment_type', __('Payment type'))

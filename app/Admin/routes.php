@@ -29,6 +29,7 @@ Route::group([
     $router->resource('check-point-records', CheckPointRecordController::class);
     $router->resource('product-categories', ProductCategoryController::class);
     $router->resource('products', ProductController::class); 
+    $router->resource('drugs', DrugBatchController::class); 
     $router->resource('orders', OrderController::class);
     $router->resource('drug-categories', DrugCategoryController::class);
     $router->resource('form-drug-sellers', FormDrugSellerController::class);

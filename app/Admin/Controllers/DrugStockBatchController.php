@@ -30,7 +30,7 @@ class DrugStockBatchController extends AdminController
      *
      * @return Grid
      */
-    protected function grid()
+    protected function grid() 
     { 
         $grid = new Grid(new DrugStockBatch());
         $grid->filter(function ($filter) {
