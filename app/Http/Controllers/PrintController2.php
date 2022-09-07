@@ -252,13 +252,7 @@ class PrintController2 extends Controller
                         </tr>
 
                     </tbody>
-                </table>
-            
-
-                ';
-
-
-
+                </table>';
 
 
  
