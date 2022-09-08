@@ -248,8 +248,6 @@ class AnimalController extends AdminController
         }
 
         $form->hidden('administrator_id', __('Administrator id'))->default(1);
-        $form->hidden('district_id', __('District id'))->default(1);
-        $form->hidden('sub_county_id', __('Subcounty'))->default(1);
 
 
 
