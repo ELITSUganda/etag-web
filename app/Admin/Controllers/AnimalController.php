@@ -214,38 +214,7 @@ class AnimalController extends AdminController
 
     protected function form()
     {
-        $form = new Form(new Animal());
-
-        $form->number('administrator_id', __('Administrator id'))->default(1);
-        $form->number('district_id', __('District id'))->default(1);
-        $form->number('sub_county_id', __('Sub county id'))->default(1);
-        $form->number('parish_id', __('Parish id'))->default(1);
-        $form->textarea('status', __('Status'));
-        $form->text('type', __('Type'));
-        $form->textarea('e_id', __('E id'));
-        $form->textarea('v_id', __('V id'));
-        $form->textarea('lhc', __('Lhc'));
-        $form->textarea('breed', __('Breed'));
-        $form->textarea('sex', __('Sex'));
-        $form->textarea('dob', __('Dob'));
-        $form->textarea('color', __('Color'));
-        $form->number('farm_id', __('Farm id'))->default(1);
-        $form->textarea('fmd', __('Fmd'));
-        $form->number('trader', __('Trader'));
-        $form->textarea('destination', __('Destination'));
-        $form->number('destination_slaughter_house', __('Destination slaughter house'));
-        $form->number('destination_farm', __('Destination farm'));
-        $form->textarea('details', __('Details'));
-
-        return $form;
-    }
-
-
-    /* 
-     protected function form()
-    {
-        $form = new Form(new Animal());
-        //$form->setWidth(8, 4);
+        $form = new Form(new Animal()); 
 
         $form->saving(function (Form $form) {
 
@@ -264,6 +233,19 @@ class AnimalController extends AdminController
                 ]);
             }
         });
+
+
+
+
+        return $form;
+    }
+
+
+    /* 
+     protected function form()
+    {
+        $form = new Form(new Animal());
+   
 
         $items = [];
         foreach (Farm::all() as $key => $f) {
