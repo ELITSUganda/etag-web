@@ -129,7 +129,6 @@ class AnimalController extends AdminController
         });
 
         $grid->model()->orderBy('id', 'DESC');
-        $grid->column('id', __('ID'))->sortable();
         $grid->column('e_id', __('E-ID'))->sortable();
         $grid->column('v_id', __('V-ID'))->sortable();
         $grid->column('lhc', __('LHC'))->sortable();
