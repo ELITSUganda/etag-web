@@ -17,180 +17,11 @@ use Encore\Admin\Show;
 
 class FarmController extends AdminController
 {
-    /**
-     * Title for current resource.
-     *
-     * @var string
-     */
+
+
+
     protected $title = 'LHR - (Farms)';
 
-    /**
-     * Make a grid builder.
-     *
-     * @return Grid
-     */
-    protected function grid()
-    {
-
-
- 
-        
-        /*Farm::truncate();
-        for ($i=0; $i < 500; $i++) { 
-            $faker = \Faker\Factory::create();
-            $f = new Farm();
-            $f->name = $faker->sentence(2);
-            //$f->dfm = $faker->sentence(2);
-            $f->administrator_id = rand(7,400); 
-            $f->sub_county_id = rand(1,11); 
-            $types = ['Dairy','Beef','Mixed'];
-            shuffle($types);
-            $f->farm_type = $types[0]; 
-            $f->size = rand(1,45); 
-            $f->animals_count = rand(1,45); 
-            $f->latitude = "0.0"; 
-            $f->longitude = "0.0"; 
-            $f->save();
-        }*/
-
-       
-
-        $grid = new Grid(new Farm());
-        if (Admin::user()->isRole('farmer')) {
-            $grid->model()->where('administrator_id', '=', Admin::user()->id);
-            $grid->actions(function ($actions) {
-                $actions->disableDelete();
-                $actions->disableEdit();
-            });
-            $grid->disableCreateButton();
-        }
-
-        $grid->filter(function ($filter) {
-
-
-
-            $sub_counties = [];
-            foreach (SubCounty::all() as $key => $p) {
-                $sub_counties[$p->id] = $p->name . ", " .
-                    $p->district->name . " - " .
-                    $p->code . ".";
-            }
-
-            $districts = [];
-            foreach (District::all() as $key => $p) {
-                $districts[$p->id] = $p->name . "  ";
-            }
-
-            $admins = [];
-            foreach (Administrator::all() as $key => $v) {
-                if (!$v->isRole('farmer')) {
-                    continue;
-                }
-                $admins[$v->id] = $v->name . " - " . $v->id." - ({$v->username})";
-            }
-
-            $filter->equal('holding_code', "LHC")->select(Farm::all()->pluck('holding_code','holding_code'));
-            $filter->equal('administrator_id', "Owner")->select($admins);
-            $filter->equal('farm_type', "Farm type")->select([
-                'Beef' => 'Beef',
-                'Dairy' => 'Dairy',
-                'Mixed' => 'Mixed',
-            ]);
-            $filter->equal('district_id', "District")->select($districts);
-            $filter->equal('sub_county_id', "Sub county")->select($sub_counties);
-        });
-        $grid->model()->orderBy('id','DESC');
-
-        $grid->column('id', __('Id'))->sortable();
-        
-
-        $grid->column('created_at', __('Created'))
-        ->display(function ($f) {
-            return Carbon::parse($f)->toFormattedDateString();
-        })->sortable(); 
-
- 
-
-
-        $grid->column('holding_code', __('Holding code'))->sortable();
-        $grid->column('size', __('Size (Ha)'))->sortable(); 
-        $grid->column('cattle_count', __('Cattle'))->sortable(); 
-        $grid->column('goats_count', __('Goats'))->sortable(); 
-        $grid->column('sheep_count', __('Sheep'))->sortable(); 
-        $grid->column('longitude', __('GPS'))  ->display(function ($id) {
-            return $this->longitude.",".$this->longitude;
-        })->sortable();  
-        $grid->column('village', __('Village'))->sortable(); 
-        $grid->column('administrator_id', __('Owner'))
-        ->display(function ($id) {
-            $u = Administrator::find($id);
-            if (!$u) {
-                return $id;
-            }
-            return $u->name." ({$u->phone_number}) ";
-        })->sortable();
-        $grid->column('farm_type', __('Farm type'))->sortable();
- 
-
-        $grid->column('district_id', __('District'))
-            ->display(function ($id) {
-                $u = District::find($id);
-                if (!$u) {
-                    return $id;
-                }
-                return $u->name;
-            })->sortable();
-        $grid->column('sub_county_id', __('Sub county'))
-            ->display(function ($id) {
-                $u = SubCounty::find($id);
-                if (!$u) {
-                    return $id;
-                }
-                return $u->name;
-            })->sortable();
-
-      
-        return $grid;
-    }
-
-    /**
-     * Make a show builder.
-     *
-     * @param mixed $id
-     * @return Show
-     */
-    protected function detail($id)
-    {
-        $show = new Show(Farm::findOrFail($id));
-        if (Admin::user()->isRole('farmer')) {
-            $show->panel()
-                ->tools(function ($tools) {
-                    $tools->disableEdit();
-                    $tools->disableDelete();
-                });
-        }
-
-        $show->field('id', __('Id'));
-        $show->field('created_at', __('Created at'));
-        $show->field('updated_at', __('Updated at'));
-        $show->field('administrator_id', __('Administrator id'));
-        $show->field('district_id', __('District id'));
-        $show->field('sub_county_id', __('Sub county id'));
-        $show->field('farm_type', __('Farm type'));
-        $show->field('holding_code', __('Holding code'));
-        $show->field('size', __('Size'));
-        $show->field('latitude', __('Latitude'));
-        $show->field('longitude', __('Longitude'));
-        $show->field('dfm', __('Detail'));
-
-        return $show;
-    }
-
-    /**
-     * Make a form builder.
-     *
-     * @return Form
-     */
     protected function form()
     {
         $form = new Form(new Farm());
@@ -199,12 +30,12 @@ class FarmController extends AdminController
             if (!$v->isRole('farmer')) {
                 continue;
             }
-            $admins[$v->id] = $v->name . " - " . $v->id." - ({$v->username})";
+            $admins[$v->id] = $v->name . " - " . $v->id . " - ({$v->username})";
         }
         $sub_counties = [];
         foreach (SubCounty::all() as $key => $p) {
-            $sub_counties[$p->id] = $p->code . "  - ".
-            $p->name . ", " .
+            $sub_counties[$p->id] = $p->code . "  - " .
+                $p->name . ", " .
                 $p->district->name . " ";
         }
 
@@ -238,5 +69,138 @@ class FarmController extends AdminController
         $form->text('holding_code', __('Holding code'))->readonly();
 
         return $form;
+    }
+
+
+
+    protected function grid()
+    {
+
+
+
+        $grid = new Grid(new Farm());
+        if (Admin::user()->isRole('farmer')) {
+            $grid->model()->where('administrator_id', '=', Admin::user()->id);
+            $grid->actions(function ($actions) {
+                $actions->disableDelete();
+                $actions->disableEdit();
+            });
+            $grid->disableCreateButton();
+        }
+
+        $grid->filter(function ($filter) {
+
+
+
+            $sub_counties = [];
+            foreach (SubCounty::all() as $key => $p) {
+                $sub_counties[$p->id] = $p->name . ", " .
+                    $p->district->name . " - " .
+                    $p->code . ".";
+            }
+
+            $districts = [];
+            foreach (District::all() as $key => $p) {
+                $districts[$p->id] = $p->name . "  ";
+            }
+
+            $admins = [];
+            foreach (Administrator::all() as $key => $v) {
+                if (!$v->isRole('farmer')) {
+                    continue;
+                }
+                $admins[$v->id] = $v->name . " - " . $v->id . " - ({$v->username})";
+            }
+
+            $filter->equal('holding_code', "LHC")->select(Farm::all()->pluck('holding_code', 'holding_code'));
+            $filter->equal('administrator_id', "Owner")->select($admins);
+            $filter->equal('farm_type', "Farm type")->select([
+                'Beef' => 'Beef',
+                'Dairy' => 'Dairy',
+                'Mixed' => 'Mixed',
+            ]);
+            $filter->equal('district_id', "District")->select($districts);
+            $filter->equal('sub_county_id', "Sub county")->select($sub_counties);
+        });
+        $grid->model()->orderBy('id', 'DESC');
+
+        $grid->column('id', __('Id'))->sortable();
+
+
+        $grid->column('created_at', __('Created'))
+            ->display(function ($f) {
+                return Carbon::parse($f)->toFormattedDateString();
+            })->sortable();
+
+
+
+
+        $grid->column('holding_code', __('Holding code'))->sortable();
+        $grid->column('size', __('Size (Ha)'))->sortable();
+        $grid->column('cattle_count', __('Cattle'))->sortable();
+        $grid->column('goats_count', __('Goats'))->sortable();
+        $grid->column('sheep_count', __('Sheep'))->sortable();
+        $grid->column('longitude', __('GPS'))->display(function ($id) {
+            return $this->longitude . "," . $this->longitude;
+        })->sortable();
+        $grid->column('village', __('Village'))->sortable();
+        $grid->column('administrator_id', __('Owner'))
+            ->display(function ($id) {
+                $u = Administrator::find($id);
+                if (!$u) {
+                    return $id;
+                }
+                return $u->name . " ({$u->phone_number}) ";
+            })->sortable();
+        $grid->column('farm_type', __('Farm type'))->sortable();
+
+
+        $grid->column('district_id', __('District'))
+            ->display(function ($id) {
+                $u = District::find($id);
+                if (!$u) {
+                    return $id;
+                }
+                return $u->name;
+            })->sortable();
+        $grid->column('sub_county_id', __('Sub county'))
+            ->display(function ($id) {
+                $u = SubCounty::find($id);
+                if (!$u) {
+                    return $id;
+                }
+                return $u->name;
+            })->sortable();
+
+
+        return $grid;
+    }
+
+
+    protected function detail($id)
+    {
+        $show = new Show(Farm::findOrFail($id));
+        if (Admin::user()->isRole('farmer')) {
+            $show->panel()
+                ->tools(function ($tools) {
+                    $tools->disableEdit();
+                    $tools->disableDelete();
+                });
+        }
+
+        $show->field('id', __('Id'));
+        $show->field('created_at', __('Created at'));
+        $show->field('updated_at', __('Updated at'));
+        $show->field('administrator_id', __('Administrator id'));
+        $show->field('district_id', __('District id'));
+        $show->field('sub_county_id', __('Sub county id'));
+        $show->field('farm_type', __('Farm type'));
+        $show->field('holding_code', __('Holding code'));
+        $show->field('size', __('Size'));
+        $show->field('latitude', __('Latitude'));
+        $show->field('longitude', __('Longitude'));
+        $show->field('dfm', __('Detail'));
+
+        return $show;
     }
 }
