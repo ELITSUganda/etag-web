@@ -3,14 +3,10 @@
 namespace App\Admin\Controllers;
 
 use App\Models\Animal;
-use App\Models\Farm;
-use Carbon\Carbon;
 use Encore\Admin\Controllers\AdminController;
-use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
-use Illuminate\Support\Facades\Redirect;
 
 class Animal1Controller extends AdminController
 {
@@ -102,78 +98,27 @@ class Animal1Controller extends AdminController
     protected function form()
     {
         $form = new Form(new Animal());
-        //$form->setWidth(8, 4);
 
-        $form->saving(function (Form $form) {
-
-            $today = new Carbon();
-            $dob = Carbon::parse($form->dob);
-
-            if ($today->lt($dob)) {
-                return Redirect::back()->withInput()->withErrors([
-                    'dob' => 'Enter valid date of birth.'
-                ]);
-            }
-
-            if (!$dob->lt(Carbon::parse($form->fmd))) {
-                return Redirect::back()->withInput()->withErrors([
-                    'fmd' => 'Enter valid fmd date.'
-                ]);
-            }
-        });
-
-        $items = [];
-        foreach (Farm::all() as $key => $f) {
-            if (Admin::user()->isRole('farmer')) {
-                if ($f->administrator_id == Admin::user()->id) {
-                    $items[$f->id] = $f->holding_code;
-                }
-            } else {
-                $items[$f->id] = $f->holding_code . " - By " . $f->owner()->name;
-            }
-        }
-
-        $form->hidden('administrator_id', __('Administrator id'))->default(1);
-        $form->hidden('district_id', __('District id'))->default(1);
-        $form->hidden('sub_county_id', __('Subcounty'))->default(1);
-
-        $form->select('farm_id', __('Farm'))
-            ->options($items)
-            ->required();
-
-        $form->select('type', __('Livestock species'))
-            ->options(array(
-                'Cattle' => "Cattle",
-                'Goat' => "Goat",
-                'Sheep' => "Sheep"
-            ))
-            ->required();
-
-        $form->radio('sex', __('Sex'))
-            ->options(array(
-                'Male' => "Male",
-                'Female' => "Female",
-            ))
-            ->required();
-
-        $form->select('breed', __('Breed'))
-            ->options(array(
-                'Ankole' => "Ankole",
-                'Short horn zebu' => "Short horn zebu",
-                'Holstein' => "Holstein",
-                'Other' => "Other"
-            ))
-            ->required();
-
-
-
-        $form->text('e_id', __('Electronic id'))->required();
-        $form->text('v_id', __('Tag id'))->required();
-
-        $form->date('dob', __('Year of birth'))->attribute('autocomplete', 'false')->default(date('Y-m-d'))->required();
-        $form->date('fmd', __('Date last FMD vaccination'))->default(date('Y-m-d'))->required();
-        $form->text('status', __('Status'))->readonly()->default("Live");
-        $form->text('lhc', __('LHC'))->readonly();
+        $form->number('administrator_id', __('Administrator id'))->default(1);
+        $form->number('district_id', __('District id'))->default(1);
+        $form->number('sub_county_id', __('Sub county id'))->default(1);
+        $form->number('parish_id', __('Parish id'))->default(1);
+        $form->textarea('status', __('Status'));
+        $form->text('type', __('Type'));
+        $form->textarea('e_id', __('E id'));
+        $form->textarea('v_id', __('V id'));
+        $form->textarea('lhc', __('Lhc'));
+        $form->textarea('breed', __('Breed'));
+        $form->textarea('sex', __('Sex'));
+        $form->textarea('dob', __('Dob'));
+        $form->textarea('color', __('Color'));
+        $form->number('farm_id', __('Farm id'))->default(1);
+        $form->textarea('fmd', __('Fmd'));
+        $form->number('trader', __('Trader'));
+        $form->textarea('destination', __('Destination'));
+        $form->number('destination_slaughter_house', __('Destination slaughter house'));
+        $form->number('destination_farm', __('Destination farm'));
+        $form->textarea('details', __('Details'));
 
         return $form;
     }
