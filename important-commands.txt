@@ -26,6 +26,7 @@ php artisan make:migration create_drug_stock_batch_records_table
 
 Encore\Admin\Auth\Database\Administrator::class,
 php artisan admin:make FormSr4Controller --model=App\FormSr4
+php artisan admin:make Animal1Controller --model=App\Animal
 
 php artisan admin:controller --model=App\FormSr4
 php artisan admin:controller --model=App\SlaughterRecord
@@ -45,6 +46,7 @@ php artisan admin:make DrugCategoryController --model=App\\Models\\DrugCategory
 php artisan admin:make FormDrugStockApprovalController --model=App\\Models\\FormDrugStockApproval
 php artisan admin:make DrugStockBatchController --model=App\\Models\\DrugStockBatch
 php artisan admin:make DrugStockBatchRecordController --model=App\\Models\\DrugStockBatchRecord
+php artisan admin:make Animal1Controller --model=App\\Models\\Animal
 
 
 php artisan make:model CheckPoint
