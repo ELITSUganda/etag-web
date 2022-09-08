@@ -236,17 +236,6 @@ class AnimalController extends AdminController
 
 
 
-
-        return $form;
-    }
-
-
-    /* 
-     protected function form()
-    {
-        $form = new Form(new Animal());
-   
-
         $items = [];
         foreach (Farm::all() as $key => $f) {
             if (Admin::user()->isRole('farmer')) {
@@ -262,6 +251,17 @@ class AnimalController extends AdminController
         $form->hidden('district_id', __('District id'))->default(1);
         $form->hidden('sub_county_id', __('Subcounty'))->default(1);
 
+
+
+
+        return $form;
+    }
+
+
+    /* 
+     protected function form()
+    {
+ 
         $form->select('farm_id', __('Farm'))
             ->options($items)
             ->required();
