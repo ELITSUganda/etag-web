@@ -227,11 +227,11 @@ class AnimalController extends AdminController
                 ]);
             }
 
-            if (!$dob->lt(Carbon::parse($form->fmd))) {
+            /* if (!$dob->lt(Carbon::parse($form->fmd))) { 
                 return Redirect::back()->withInput()->withErrors([
                     'fmd' => 'Enter valid fmd date.'
                 ]);
-            }
+            } */
         });
 
         $items = [];
@@ -283,7 +283,7 @@ class AnimalController extends AdminController
         $form->text('v_id', __('Tag id'))->required();
 
         $form->date('dob', __('Year of birth'))->attribute('autocomplete', 'false')->default(date('Y-m-d'))->required();
-        $form->date('fmd', __('Date last FMD vaccination'))->default(date('Y-m-d'))->required();
+        $form->date('fmd', __('Date last FMD vaccination'))->default(date('Y-m-d'));
         $form->text('status', __('Status'))->readonly()->default("Live");
         $form->text('lhc', __('LHC'))->readonly();
 
