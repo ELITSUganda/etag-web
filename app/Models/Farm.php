@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Encore\Admin\Auth\Database\Administrator;
+use Encore\Admin\Facades\Admin;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -34,12 +35,12 @@ class Farm extends Model
 
         self::creating(function ($model) {
 
-            $s = SubCounty::find($model->sub_county_id); 
+            $s = SubCounty::find($model->sub_county_id);
             if ($s == null) {
                 dd("SubCounty not found.");
                 return null;
             }
-           
+
 
             if ($s->district == null) {
                 dd("District not found.");
@@ -49,21 +50,21 @@ class Farm extends Model
 
             $num = (int) (Farm::where(['sub_county_id' => $model->sub_county_id])->count());
             $num++;
- 
-            $model->holding_code = $s->code."-".$num;
-            
+
+            $model->holding_code = $s->code . "-" . $num;
+
             return $model;
         });
- 
+
 
         self::updating(function ($model) {
 
-            
+
             // ... code here
         });
 
         self::updated(function ($model) {
-            if($model->animals!=null){
+            if ($model->animals != null) {
                 foreach ($model->animals as $key => $animal) {
                     $animal->administrator_id = $model->administrator_id;
                     $animal->save();
@@ -88,7 +89,7 @@ class Farm extends Model
 
     public function user()
     {
-        return $this->belongsTo(Administrator::class,'administrator_id');
+        return $this->belongsTo(Administrator::class, 'administrator_id');
     }
 
     public function district()
@@ -103,6 +104,13 @@ class Farm extends Model
 
     public function owner()
     {
-        return Administrator::findOrFail($this->administrator_id);
+        $id = $this->administrator_id;
+        $u = Administrator::find($id);
+        if (!$u) {
+            return Admin::user();
+        }
+        return $u;
+
+        //return Administrator::findOrFail();
     }
 }

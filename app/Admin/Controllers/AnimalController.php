@@ -211,10 +211,10 @@ class AnimalController extends AdminController
      *
      * @return Form
      */
-
     protected function form()
     {
-        $form = new Form(new Animal()); 
+        $form = new Form(new Animal());
+        //$form->setWidth(8, 4);
 
         $form->saving(function (Form $form) {
 
@@ -234,8 +234,6 @@ class AnimalController extends AdminController
             }
         });
 
-
-
         $items = [];
         foreach (Farm::all() as $key => $f) {
             if (Admin::user()->isRole('farmer')) {
@@ -247,19 +245,10 @@ class AnimalController extends AdminController
             }
         }
 
+        $form->hidden('administrator_id', __('Administrator id'))->default(1);
+        $form->hidden('district_id', __('District id'))->default(1);
+        $form->hidden('sub_county_id', __('Subcounty'))->default(1);
 
-
-
-
-
-        return $form;
-    }
-
-
-    /* 
-     protected function form()
-    {
- 
         $form->select('farm_id', __('Farm'))
             ->options($items)
             ->required();
@@ -300,5 +289,4 @@ class AnimalController extends AdminController
 
         return $form;
     }
- */
 }
