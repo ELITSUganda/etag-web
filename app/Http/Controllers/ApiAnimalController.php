@@ -225,11 +225,11 @@ class ApiAnimalController extends Controller
 
                 $_items = Animal::where(
                     'e_id', 'like', '%'.trim($request->s).'%',
-                )->paginate(1000)->withQueryString()->items();
+                )->paginate(100000000)->withQueryString()->items();
                 
                 $__items = Animal::where(
                     'v_id', 'like', '%'.trim($request->s).'%',
-                )->paginate(1000)->withQueryString()->items();
+                )->paginate(100000000)->withQueryString()->items();
                 
                 $items_ids = [];
                 $___items = [];
@@ -261,7 +261,7 @@ class ApiAnimalController extends Controller
         }
 
         if(empty($items)){
-            $per_page = 1000;
+            $per_page = 100000000;
             if(isset($request->per_page)){
                 $per_page = $request->per_page;
             }
@@ -487,7 +487,7 @@ class ApiAnimalController extends Controller
 
     public function events(Request $request)
     {
-        $per_page = 100;
+        $per_page = 100000000;
         if (isset($request->per_page)) {
             $per_page = $request->per_page;
         }
