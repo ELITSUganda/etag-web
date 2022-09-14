@@ -207,8 +207,9 @@ class ApiAnimalController extends Controller
     public function index(Request $request)
     {  
         $administrator_id = Utils::get_user_id($request);
-        $user_id = Utils::get_user_id($request);
-        $u = Administrator::find($user_id); 
+        //$user_id = Utils::get_user_id($request);
+        $user_id = $administrator_id;
+        $u = Administrator::find($administrator_id); 
         $role = Utils::get_role($u);
          
         $s = $request->s;
