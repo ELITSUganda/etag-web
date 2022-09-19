@@ -93,7 +93,12 @@ class ApiProductController extends Controller
             $img->save();
         }
         Utils::process_images_in_backround();
-        return $images;
+
+        return Utils::response([
+            'status' => 0,
+            'data' => $images,
+            'message' => "Some parameters are missing."
+        ]);
     }
 
     public function process_pending_images()
