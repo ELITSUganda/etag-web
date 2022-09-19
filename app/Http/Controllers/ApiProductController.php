@@ -122,7 +122,13 @@ class ApiProductController extends Controller
             'for_sale' => 1
         ])
         ->paginate($per_page)->withQueryString()->items();
+
+
+        return Utils::response([
+            'status' => 1,
+            'data' => $items,
+            'message' => "Image successfully."
+        ]);
     
-        return $items;
     }
 }
