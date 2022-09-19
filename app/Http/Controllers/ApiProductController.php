@@ -36,7 +36,7 @@ class ApiProductController extends Controller
         if (
             $r->price == null ||
             $r->weight == null ||
-            $r->details == null 
+            $r->details == null
         ) {
             return Utils::response([
                 'status' => 0,
@@ -51,7 +51,7 @@ class ApiProductController extends Controller
         $animal->details = trim($r->details);
         $animal->for_sale = 1;
         $animal->save();
- 
+
 
         $imgs = Image::where([
             'administrator_id' => $administrator_id,
@@ -95,9 +95,9 @@ class ApiProductController extends Controller
         Utils::process_images_in_backround();
 
         return Utils::response([
-            'status' => 0,
+            'status' => 1,
             'data' => $images,
-            'message' => "Some parameters are missing."
+            'message' => "Products uploaded successfully."
         ]);
     }
 
