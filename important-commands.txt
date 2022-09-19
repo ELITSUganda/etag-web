@@ -6,6 +6,7 @@ php artisan migrate
 php artisan make:migration create_power_stations_table
 php artisan make:migration create_engines_table
 php artisan make:migration create_archived_animals_table
+php artisan make:migration create_images_table
 
 
 php artisan make:migration create_import_export_permits_table
@@ -60,6 +61,7 @@ php artisan make:model FormDrugStockApproval
 php artisan make:model FormDrugStockApprovalItem
 php artisan make:model DrugStockBatch
 php artisan make:model DrugStockBatchRecord 
+php artisan make:model Image
 
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs

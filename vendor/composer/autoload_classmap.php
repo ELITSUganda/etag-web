@@ -41,6 +41,7 @@ return array(
     'App\\Http\\Controllers\\ApiFarmController' => $baseDir . '/app/Http/Controllers/ApiFarmController.php',
     'App\\Http\\Controllers\\ApiLoginController' => $baseDir . '/app/Http/Controllers/ApiLoginController.php',
     'App\\Http\\Controllers\\ApiMovement' => $baseDir . '/app/Http/Controllers/ApiMovement.php',
+    'App\\Http\\Controllers\\ApiProductController' => $baseDir . '/app/Http/Controllers/ApiProductController.php',
     'App\\Http\\Controllers\\ApiUserController' => $baseDir . '/app/Http/Controllers/ApiUserController.php',
     'App\\Http\\Controllers\\Controller' => $baseDir . '/app/Http/Controllers/Controller.php',
     'App\\Http\\Controllers\\DistrictController' => $baseDir . '/app/Http/Controllers/DistrictController.php',

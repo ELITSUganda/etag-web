@@ -5,6 +5,7 @@ namespace App\Models;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Grid\Model;
+use Exception;
 use Zebra_Image;
 
 class Utils extends Model
@@ -215,6 +216,7 @@ class Utils extends Model
 
     public static function response($data = [])
     {
+        header('Content-Type: application/json; charset=utf-8');
         $resp['status'] = "1";
         $resp['message'] = "Success";
         $resp['data'] = null;
@@ -279,6 +281,7 @@ class Utils extends Model
 
     public static function create_thumbail($params = array())
     {
+
         ini_set('memory_limit', '-1');
 
         if (
@@ -293,10 +296,6 @@ class Utils extends Model
         $image->auto_handle_exif_orientation = false;
         $image->source_path = "" . $params['source'];
         $image->target_path = "" . $params['target'];
-
-
-
-
 
 
         if (isset($params['quality'])) {
@@ -366,4 +365,78 @@ class Utils extends Model
         return $qt;
     }
 
+    public static function process_images_in_backround()
+    {
+        $url = url('api/process-pending-images');
+        $ctx = stream_context_create(['http' => ['timeout' => 2]]);
+        try {
+            $data =  file_get_contents($url, null, $ctx);
+            return $data;
+        } catch (Exception $x) {
+            return "Failed $url";
+        }
+    }
+ 
+    public static function process_images_in_foreround()
+    {
+        $imgs = Image::where([
+            'thumbnail' => null
+        ])->get();
+
+        foreach ($imgs as $img) {
+            $thumb = Utils::create_thumbail([
+                'source' => 'public/storage/images/' . $img->src,
+                'target' => 'public/storage/images/thumb_' . $img->src,
+            ]);
+            if ($thumb != null) {
+                if (strlen($thumb) > 4) {
+                    $img->thumbnail = $thumb;
+                    $img->save();
+                }
+            }
+        }
+    }
+
+
+
+
+
+    public static function upload_images_1($files, $is_single_file = false)
+    {
+
+        ini_set('memory_limit', '-1');
+        if ($files == null || empty($files)) {
+            return $is_single_file ? "" : [];
+        }
+        $uploaded_images = array();
+        foreach ($files as $file) {
+
+            if (
+                isset($file['name']) &&
+                isset($file['type']) &&
+                isset($file['tmp_name']) &&
+                isset($file['error']) &&
+                isset($file['size'])
+            ) {
+                $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+                $file_name = time() . "-" . rand(100000, 1000000) . "." . $ext;
+                $destination = 'public/storage/images/' . $file_name;
+
+                $res = move_uploaded_file($file['tmp_name'], $destination);
+                if (!$res) {
+                    continue;
+                }
+                //$uploaded_images[] = $destination;
+                $uploaded_images[] = $file_name;
+            }
+        }
+
+        $single_file = "";
+        if (isset($uploaded_images[0])) {
+            $single_file = $uploaded_images[0];
+        }
+
+
+        return $is_single_file ? $single_file : $uploaded_images;
+    }
 }

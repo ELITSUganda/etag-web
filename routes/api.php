@@ -6,11 +6,21 @@ use App\Http\Controllers\ApiEventController;
 use App\Http\Controllers\ApiFarmController;
 use App\Http\Controllers\ApiLoginController;
 use App\Http\Controllers\ApiMovement;
+use App\Http\Controllers\ApiProductController;
 use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\UtilsController;
 use App\Http\Controllers\ApiUserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+
+
+
+Route::post('product-image-upload', [ApiProductController::class, 'product_image_upload']);
+Route::post('product-upload', [ApiProductController::class, 'product_upload']);
+Route::get('process-pending-images', [ApiProductController::class, 'process_pending_images']);
+
+
 
 Route::get('districts', [DistrictController::class, 'index']);
 Route::get('districts/{id}', [DistrictController::class, 'show']);
@@ -64,7 +74,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 Route::get('ajax', function (Request $r) {
- 
+
     $_model = trim($r->get('model'));
 
     if (strlen($_model) < 2) {

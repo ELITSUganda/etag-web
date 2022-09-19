@@ -687,6 +687,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'App\\Http\\Controllers\\ApiFarmController' => __DIR__ . '/../..' . '/app/Http/Controllers/ApiFarmController.php',
         'App\\Http\\Controllers\\ApiLoginController' => __DIR__ . '/../..' . '/app/Http/Controllers/ApiLoginController.php',
         'App\\Http\\Controllers\\ApiMovement' => __DIR__ . '/../..' . '/app/Http/Controllers/ApiMovement.php',
+        'App\\Http\\Controllers\\ApiProductController' => __DIR__ . '/../..' . '/app/Http/Controllers/ApiProductController.php',
         'App\\Http\\Controllers\\ApiUserController' => __DIR__ . '/../..' . '/app/Http/Controllers/ApiUserController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
         'App\\Http\\Controllers\\DistrictController' => __DIR__ . '/../..' . '/app/Http/Controllers/DistrictController.php',
