@@ -6879,6 +6879,72 @@
             "install-path": "../simplesoftwareio/simple-qrcode"
         },
         {
+            "name": "stefangabos/zebra_image",
+            "version": "dev-master",
+            "version_normalized": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/stefangabos/Zebra_Image.git",
+                "reference": "69a42ba417e0e37005d6b5912586001fa0290793"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/stefangabos/Zebra_Image/zipball/69a42ba417e0e37005d6b5912586001fa0290793",
+                "reference": "69a42ba417e0e37005d6b5912586001fa0290793",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.0.0"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^1.8",
+                "squizlabs/php_codesniffer": "*"
+            },
+            "time": "2022-08-18T06:16:13+00:00",
+            "default-branch": true,
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "classmap": [
+                    "Zebra_Image.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Stefan Gabos",
+                    "email": "contact@stefangabos.ro",
+                    "homepage": "https://github.com/stefangabos/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A compact (one-file only), lightweight, image manipulation PHP library",
+            "homepage": "https://github.com/stefangabos/Zebra_Image/",
+            "keywords": [
+                "crop",
+                "filters",
+                "gd",
+                "image",
+                "php",
+                "resize",
+                "thumbnail"
+            ],
+            "support": {
+                "issues": "https://github.com/stefangabos/Zebra_Image/issues",
+                "source": "https://github.com/stefangabos/Zebra_Image/tree/master"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/stefangabos",
+                    "type": "github"
+                }
+            ],
+            "install-path": "../stefangabos/zebra_image"
+        },
+        {
             "name": "swiftmailer/swiftmailer",
             "version": "v6.3.0",
             "version_normalized": "6.3.0.0",

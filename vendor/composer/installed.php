@@ -3,7 +3,7 @@
         'name' => 'laravel/laravel',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => '17f253b1660135baa6f5673b4f3f90fddea7fbb2',
+        'reference' => 'db552870b5c483487e153bf4fae8e31c88d33184',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -505,7 +505,7 @@
         'laravel/laravel' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => '17f253b1660135baa6f5673b4f3f90fddea7fbb2',
+            'reference' => 'db552870b5c483487e153bf4fae8e31c88d33184',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -1152,6 +1152,17 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../simplesoftwareio/simple-qrcode',
             'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'stefangabos/zebra_image' => array(
+            'pretty_version' => 'dev-master',
+            'version' => 'dev-master',
+            'reference' => '69a42ba417e0e37005d6b5912586001fa0290793',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../stefangabos/zebra_image',
+            'aliases' => array(
+                0 => '9999999-dev',
+            ),
             'dev_requirement' => false,
         ),
         'swiftmailer/swiftmailer' => array(

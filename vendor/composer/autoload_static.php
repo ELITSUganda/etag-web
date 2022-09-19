@@ -652,6 +652,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
     );
 
     public static $classMap = array (
+        'App\\Admin\\Controllers\\Animal1Controller' => __DIR__ . '/../..' . '/app/Admin/Controllers/Animal1Controller.php',
         'App\\Admin\\Controllers\\AnimalController' => __DIR__ . '/../..' . '/app/Admin/Controllers/AnimalController.php',
         'App\\Admin\\Controllers\\AnimalSalesController' => __DIR__ . '/../..' . '/app/Admin/Controllers/AnimalSalesController.php',
         'App\\Admin\\Controllers\\ArchivedAnimalController' => __DIR__ . '/../..' . '/app/Admin/Controllers/ArchivedAnimalController.php',
@@ -660,6 +661,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'App\\Admin\\Controllers\\CheckPointRecordController' => __DIR__ . '/../..' . '/app/Admin/Controllers/CheckPointRecordController.php',
         'App\\Admin\\Controllers\\DiseaseController' => __DIR__ . '/../..' . '/app/Admin/Controllers/DiseaseController.php',
         'App\\Admin\\Controllers\\DistrictController' => __DIR__ . '/../..' . '/app/Admin/Controllers/DistrictController.php',
+        'App\\Admin\\Controllers\\DrugBatchController' => __DIR__ . '/../..' . '/app/Admin/Controllers/DrugBatchController.php',
         'App\\Admin\\Controllers\\DrugCategoryController' => __DIR__ . '/../..' . '/app/Admin/Controllers/DrugCategoryController.php',
         'App\\Admin\\Controllers\\DrugStockBatchController' => __DIR__ . '/../..' . '/app/Admin/Controllers/DrugStockBatchController.php',
         'App\\Admin\\Controllers\\DrugStockBatchRecordController' => __DIR__ . '/../..' . '/app/Admin/Controllers/DrugStockBatchRecordController.php',
@@ -7367,6 +7369,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'Whoops\\Util\\Misc' => __DIR__ . '/..' . '/filp/whoops/src/Whoops/Util/Misc.php',
         'Whoops\\Util\\SystemFacade' => __DIR__ . '/..' . '/filp/whoops/src/Whoops/Util/SystemFacade.php',
         'Whoops\\Util\\TemplateHelper' => __DIR__ . '/..' . '/filp/whoops/src/Whoops/Util/TemplateHelper.php',
+        'Zebra_Image' => __DIR__ . '/..' . '/stefangabos/zebra_image/Zebra_Image.php',
         'ZipStream\\Bigint' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/Bigint.php',
         'ZipStream\\DeflateStream' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/DeflateStream.php',
         'ZipStream\\Exception' => __DIR__ . '/..' . '/maennchen/zipstream-php/src/Exception.php',

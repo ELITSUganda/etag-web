@@ -6,6 +6,7 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'App\\Admin\\Controllers\\Animal1Controller' => $baseDir . '/app/Admin/Controllers/Animal1Controller.php',
     'App\\Admin\\Controllers\\AnimalController' => $baseDir . '/app/Admin/Controllers/AnimalController.php',
     'App\\Admin\\Controllers\\AnimalSalesController' => $baseDir . '/app/Admin/Controllers/AnimalSalesController.php',
     'App\\Admin\\Controllers\\ArchivedAnimalController' => $baseDir . '/app/Admin/Controllers/ArchivedAnimalController.php',
@@ -14,6 +15,7 @@ return array(
     'App\\Admin\\Controllers\\CheckPointRecordController' => $baseDir . '/app/Admin/Controllers/CheckPointRecordController.php',
     'App\\Admin\\Controllers\\DiseaseController' => $baseDir . '/app/Admin/Controllers/DiseaseController.php',
     'App\\Admin\\Controllers\\DistrictController' => $baseDir . '/app/Admin/Controllers/DistrictController.php',
+    'App\\Admin\\Controllers\\DrugBatchController' => $baseDir . '/app/Admin/Controllers/DrugBatchController.php',
     'App\\Admin\\Controllers\\DrugCategoryController' => $baseDir . '/app/Admin/Controllers/DrugCategoryController.php',
     'App\\Admin\\Controllers\\DrugStockBatchController' => $baseDir . '/app/Admin/Controllers/DrugStockBatchController.php',
     'App\\Admin\\Controllers\\DrugStockBatchRecordController' => $baseDir . '/app/Admin/Controllers/DrugStockBatchRecordController.php',
@@ -6721,6 +6723,7 @@ return array(
     'Whoops\\Util\\Misc' => $vendorDir . '/filp/whoops/src/Whoops/Util/Misc.php',
     'Whoops\\Util\\SystemFacade' => $vendorDir . '/filp/whoops/src/Whoops/Util/SystemFacade.php',
     'Whoops\\Util\\TemplateHelper' => $vendorDir . '/filp/whoops/src/Whoops/Util/TemplateHelper.php',
+    'Zebra_Image' => $vendorDir . '/stefangabos/zebra_image/Zebra_Image.php',
     'ZipStream\\Bigint' => $vendorDir . '/maennchen/zipstream-php/src/Bigint.php',
     'ZipStream\\DeflateStream' => $vendorDir . '/maennchen/zipstream-php/src/DeflateStream.php',
     'ZipStream\\Exception' => $vendorDir . '/maennchen/zipstream-php/src/Exception.php',
