@@ -118,9 +118,9 @@ class ApiProductController extends Controller
             $per_page = ((int)($r->per_page));
         }
         $items = 
-        Animal::where([
+        Animal::where(/* [
             'for_sale' => 1
-        ])
+         ]*/)
         ->paginate($per_page)->withQueryString()->items();
 
 
