@@ -97,7 +97,7 @@ class ApiProductController extends Controller
         return Utils::response([
             'status' => 1,
             'data' => $images,
-            'message' => "Products uploaded successfully."
+            'message' => "Image successfully."
         ]);
     }
 
@@ -105,5 +105,24 @@ class ApiProductController extends Controller
     {
         Utils::process_images_in_foreround();
         return 1;
+    }
+
+    public function products(Request $r)
+    {
+
+        $per_page = 1;
+        if (
+            isset($r->per_page) &&
+            $r->per_page != null
+        ) {
+            $per_page = ((int)($r->per_page));
+        }
+        $items = 
+        Animal::where([
+            'for_sale' => 1
+        ])
+        ->paginate($per_page)->withQueryString()->items();
+    
+        return $items;
     }
 }

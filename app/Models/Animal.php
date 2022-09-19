@@ -126,4 +126,12 @@ class Animal extends Model
     {
         return $this->belongsTo(SubCounty::class);
     }
+    public function getImagesAttribute()
+    {
+        return  Image::where([
+            'parent_id' => $this->id,
+        ])->get();
+    }
+
+    protected $appends = ['images'];
 }
