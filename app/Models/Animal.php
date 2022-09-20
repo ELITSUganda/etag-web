@@ -146,7 +146,7 @@ class Animal extends Model
 
     public function getPriceTextAttribute()//romina
     {
-        return number_format($this->price);
+        return "UGX ".number_format($this->price);
     }
 
     public function getPostedAttribute()
