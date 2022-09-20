@@ -144,7 +144,7 @@ class Animal extends Model
         return "+8801632257609";
     }
 
-    public function getPriceTextAttribute()
+    public function getPriceTextAttribute()//romina
     {
         return number_format($this->price);
     }
