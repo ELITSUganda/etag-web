@@ -110,7 +110,7 @@ class ApiProductController extends Controller
     public function products(Request $r)
     {
 
-        $per_page = 10;
+        $per_page = 1000;
         if (
             isset($r->per_page) &&
             $r->per_page != null
