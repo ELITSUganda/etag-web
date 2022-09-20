@@ -134,6 +134,9 @@ class Utils extends Model
 
     public static function get_role($u = null)
     {
+        if($u == null){
+            return  "";
+        }
         $roles = $u->roles;
         if (isset($roles[0])) {
             if (isset($roles[0]['slug'])) {
