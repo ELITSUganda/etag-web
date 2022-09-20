@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -133,5 +134,30 @@ class Animal extends Model
         ])->get();
     }
 
-    protected $appends = ['images'];
+    public function getPhoneNumberAttribute()
+    {
+        return "+256706638494";
+    }
+
+    public function getWhatsappAttribute()
+    {
+        return "+8801632257609";
+    }
+
+    public function getPriceTextAttribute()//romina
+    {
+        return number_format($this->price);
+    }
+
+    public function getPostedAttribute()
+    {
+        return Carbon::parse($this->created_at)->diffForHumans();
+    }
+
+    public function getAgeAttribute()
+    {
+        return Carbon::parse($this->dob)->diffForHumans();
+    }
+
+    protected $appends = ['images', 'phone_number', 'whatsapp', 'price_text', 'posted','age'];
 }
