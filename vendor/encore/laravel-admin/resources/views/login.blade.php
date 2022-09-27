@@ -84,18 +84,21 @@
                     <span class="glyphicon glyphicon-lock form-control-feedback"></span>
                 </div>
                 <div class="row">
-                    <div class="col-xs-8">
+
+                    <div class="col-xs-12">
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        <button type="submit"
+                            class="btn btn-primary btn-block btn-flat">{{ trans('admin.login') }}</button>
+                    </div>
+                    <br>
+                    <br>
+                    <div class="col-xs-12">
 
                         Don't have account? <a href="{{ url('register') }}">REGISTER HERE</a>
                         <input type="hidden" name="remember" value="1"
                             {{ !old('username') || old('remember') ? 'checked' : '' }}>
 
-                    </div> 
-                    <div class="col-xs-4">
-                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                        <button type="submit"
-                            class="btn btn-primary btn-block btn-flat">{{ trans('admin.login') }}</button>
-                    </div> 
+                    </div>
                 </div>
             </form>
 
