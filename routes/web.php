@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MainController;
 use App\Http\Controllers\PrintController;
 use App\Http\Controllers\PrintController2;
 use App\Models\Event;
@@ -19,9 +20,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::match(['get', 'post'], '/print2', [PrintController::class, 'index']);
 Route::match(['get', 'post'], '/print', [PrintController2::class, 'index']);
+Route::match(['get'], '/register', [MainController::class, 'create_account_page']);
+Route::match(['post'], '/register', [MainController::class, 'create_account_save']);
 
 Route::get('/', function () {
-   /*  $ev = new Event(); 
+    /*  $ev = new Event(); 
     $ev->animal_id = 16;
     $ev->administrator_id = 1;
     $ev->district_id = 1;
@@ -38,7 +41,7 @@ Route::get('/', function () {
     $ev->is_batch_import = 1;
     $ev->time_stamp = 1;
     $ev->import_file = 1; */
-/* 
+    /* 
     $ev = Event::all()->first();
     $ev->type = 'Stolen';
     $ev->medicine_id = rand(10000,100000);

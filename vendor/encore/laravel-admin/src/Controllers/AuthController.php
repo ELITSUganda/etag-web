@@ -17,8 +17,8 @@ class AuthController extends Controller
     /**
      * @var string
      */
-    protected $loginView = 'admin::login';
-
+    protected $loginView = 'admin::login'; 
+ 
     /**
      * Show the login page.
      *
@@ -135,14 +135,14 @@ class AuthController extends Controller
                     'name' => 'Enter valid name.'
                 ]);
             }
-
+ 
             if (preg_match("/[.\[^\'£$%^&*()}{@:\'#~?><>,;@\|\-=\-_+\-¬\`\]]/", $form->name)) {
                 return Redirect::back()->withInput()->withErrors([
                     'name' => 'Enter valid name.'
                 ]);
             }
 
-            
+             
         });
 
         $form->display('username', trans('admin.username'));

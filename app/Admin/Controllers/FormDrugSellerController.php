@@ -17,7 +17,7 @@ class FormDrugSellerController extends AdminController
      *
      * @var string
      */
-    protected $title = 'Drug seller application form';
+    protected $title = 'Drug distributor registration form';
 
     /**
      * Make a grid builder.
@@ -93,7 +93,10 @@ class FormDrugSellerController extends AdminController
                 } else {
                     return "Not Approved";
                 }
-            });
+            })->label([
+                0 => 'danger', 
+                1 => 'success',
+            ], 'warning');
 
         if ($u->isRole('nda')) {
 
@@ -167,6 +170,29 @@ class FormDrugSellerController extends AdminController
             $form->hidden('approved_by', __('Approved by'))->default(0);
             $form->hidden('status', __('status'))->default(0);
 
+
+            $form->html('
+                <h3>Enterprise location</h3>
+                <p>Before you proceed, <b>This form should be field at premises of drugs enterprise.</b> 
+                We need to know exactly where your drugs enterprise is located on the map.
+                therefore we will need to GPS coordites for your enterprise location.</p>
+                <br>
+                <b>Please click on the button below to enable use collect your enterprise GPS Coordicates.</b>
+                <br><br> 
+                <a id="location-picker" href="javascript:;" class="btn btn-info btn-lg">PICK MY GPS LOCATION</a>
+            ');
+
+            $form->text('latitude', __('GPS latitude'))
+                ->rules('required')
+                ->readonly()
+
+                ->required();
+            $form->text('longitude', __('GPS longitude'))
+                ->rules('required')
+                ->readonly()
+                ->required();
+
+            $form->divider();
             $form->text('name', __('Enterprise name'))
                 ->help("Name on the lisence")
                 ->required();
@@ -184,8 +210,13 @@ class FormDrugSellerController extends AdminController
                 ->help("Your existing operation License number as drug seller")
                 ->required();
 
+            $form->text('expiry', __('License expiry date'))->required();
 
-            $form->text('nin', __('National ID  number/Passport number'));
+
+            $form->text('nin', __('National ID  number'));
+
+
+
             $form->text('phone_number', __('Phone number'))
                 ->required();
 
@@ -219,6 +250,8 @@ class FormDrugSellerController extends AdminController
 
                 ])->required();
         }
+
+        Admin::js(url('assets/js/form-drug-sellers.js'));
 
         return $form;
     }

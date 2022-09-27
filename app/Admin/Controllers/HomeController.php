@@ -11,6 +11,7 @@ use Encore\Admin\Widgets\InfoBox;
 use App\Models\AdminRoleUser;
 use App\Models\Animal;
 use App\Models\Farm;
+use App\Models\FormDrugSeller;
 use App\Models\Movement;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Facades\Admin;
@@ -23,7 +24,21 @@ class HomeController extends Controller
     public function index(Content $content)
     {
 
-        
+        $f = FormDrugSeller::where('applicant_id', Admin::user()->id)->first();
+        if ($f != null) {
+            return redirect(admin_url('form-drug-sellers'));
+        }
+
+        if (Admin::user()->isRole('default')) {
+            $content->row(function ($row) {
+                $user =  Admin::user();
+                $row->column(6, new Box(
+                    null,
+                    view('admin.dashboard.default-user')
+                ));
+            });
+        }
+
         if (
             Admin::user()->isRole('administrator') ||
 
