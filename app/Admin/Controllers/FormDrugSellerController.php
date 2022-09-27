@@ -94,7 +94,7 @@ class FormDrugSellerController extends AdminController
                     return "Not Approved";
                 }
             })->label([
-                0 => 'danger', 
+                0 => 'danger',
                 1 => 'success',
             ], 'warning');
 
@@ -164,11 +164,15 @@ class FormDrugSellerController extends AdminController
 
         $form->setWidth(6, 3);
 
+
+
         if (!$u->isRole('nda')) {
 
             $form->hidden('applicant_id', __('Applicant id'))->default($u->id);
             $form->hidden('approved_by', __('Approved by'))->default(0);
             $form->hidden('status', __('status'))->default(0);
+
+
 
 
             $form->html('
@@ -210,8 +214,7 @@ class FormDrugSellerController extends AdminController
                 ->help("Your existing operation License number as drug seller")
                 ->required();
 
-            $form->text('expiry', __('License expiry date'))->required();
-
+            $form->date('expiry', __('License expiry date'))->required();
 
             $form->text('nin', __('National ID  number'));
 
@@ -235,6 +238,11 @@ class FormDrugSellerController extends AdminController
                 ->help("Write what buyers will see about your enterprise.")
                 ->required();
         } else {
+
+            $form->latlong('latitude', 'longitude', 'Location of the farm')
+                ->readonly()
+                ->default(['lat' => 0.3130291, 'lng' => 32.5290854])->required();
+
             $form->display('name', 'Enterprise name');
             $form->display('type', 'Nature of your enterprise');
             $form->display('nin', 'National ID  number');
