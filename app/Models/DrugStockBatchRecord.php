@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
+use Encore\Admin\Facades\Admin;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -107,6 +108,53 @@ class DrugStockBatchRecord extends Model
         parent::boot();
 
         self::creating(function ($m) {
+
+
+            if ($m->record_type == 'offline_sales') {
+                if ($m->buyer_phone != null) {
+
+                    if (!Utils::phone_number_is_valid($m->buyer_phone)) {
+                        admin_error('Invalid phone number.', 'Enter valid buyer\'s phon number');
+                        die('Enter valid buyer\'s phon number');
+                    }
+                    $buyer_phone = Utils::prepare_phone_number($m->buyer_phone);
+                    $acc = Administrator::where([
+                        'phone_number' => $buyer_phone
+                    ])->first();
+
+                    if ($acc == null) {
+                        $acc = new Administrator();
+                        $acc->username = $buyer_phone;
+                        $acc->phone_number = $buyer_phone;
+                        $acc->phone_number_2 = $buyer_phone;
+                        $acc->email = $buyer_phone;
+                        $acc->address = $m->buyer_info;
+                        $acc->name = $m->buyer_name;
+                        $acc->nin = $m->buyer_nin;
+                        $acc->password = password_hash('4321', PASSWORD_DEFAULT);
+                        if (!$acc->save()) {
+                            die("Failed to created new customer account.");
+                        }
+                    }
+
+                    $m->receiver_account = 0;
+                    if ($acc->id != null) {
+                        if ($acc->id > 0) {
+                            $m->receiver_account = $acc->id;
+                        }
+                    }
+ 
+
+                    if (((int)($m->receiver_account)) < 1) {
+                        die('Receiver account not found.');
+                    }
+                }
+            }
+
+            unset($m->buyer_name);
+            unset($m->buyer_nin);
+            unset($m->buyer_phone);
+
             $batch = DrugStockBatch::find($m->drug_stock_batch_id);
             if ($batch == null) {
                 die("Drug batch not found.");
@@ -128,7 +176,11 @@ class DrugStockBatchRecord extends Model
 
             $batch->save();
 
-            if ($m->record_type == 'transfer') {
+            if (
+                $m->record_type == 'transfer' ||
+                $m->record_type == 'offline_sales'
+
+            ) {
                 $reciever = User::find($m->receiver_account);
                 $sender = User::find($m->administrator_id);
                 if ($reciever == null) {

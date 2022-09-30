@@ -232,8 +232,7 @@ class FormDrugStockApprovalController extends AdminController
             */
         });
 
-        $form->text('details', __('General note'))
-            ->help("Type here extra information that you would like us to know about this application");
+        $form->text('details', __('Port of entry'));
 
 
 

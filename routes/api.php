@@ -119,7 +119,7 @@ Route::get('ajax', function (Request $r) {
         }
         $data[] = [
             'id' => $v->id,
-            'text' => "#$v->id" . $name
+            'text' => "$v->phone_number" . $name
         ];
     }
     foreach ($res_2 as $key => $v) {
@@ -129,7 +129,7 @@ Route::get('ajax', function (Request $r) {
         }
         $data[] = [
             'id' => $v->id,
-            'text' => "#$v->id" . $name
+            'text' => "$v->phone_number" . $name
         ];
     }
 

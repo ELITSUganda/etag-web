@@ -45,7 +45,7 @@ class FormDrugSellerController extends AdminController
             $has_form = false;
 
             if (!$u->isRole('nda')) {
-                if ($app->status != 0) {
+                if ($app->status == 1) {
                     $grid->disableActions();
                 }
                 /*                 $grid->actions(function ($actions) {
@@ -86,17 +86,20 @@ class FormDrugSellerController extends AdminController
             });
 
         $grid->column('type', __('Type'));
+
         $grid->column('status', __('Status'))
-            ->display(function ($s) {
-                if ($s == 1) {
-                    return "Approved";
-                } else {
-                    return "Not Approved";
-                }
-            })->label([
-                0 => 'danger',
+            ->using([
+                0 => 'Pending',
+                2 => 'Rejected',
+                1 => 'Approved',
+            ], 'warning')
+            ->label([
+                0 => 'warning',
+                2 => 'danger',
                 1 => 'success',
             ], 'warning');
+
+        $grid->column('status_comment', __('NDA\'s Comment'));
 
         if ($u->isRole('nda')) {
 
@@ -253,10 +256,16 @@ class FormDrugSellerController extends AdminController
 
             $form->select('status', __('Application status'))
                 ->options([
-                    1 => 'Approve',
-                    0 => 'Not Approve',
+                    1 => 'Approved',
+                    2 => 'Rejected',
+                    0 => 'Pending',
 
-                ])->required();
+                ])
+                ->when(2, function (Form $form) {
+                    $form->textarea('status_comment', __('NDA\'s comment'))
+                        ->rules('required');
+                })
+                ->rules('required');
         }
 
         Admin::js(url('assets/js/form-drug-sellers.js'));

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
+use Encore\Admin\Facades\Admin;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -15,21 +16,28 @@ class FormDrugSeller extends Model
     {
         parent::boot();
         self::updating(function ($m) {
-            if ($m->status == 1) {
 
-                AdminRoleUser::where([
-                    'role_id' => 11,
-                    'user_id' => $m->applicant_id,
-                ])->delete();
-                $role = new AdminRoleUser();
-                $role->role_id = 11;
-                $role->user_id = $m->applicant_id;
-                $role->save();
-            } else {
-                AdminRoleUser::where([
-                    'role_id' => 11,
-                    'user_id' => $m->applicant_id,
-                ])->delete();
+            $u = Admin::user();
+
+            if ($u != null) {
+                if ($u->isRole('nda')) {
+                    if ($m->status == 1) {
+                        AdminRoleUser::where([
+                            'role_id' => 11,
+                            'user_id' => $m->applicant_id,
+                        ])->delete();
+
+                        $role = new AdminRoleUser();
+                        $role->role_id = 11;
+                        $role->user_id = $m->applicant_id;
+                        $role->save();
+                    } else {
+                        AdminRoleUser::where([
+                            'role_id' => 11,
+                            'user_id' => $m->applicant_id,
+                        ])->delete();
+                    }
+                }
             }
         });
     }
