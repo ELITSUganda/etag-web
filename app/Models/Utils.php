@@ -441,10 +441,7 @@ class Utils extends Model
             }
         }
     }
-
-
-
-
+ 
 
     public static function upload_images_1($files, $is_single_file = false)
     {
@@ -484,4 +481,5 @@ class Utils extends Model
 
         return $is_single_file ? $single_file : $uploaded_images;
     }
+    
 }

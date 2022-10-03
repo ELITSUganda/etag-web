@@ -42,7 +42,7 @@ use App\Models\Utils;
                             UGX {!! $row->column('price') !!}
                         </h2>
                         <p class="product-title" style="color: black;">
-                            AVAILABLE QTY: {!! number_format($row->column('quantity')) !!} KGs
+                            AVAILABLE QTY: {!! number_format( ((int)($row->column('quantity')))  ) !!} KGs
                         </p>
                         <p class="product-title" style="color: black;">
                             {!! $row->column('name') !!}
