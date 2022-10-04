@@ -19,7 +19,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', [WebController::class, 'index']);
+//Route::get('/', [WebController::class, 'index']);
+Route::get('/', function () {
+    header('Location: ' . admin_url());
+});
 
 Route::match(['get', 'post'], '/print2', [PrintController::class, 'index']);
 Route::match(['get', 'post'], '/print', [PrintController2::class, 'index']);

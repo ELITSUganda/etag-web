@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use Encore\Admin\Controllers\AdminController;
+use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
@@ -18,7 +19,7 @@ class ProductController extends AdminController
      *
      * @var string
      */
-    protected $title = 'Product';
+    protected $title = 'U-LITS Cattle & Livestock Drugs Marketplace';
 
     /**
      * Make a grid builder.
@@ -27,7 +28,9 @@ class ProductController extends AdminController
      */
     protected function grid()
     {
+
         $grid = new Grid(new Product());
+
 
         $grid->column('id', __('Id'));
         $grid->column('created_at', __('Created at'));
@@ -40,6 +43,7 @@ class ProductController extends AdminController
         $grid->column('thumbnail', __('Thumbnail'));
         $grid->column('images', __('Images'));
         $grid->column('details', __('Details'));
+        $grid->disableExport();
 
         $grid->filter(function ($filter) {
 
@@ -134,6 +138,7 @@ class ProductController extends AdminController
                 }
                 $form->select('product_category_id', __('Livestock category'))
                     ->options($drugs);
+                    
             })
             ->when('Livestock', function (Form $form) {
                 $items = [];

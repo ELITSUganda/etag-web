@@ -49,7 +49,7 @@ class MyProductController extends AdminController
             ->sortable();
 
         $grid->column('views', __('Views'))
-            ->label() 
+            ->label()
             ->sortable();
 
         $grid->column('product_category_id', __('Category'))
@@ -167,6 +167,7 @@ class MyProductController extends AdminController
                     $form->select('animal_id', __('Select Animal'))
                         ->readonly()
                         ->options($animals);
+                    $form->text('quantity', __('Livestock\s weight'))->attribute(['type' => 'number'])->readonly();
                 })
                 ->readonly()
                 ->required();
@@ -199,9 +200,11 @@ class MyProductController extends AdminController
                     }
 
                     $form->select('animal_id', __('Select Animal'))
-                        ->options($animals);
+                        ->options($animals)
+                        ->required();
                 })
                 ->required();
+            $form->text('quantity', __('Livestock\'s weight'))->attribute(['type' => 'number'])->required();
         }
 
 

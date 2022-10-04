@@ -1,19 +1,26 @@
-@php
+<?php
 use App\Models\Utils;
-@endphp
+use App\Models\Animal;
+use Carbon\Carbon;
+?>
 <div class="box">
-    @if(isset($title))
-    <div class="box-header with-border">
-        <h3 class="box-title"> {{ $title }}</h3>
-    </div>
+    @if (isset($title))
+        <div class="box-header with-border">
+            <h3 class="box-title"> {{ $title }}</h3>
+        </div>
     @endif
 
     <div class="box-header with-border">
         <div class="pull-right">
-            {!! $grid->renderExportButton() !!}
-            {!! $grid->renderCreateButton() !!}
+
+
+            <a href="{{ admin_url('my-products/create') }}" class="btn btn-sm btn-success" title="New">
+                <i class="fa fa-plus"></i><span class="hidden-xs">&nbsp;&nbsp;SELL NOW</span>
+            </a>
+
+
         </div>
-        <span> 
+        <span>
             {!! $grid->renderHeaderTools() !!}
         </span>
     </div>
@@ -21,52 +28,76 @@ use App\Models\Utils;
     {!! $grid->renderFilter() !!}
 
     <!-- /.box-header -->
-    <div class="box-body">
-        <ul class="mailbox-attachments clearfix">
-            @foreach($grid->rows() as $row)
-            @php
-            $link = admin_url("/products/".$row->column('id'));
-            $link_buy = admin_url("/orders/create?id=".$row->column('id'));
-            @endphp
-            <li>
-                @php
-                $img = Utils::get_file_url($row->column('image'));
-                @endphp
+    <div class="box-body ">
+        @foreach ($grid->rows() as $row)
+            <?php
+            $link = admin_url('/products/' . $row->column('id'));
+            $link_buy = admin_url('/orders/create?id=' . $row->column('id'));
+            $img = Utils::get_file_url($row->column('image'));
+            $animal = new Animal();
+            
+            if ($row->column('type') == 'Livestock') {
+                $animal = Animal::where([
+                    'id' => $row->column('animal_id'),
+                ])->first();
+            
+                if ($animal == null) {
+                    continue;
+                    $animal = new Animal();
+                }
+            }
+            ?>
 
-                <a href="{{$link}}">
-                    <span class="mailbox-attachment-icon has-img">
-                        <img src="{!! $img !!}" alt="Image">
-                    </span>
-                    <div class="mailbox-attachment-info">
-                        <h2 class="product-price" style="font-size: 22px!important">
-                            UGX {!! $row->column('price') !!}
-                        </h2>
-                        <p class="product-title" style="color: black;">
-                            AVAILABLE QTY: {!! number_format( ((int)($row->column('quantity')))  ) !!} KGs
+            <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3 product-c  ">
+                <div class="product">
+
+                    <img style="width: 100%; " src="{!! url('assets/images/cow.jpeg') !!}" alt="Image">
+
+                    @if ($row->column('type') == 'Livestock')
+                    @endif
+
+                    <div class="desc">
+                        <p class="title">{{ $row->column('quantity') }}KGs {{ $animal->type }}</p>
+                        <p class="price"><sup class="#6A3A00">UGX</sup>{{ number_format((int) $row->column('price')) }}
                         </p>
-                        <p class="product-title" style="color: black;">
-                            {!! $row->column('name') !!}
-                        </p>
+                        <button class="button-27" role="button">BUY NOW</button>
+                    </div>
+                    <div class="detail">
+                        <div>
+                            <p class="title">POSTED</p>
+                            <p class="desc">{!! Carbon::parse($row->column('created_at'))->diffForHumans() !!}</p>
+                        </div>
 
-                        <?Php
-                        $administrator_id = $row->column('administrator_id');
-                        if($administrator_id == Admin::user()->id){  
-                    ?>
-                </a>
+                        <div class="desc-item">
+                            <p class="title">SPECIES</p>
+                            <p class="desc">{!! $animal->type !!}</p>
+                        </div>
 
-                <?php }?>
-                <a class="btn btn-primary btn-block mt-2" href="{{$link_buy}}">BUY NOW</a>
+                        <div class="desc-item">
+                            <p class="title">WEIGHT</p>
+                            <p class="desc">{!! $row->column('quantity') !!} KGs</p>
+                        </div>
+
+                        <div class="desc-item">
+                            <p class="title">DATE OF BIRTH</p>
+                            <p class="desc">{!! $animal->dob !!}</p>
+                        </div>
+
+                        <div class="desc-item">
+                            <p class="title">LHC</p>
+                            <p class="desc">{!! $animal->lhc !!}</p>
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+            </div>
+        @endforeach
     </div>
-
-
-    </li>
-
-    @endforeach
-    </ul>
-
-</div>
-<div class="box-footer clearfix">
-    {!! $grid->paginator() !!}
-</div>
-<!-- /.box-body -->
+    <div class="box-footer clearfix">
+        {!! $grid->paginator() !!}
+    </div>
 </div>

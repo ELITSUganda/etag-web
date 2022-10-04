@@ -42,3 +42,5 @@ foreach (DrugStockBatchRecord::where(['batch_number' => NULL])->get() as $x) {
     $x->batch_number = $x->batch->batch_number;
     $x->save();
 }
+
+Admin::css('/assets/css/market-place.css');
