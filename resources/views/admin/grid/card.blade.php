@@ -1,6 +1,7 @@
 <?php
 use App\Models\Utils;
 use App\Models\Animal;
+use App\Models\Product;
 use Carbon\Carbon;
 ?>
 <div class="box">
@@ -31,9 +32,17 @@ use Carbon\Carbon;
     <div class="box-body ">
         @foreach ($grid->rows() as $row)
             <?php
+            
+            $pro = Product::find($row->column('id'));
+            if ($pro == null) {
+                continue;
+            }
+            
+            $img = $pro->get_thumnail();
+            
             $link = admin_url('/products/' . $row->column('id'));
             $link_buy = admin_url('/orders/create?id=' . $row->column('id'));
-            $img = Utils::get_file_url($row->column('image'));
+            
             $animal = new Animal();
             
             if ($row->column('type') == 'Livestock') {
@@ -51,7 +60,7 @@ use Carbon\Carbon;
             <div class="col-xs-6 col-sm-6 col-md-4 col-lg-3 product-c  ">
                 <div class="product">
 
-                    <img style="width: 100%; " src="{!! url('assets/images/cow.jpeg') !!}" alt="Image">
+                    <img style="width: 100%; " src="{!! $img !!}" alt="Image">
 
                     @if ($row->column('type') == 'Livestock')
                     @endif
