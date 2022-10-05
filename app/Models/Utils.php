@@ -176,7 +176,7 @@ class Utils extends Model
 
     public static function get_role($u = null)
     {
-        if($u == null){
+        if ($u == null) {
             return  "";
         }
         $roles = $u->roles;
@@ -336,6 +336,14 @@ class Utils extends Model
             return [];
         }
 
+
+
+        if (!file_exists($params['source'])) {
+            $img = url('assets/images/cow.jpeg');
+            return $img;
+        }
+
+
         $image = new Zebra_Image();
 
         $image->auto_handle_exif_orientation = false;
@@ -421,7 +429,7 @@ class Utils extends Model
             return "Failed $url";
         }
     }
- 
+
     public static function process_images_in_foreround()
     {
         $imgs = Image::where([
@@ -441,7 +449,7 @@ class Utils extends Model
             }
         }
     }
- 
+
 
     public static function upload_images_1($files, $is_single_file = false)
     {
@@ -481,5 +489,4 @@ class Utils extends Model
 
         return $is_single_file ? $single_file : $uploaded_images;
     }
-    
 }

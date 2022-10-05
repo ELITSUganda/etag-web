@@ -11,11 +11,14 @@ class Product extends Model
 
     public function get_thumnail()
     {
-        $imgs = $this->images;
-        $img = url('assets/images/cow.jpeg');
+        Utils::process_images_in_foreround();
+        $imgs = Image::where([
+            'product_id' => $this->id
+        ]);
 
-        foreach ($imgs as $key => $v) {
-            $img = $v->thumbnail; 
+        $img = url('assets/images/cow.jpeg');
+        foreach ($imgs as  $v) {
+            $img = $v->src;
         }
         return $img;
     }
@@ -34,7 +37,8 @@ class Product extends Model
     public static function boot()
     {
         parent::boot();
-        self::updating(function ($m) {
+        self::created(function ($m) {
+            Utils::process_images_in_foreround();
         });
     }
 }

@@ -34,6 +34,7 @@ use Carbon\Carbon;
             <?php
             
             $pro = Product::find($row->column('id'));
+            
             if ($pro == null) {
                 continue;
             }
@@ -69,7 +70,7 @@ use Carbon\Carbon;
                         <p class="title">{{ $row->column('quantity') }}KGs {{ $animal->type }}</p>
                         <p class="price"><sup class="#6A3A00">UGX</sup>{{ number_format((int) $row->column('price')) }}
                         </p>
-                        <button class="button-27" role="button">BUY NOW</button>
+                        <a class="button-27" href="{{ $link_buy }}" role="button">BUY NOW</a>
                     </div>
                     <div class="detail">
                         <div>

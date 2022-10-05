@@ -202,9 +202,9 @@ class MyProductController extends AdminController
                     $form->select('animal_id', __('Select Animal'))
                         ->options($animals)
                         ->required();
+                    $form->text('quantity', __('Livestock\'s weight'))->attribute(['type' => 'number'])->required();
                 })
                 ->required();
-            $form->text('quantity', __('Livestock\'s weight'))->attribute(['type' => 'number'])->required();
         }
 
 

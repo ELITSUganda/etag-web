@@ -1,12 +1,13 @@
 #pjax-container {
-    background-color: #6A3A00;
-}
 
+}
+.content,.content-wrapper{
+ 
+}
 .content-header {
-    color: white;
+ 
     padding: 0%;
-    margin: 0%;
-    border-top: solid 1px white;
+    margin: 0%; 
 }
 
 .content-header h1 {

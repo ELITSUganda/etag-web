@@ -26,7 +26,9 @@ class HomeController extends Controller
 
         $f = FormDrugSeller::where('applicant_id', Admin::user()->id)->first();
         if ($f != null) {
-            return redirect(admin_url('form-drug-sellers'));
+            if ($f->status != 1) {
+                return redirect(admin_url('form-drug-sellers'));
+            }
         }
 
         if (Admin::user()->isRole('default')) {
@@ -41,9 +43,7 @@ class HomeController extends Controller
 
         if (
             Admin::user()->isRole('administrator') ||
-
             Admin::user()->isRole('admin')
-
         ) {
             Admin::js('/vendor/laravel-admin-ext/chartjs/Chart.bundle.min.js');
             $content->title('Main Dashboard');
@@ -136,7 +136,11 @@ class HomeController extends Controller
         //Farmer
         if (Admin::user()->isRole('farmer')) {
             Admin::js('/vendor/laravel-admin-ext/chartjs/Chart.bundle.min.js');
+            
+
             $content->title('Main Dashboard');
+
+       
 
 
             $content->row(function ($row) {
