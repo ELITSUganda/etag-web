@@ -93,6 +93,7 @@ class ApiLoginController extends Controller
             ]);
         }
 
+        $user = null;
 
         if (
             $request->username != null
