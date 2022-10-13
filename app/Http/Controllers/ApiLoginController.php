@@ -23,22 +23,22 @@ class ApiLoginController extends Controller
             ]);
         }
 
-        $u = Administrator::where('username',$request->username)->first();
-        if($u != null){
+        $u = Administrator::where('username', $request->username)->first();
+        if ($u != null) {
             return Utils::response([
                 'status' => 0,
                 'message' => "User with same username already exist."
             ]);
         }
-        $u = Administrator::where('email',$request->username)->first();
-        if($u != null){
+        $u = Administrator::where('email', $request->username)->first();
+        if ($u != null) {
             return Utils::response([
                 'status' => 0,
                 'message' => "User with same email address already exist."
             ]);
         }
-        $u = Administrator::where('phone_number',$request->phone_number)->first();
-        if($u != null){
+        $u = Administrator::where('phone_number', $request->phone_number)->first();
+        if ($u != null) {
             return Utils::response([
                 'status' => 0,
                 'message' => "User with same phone number already exist."
@@ -51,57 +51,75 @@ class ApiLoginController extends Controller
         $user->name = $request->name;
         $user->username = $request->username;
         $user->phone_number = $request->phone_number;
-        $user->password = password_hash(trim($request->password),PASSWORD_DEFAULT);
-        if(!$user->save()){
+        $user->password = password_hash(trim($request->password), PASSWORD_DEFAULT);
+        if (!$user->save()) {
             return Utils::response([
                 'status' => 0,
                 'message' => "Failed to create ACCOUNT."
             ]);
         }
-         
-        $u = Administrator::where('username',$request->username)->first();
-        if($u === null){
+
+        $u = Administrator::where('username', $request->username)->first();
+        if ($u === null) {
             return Utils::response([
                 'status' => 0,
                 'message' => "Failed to create account. Plase try agains."
             ]);
         }
- 
+
 
         DB::table('admin_role_users')->insert([
             'user_id' => $u->id,
             'role_id' => 3
         ]);
-        
+
 
         return Utils::response([
             'status' => 1,
             'message' => "Account created successfully.",
             'data' => $u
         ]);
-
     }
 
     public function index(Request $request)
     {
         if (
-            $request->username == null ||
             $request->password == null
         ) {
             return Utils::response([
                 'status' => 0,
-                'message' => "You must provide both username and password. anjane",
+                'message' => "You must provide password. anjane",
                 'data' => $_POST
             ]);
         }
 
-        $user = Administrator::where("username", trim($request->username))->first();
-        if ($user == null) {
-            $user = Administrator::where("email", trim($request->username))->first();
+
+        if (
+            $request->username != null
+        ) {
+            $user = Administrator::where("username", trim($request->username))->first();
+            if ($user == null) {
+                $user = Administrator::where("email", trim($request->username))->first();
+            }
+            if ($user == null) {
+                $user = Administrator::where("phone_number", trim($request->phone_number))->first();
+            }
         }
+
         if ($user == null) {
-            $user = Administrator::where("phone_number", trim($request->phone_number))->first();
+            if (
+                $request->phone_number != null
+            ) {
+
+                $phone_number = Utils::prepare_phone_number($request->phone_number);
+
+                $user = Administrator::where("phone_number", trim($phone_number))->first();
+                if ($user == null) {
+                    $user = Administrator::where("username", trim($phone_number))->first();
+                }
+            }
         }
+
 
         if ($user == null) {
             return Utils::response([
@@ -113,8 +131,8 @@ class ApiLoginController extends Controller
         if (password_verify(trim($request->password), $user->password)) {
             unset($user->password);
             $user->role =  Utils::get_role($user);
-             
-            $user->roles = $user->roles; 
+
+            $user->roles = $user->roles;
             return Utils::response([
                 'status' => 1,
                 'message' => "Logged in successfully.",
