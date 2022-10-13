@@ -6,6 +6,7 @@ use App\Models\Animal;
 use App\Models\District;
 use App\Models\Utils;
 use App\Models\Image;
+use App\Models\ProductOrder;
 use Encore\Admin\Auth\Database\Administrator;
 use Exception;
 use Illuminate\Http\Request;
@@ -14,6 +15,66 @@ class ApiProductController extends Controller
 {
 
 
+
+    public function product_order_create(Request $r)
+    {
+
+        if (
+            (!isset($r->product_id)) ||
+            (!isset($r->name)) ||
+            (!isset($r->phone_number)) ||
+            (!isset($r->address)) ||
+            (!isset($r->note))
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "You must submit all required information."
+            ]);
+        }
+
+
+        $administrator_id = ((int) (Utils::get_user_id($r)));
+        $u = Administrator::find($administrator_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found."
+            ]);
+        }
+
+        $animal = Animal::find(((int)($r->product_id)));
+        if ($animal == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Animal not found."
+            ]);
+        }
+
+
+        $p = new ProductOrder();
+        $p->status = 1;
+        $p->customer_id = $u->id;
+        $p->address = $r->id;
+        $p->note = $r->note;
+        $p->name = $r->name;
+        $p->phone_number = $r->phone_number;
+        $p->product_id = $animal->id;
+        $p->product_data = json_encode($animal);
+        $p->customer_data = json_encode($u);
+        if ($p->save()) {
+            return Utils::response([
+                'status' => 1,
+                'data' => $p,
+                'message' => "Order submitted successfully."
+            ]);
+        } else {
+            return Utils::response([
+                'status' => 0,
+                'data' => $p,
+                'message' => "Failed to submit order. Please try gain."
+            ]);
+        }
+    }
 
     public function product_upload(Request $r)
     {
@@ -118,12 +179,12 @@ class ApiProductController extends Controller
             $per_page = ((int)($r->per_page));
         }
 
-        
-        $items = 
-        Animal::where( [
-            'for_sale' => 1
-         ])
-        ->paginate($per_page)->withQueryString()->items();
+
+        $items =
+            Animal::where([
+                'for_sale' => 1
+            ])
+            ->paginate($per_page)->withQueryString()->items();
 
         //$items = Animal::paginate($per_page)->withQueryString()->items();
 
