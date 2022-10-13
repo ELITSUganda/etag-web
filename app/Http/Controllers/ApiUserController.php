@@ -53,24 +53,26 @@ class ApiUserController extends Controller
             ]);
         }
         $ad->username = $request->username;
-        
+
         $ad->email = $request->username;
         $u = Administrator::where('username', $ad->username)->first();
-        if ($u!= null) {
-            return Utils::response([
-                'status' => 0,
-                'message' => "User with same username already exist."
-            ]);
-        }
-
-        $u = Administrator::where('email', $ad->username)->first();
         if ($u != null) {
             return Utils::response([
                 'status' => 0,
-                'message' => "User with same email already exist."
+                'message' => "User with same username already exist 1."
             ]);
         }
 
+
+/*         if(isset($ad->email))
+        $u = Administrator::where('email', $ad->email)->first();
+        if ($u != null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User with same username already exist 2."
+            ]);
+        }
+ */
 
         if (!isset($request->password)) {
             return Utils::response([
@@ -88,13 +90,11 @@ class ApiUserController extends Controller
         }
         $ad->name = $request->name;
 
-        if (!isset($request->gender)) {
-            return Utils::response([
-                'status' => 0,
-                'message' => "You must provide gender."
-            ]);
+        if (isset($request->gender)) {
+            $ad->gender = $request->gender;
         }
-        $ad->gender = $request->gender;
+
+
 
         if (isset($request->details)) {
             $ad->details = $request->details;
@@ -110,23 +110,49 @@ class ApiUserController extends Controller
 
         if (isset($request->phone_number)) {
             $ad->phone_number = $request->phone_number;
+            if (strlen($ad->phone_number) > 3) {
+                $ad->phone_number = Utils::prepare_phone_number($request->phone_number);
+                if (Utils::phone_number_is_valid($ad->phone_number)) {
+                    $ad->username  = $ad->phone_number;
+                    $ad->email  = $ad->phone_number;
+
+                    $__u = Administrator::where('phone_number', $ad->username)->first();
+                    if ($__u != null) {
+                        return Utils::response([
+                            'status' => 0,
+                            'message' => "User with same phone already exist."
+                        ]);
+                    }
+                    $___u = Administrator::where('username', $ad->username)->first();
+                    if ($___u != null) {
+                        return Utils::response([
+                            'status' => 0,
+                            'message' => "User with same username already exist 3."
+                        ]);
+                    }
+                }
+            }
         }
 
         if (isset($request->temp_id)) {
             $ad->temp_id = $request->temp_id;
         }
 
-        $ad->password = password_hash(trim($request->password),PASSWORD_DEFAULT);
+        if (isset($request->user_type)) {
+            $ad->user_type = $request->user_type;
+        }
 
-        if(!$ad->save()){
+        $ad->password = password_hash(trim($request->password), PASSWORD_DEFAULT);
+
+        if (!$ad->save()) {
             return Utils::response([
                 'status' => 0,
                 'message' => "Failed to create ACCOUNT."
             ]);
         }
- 
-        $u = Administrator::where('username',$request->username)->first();
-        if($u === null){
+
+        $u = Administrator::where('username', $ad->username)->first();
+        if ($u == null) {
             return Utils::response([
                 'status' => 0,
                 'message' => "User account not found. Plase try agains."
@@ -135,9 +161,9 @@ class ApiUserController extends Controller
 
         DB::table('admin_role_users')->insert([
             'user_id' => $u->id,
-            'role_id' => 3
+            'role_id' => 12
         ]);
-         
+
         return Utils::response([
             'status' => 1,
             'message' => "Account created successfully.",

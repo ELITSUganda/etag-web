@@ -216,7 +216,7 @@ class MyProductController extends AdminController
 
         $form->html('<h4>Click on NEW to add this product\'s photo.</h4>');
 
-        $form->hasMany('images', "Drugs.", function (Form\NestedForm $form) {
+        $form->hasMany('images', "Photos.", function (Form\NestedForm $form) {
             $form->image('src', __('Image'));
             $form->hidden('administrator_id', __('Administrator id'))->default(Auth::user()->id)->value(Auth::user()->id);
         });
