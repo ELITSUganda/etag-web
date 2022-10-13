@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('product-image-upload', [ApiProductController::class, 'product_image_upload']);
 Route::post('product-upload', [ApiProductController::class, 'product_upload']);
 Route::post('product-order', [ApiProductController::class, 'product_order_create']); 
+Route::get('order', [ApiProductController::class, 'orders']); 
 
 Route::get('process-pending-images', [ApiProductController::class, 'process_pending_images']);
 Route::get('products', [ApiProductController::class, 'products']);

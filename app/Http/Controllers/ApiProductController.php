@@ -6,6 +6,7 @@ use App\Models\Animal;
 use App\Models\District;
 use App\Models\Utils;
 use App\Models\Image;
+use App\Models\Product;
 use App\Models\ProductOrder;
 use Encore\Admin\Auth\Database\Administrator;
 use Exception;
@@ -16,9 +17,48 @@ class ApiProductController extends Controller
 
 
 
-    public function product_order_create(Request $r)
+    public function orders(Request $r)
     {
 
+        $items = [];
+        $per_page = 1000;
+        if (
+            isset($r->per_page) &&
+            $r->per_page != null
+        ) {
+            $per_page = ((int)($r->per_page));
+        }
+
+
+        $administrator_id = ((int) (Utils::get_user_id($r)));
+        $u = Administrator::find($administrator_id);
+        if ($u != null) {
+            if ($u->user_type == 'admin') {
+                $items =
+                    ProductOrder::where([])
+                    ->orderBy('id', 'DESC')
+                    ->paginate($per_page)->withQueryString()->items();
+            } else {
+
+                $items =
+                    ProductOrder::where([
+                        'customer_id' => $u->id
+                    ])
+                    ->orderBy('id', 'DESC')
+                    ->paginate($per_page)->withQueryString()->items();
+            }
+        }
+
+
+        return Utils::response([
+            'status' => 1,
+            'data' => $items,
+            'message' => "Image successfully."
+        ]);
+    }
+
+    public function product_order_create(Request $r)
+    {
         if (
             (!isset($r->product_id)) ||
             (!isset($r->name)) ||
