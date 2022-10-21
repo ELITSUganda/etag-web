@@ -53,7 +53,7 @@ class ApiProductController extends Controller
         return Utils::response([
             'status' => 1,
             'data' => $items,
-            'message' => "Image successfully."
+            'message' => "Success."
         ]);
     }
 
