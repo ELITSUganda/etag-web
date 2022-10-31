@@ -234,4 +234,30 @@ class ApiProductController extends Controller
             'message' => "Image successfully."
         ]);
     }
+
+    public function products_pending_for_verification(Request $r)
+    {
+
+        $per_page = 1000;
+        if (
+            isset($r->per_page) &&
+            $r->per_page != null
+        ) {
+            $per_page = ((int)($r->per_page));
+        }
+
+
+        $items =
+            Animal::where([
+                'for_sale' => 20
+            ])
+            ->paginate($per_page)->withQueryString()->items();
+        //$items = Animal::paginate($per_page)->withQueryString()->items();
+
+        return Utils::response([
+            'status' => 1,
+            'data' => $items,
+            'message' => "Image successfully."
+        ]);
+    }
 }

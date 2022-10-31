@@ -23,6 +23,7 @@ Route::get('order', [ApiProductController::class, 'orders']);
 
 Route::get('process-pending-images', [ApiProductController::class, 'process_pending_images']);
 Route::get('products', [ApiProductController::class, 'products']);
+Route::get('products-pending-for-verification', [ApiProductController::class, 'products_pending_for_verification']);
 
 
 
