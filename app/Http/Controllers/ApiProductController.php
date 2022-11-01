@@ -61,7 +61,7 @@ class ApiProductController extends Controller
     {
         if (
             (!isset($r->id)) ||
-            (!isset($r->reason)) 
+            (!isset($r->reason))
         ) {
             return Utils::response([
                 'status' => 0,
@@ -80,6 +80,13 @@ class ApiProductController extends Controller
         $p->decline_reason = $r->reason;
         $p->save();
 
+
+        if ($p == null) {
+            return Utils::response([
+                'status' => 1,
+                'message' => "Request declined successfully."
+            ]);
+        }
     }
     public function product_order_create(Request $r)
     {
