@@ -68,7 +68,7 @@ class ApiProductController extends Controller
                 'message' => "You must submit all required information."
             ]);
         }
-        $p = Product::find($r->id);
+        $p = Animal::find($r->id);
 
         if ($p == null) {
             return Utils::response([
