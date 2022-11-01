@@ -81,12 +81,10 @@ class ApiProductController extends Controller
         $p->save();
 
 
-        if ($p == null) {
-            return Utils::response([
-                'status' => 1,
-                'message' => "Request declined successfully."
-            ]);
-        }
+        return Utils::response([
+            'status' => 1,
+            'message' => "Request declined successfully."
+        ]);
     }
     public function product_order_create(Request $r)
     {
