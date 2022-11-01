@@ -138,7 +138,7 @@ class Animal extends Model
 
         if ($this->sub_county != null) {
             if (strlen($loc) > 3) {
-                $loc = ",";
+                $loc .= ",";
             }
             $loc .=  " " . $this->sub_county->name;
         }
