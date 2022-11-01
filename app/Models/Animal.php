@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Animal extends Model
 {
     use SoftDeletes;
-    use HasFactory; 
+    use HasFactory;
     protected $fillable = [
         'administrator_id',
         'district_id',
@@ -129,6 +129,21 @@ class Animal extends Model
     {
         return $this->belongsTo(SubCounty::class);
     }
+    public function location()
+    {
+        $loc = "";
+        if ($this->district != null) {
+            $loc = $this->district->name;
+        }
+
+        if ($this->sub_county != null) {
+            if (strlen($loc) > 3) {
+                $loc = ",";
+            }
+            $loc .=  " " . $this->sub_county->name;
+        }
+        return $loc;
+    }
     public function getImagesAttribute()
     {
         return  Image::where([
@@ -146,7 +161,7 @@ class Animal extends Model
         return "+8801632257609";
     }
 
-    public function getPriceTextAttribute()//romina
+    public function getPriceTextAttribute() //romina
     {
         return number_format($this->price);
     }
@@ -161,5 +176,5 @@ class Animal extends Model
         return Carbon::parse($this->dob)->diffForHumans();
     }
 
-    protected $appends = ['images', 'phone_number', 'whatsapp', 'price_text', 'posted','age'];
+    protected $appends = ['images', 'phone_number', 'whatsapp', 'price_text', 'posted', 'age', 'location'];
 }
