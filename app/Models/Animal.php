@@ -129,7 +129,7 @@ class Animal extends Model
     {
         return $this->belongsTo(SubCounty::class);
     }
-    public function location()
+    public function getLocationAttribute()
     {
         $loc = "";
         if ($this->district != null) {
