@@ -57,6 +57,30 @@ class ApiProductController extends Controller
         ]);
     }
 
+    public function products_decline_request(Request $r)
+    {
+        if (
+            (!isset($r->id)) ||
+            (!isset($r->reason)) 
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "You must submit all required information."
+            ]);
+        }
+        $p = Product::find($r->id);
+
+        if ($p == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Product not found."
+            ]);
+        }
+        $p->for_sale = '11';
+        $p->decline_reason = $r->reason;
+        $p->save();
+
+    }
     public function product_order_create(Request $r)
     {
         if (
