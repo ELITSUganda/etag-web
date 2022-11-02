@@ -330,10 +330,24 @@ address
             $for_sale = ((int)($r->for_sale));
         }
 
+        $conds = [];
+
+        foreach ($_GET as $key => $value) {
+            if (strlen($key) < 3) {
+                continue;
+            }
+            if (substr($key, 0, 6) == 'param_') {
+                $_key = str_replace(substr($key, 0, 6), "", $key);
+                $conds[$_key] = $value;
+            }
+        }
+
+
         $items =
             Animal::where([
                 'for_sale' => $for_sale
             ])
+            ->where($conds)
             ->paginate($per_page)->withQueryString()->items();
 
         //$items = Animal::paginate($per_page)->withQueryString()->items();
