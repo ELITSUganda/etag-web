@@ -112,7 +112,7 @@ class ApiProductController extends Controller
 
         $p->for_sale = '20';
         $p->origin_latitude = $r->latitude;
-        $p->longitude = $r->longitude;
+        $p->origin_longitude = $r->longitude;
         $p->phone_number = $r->phone_number;
         $p->save();
 
@@ -150,7 +150,7 @@ price
 weight	
 decline_reason	
 	
-origin_longitude	
+	
 address
 */
     public function product_order_create(Request $r)
