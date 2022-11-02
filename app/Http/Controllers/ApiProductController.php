@@ -86,6 +86,73 @@ class ApiProductController extends Controller
             'message' => "Request declined successfully."
         ]);
     }
+
+
+    public function products_create_request(Request $r)
+    {
+        if (
+            (!isset($r->animal_id)) ||
+            (!isset($r->latitude)) ||
+            (!isset($r->phone_number)) ||
+            (!isset($r->longitude))
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "You must submit all required information."
+            ]);
+        }
+        $p = Animal::find($r->animal_id);
+
+        if ($p == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Animal not found."
+            ]);
+        }
+
+        $p->for_sale = '20';
+        $p->origin_latitude = $r->latitude;
+        $p->longitude = $r->longitude;
+        $p->phone_number = $r->phone_number;
+        $p->save();
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "Request submitted successfully."
+        ]);
+    }
+    /* 
+created_at	
+updated_at	
+administrator_id	
+district_id	
+sub_county_id	
+parish_id	
+status	
+type	
+e_id	
+v_id	
+lhc	
+breed	
+sex	
+dob	
+color	
+farm_id	
+fmd	
+trader	
+destination	
+destination_slaughter_house	
+destination_farm	
+details	
+deleted_at	
+for_sale	
+price	
+weight	
+decline_reason	
+	
+origin_longitude	
+address
+*/
     public function product_order_create(Request $r)
     {
         if (
