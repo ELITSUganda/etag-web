@@ -195,6 +195,8 @@ address
         $p->name = $r->name;
         $p->phone_number = $r->phone_number;
         $p->product_id = $animal->id;
+        $p->latitude = $animal->latitude;
+        $p->longitude = $animal->longitude;
         $p->product_data = json_encode($animal);
         $p->customer_data = json_encode($u);
         if ($p->save()) {
