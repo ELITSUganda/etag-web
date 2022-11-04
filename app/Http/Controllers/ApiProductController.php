@@ -366,6 +366,7 @@ address
             Animal::where([
                 'for_sale' => $for_sale
             ])
+            ->orderBy('id', 'DESC')
             ->where($conds)
             ->paginate($per_page)->withQueryString()->items();
 
