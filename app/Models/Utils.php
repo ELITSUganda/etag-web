@@ -254,6 +254,9 @@ class Utils extends Model
         }
         $header = (int)($request->header('user'));
         if ($header < 1) {
+            $header = (int)($request->user);
+        }
+        if ($header < 1) {
             return 0;
         }
         return $header;

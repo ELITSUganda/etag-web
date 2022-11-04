@@ -20,6 +20,7 @@ class ApiProductController extends Controller
     public function orders(Request $r)
     {
 
+
         $items = [];
         $per_page = 1000;
         if (
@@ -46,10 +47,12 @@ class ApiProductController extends Controller
         }
 
 
+
         if ($u != null) {
-            if ($u->user_type == 'admin') {
+            $role = Utils::get_role($u);
+            if ($role == 'order-processing') {
                 $items =
-                    ProductOrder::where($conds)
+                    ProductOrder::where([])
                     ->orderBy('id', 'DESC')
                     ->paginate($per_page)->withQueryString()->items();
             } else {
@@ -58,7 +61,6 @@ class ApiProductController extends Controller
                     ProductOrder::where([
                         'customer_id' => $u->id
                     ])
-                    ->where($conds)
                     ->orderBy('id', 'DESC')
                     ->paginate($per_page)->withQueryString()->items();
             }
