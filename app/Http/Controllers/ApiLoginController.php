@@ -103,7 +103,7 @@ class ApiLoginController extends Controller
                 $user = Administrator::where("email", trim($request->username))->first();
             }
             if ($user == null) {
-                $user = Administrator::where("phone_number", trim($request->phone_number))->first();
+                $user = Administrator::where("phone_number", Utils::prepare_phone_number(trim($request->phone_number)))->first();
             }
         }
 

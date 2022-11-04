@@ -5,12 +5,15 @@ namespace Encore\Admin\Auth\Database;
 use App\Models\DrugCategory;
 use App\Models\Farm;
 use App\Models\FormDrugSeller;
+use App\Models\User;
+use App\Models\Utils;
 use Encore\Admin\Traits\DefaultDatetimeFormat;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Storage;
+use phpDocumentor\Reflection\Location;
 
 /**
  * Class Administrator.
@@ -41,6 +44,67 @@ class Administrator extends Model implements AuthenticatableContract
         'address',
     ];
   
+
+
+    public static function boot()
+    {
+        parent::boot();
+
+        self::creating(function ($m) {
+
+
+            $phone_number = Utils::prepare_phone_number($m->phone_number);
+            $phone_number_is_valid = Utils::phone_number_is_valid($phone_number);
+            if ($phone_number_is_valid) {
+                $m->phone_number = $phone_number;
+                $m->username = $phone_number;
+            } else {
+                if ($m->email != null) {
+                    $m->username = $m->email;
+                }
+            }
+ 
+            return $m;
+        });
+
+        self::created(function ($model) {
+            //$pro['user_id'] = $model->id;
+            //Profile::create($pro);
+        });
+
+        self::updating(function ($m) {
+
+            $phone_number = Utils::prepare_phone_number($m->phone_number);
+            $phone_number_is_valid = Utils::phone_number_is_valid($phone_number);
+            if ($phone_number_is_valid) {
+                $m->phone_number = $phone_number;
+                $m->username = $phone_number;
+                $users = User::where([
+                    'username' => $phone_number
+                ])->orWhere([
+                    'phone_number' => $phone_number
+                ])->get();
+
+                foreach ($users as $u) {
+                    if ($u->id != $m->id) {
+                        $u->delete();
+                        continue;
+                        $_resp = Utils::response([
+                            'status' => 0,
+                            'message' => "This phone number $m->phone_number is already used by another account",
+                            'data' => null
+                        ]); 
+                    }
+                }
+            }
+
+    
+            return $m;
+        });
+
+ 
+    }
+
 
 
 
