@@ -32,10 +32,24 @@ class ApiProductController extends Controller
 
         $administrator_id = ((int) (Utils::get_user_id($r)));
         $u = Administrator::find($administrator_id);
+
+        $conds = [];
+
+        foreach ($_GET as $key => $value) {
+            if (strlen($key) < 3) {
+                continue;
+            }
+            if (substr($key, 0, 6) == 'param_') {
+                $_key = str_replace(substr($key, 0, 6), "", $key);
+                $conds[$_key] = $value;
+            }
+        }
+
+
         if ($u != null) {
             if ($u->user_type == 'admin') {
                 $items =
-                    ProductOrder::where([])
+                    ProductOrder::where($conds)
                     ->orderBy('id', 'DESC')
                     ->paginate($per_page)->withQueryString()->items();
             } else {
@@ -44,6 +58,7 @@ class ApiProductController extends Controller
                     ProductOrder::where([
                         'customer_id' => $u->id
                     ])
+                    ->where($conds)
                     ->orderBy('id', 'DESC')
                     ->paginate($per_page)->withQueryString()->items();
             }
