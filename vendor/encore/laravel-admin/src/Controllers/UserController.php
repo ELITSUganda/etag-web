@@ -147,9 +147,9 @@ class UserController extends AdminController
             ))
             ->required();
 
-        $form->mobile('phone_number', "Phone number 1")
+        $form->text('phone_number', "Phone number 1")
             ->required();
-        $form->mobile('phone_number_2', "Phone number 2");
+        $form->text('phone_number_2', "Phone number 2");
 
         $form->email('email', "Email Address")->rules('required:email');
         $form->text('nin', "National ID No.")->rules('min:14|max:18');
