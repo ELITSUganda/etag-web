@@ -28,7 +28,7 @@ class ProductController extends AdminController
      */
     protected function grid()
     {
-        Admin::css('/assets/css/market-place.css');
+        /* Admin::css('/assets/css/market-place.css'); */
         $grid = new Grid(new Product());
         
 

@@ -22,6 +22,12 @@ class FormDrugSeller extends Model
             if ($u != null) {
                 if ($u->isRole('nda')) {
                     if ($m->status == 1) {
+
+                        AdminRoleUser::where([
+                            'role_id' => 12,
+                            'user_id' => $m->applicant_id,
+                        ])->delete();
+
                         AdminRoleUser::where([
                             'role_id' => 11,
                             'user_id' => $m->applicant_id,

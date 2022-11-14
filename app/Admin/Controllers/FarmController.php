@@ -4,8 +4,10 @@ namespace App\Admin\Controllers;
 
 use App\Models\District;
 use App\Models\Farm;
+use App\Models\Location;
 use App\Models\Movement;
 use App\Models\SubCounty;
+use App\Models\User;
 use App\Models\Utils;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
@@ -26,28 +28,66 @@ class FarmController extends AdminController
     {
         $form = new Form(new Farm());
         $admins = [];
+        $u = Admin::user();
         foreach (Administrator::all() as $key => $v) {
             if (!$v->isRole('farmer')) {
                 continue;
             }
             $admins[$v->id] = $v->name . " - " . $v->id . " - ({$v->username})";
         }
-        $sub_counties = [];
-        foreach (SubCounty::all() as $key => $p) {
-            $sub_counties[$p->id] = $p->code . "  - " .
-                $p->name . ", " .
-                $p->district->name . " ";
-        }
+
 
 
         $form->hidden('district_id', __('District id'))->default(1);
-        $form->select('administrator_id', __('Farm owner'))
-            ->options($admins)
-            ->required();
 
-        $form->select('sub_county_id', __('Sub counties'))
-            ->options($sub_counties)
-            ->required();
+
+        if ($form->isCreating()) {
+
+            if (
+                Admin::user()->isRole('administrator') ||
+                Admin::user()->isRole('scvo') ||
+                Admin::user()->isRole('clo') ||
+                Admin::user()->isRole('dvo') ||
+                Admin::user()->isRole('admin')
+            ) {
+
+                $form->select('administrator_id', 'Farm owner')->options(function ($id) {
+                    $a = User::find($id);
+                    if ($a) {
+                        return [$a->id => "#" . $a->id . " - " . $a->name];
+                    }
+                })
+                    ->rules('required')
+                    ->ajax(url(
+                        '/api/ajax?'
+                            . "&search_by_1=name"
+                            . "&search_by_2=id"
+                            . "&model=User"
+                    ));
+            } else {
+                $form->hidden('administrator_id', __('Farm owner'))
+                    ->default($u->id)
+                    ->value($u->id)
+                    ->required();
+            }
+        }
+
+
+
+
+        $form->select('sub_county_id', 'Sub-county')->options(function ($id) {
+            $a = Location::find($id);
+            if ($a) {
+                return [$a->id =>  $a->name_text];
+            }
+        })
+            ->rules('required')
+            ->ajax(url(
+                '/api/sub-counties'
+            ));
+
+
+
 
         $form->text('village', __('Village'))->required();
 
@@ -58,14 +98,19 @@ class FarmController extends AdminController
                 'Mixed' => 'Mixed'
             ))
             ->required();
-        $form->text('sheep_count', __('Number of sheep'))->required();
-        $form->text('goats_count', __('Number of goats'))->required();
-        $form->text('cattle_count', __('Number of cattle'))->required();
+
+
+        if ($form->isCreating()) {
+            $form->hidden('sheep_count', __('Number of sheep'))->default(0)->required();
+            $form->hidden('goats_count', __('Number of goats'))->default(0)->required();
+            $form->hidden('cattle_count', __('Number of cattle'))->default(0)->required();
+        }
+
         $form->text('size', __('Size (in Ha)'))->attribute('type', 'number')->required();
 
         $form->latlong('latitude', 'longitude', 'Location of the farm')->default(['lat' => 0.3130291, 'lng' => 32.5290854])->required();
 
-        $form->textarea('dfm', __('Detail'));
+        $form->textarea('dfm', __('Farm Details'));
         $form->text('holding_code', __('Holding code'))->readonly();
 
         return $form;
@@ -76,6 +121,7 @@ class FarmController extends AdminController
     protected function grid()
     {
 
+        
 
 
         $grid = new Grid(new Farm());
@@ -85,24 +131,13 @@ class FarmController extends AdminController
                 $actions->disableDelete();
                 $actions->disableEdit();
             });
-            $grid->disableCreateButton();
         }
 
         $grid->filter(function ($filter) {
 
 
 
-            $sub_counties = [];
-            foreach (SubCounty::all() as $key => $p) {
-                $sub_counties[$p->id] = $p->name . ", " .
-                    $p->district->name . " - " .
-                    $p->code . ".";
-            }
 
-            $districts = [];
-            foreach (District::all() as $key => $p) {
-                $districts[$p->id] = $p->name . "  ";
-            }
 
             $admins = [];
             foreach (Administrator::all() as $key => $v) {
@@ -119,8 +154,31 @@ class FarmController extends AdminController
                 'Dairy' => 'Dairy',
                 'Mixed' => 'Mixed',
             ]);
-            $filter->equal('district_id', "District")->select($districts);
-            $filter->equal('sub_county_id', "Sub county")->select($sub_counties);
+
+
+            $filter->equal('district_id', 'Filter by district')->select(function ($id) {
+                $a = Location::find($id);
+                if ($a) {
+                    return [$a->id => $a->name_text];
+                }
+            })
+                ->ajax(
+                    url('/api/ajax?'
+                        . "&search_by_1=name"
+                        . "&search_by_2=id"
+                        . "&query_parent=0"
+                        . "&model=Location")
+                );
+
+            $filter->equal('sub_county_id', 'Filter by sub-county')->select(function ($id) {
+                $a = Location::find($id);
+                if ($a) {
+                    return [$a->id => $a->name_text];
+                }
+            })
+                ->ajax(
+                    url('/api/sub-counties')
+                );
         });
         $grid->model()->orderBy('id', 'DESC');
 
@@ -157,19 +215,11 @@ class FarmController extends AdminController
 
         $grid->column('district_id', __('District'))
             ->display(function ($id) {
-                $u = District::find($id);
-                if (!$u) {
-                    return $id;
-                }
-                return $u->name;
+                return Utils::get_object(Location::class, $id)->name_text;
             })->sortable();
         $grid->column('sub_county_id', __('Sub county'))
             ->display(function ($id) {
-                $u = SubCounty::find($id);
-                if (!$u) {
-                    return $id;
-                }
-                return $u->name;
+                return Utils::get_object(Location::class, $id)->name_text;
             })->sortable();
 
 

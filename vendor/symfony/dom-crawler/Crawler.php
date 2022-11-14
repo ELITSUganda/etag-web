@@ -18,6 +18,8 @@ use Symfony\Component\CssSelector\CssSelectorConverter;
  * Crawler eases navigation of a list of \DOMNode objects.
  *
  * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @implements \IteratorAggregate<int, \DOMNode>
  */
 class Crawler implements \Countable, \IteratorAggregate
 {
@@ -41,7 +43,9 @@ class Crawler implements \Countable, \IteratorAggregate
     private $namespaces = [];
 
     /**
-     * @var \ArrayObject A map of cached namespaces
+     * A map of cached namespaces.
+     *
+     * @var \ArrayObject
      */
     private $cachedNamespaces;
 
@@ -58,7 +62,7 @@ class Crawler implements \Countable, \IteratorAggregate
     private $document;
 
     /**
-     * @var \DOMNode[]
+     * @var list<\DOMNode>
      */
     private $nodes = [];
 
@@ -160,24 +164,17 @@ class Crawler implements \Countable, \IteratorAggregate
             return;
         }
 
-        $charset = null;
-        if (false !== $pos = stripos($type, 'charset=')) {
-            $charset = substr($type, $pos + 8);
-            if (false !== $pos = strpos($charset, ';')) {
-                $charset = substr($charset, 0, $pos);
-            }
-        }
+        $charset = preg_match('//u', $content) ? 'UTF-8' : 'ISO-8859-1';
 
         // http://www.w3.org/TR/encoding/#encodings
         // http://www.w3.org/TR/REC-xml/#NT-EncName
-        if (null === $charset &&
-            preg_match('/\<meta[^\>]+charset *= *["\']?([a-zA-Z\-0-9_:.]+)/i', $content, $matches)) {
-            $charset = $matches[1];
-        }
+        $content = preg_replace_callback('/(charset *= *["\']?)([a-zA-Z\-0-9_:.]+)/i', function ($m) use (&$charset) {
+            if ('charset=' === $this->convertToHtmlEntities('charset=', $m[2])) {
+                $charset = $m[2];
+            }
 
-        if (null === $charset) {
-            $charset = preg_match('//u', $content) ? 'UTF-8' : 'ISO-8859-1';
-        }
+            return $m[1].$charset;
+        }, $content, 1);
 
         if ('x' === $xmlMatches[1]) {
             $this->addXmlContent($content, $charset);
@@ -570,7 +567,7 @@ class Crawler implements \Countable, \IteratorAggregate
     /**
      * Returns the attribute value of the first node of the list.
      *
-     * @return string|null The attribute value or null if the attribute does not exist
+     * @return string|null
      *
      * @throws \InvalidArgumentException When current node is empty
      */
@@ -588,7 +585,7 @@ class Crawler implements \Countable, \IteratorAggregate
     /**
      * Returns the node name of the first node of the list.
      *
-     * @return string The node name
+     * @return string
      *
      * @throws \InvalidArgumentException When current node is empty
      */
@@ -609,7 +606,7 @@ class Crawler implements \Countable, \IteratorAggregate
      * @param string|null $default             When not null: the value to return when the current node is empty
      * @param bool        $normalizeWhitespace Whether whitespaces should be trimmed and normalized to single spaces
      *
-     * @return string The node value
+     * @return string
      *
      * @throws \InvalidArgumentException When current node is empty
      */
@@ -626,10 +623,18 @@ class Crawler implements \Countable, \IteratorAggregate
         $text = $this->getNode(0)->nodeValue;
 
         if ($normalizeWhitespace) {
-            return trim(preg_replace('/(?:\s{2,}+|[^\S ])/', ' ', $text));
+            return trim(preg_replace("/(?:[ \n\r\t\x0C]{2,}+|[\n\r\t\x0C])/", ' ', $text), " \n\r\t\x0C");
         }
 
         return $text;
+    }
+
+    /**
+     * Returns only the inner text that is the direct descendent of the current node, excluding any child nodes.
+     */
+    public function innerText(): string
+    {
+        return $this->filterXPath('.//text()')->text();
     }
 
     /**
@@ -637,7 +642,7 @@ class Crawler implements \Countable, \IteratorAggregate
      *
      * @param string|null $default When not null: the value to return when the current node is empty
      *
-     * @return string The node html
+     * @return string
      *
      * @throws \InvalidArgumentException When current node is empty
      */
@@ -688,7 +693,7 @@ class Crawler implements \Countable, \IteratorAggregate
      * Since an XPath expression might evaluate to either a simple type or a \DOMNodeList,
      * this method will return either an array of simple types or a new Crawler instance.
      *
-     * @return array|Crawler An array of evaluation results or a new Crawler instance
+     * @return array|Crawler
      */
     public function evaluate(string $xpath)
     {
@@ -719,7 +724,7 @@ class Crawler implements \Countable, \IteratorAggregate
      *
      *     $crawler->filter('h1 a')->extract(['_text', 'href']);
      *
-     * @return array An array of extracted values
+     * @return array
      */
     public function extract(array $attributes)
     {
@@ -798,7 +803,7 @@ class Crawler implements \Countable, \IteratorAggregate
     /**
      * Selects images by alt value.
      *
-     * @return static A new instance of Crawler with the filtered list of nodes
+     * @return static
      */
     public function selectImage(string $value)
     {
@@ -822,7 +827,7 @@ class Crawler implements \Countable, \IteratorAggregate
     /**
      * Returns a Link object for the first node in the list.
      *
-     * @return Link A Link instance
+     * @return Link
      *
      * @throws \InvalidArgumentException If the current node list is empty or the selected node is not instance of DOMElement
      */
@@ -844,7 +849,7 @@ class Crawler implements \Countable, \IteratorAggregate
     /**
      * Returns an array of Link objects for the nodes in the list.
      *
-     * @return Link[] An array of Link instances
+     * @return Link[]
      *
      * @throws \InvalidArgumentException If the current node list contains non-DOMElement instances
      */
@@ -865,7 +870,7 @@ class Crawler implements \Countable, \IteratorAggregate
     /**
      * Returns an Image object for the first node in the list.
      *
-     * @return Image An Image instance
+     * @return Image
      *
      * @throws \InvalidArgumentException If the current node list is empty
      */
@@ -887,7 +892,7 @@ class Crawler implements \Countable, \IteratorAggregate
     /**
      * Returns an array of Image objects for the nodes in the list.
      *
-     * @return Image[] An array of Image instances
+     * @return Image[]
      */
     public function images()
     {
@@ -906,7 +911,7 @@ class Crawler implements \Countable, \IteratorAggregate
     /**
      * Returns a Form object for the first node in the list.
      *
-     * @return Form A Form instance
+     * @return Form
      *
      * @throws \InvalidArgumentException If the current node list is empty or the selected node is not instance of DOMElement
      */
@@ -960,7 +965,7 @@ class Crawler implements \Countable, \IteratorAggregate
      *     echo Crawler::xpathLiteral('a\'b"c');
      *     //prints concat('a', "'", 'b"c')
      *
-     * @return string Converted string
+     * @return string
      */
     public static function xpathLiteral(string $s)
     {
@@ -1119,7 +1124,7 @@ class Crawler implements \Countable, \IteratorAggregate
     }
 
     /**
-     * @return \ArrayIterator|\DOMNode[]
+     * @return \ArrayIterator<int, \DOMNode>
      */
     #[\ReturnTypeWillChange]
     public function getIterator()
@@ -1146,7 +1151,7 @@ class Crawler implements \Countable, \IteratorAggregate
 
     private function parseHtml5(string $htmlContent, string $charset = 'UTF-8'): \DOMDocument
     {
-        return $this->html5Parser->parse($this->convertToHtmlEntities($htmlContent, $charset), [], $charset);
+        return $this->html5Parser->parse($this->convertToHtmlEntities($htmlContent, $charset));
     }
 
     private function parseXhtml(string $htmlContent, string $charset = 'UTF-8'): \DOMDocument
@@ -1181,12 +1186,12 @@ class Crawler implements \Countable, \IteratorAggregate
         set_error_handler(function () { throw new \Exception(); });
 
         try {
-            return mb_convert_encoding($htmlContent, 'HTML-ENTITIES', $charset);
-        } catch (\Exception | \ValueError $e) {
+            return mb_encode_numericentity($htmlContent, [0x80, 0x10FFFF, 0, 0x1FFFFF], $charset);
+        } catch (\Exception|\ValueError $e) {
             try {
                 $htmlContent = iconv($charset, 'UTF-8', $htmlContent);
-                $htmlContent = mb_convert_encoding($htmlContent, 'HTML-ENTITIES', 'UTF-8');
-            } catch (\Exception | \ValueError $e) {
+                $htmlContent = mb_encode_numericentity($htmlContent, [0x80, 0x10FFFF, 0, 0x1FFFFF], 'UTF-8');
+            } catch (\Exception|\ValueError $e) {
             }
 
             return $htmlContent;

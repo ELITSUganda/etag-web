@@ -5,7 +5,8 @@ namespace App\Admin\Controllers;
 use App\Models\Animal;
 use App\Models\District;
 use App\Models\Farm;
-use App\Models\SubCounty;
+use App\Models\Location;
+use App\Models\Utils;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Controllers\AdminController;
@@ -83,16 +84,6 @@ class AnimalController extends AdminController
 
 
 
-            $sub_counties = [];
-            foreach (SubCounty::all() as $key => $p) {
-                $sub_counties[$p->id] = $p->name . ", " .
-                    $p->district->name . ".";
-            }
-
-            $districts = [];
-            foreach (District::all() as $key => $p) {
-                $districts[$p->id] = $p->name . "m  ";
-            }
 
             $admins = [];
             foreach (Administrator::all() as $key => $v) {
@@ -113,8 +104,32 @@ class AnimalController extends AdminController
                 'Sheep' => "Sheep"
             ));
 
-            $filter->equal('district_id', "District")->select($districts);
-            $filter->equal('sub_county_id', "Sub county")->select($sub_counties);
+
+            $filter->equal('district_id', 'Filter by district')->select(function ($id) {
+                $a = Location::find($id);
+                if ($a) {
+                    return [$a->id => $a->name_text];
+                }
+            })
+                ->ajax(
+                    url('/api/ajax?'
+                        . "&search_by_1=name"
+                        . "&search_by_2=id"
+                        . "&query_parent=0"
+                        . "&model=Location")
+                );
+
+            $filter->equal('sub_county_id', 'Filter by sub-county')->select(function ($id) {
+                $a = Location::find($id);
+                if ($a) {
+                    return [$a->id => $a->name_text];
+                }
+            })
+                ->ajax(
+                    url('/api/sub-counties')
+                );
+
+
             $filter->equal('status', "Status")->select(array(
                 'Diagonized' => 'Diagonized',
                 'Healed' => 'Healed',
@@ -151,19 +166,11 @@ class AnimalController extends AdminController
 
         $grid->column('district_id', __('District'))
             ->display(function ($id) {
-                $u = District::find($id);
-                if (!$u) {
-                    return $id;
-                }
-                return $u->name;
+                return Utils::get_object(Location::class, $id)->name_text;
             })->sortable();
         $grid->column('sub_county_id', __('Sub county'))
             ->display(function ($id) {
-                $u = SubCounty::find($id);
-                if (!$u) {
-                    return $id;
-                }
-                return $u->name;
+                return Utils::get_object(Location::class, $id)->name_text;
             })->sortable();
 
 
@@ -278,13 +285,57 @@ class AnimalController extends AdminController
             ->required();
 
 
+        if ($form->isCreating()) {
+            $form->text('e_id', __('Electronic ID (E-ID)'))
+                ->rules('required|unique:animals');
+        } else {
 
-        $form->text('e_id', __('Electronic id'))->required();
-        $form->text('v_id', __('Tag id'))->required();
+            $form->text('e_id', __('Electronic ID (E-ID)'))
+                ->readonly();
+        }
 
+        //'required|email|unique:company_users,email_address,NULL,id,company_id,' . $request->company_id
+
+
+        $form->text('v_id', __('Visual ID (V-ID)'))->required();
+
+        $form->divider();
         $form->date('dob', __('Year of birth'))->attribute('autocomplete', 'false')->default(date('Y-m-d'))->required();
-        $form->date('fmd', __('Date last FMD vaccination'))->default(date('Y-m-d'));
-        $form->text('status', __('Status'))->readonly()->default("Live");
+        $form->radio('has_parent', __('Has a parent'))
+            ->options([
+                '0' => "No",
+                '1' => "Yes",
+            ])
+            ->default(null)
+            ->when(1, function ($f) {
+                $u = Admin::user();
+                $f->select('parent_id', 'Select parent')
+                    ->options(function ($id) {
+                        $parent = Animal::find($id);
+                        if ($parent != null) {
+                            return [$parent->id =>  $parent->v_id . " - " . $parent->e_id];
+                        }
+                    })
+                    ->rules('required')
+                    ->ajax(
+                        url('/api/ajax-animals?'
+                            . "&administrator_id={$u->id}")
+                    );
+                return $f;
+            })
+            ->rules('required');
+
+
+        $form->image('photo', __('Photo'));
+
+        /* 
+parent_id
+ */
+        $form->divider();
+
+
+        $form->date('fmd', __('Date last FMD vaccination'))->default(null);
+        $form->text('status', __('Status'))->readonly()->default("Active");
         $form->text('lhc', __('LHC'))->readonly();
 
         return $form;

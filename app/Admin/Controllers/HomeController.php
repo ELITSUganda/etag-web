@@ -21,8 +21,47 @@ use Encore\Admin\Widgets\Box;
 
 class HomeController extends Controller
 {
+    public function become_farmer(Content $content)
+    {
+
+        AdminRoleUser::where([
+            'role_id' => 12,
+            'user_id' => Admin::user()->id,
+        ])->delete();
+
+
+        AdminRoleUser::where([
+            'role_id' => 3,
+            'user_id' => Admin::user()->id,
+        ])->delete();
+
+
+        $role = new AdminRoleUser();
+        $role->role_id = 3;
+        $role->user_id = Admin::user()->id;
+        $role->save();
+
+        return redirect(admin_url('/'));
+    }
     public function index(Content $content)
     {
+
+        $u = Admin::user();
+        if ($u->isRole('farmer')) {
+            if (count($u->farms) < 1) {
+                $content->row(function ($row) {
+                    $row->column(
+                        3,
+                        view('admin.dashboard.component-wizard', [
+                            'step' => "1",
+                            'text' => "CREATE YOUR FIRST FARM",
+                            'link' => admin_url('farms/create'),
+                        ])
+                    );
+                });
+                return $content;
+            }
+        }
 
         $f = FormDrugSeller::where('applicant_id', Admin::user()->id)->first();
         if ($f != null) {
@@ -136,11 +175,11 @@ class HomeController extends Controller
         //Farmer
         if (Admin::user()->isRole('farmer')) {
             Admin::js('/vendor/laravel-admin-ext/chartjs/Chart.bundle.min.js');
-            
+
 
             $content->title('Main Dashboard');
 
-       
+
 
 
             $content->row(function ($row) {

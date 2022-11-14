@@ -17,8 +17,8 @@ class AuthController extends Controller
     /**
      * @var string
      */
-    protected $loginView = 'admin::login'; 
- 
+    protected $loginView = 'admin::login';
+
     /**
      * Show the login page.
      *
@@ -45,7 +45,7 @@ class AuthController extends Controller
         $this->loginValidator($request->all())->validate();
 
         $credentials = $request->only([$this->username(), 'password']);
-        $remember = $request->get('remember', true);
+        $remember = $request->get('remember', false);
 
         if ($this->guard()->attempt($credentials, $remember)) {
             return $this->sendLoginResponse($request);
@@ -126,24 +126,8 @@ class AuthController extends Controller
     protected function settingForm()
     {
         $class = config('admin.database.users_model');
+
         $form = new Form(new $class());
-
-        $form->saving(function (Form $form) {
-
-            if (preg_match('~[0-9]+~', $form->name)) {
-                return Redirect::back()->withInput()->withErrors([
-                    'name' => 'Enter valid name.'
-                ]);
-            }
- 
-            if (preg_match("/[.\[^\'£$%^&*()}{@:\'#~?><>,;@\|\-=\-_+\-¬\`\]]/", $form->name)) {
-                return Redirect::back()->withInput()->withErrors([
-                    'name' => 'Enter valid name.'
-                ]);
-            }
-
-             
-        });
 
         $form->display('username', trans('admin.username'));
         $form->text('name', trans('admin.name'))->rules('required');
@@ -202,7 +186,7 @@ class AuthController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     protected function sendLoginResponse(Request $request)
     {

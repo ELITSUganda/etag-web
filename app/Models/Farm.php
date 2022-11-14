@@ -35,23 +35,21 @@ class Farm extends Model
 
         self::creating(function ($model) {
 
-            $s = SubCounty::find($model->sub_county_id);
-            if ($s == null) {
-                dd("SubCounty not found.");
-                return null;
+            $model->district_id = 1;
+            $sub = Location::find($model->sub_county_id);
+            if ($model->sub_county_id != null) {
+                if ($sub != null) {
+                    $model->district_id = $sub->parent;
+                }
             }
-
-
-            if ($s->district == null) {
-                dd("District not found.");
-                return null;
-            }
-            $model->district_id = $s->district->id;
 
             $num = (int) (Farm::where(['sub_county_id' => $model->sub_county_id])->count());
             $num++;
-
-            $model->holding_code = $s->code . "-" . $num;
+            if ($sub != null) {
+                $model->holding_code = $sub->code . "-" . $num;
+            } else {
+                $model->holding_code = 'UG-000-00' . "-" . $num;
+            }
 
             return $model;
         });
@@ -59,8 +57,23 @@ class Farm extends Model
 
         self::updating(function ($model) {
 
+            $model->district_id = 1;
+            $sub = Location::find($model->sub_county_id);
+            if ($model->sub_county_id != null) {
+                if ($sub != null) {
+                    $model->district_id = $sub->parent;
+                }
+            }
 
-            // ... code here
+            $num = (int) (Farm::where(['sub_county_id' => $model->sub_county_id])->count());
+            $num++;
+            if ($sub != null) {
+                $model->holding_code = $sub->code . "-" . $num;
+            } else {
+                //  $model->holding_code = 'UG-000-00' . "-" . $num;
+            }
+
+            return $model;
         });
 
         self::updated(function ($model) {
@@ -99,7 +112,7 @@ class Farm extends Model
 
     public function sub_county()
     {
-        return $this->belongsTo(SubCounty::class);
+        return $this->belongsTo(Location::class, 'sub_county_id');
     }
 
     public function owner()

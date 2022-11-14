@@ -11,6 +11,15 @@ use Zebra_Image;
 class Utils extends Model
 {
 
+    public static function get_object($class, $id)
+    {
+        $data = $class::find($id);
+        if ($data != null) {
+            return $data;
+        }
+        return new $class();
+    }
+
 
     public static function phone_number_is_valid($phone_number)
     {
@@ -45,7 +54,7 @@ class Utils extends Model
 
 
         if (strlen($phone_number) != 9) {
-            return "";
+            return $phone_number;
         }
 
         $phone_number = "+256" . $phone_number;

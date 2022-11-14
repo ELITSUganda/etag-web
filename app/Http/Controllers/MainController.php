@@ -25,7 +25,6 @@ class MainController extends Controller
 
 
         if (
-            $request->username == null ||
             $request->phone_number == null ||
             $request->name == null ||
             $request->password == null
@@ -36,17 +35,33 @@ class MainController extends Controller
             ]);
         }
 
+        if ($request->password != $request->password_2) {
+            return back()->withInput()->withErrors([
+                'password' => "Passwords did not match.",
+            ]);
+        }
+
+        if (!Utils::phone_number_is_valid($request->phone_number)) {
+            return back()->withInput()->withErrors([
+                'phone_number' => "Please enter valid phone number.",
+            ]);
+        }
+
+        $request->phone_number = Utils::prepare_phone_number($request->phone_number);
+        $request->username = $request->phone_number;
+
+
         $u = Administrator::where('username', $request->username)->first();
         if ($u != null) {
             return back()->withInput()->withErrors([
-                'username' => "User with same username already exist.",
+                'phone_number' => "User with same username already exist.",
             ]);
         }
 
         $u = Administrator::where('email', $request->username)->first();
         if ($u != null) {
             return back()->withInput()->withErrors([
-                'email' => "User with same email address already exist.",
+                'phone_number' => "User with same phone number already exist.",
             ]);
         }
 

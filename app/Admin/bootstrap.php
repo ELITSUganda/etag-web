@@ -18,7 +18,13 @@
  *
  */
 
+use App\Models\Animal;
 use App\Models\DrugStockBatchRecord;
+use App\Models\Farm;
+use App\Models\Location;
+use App\Models\SubCounty;
+use App\Models\User;
+use App\Models\Utils;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Facades\Admin;
 use Illuminate\Support\Facades\DB;
@@ -26,7 +32,69 @@ use Illuminate\Support\Facades\DB;
 //Admin::disablePjax();
 Admin::css('css.css');
 Encore\Admin\Form::forget(['map', 'editor']);
+/*
+foreach (SubCounty::all() as $key => $s) {
+    $l = Location::where([
+        'name' => $s->name
+    ])->first();
 
+    if ($l == null) {
+        continue;
+    }
+     $l->code = $s->code;
+    $l->save();
+
+    foreach (Farm::where([
+        'sub_county_id' => $s->id
+    ])->get() as $key => $f) {
+        $f->sub_county_id = $l->save();
+        $f->save();
+    } 
+
+    foreach (Animal::where([
+        'sub_county_id' => $s->id
+    ])->get() as $key => $f) {
+        $f->sub_county_id = $l->save();
+        $f->save();
+    }
+}
+*/
+/*
+
+id	
+created_at	
+updated_at	
+administrator_id	
+district_id	
+	
+farm_type	
+holding_code	
+size	
+latitude	
+longitude	
+dfm	
+name	
+village	
+animals_count	
+sheep_count	
+goats_count	
+cattle_count	
+	
+ 
+foreach (User::all() as $key => $v) {
+    $v->phone_number = str_replace(' ', '', $v->phone_number);
+    $v->phone_number = str_replace('_', '', $v->phone_number);
+    $v->phone_number = Utils::prepare_phone_number($v->phone_number);
+    if (Utils::phone_number_is_valid($v->phone_number)) {
+        $v->username = $v->phone_number;
+        $v->status = 1;
+        continue;
+    }
+    $v->status = 0;
+    $v->save();
+
+    echo $v->phone_number . "<hr>";
+}*/
 
 $sql_1 = 'SELECT user_id FROM admin_role_users ';
 $sql = "SELECT id FROM admin_users WHERE id NOT IN ($sql_1)";
@@ -43,4 +111,6 @@ foreach (DrugStockBatchRecord::where(['batch_number' => NULL])->get() as $x) {
     $x->save();
 }
 
-Admin::css('/assets/css/market-place.css');
+/* Admin::css('/assets/css/market-place.css'); */
+Admin::css(url('/assets/bootstrap.css'));
+Admin::css('/assets/styles.css');

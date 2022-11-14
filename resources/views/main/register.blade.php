@@ -30,7 +30,7 @@
 
     <style>
         .login-box {
-            overflow: auto; 
+            overflow: auto;
             position: relative;
             padding: 1rem;
         }
@@ -64,7 +64,7 @@
                     @endif
 
                     <input type="text" class="form-control" placeholder="Name" name="name"
-                        value="{{ old('name') }}">
+                        value="{{ old('name') }}" required>
                     <span class="glyphicon glyphicon-user form-control-feedback"></span>
                 </div>
 
@@ -74,10 +74,10 @@
                         @foreach ($errors->get('phone_number') as $message)
                             <label class="control-label" for="inputError"><i
                                     class="fa fa-times-circle-o"></i>{{ $message }}</label><br>
-                        @endforeach
+                        @endforeach 
                     @endif
 
-                    <input type="text" class="form-control" placeholder="Phone number" name="phone_number"
+                    <input type="text" class="form-control" placeholder="Phone number" name="phone_number" required
                         value="{{ old('phone_number') }}">
                     <span class="glyphicon glyphicon-phone form-control-feedback"></span>
                 </div>
@@ -92,23 +92,12 @@
                     @endif
 
                     <input type="text" class="form-control" placeholder="Address line" name="address"
-                        value="{{ old('address') }}">
+                        value="{{ old('address') }}" required>
                     <span class="fa fa-location-arrow form-control-feedback"></span>
                 </div>
 
 
-                <div class="form-group has-feedback {!! !$errors->has('username') ?: 'has-error' !!}">
-                    @if ($errors->has('username'))
-                        @foreach ($errors->get('username') as $message)
-                            <label class="control-label" for="inputError"><i
-                                    class="fa fa-times-circle-o"></i>{{ $message }}</label><br>
-                        @endforeach
-                    @endif
 
-                    <input type="text" class="form-control" placeholder="{{ trans('admin.username') }}"
-                        name="username" value="{{ old('username') }}">
-                    <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
-                </div>
                 <div class="form-group has-feedback {!! !$errors->has('password') ?: 'has-error' !!}">
 
                     @if ($errors->has('password'))
@@ -119,9 +108,27 @@
                     @endif
 
                     <input type="password" class="form-control" placeholder="{{ trans('admin.password') }}"
-                        name="password">
+                        name="password" required>
                     <span class="glyphicon glyphicon-lock form-control-feedback"></span>
                 </div>
+
+
+
+                <div class="form-group has-feedback {!! !$errors->has('password') ?: 'has-error' !!}">
+
+                    @if ($errors->has('password'))
+                        @foreach ($errors->get('password') as $message)
+                            <label class="control-label" for="inputError"><i
+                                    class="fa fa-times-circle-o"></i>{{ $message }}</label><br>
+                        @endforeach
+                    @endif
+
+                    <input type="password" class="form-control" placeholder="Repeat password" name="password_2"
+                        required>
+                    <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                </div>
+
+
                 <div class="row">
 
                     <div class="col-xs-12">

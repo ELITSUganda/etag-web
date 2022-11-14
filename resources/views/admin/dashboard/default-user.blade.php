@@ -18,17 +18,18 @@
         color: white;
 
     }
-</style>
+</style> 
 
 
 <h3 style="font-weight:800; color: black;">Choose your role</h3>
 <hr>
-<p>Thank you for creating your account. Now let us know the role you play in this system. Please carefully pick your
+<p style="font-size: 2rem;">Thank you for creating your account. Now let us know the role you want to play in this
+    system. Please carefully pick your
     role below to proceed.</p>
 
 
 
-<a href="#">
+<a href="{{ admin_url('become-farmer') }}">
     <div class="picker-item">
         <h4 class="title">Farmer</h4>
         <p>To register your farms, livestock, livestock events and application for movement permits.</p>

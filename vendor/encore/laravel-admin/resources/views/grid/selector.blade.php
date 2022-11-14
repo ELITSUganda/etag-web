@@ -57,7 +57,7 @@
     }
 
     .grid-selector ul:hover .clear {
-        color: #6A3A00;
+        color: #3c8dbc;
         visibility: visible;
     }
 </style>

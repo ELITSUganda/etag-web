@@ -10,6 +10,12 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
+    public function farms()
+    {
+        return $this->hasMany(Farm::class, 'administrator_id');
+    }
+
+
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $table = 'admin_users';

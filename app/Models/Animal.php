@@ -32,6 +32,7 @@ class Animal extends Model
 
         self::creating(function ($model) {
 
+
             $animal = Animal::where('e_id', $model->e_id)->first();
             if ($animal != null) {
                 die("Animal with same elecetronic ID aready exist in the system.");
@@ -39,10 +40,10 @@ class Animal extends Model
             }
 
             $animal = Animal::where('v_id', $model->v_id)->first();
-            if ($animal != null) {
+           /*  if ($animal != null) {
                 die("Animal with same Tag ID aready exist in the system.");
                 return false;
-            }
+            } */
 
             $f = Farm::find($model->farm_id);
             if ($f == null) {
@@ -89,6 +90,8 @@ class Animal extends Model
             $model->administrator_id = $f->administrator_id;
             $model->district_id = $f->district_id;
             $model->sub_county_id = $f->sub_county_id;
+
+
             return $model;
         });
 
@@ -122,25 +125,25 @@ class Animal extends Model
 
     public function district()
     {
-        return $this->belongsTo(District::class);
+        return $this->belongsTo(Location::class);
     }
 
     public function sub_county()
     {
-        return $this->belongsTo(SubCounty::class);
+        return $this->belongsTo(Location::class);
     }
     public function getLocationAttribute()
     {
         $loc = "";
         if ($this->district != null) {
-            $loc = $this->district->name;
+            $loc = $this->district->name_text;
         }
 
         if ($this->sub_county != null) {
             if (strlen($loc) > 3) {
                 $loc .= ",";
             }
-            $loc .=  " " . $this->sub_county->name;
+            $loc .=  " " . $this->sub_county->name_text;
         }
         return $loc;
     }
