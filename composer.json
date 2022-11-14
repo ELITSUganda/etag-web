@@ -1,32 +1,38 @@
 {
     "name": "laravel/laravel",
     "type": "project",
-    "description": "The Laravel Framework.",
+    "description": "The Laravel Framework..",
     "keywords": ["framework", "laravel"],
     "license": "MIT",
     "require": {
         "php": "^7.3|^8.0",
         "barryvdh/laravel-dompdf": "^1.0",
-        "encore/laravel-admin": "^1.8",
-        "fruitcake/laravel-cors": "^2.0",
+        "binarytorch/larecipe": "^2.5",
+        "encore/laravel-admin": "1.*",
+        "fruitcake/laravel-cors": "^3.0",
         "guzzlehttp/guzzle": "^7.0.1",
-        "jxlwqq/material-ui": "^1.0",
+        "jxlwqq/quill": "^1.0",
+        "laravel-admin-ext/grid-lightbox": "^1.0",
         "laravel-admin-ext/latlong": "2.x",
-        "laravel/framework": "^8.65",
+        "laravel/framework": "^8.54",
+        "laravel/legacy-factories": "^1.1",
+        "laravel/passport": "10.4",
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
+        "laravelcollective/html": "^6.2",
+        "spatie/laravel-image-optimizer": "^1.6",
         "maatwebsite/excel": "^3.1",
+        "tymon/jwt-auth": "^1.0",
         "simplesoftwareio/simple-qrcode": "~4",
         "stefangabos/zebra_image": "dev-master"
     },
     "require-dev": {
-        "barryvdh/laravel-debugbar": "^3.6",
         "facade/ignition": "^2.5",
         "fakerphp/faker": "^1.9.1",
         "laravel/sail": "^1.0.1",
-        "mockery/mockery": "^1.4.4",
-        "nunomaduro/collision": "^5.10",
-        "phpunit/phpunit": "^9.5.10"
+        "mockery/mockery": "^1.4.2",
+        "nunomaduro/collision": "^5.0",
+        "phpunit/phpunit": "^9.3.3"
     },
     "autoload": {
         "psr-4": {
