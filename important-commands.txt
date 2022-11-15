@@ -53,6 +53,7 @@ php artisan admin:make DrugStockBatchRecordController --model=App\\Models\\DrugS
 php artisan admin:make Animal1Controller --model=App\\Models\\Animal
 php artisan admin:make SickAnimalController --model=App\\Models\\SickAnimal
 php artisan admin:make EventController --model=App\\Models\\Event
+php artisan admin:make PregnantAnimalController --model=App\\Models\\PregnantAnimal
 
 
 php artisan make:model CheckPoint
@@ -69,6 +70,7 @@ php artisan make:model DrugStockBatchRecord
 php artisan make:model Image
 php artisan make:model ProductOrder
 php artisan make:model SickAnimal
+php artisan make:model PregnantAnimal
 
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs

@@ -213,6 +213,9 @@ class EventController extends AdminController
 
         $grid->column('animal_type', __('Livestock species'))->sortable();
 
+        $grid->column('detail', __('Details'))->sortable();
+        $grid->column('description', __('Description'))->sortable();
+
 
 
         $grid->column('district_id', __('District'))
@@ -339,6 +342,12 @@ class EventController extends AdminController
 
             ))
             ->rules('required')
+            ->when('Temprature check', function (Form $form) {
+
+                $form->decimal('temperature', 'Temperature value')
+                    ->help('in degrees Celsius (°C)')
+                    ->rules('required');
+            })
             ->when('Pregnancy check', function (Form $form) {
                 $form->radio('pregnancy_check_method', __(
                     'Pregnancy check method used'
@@ -352,7 +361,7 @@ class EventController extends AdminController
                     ))
                     ->rules('required');
 
-                $form->radio('pregnancy_check_results', __( 
+                $form->radio('pregnancy_check_results', __(
                     'Pregnancy check results'
                 ))
                     ->options(array(
@@ -374,7 +383,7 @@ class EventController extends AdminController
                             ->options(array(
                                 'Male' => 'Bull',
                                 'Heifer' => 'Heifer',
-                                'Unkown' => 'Unkown',
+                                'Unknown' => 'Unknown',
                             ))
                             ->rules('required');
                     })

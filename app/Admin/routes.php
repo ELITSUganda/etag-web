@@ -40,4 +40,5 @@ Route::group([
     $router->resource('drug-stock-batch-records', DrugStockBatchRecordController::class);
     $router->resource('animals-1', Animal1Controller::class);
     $router->resource('sick-animals', SickAnimalController::class);
+    $router->resource('pregnant-animals', PregnantAnimalController::class);
 });

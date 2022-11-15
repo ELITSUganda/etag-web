@@ -41,9 +41,38 @@ class Event extends Model
                 $ok = false;
                 if (
                     isset($model->pregnancy_check_method) &&
-                    isset($model->pregnancy_check_results) 
+                    isset($model->pregnancy_check_results)
                 ) {
-                     
+                    $pregnancy = new PregnantAnimal();
+                    $pregnancy->administrator_id = $animal->farm->administrator_id;
+                    $pregnancy->animal_id = $animal->id;
+                    $pregnancy->district_id = $animal->farm->district_id;
+                    $pregnancy->sub_county_id = $animal->farm->sub_county_id;
+                    $pregnancy->original_status = $model->pregnancy_check_results;
+                    $pregnancy->current_status = $model->pregnancy_check_results;
+                    $pregnancy->fertilization_method = 'Natural breeding';
+                    $pregnancy->expected_sex = 'Unknown';
+                    $pregnancy->details = $model->detail;
+
+                    if (isset($model->pregnancy_fertilization_method)) {
+                        if ($model->pregnancy_fertilization_method != null) {
+                            $pregnancy->fertilization_method = $model->pregnancy_fertilization_method;
+                        }
+                    }
+
+                    if (isset($model->pregnancy_check_method)) {
+                        if ($model->pregnancy_check_method != null) {
+                            $pregnancy->pregnancy_check_method = $model->pregnancy_check_method;
+                        }
+                    }
+                    if (isset($model->pregnancy_expected_sex)) {
+                        if ($model->pregnancy_expected_sex != null) {
+                            $pregnancy->expected_sex = $model->pregnancy_expected_sex;
+                        }
+                    }
+                    $model->description = "Pregnancy check for animal {$animal->v_id} - {$animal->e_id} by {$pregnancy->pregnancy_check_method} method and found {$pregnancy->original_status}";
+                    $pregnancy->save();
+                    $ok = true;
                 }
                 if (!$ok) {
                     die("enter valid Pregnancy check parametters");
@@ -62,7 +91,7 @@ class Event extends Model
                                 $sick->district_id = $animal->farm->district_id;
                                 $sick->sub_county_id = $animal->farm->sub_county_id;
                                 $sick->description = "Disease test for animal {$animal->e_id} - {$animal->v_id} and found it {$model->disease_test_results}.";
-                                $sick->details = $model->details;
+                                $sick->details = $model->detail;
                                 $model->description = $sick->description;
                                 $sick->save();
                             }
@@ -88,7 +117,7 @@ class Event extends Model
                                 $record->drug_stock_batch_id = $medicine->id;
                                 $record->batch_number = $medicine->batch_number;
                                 $record->receiver_account = null;
-                                $record->other_explantion = $model->details;
+                                $record->other_explantion = $model->detail;
                                 $record->buyer_info = null;
                                 $record->is_generated = 'no';
                                 $record->event_animal_id = $animal->id;
@@ -116,6 +145,26 @@ class Event extends Model
 
             if (isset($model->medicine_quantity)) {
                 unset($model->medicine_quantity);
+            }
+            if (isset($model->pregnancy_check_method)) {
+                unset($model->pregnancy_check_method);
+            }
+            if (isset($model->pregnancy_check_results)) {
+                unset($model->pregnancy_check_results);
+            }
+            if (isset($model->pregnancy_fertilization_method)) {
+                unset($model->pregnancy_fertilization_method);
+            }
+            if (isset($model->pregnancy_expected_sex)) {
+                unset($model->pregnancy_expected_sex);
+            }
+
+
+            if ($model->description == null || (strlen($model->description) < 2)) {
+                $model->description = $model->detail;
+            }
+            if ($model->detail == null || (strlen($model->detail) < 2)) {
+                $model->detail = $model->description;
             }
 
 

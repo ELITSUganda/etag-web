@@ -10659,3 +10659,7 @@ a.text-dark:hover {
 .btn-default{
     background-color: #6B3B00!important;
 }
+.help-block{ 
+    margin-bottom: 0px!important;
+    padding-bottom: 0px!important;
+}
