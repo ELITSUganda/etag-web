@@ -46,7 +46,7 @@ class HomeController extends Controller
     public function index(Content $content)
     {
 
-        $u = Admin::user();
+        $u = Admin::user(); 
         if ($u->isRole('farmer')) {
             if (count($u->farms) < 1) {
                 $content->row(function ($row) {

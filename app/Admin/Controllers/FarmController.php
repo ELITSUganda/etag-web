@@ -52,7 +52,7 @@ class FarmController extends AdminController
             ) {
 
                 $form->select('administrator_id', 'Farm owner')->options(function ($id) {
-                    $a = User::find($id);
+                    $a = Administrator::find($id);
                     if ($a) {
                         return [$a->id => "#" . $a->id . " - " . $a->name];
                     }

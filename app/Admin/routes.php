@@ -29,9 +29,9 @@ Route::group([
     $router->resource('check-points', CheckPointController::class);
     $router->resource('check-point-records', CheckPointRecordController::class);
     $router->resource('product-categories', ProductCategoryController::class);
-    $router->resource('products', ProductController::class); 
-    $router->resource('my-products', MyProductController::class); 
-    $router->resource('drugs', DrugBatchController::class); 
+    $router->resource('products', ProductController::class);
+    $router->resource('my-products', MyProductController::class);
+    $router->resource('drugs', DrugBatchController::class);
     $router->resource('orders', OrderController::class);
     $router->resource('drug-categories', DrugCategoryController::class);
     $router->resource('form-drug-sellers', FormDrugSellerController::class);
@@ -39,5 +39,5 @@ Route::group([
     $router->resource('drug-stock-batches', DrugStockBatchController::class);
     $router->resource('drug-stock-batch-records', DrugStockBatchRecordController::class);
     $router->resource('animals-1', Animal1Controller::class);
-
+    $router->resource('sick-animals', SickAnimalController::class);
 });

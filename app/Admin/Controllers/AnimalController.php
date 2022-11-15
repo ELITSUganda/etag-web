@@ -66,7 +66,7 @@ class AnimalController extends AdminController
 
             //$grid->disableCreateButton();
 
-            $grid->disableActions();
+            //$grid->disableActions();
             $grid->model()->where('administrator_id', '=', Admin::user()->id);
         }
 

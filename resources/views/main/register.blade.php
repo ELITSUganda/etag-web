@@ -52,7 +52,7 @@
             <div style="height: 3px; width:100%; background: yellow;"> </div>
             <div style="height: 3px; width:100%; background: red;"> </div>
             <br>
-
+ 
             <p class="login-box-msg"><b>{{ trans('Register') }}</b></p>
             <form action="{{ url('register') }}" method="post">
                 <div class="form-group has-feedback {!! !$errors->has('name') ?: 'has-error' !!}">

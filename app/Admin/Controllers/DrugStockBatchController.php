@@ -5,7 +5,7 @@ namespace App\Admin\Controllers;
 use App\Models\DrugCategory;
 use App\Models\DrugStockBatch;
 use App\Models\DrugStockBatchRecord;
-use App\Models\SubCounty;
+use App\Models\Location;
 use Doctrine\DBAL\Schema\Table;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
@@ -30,8 +30,8 @@ class DrugStockBatchController extends AdminController
      *
      * @return Grid
      */
-    protected function grid() 
-    { 
+    protected function grid()
+    {
         $grid = new Grid(new DrugStockBatch());
         $grid->filter(function ($filter) {
             $cats = [];
@@ -53,7 +53,6 @@ class DrugStockBatchController extends AdminController
             $grid->disableActions();
         }
 
-        $grid->disableCreateButton();
         $grid->disableBatchActions();
         $grid->column('id', __('#ID'))->sortable();
         $grid->column('batch_number', __('Batch number'))
@@ -138,27 +137,47 @@ class DrugStockBatchController extends AdminController
     protected function form()
     {
         $form = new Form(new DrugStockBatch());
+        $u = Admin::user();
 
-        $sub_counties = [];
-        foreach (SubCounty::all() as $key => $p) {
-            $sub_counties[$p->id] = $p->name . ", " .
-                $p->district->name . ".";
+
+        if ($form->isCreating()) {
+            $form->hidden('administrator_id', __('Administrator id'))->default($u->id)->value($u->id);
+            $form->hidden('source_id', __('source_id'))->default($u->id)->value($u->id);
+            $form->text('source_text', __('Supplier name'))->rules('required');
+            $form->hidden('sub_county_id', __('Administrator id'))->default($u->id)->value($u->sub_county_id);
+            $form->select('drug_category_id', __('Drug category'))
+                ->rules('required')
+                ->options(DrugCategory::all()->pluck('name', 'id'));
+            $form->text('name', __('Drug Name'))->rules('required');
+            $form->text('manufacturer', __('Manufacturer'))->rules('required');
+            $form->text('batch_number', __('Batch number'))->rules('required');
+            $form->text('ingredients', __('Ingredients'))->rules('required');
+            $form->date('expiry_date', __('Expiry date'))->rules('required');
+            $form->decimal('original_quantity', __('Quantity'))->rules('required');
+        } else {
+
+
+            $form->select('drug_category_id', __('Drug category'))
+                ->rules('required')
+                ->readOnly()
+                ->options(DrugCategory::all()->pluck('name', 'id'));
+            $form->text('manufacturer', __('Manufacturer'))->rules('required')->readOnly();
+            $form->text('batch_number', __('Batch number'))->rules('required')->readOnly();
+            $form->text('ingredients', __('Ingredients'))->rules('required')->readOnly();
+            $form->date('expiry_date', __('Expiry date'))->rules('required')->readOnly();
+            $form->decimal('original_quantity', __('Quantity'))->rules('required')->readOnly();
+
+            $form->divider();
+            $form->text('source_text', __('Supplier name'))->rules('required');
+            $form->text('name', __('Drug Name'))->rules('required');
         }
 
-        $form->select('sub_county_id', __('Sub-county'))
-            ->options($sub_counties)
-            ->required();
-        $form->text('manufacturer', __('Manufacturer'));
-        $form->text('name', __('Name'));
-        $form->textarea('batch_number', __('Batch number'));
-        $form->textarea('ingredients', __('Ingredients'));
-        $form->textarea('expiry_date', __('Expiry date'));
-        $form->decimal('original_quantity', __('Original quantity'));
-        $form->decimal('current_quantity', __('Current quantity'));
-        $form->textarea('selling_price', __('Selling price'));
-        $form->textarea('image', __('Image'));
-        $form->textarea('last_activity', __('Last activity'));
-        $form->textarea('details', __('Details'));
+
+
+        $form->decimal('selling_price', __('Total Price'));
+        $form->image('image', __('Image'));
+        $form->textarea('details', __('Drug description'));
+        $form->disableEditingCheck();
 
         return $form;
     }

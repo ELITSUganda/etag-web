@@ -16,6 +16,7 @@ class CreateFormDrugStockApprovalItemsTable extends Migration
      */
     public function up()
     {
+        return;
         Schema::create('form_drug_stock_approval_items', function (Blueprint $table) {
             $table->id();
             $table->timestamps();

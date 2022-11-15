@@ -3,6 +3,7 @@
 use App\Models\Animal;
 use App\Models\District;
 use App\Models\Farm;
+use App\Models\Location;
 use App\Models\Parish;
 use App\Models\SubCounty;
 use Encore\Admin\Auth\Database\Administrator;
@@ -26,7 +27,7 @@ class CreateEventsTable extends Migration
 
             $table->foreignIdFor(Administrator::class)->default(1);
             $table->foreignIdFor(District::class)->default(1);
-            $table->foreignIdFor(SubCounty::class)->default(1);
+            $table->foreignIdFor(Location::class,'sub_county_id')->default(1);
             $table->foreignIdFor(Parish::class)->default(1);
             $table->foreignIdFor(Farm::class)->default(1);
             $table->foreignIdFor(Animal::class)->default(1);

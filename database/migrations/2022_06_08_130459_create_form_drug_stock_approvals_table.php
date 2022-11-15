@@ -13,7 +13,7 @@ class CreateFormDrugStockApprovalsTable extends Migration
      * @return void
      */
     public function up()
-    {
+    {return;
         Schema::create('form_drug_stock_approvals', function (Blueprint $table) {
             $table->id();
             $table->timestamps();

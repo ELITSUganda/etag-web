@@ -18,11 +18,10 @@ class Event extends Model
 
         self::creating(function ($model) {
 
-
             if ($model->is_batch_import) {
                 //$model->import_file = 'public/storage/files/1.xls';
-                Event::process_btach_important($model);
-                return false;
+                //Event::process_btach_important($model);
+                //return false;
             }
 
             $animal = Animal::where('id', $model->animal_id)->first();
@@ -30,12 +29,95 @@ class Event extends Model
                 die("Animal ID not system.");
                 return false;
             }
-            $model->district_id = $animal->district_id;
-            $model->sub_county_id = $animal->sub_county_id;
-            $model->parish_id = $animal->parish_id;
+
+
             $model->farm_id = $animal->farm_id;
-            $model->administrator_id = $animal->administrator_id;
             $model->animal_type = $animal->type;
+            $model->district_id = $animal->farm->disease_id;
+            $model->sub_county_id = $animal->farm->sub_county_id;
+            $model->administrator_id = $animal->farm->administrator_id;
+
+            if ($model->type == 'Pregnancy check') {
+                $ok = false;
+                if (
+                    isset($model->pregnancy_check_method) &&
+                    isset($model->pregnancy_check_results) 
+                ) {
+                     
+                }
+                if (!$ok) {
+                    die("enter valid Pregnancy check parametters");
+                }
+            } else if ($model->type == 'Disease') {
+                if (isset($model->disease_id)) {
+                    if ($model->disease_id != null) {
+                        if (isset($model->disease_test_results)) {
+                            if ($model->disease_test_results != null) {
+                                $sick = new SickAnimal();
+                                $sick->administrator_id = $animal->administrator_id;
+                                $sick->animal_id = $animal->id;
+                                $sick->disease_id = $model->disease_id;
+                                $sick->test_results = $model->test_results;
+                                $sick->current_results = $model->current_results;
+                                $sick->district_id = $animal->farm->district_id;
+                                $sick->sub_county_id = $animal->farm->sub_county_id;
+                                $sick->description = "Disease test for animal {$animal->e_id} - {$animal->v_id} and found it {$model->disease_test_results}.";
+                                $sick->details = $model->details;
+                                $model->description = $sick->description;
+                                $sick->save();
+                            }
+                        }
+                    }
+                }
+            } else if ($model->type == 'Drug') {
+                $ok = false;
+                if (isset($model->medicine_quantity)) {
+                    if ($model->medicine_id != null) {
+                        if (((int)($model->medicine_quantity)) > 0) {
+                            $medicine = DrugStockBatch::find($model->medicine_id);
+                            if ($medicine != null) {
+
+                                $medicine_quantity = ((int)($model->medicine_quantity));
+                                if ($medicine->current_quantity < $medicine_quantity) {
+                                    die("Failed to created event because available drug quantity is less than what you have entered.");
+                                }
+                                $ok = true;
+                                $record = new DrugStockBatchRecord();
+                                $record->record_type = 'animal_event';
+                                $record->administrator_id = $animal->administrator_id;
+                                $record->drug_stock_batch_id = $medicine->id;
+                                $record->batch_number = $medicine->batch_number;
+                                $record->receiver_account = null;
+                                $record->other_explantion = $model->details;
+                                $record->buyer_info = null;
+                                $record->is_generated = 'no';
+                                $record->event_animal_id = $animal->id;
+                                $record->quantity = $medicine_quantity;
+                                $record->description = "Applied Quantity: {$medicine_quantity} {$medicine->category->unit} of  Drug: {$medicine->category->name}, Stock ID: #{$medicine->id}, 
+                                Batch number: {$medicine->batch_number} to Animal ID: {$animal->id}, E-ID:  {$animal->e_id}, V-ID:  {$animal->v_id}.";
+                                $model->description = $record->description;
+                                $record->save();
+                            }
+                        }
+                    }
+                }
+                if (!$ok) {
+                    die("enter valid treament parametters");
+                }
+            }
+
+
+            if (isset($model->disease_id)) {
+                unset($model->disease_id);
+            }
+            if (isset($model->disease_test_results)) {
+                unset($model->disease_test_results);
+            }
+
+            if (isset($model->medicine_quantity)) {
+                unset($model->medicine_quantity);
+            }
+
 
             return $model;
         });
@@ -67,8 +149,15 @@ class Event extends Model
 
         self::updating(function ($model) {
 
+            if (isset($model->disease_id)) {
+                unset($model->disease_id);
+            }
+            if (isset($model->disease_test_results)) {
+                unset($model->disease_test_results);
+            }
+
             $type = trim($model->type);
-            $events = ['Stolen', 'Home slaughter','Slaughter', 'Death'];
+            $events = ['Stolen', 'Home slaughter', 'Slaughter', 'Death'];
             $user = Administrator::find($model->administrator_id);
             if (in_array($type, $events)) {
                 if ($user == null) {
@@ -93,7 +182,6 @@ class Event extends Model
             $model->sub_county_id = $animal->sub_county_id;
             $model->parish_id = $animal->parish_id;
             $model->farm_id = $animal->farm_id;
-            $model->administrator_id = $animal->administrator_id;
             $model->animal_type = $animal->type;
 
             return $model;

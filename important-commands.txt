@@ -7,6 +7,8 @@ php artisan make:migration create_power_stations_table
 php artisan make:migration create_engines_table
 php artisan make:migration create_archived_animals_table
 php artisan make:migration create_images_table
+php artisan make:migration create_sick_animals_table
+php artisan make:migration create_pregnant_animals_table
 
 
 php artisan make:migration create_import_export_permits_table
@@ -49,6 +51,8 @@ php artisan admin:make FormDrugStockApprovalController --model=App\\Models\\Form
 php artisan admin:make DrugStockBatchController --model=App\\Models\\DrugStockBatch
 php artisan admin:make DrugStockBatchRecordController --model=App\\Models\\DrugStockBatchRecord
 php artisan admin:make Animal1Controller --model=App\\Models\\Animal
+php artisan admin:make SickAnimalController --model=App\\Models\\SickAnimal
+php artisan admin:make EventController --model=App\\Models\\Event
 
 
 php artisan make:model CheckPoint
@@ -64,6 +68,7 @@ php artisan make:model DrugStockBatch
 php artisan make:model DrugStockBatchRecord 
 php artisan make:model Image
 php artisan make:model ProductOrder
+php artisan make:model SickAnimal
 
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs

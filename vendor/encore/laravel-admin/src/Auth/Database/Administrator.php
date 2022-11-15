@@ -2,6 +2,8 @@
 
 namespace Encore\Admin\Auth\Database;
 
+use App\Models\Farm;
+use App\Models\Utils;
 use Encore\Admin\Traits\DefaultDatetimeFormat;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
@@ -21,6 +23,64 @@ class Administrator extends Model implements AuthenticatableContract
     use DefaultDatetimeFormat;
 
     protected $fillable = ['username', 'password', 'name', 'avatar'];
+
+    public static function boot()
+    {
+        parent::boot();
+
+        self::creating(function ($m) {
+
+
+            $phone_number = Utils::prepare_phone_number($m->phone_number);
+            $phone_number_is_valid = Utils::phone_number_is_valid($phone_number);
+            if ($phone_number_is_valid) {
+                $m->phone_number = $phone_number;
+                $m->username = $phone_number;
+            } else {
+                if ($m->email != null) {
+                    $m->username = $m->email;
+                }
+            }
+
+            return $m;
+        });
+
+        self::created(function ($model) {
+            //$pro['user_id'] = $model->id;
+            //Profile::create($pro);
+        });
+
+        self::updating(function ($m) {
+
+            $phone_number = Utils::prepare_phone_number($m->phone_number);
+            $phone_number_is_valid = Utils::phone_number_is_valid($phone_number);
+            if ($phone_number_is_valid) {
+                $m->phone_number = $phone_number;
+                $m->username = $phone_number;
+                $users = Administrator::where([
+                    'username' => $phone_number
+                ])->orWhere([
+                    'phone_number' => $phone_number
+                ])->get();
+
+                foreach ($users as $u) {
+                    if ($u->id != $m->id) {
+                        $u->delete();
+                        continue;
+                        $_resp = Utils::response([
+                            'status' => 0,
+                            'message' => "This phone number $m->phone_number is already used by another account",
+                            'data' => null
+                        ]);
+                    }
+                }
+            }
+            return $m;
+        });
+    }
+
+
+
 
     /**
      * Create a new Eloquent model instance.
@@ -88,5 +148,12 @@ class Administrator extends Model implements AuthenticatableContract
         $relatedModel = config('admin.database.permissions_model');
 
         return $this->belongsToMany($relatedModel, $pivotTable, 'user_id', 'permission_id');
+    }
+
+
+
+    public function farms()
+    {
+        return $this->hasMany(Farm::class, 'administrator_id');
     }
 }

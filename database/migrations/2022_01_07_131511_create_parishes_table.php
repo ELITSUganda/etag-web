@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Location;
 use App\Models\SubCounty;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -18,7 +19,7 @@ class CreateParishesTable extends Migration
             $table->id();
             $table->timestamps();
             $table->text('name');
-            $table->foreignIdFor(SubCounty::class)->default(1);
+            $table->foreignIdFor(Location::class,'sub_county_id')->default(1);
             $table->text('detail');
         });
     }

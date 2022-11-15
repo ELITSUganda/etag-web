@@ -19,6 +19,8 @@ class DrugStockBatch extends Model
         });
 
         self::creating(function ($m) {
+
+            $m->current_quantity = $m->original_quantity;
             //$m->batch_number .= '-' . time();
             return $m;
         });
@@ -27,7 +29,7 @@ class DrugStockBatch extends Model
             $rec->administrator_id = $m->administrator_id;
             $rec->drug_stock_batch_id = $m->id;
             $rec->description = $m->last_activity;
-            if ($m->details == 'NDA Approval') {
+            if ($m->details == 'New drug stock') {
                 $rec->record_type = 'nda_approval';
             } else if ($m->details == 'Received drugs') {
                 $rec->record_type = 'received_drugs';
@@ -53,7 +55,7 @@ class DrugStockBatch extends Model
 
     function category()
     {
-        return $this->belongsTo(DrugCategory::class);
+        return $this->belongsTo(DrugCategory::class, 'drug_category_id');
     }
 
     protected $appends = ['quantity_text'];

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\District;
+use App\Models\Location;
 use App\Models\Parish;
 use App\Models\SubCounty;
 use Encore\Admin\Auth\Database\Administrator;
@@ -22,8 +23,8 @@ class CreateAnimalsTable extends Migration
             $table->timestamps(); 
 
             $table->foreignIdFor(Administrator::class)->default(1);
-            $table->foreignIdFor(District::class)->default(1);
-            $table->foreignIdFor(SubCounty::class)->default(1);
+            $table->foreignIdFor(Location::class,'district_id')->default(1);
+            $table->foreignIdFor(Location::class,'sub_county_id')->default(1);
             $table->foreignIdFor(Parish::class)->default(1);
             $table->string('status');
             $table->string('type');

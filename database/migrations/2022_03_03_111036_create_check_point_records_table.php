@@ -18,7 +18,7 @@ class CreateCheckPointRecordsTable extends Migration
      */
     public function up()
     {
-        Schema::create('check_point_records', function (Blueprint $table) {
+       /*  Schema::create('check_point_records', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
             $table->foreignIdFor(CheckPoint::class); 
@@ -33,7 +33,7 @@ class CreateCheckPointRecordsTable extends Migration
             $table->text('failed')->nullable();
             $table->text('details')->nullable();
 
-        });
+        }); */
     }
 
     /**

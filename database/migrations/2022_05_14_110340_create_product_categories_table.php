@@ -13,7 +13,7 @@ class CreateProductCategoriesTable extends Migration
      */
     public function up()
     {
-        Schema::create('product_categories', function (Blueprint $table) {
+        /* Schema::create('product_categories', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
 
@@ -22,7 +22,7 @@ class CreateProductCategoriesTable extends Migration
             $table->text('details')->nullable();
             $table->integer('parent')->nullable()->default(0); 
 
-        });
+        }); */
     }
 
     /**

@@ -161,12 +161,12 @@ class DrugStockBatchRecordController extends AdminController
             );
             $f->select('receiver_account', "Receiver Account")
                 ->options(function ($id) {
-                    $a = User::find($id);
+                    $a = Administrator::find($id);
                     if ($a) {
                         return [$a->id => "" . $a->name . " - " . $a->phone_number];
                     }
                 })
-                ->ajax($ajax_url)->rules('required');
+                ->ajax($ajax_url)->rules('required'); 
         })->when('animal_event', function ($f) {
             $animals = [];
             foreach (Animal::where([

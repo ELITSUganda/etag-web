@@ -68,7 +68,7 @@ class DrugStockBatchRecord extends Model
         $description = $this->record_type;
         if ($this->record_type == 'offline_sales') {
             $description = "Sold $this->quantity Units of this drug to " . $this->buyer_info;
-        } else if ($this->record_type == 'animal_event') {
+        } else if ($this->record_type == 'animal_event') { 
             $event_animal = Animal::find($this->event_animal_id);
             $event_animal_name = $this->event_animal_id;
             if ($event_animal != null) {
@@ -143,7 +143,7 @@ class DrugStockBatchRecord extends Model
                             $m->receiver_account = $acc->id;
                         }
                     }
- 
+
 
                     if (((int)($m->receiver_account)) < 1) {
                         die('Receiver account not found.');
@@ -151,9 +151,15 @@ class DrugStockBatchRecord extends Model
                 }
             }
 
-            unset($m->buyer_name);
-            unset($m->buyer_nin);
-            unset($m->buyer_phone);
+            if (isset($m->buyer_name)) {
+                unset($m->buyer_name);
+            }
+            if (isset($m->buyer_nin)) {
+                unset($m->buyer_nin);
+            }
+            if (isset($m->buyer_phone)) {
+                unset($m->buyer_phone);
+            }
 
             $batch = DrugStockBatch::find($m->drug_stock_batch_id);
             if ($batch == null) {
@@ -181,8 +187,8 @@ class DrugStockBatchRecord extends Model
                 $m->record_type == 'offline_sales'
 
             ) {
-                $reciever = User::find($m->receiver_account);
-                $sender = User::find($m->administrator_id);
+                $reciever = Administrator::find($m->receiver_account);
+                $sender = Administrator::find($m->administrator_id);
                 if ($reciever == null) {
                     admin_error("Error", 'Receiver account not found.');
                 }

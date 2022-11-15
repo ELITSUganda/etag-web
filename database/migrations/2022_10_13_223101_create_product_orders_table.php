@@ -13,6 +13,7 @@ class CreateProductOrdersTable extends Migration
      */
     public function up()
     {
+        return;
         Schema::create('product_orders', function (Blueprint $table) {
             $table->id();
             $table->timestamps(); 

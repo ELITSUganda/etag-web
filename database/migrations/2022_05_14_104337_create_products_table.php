@@ -15,7 +15,7 @@ class CreateProductsTable extends Migration
      */
     public function up()
     {
-        Schema::create('products', function (Blueprint $table) {
+        /* Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->timestamps(); 
             $table->foreignIdFor(Administrator::class)->default(1);
@@ -26,7 +26,7 @@ class CreateProductsTable extends Migration
             $table->text('thumbnail')->nullable(); 
             $table->text('images')->nullable(); 
             $table->text('details')->nullable(); 
-        });
+        }); */
     }
  
     /**

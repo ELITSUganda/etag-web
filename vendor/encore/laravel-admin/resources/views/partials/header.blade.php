@@ -1,3 +1,7 @@
+<?php
+use App\Models\Utils;
+
+?>
 <!-- Main Header -->
 <header class="main-header">
 
@@ -10,18 +14,18 @@
     </a>
 
     <!-- Header Navbar -->
-    <nav class="navbar navbar-static-top" role="navigation">
+    <nav class="navbar navbar-static-top d-block p-0" role="navigation">
         <!-- Sidebar toggle button-->
         <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
             <span class="sr-only">Toggle navigation</span>
         </a>
         <ul class="nav navbar-nav hidden-sm visible-lg-block">
-        {!! Admin::getNavbar()->render('left') !!}
+            {!! Admin::getNavbar()->render('left') !!}
         </ul>
 
         <!-- Navbar Right Menu -->
         <div class="navbar-custom-menu">
-            <ul class="nav navbar-nav">
+            <ul class="nav navbar-nav ">
 
                 {!! Admin::getNavbar()->render() !!}
 
@@ -46,18 +50,20 @@
                         </li>
                         <li class="user-footer">
                             <div class="pull-left">
-                                <a href="{{ admin_url('auth/setting') }}" class="btn btn-default btn-flat">{{ trans('admin.setting') }}</a>
+                                <a href="{{ admin_url('auth/setting') }}"
+                                    class="btn btn-default btn-flat">{{ trans('admin.setting') }}</a>
                             </div>
                             <div class="pull-right">
-                                <a href="{{ admin_url('auth/logout') }}" class="btn btn-default btn-flat">{{ trans('admin.logout') }}</a>
+                                <a href="{{ admin_url('auth/logout') }}"
+                                    class="btn btn-default btn-flat">{{ trans('admin.logout') }}</a>
                             </div>
                         </li>
                     </ul>
                 </li>
                 <!-- Control Sidebar Toggle Button -->
-                {{--<li>--}}
-                    {{--<a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>--}}
-                {{--</li>--}}
+                {{-- <li> --}}
+                {{-- <a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a> --}}
+                {{-- </li> --}}
             </ul>
         </div>
     </nav>

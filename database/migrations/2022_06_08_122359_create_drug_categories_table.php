@@ -13,6 +13,8 @@ class CreateDrugCategoriesTable extends Migration
      */
     public function up()
     {
+ 
+        return;
         Schema::create('drug_categories', function (Blueprint $table) {
             $table->id();
             $table->timestamps();

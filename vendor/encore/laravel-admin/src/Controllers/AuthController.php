@@ -2,6 +2,7 @@
 
 namespace Encore\Admin\Controllers;
 
+use App\Models\Utils;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Encore\Admin\Layout\Content;
@@ -41,18 +42,35 @@ class AuthController extends Controller
      * @return mixed
      */
     public function postLogin(Request $request)
-    {
-        $this->loginValidator($request->all())->validate();
+    { 
+        $phone_number = Utils::prepare_phone_number($request->phone_number);
+        if (!Utils::phone_number_is_valid($phone_number)) {
+            return back()->withInput()->withErrors([
+                'phone_number' => "Enter valid phone number.",
+            ]);
+        }
 
-        $credentials = $request->only([$this->username(), 'password']);
-        $remember = $request->get('remember', false);
 
+        $credentials['phone_number'] = $phone_number;
+        $credentials['password'] = trim($request->password);
+        $remember = true;
         if ($this->guard()->attempt($credentials, $remember)) {
             return $this->sendLoginResponse($request);
         }
 
+        $credentials['phone_number'] = $phone_number;
+        if ($this->guard()->attempt($credentials, $remember)) {
+            return $this->sendLoginResponse($request);
+        }
+
+        $credentials['email'] = $phone_number;
+        if ($this->guard()->attempt($credentials, $remember)) {
+            return $this->sendLoginResponse($request);
+        }
+ 
+
         return back()->withInput()->withErrors([
-            $this->username() => $this->getFailedLoginMessage(),
+            'phone_number' => "Enter valid credentials.",
         ]);
     }
 

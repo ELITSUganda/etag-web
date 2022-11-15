@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Location;
 use App\Models\SubCounty;
 use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Database\Migrations\Migration;
@@ -16,7 +17,7 @@ class CreateCheckPointsTable extends Migration
     public function up()
     {
         //Schema::dropIfExists('check_points');
-        Schema::create('check_points', function (Blueprint $table) {
+       /*  Schema::create('check_points', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
             $table->text('name')->nullable(); 
@@ -24,8 +25,8 @@ class CreateCheckPointsTable extends Migration
             $table->text('longitude')->nullable();
             $table->text('latitube')->nullable();
             $table->foreignIdFor(Administrator::class);
-            $table->foreignIdFor(SubCounty::class); 
-        });
+            $table->foreignIdFor(Location::class,'sub_county_id')->default(1);
+        }); */
     }
 
     /**

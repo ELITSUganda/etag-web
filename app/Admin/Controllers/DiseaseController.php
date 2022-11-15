@@ -25,9 +25,20 @@ class DiseaseController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new Disease());
+        $grid->disableBatchActions();
+        $grid->quickSearch('name')->placeholder('Search by name');
 
-        $grid->column('id', __('Id'))->sortable();
-        $grid->column('name', __('Name'))->sortable(); 
+        $grid->column('id', __('Id'))
+            ->width(40)
+            ->sortable();
+
+        $grid->column('photo', __('Photo'))
+            ->width(55)
+            ->sortable()
+            ->lightbox(['width' => 50, 'height' => 50]);
+
+        $grid->column('name', __('Name'))->sortable();
+        $grid->column('details', __('Description'))->sortable();
 
         return $grid;
     }
@@ -61,7 +72,8 @@ class DiseaseController extends AdminController
         $form = new Form(new Disease());
 
         $form->text('name', __('Name'))->required();
-        $form->textarea('details', __('Details'));
+        $form->textarea('details', __('Description'));
+        $form->image('photo', __('Photo'));
 
         return $form;
     }

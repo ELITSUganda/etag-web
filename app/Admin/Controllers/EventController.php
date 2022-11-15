@@ -5,8 +5,10 @@ namespace App\Admin\Controllers;
 use App\Models\Animal;
 use App\Models\Disease;
 use App\Models\District;
+use App\Models\DrugStockBatch;
 use App\Models\Event;
 use App\Models\Farm;
+use App\Models\Location;
 use App\Models\Medicine;
 use App\Models\SubCounty;
 use App\Models\Utils;
@@ -69,6 +71,7 @@ class EventController extends AdminController
         }
         dd("Done");*/
 
+
         if (Admin::user()->isRole('farmer')) {
             $grid->model()->where('administrator_id', '=', Admin::user()->id);
             $grid->actions(function ($actions) {
@@ -83,17 +86,6 @@ class EventController extends AdminController
         $grid->filter(function ($filter) {
 
 
-
-            $sub_counties = [];
-            foreach (SubCounty::all() as $key => $p) {
-                $sub_counties[$p->id] = $p->name . ", " .
-                    $p->district->name . ".";
-            }
-
-            $districts = [];
-            foreach (District::all() as $key => $p) {
-                $districts[$p->id] = $p->name . "m  ";
-            }
 
             $admins = [];
             foreach (Administrator::all() as $key => $v) {
@@ -116,13 +108,36 @@ class EventController extends AdminController
                 'Sheep' => "Sheep"
             ));
 
-            $filter->equal('district_id', "District")->select($districts);
-            $filter->equal('sub_county_id', "Sub county")->select($sub_counties);
+            $filter->equal('district_id', 'Filter by district')->select(function ($id) {
+                $a = Location::find($id);
+                if ($a) {
+                    return [$a->id => $a->name_text];
+                }
+            })
+                ->ajax(
+                    url('/api/ajax?'
+                        . "&search_by_1=name"
+                        . "&search_by_2=id"
+                        . "&query_parent=0"
+                        . "&model=Location")
+                );
+
+            $filter->equal('sub_county_id', 'Filter by sub-county')->select(function ($id) {
+                $a = Location::find($id);
+                if ($a) {
+                    return [$a->id => $a->name_text];
+                }
+            })
+                ->ajax(
+                    url('/api/sub-counties')
+                );
+
             $filter->like('animal_id', "Animal")->select($animals);
             $filter->equal('type', "Event type")->select(array(
                 'Disease' => 'Disease',
                 'Drug' => 'Teatment',
                 'Vaccination' => 'Vaccination',
+                'Pregnancy' => 'Pregnancy test',
                 'Death' => 'Death',
                 'Slaughter' => 'Slaughter',
                 'Other' => 'Other',
@@ -202,19 +217,11 @@ class EventController extends AdminController
 
         $grid->column('district_id', __('District'))
             ->display(function ($id) {
-                $u = District::find($id);
-                if (!$u) {
-                    return $id;
-                }
-                return $u->name;
+                return Utils::get_object(Location::class, $id)->name_text;
             })->sortable();
         $grid->column('sub_county_id', __('Sub county'))
             ->display(function ($id) {
-                $u = SubCounty::find($id);
-                if (!$u) {
-                    return $id;
-                }
-                return $u->name;
+                return Utils::get_object(Location::class, $id)->name_text;
             })->sortable();
 
 
@@ -292,60 +299,38 @@ class EventController extends AdminController
         Utils::display_alert_message();
         $form = new Form(new Event());
 
-        if (
-            isset($_POST['type']) &&
-            isset($_POST['animal_id'])
-        ) {
-            $type = trim($_POST['type']);
-            $events = ['Stolen', 'Home slaughter', 'Death'];
-            $user = Auth::user();
-            if (in_array($type, $events)) {
-                $d['event'] = $type;
-                $d['details'] =  $type . " By " . $user->name . " - " . $user->id;
-                $d['animal_id'] = $_POST['animal_id'];
-                Utils::archive_animal($d);
-
-                header('Location: ' . admin_url("events"));
-                die();
-            }
-        }
 
         $form->hidden('administrator_id', __('Administrator id'))->default(1);
         $form->hidden('district_id', __('District id'))->default(1);
         $form->hidden('sub_county_id', __('Sub county id'))->default(1);
+        $form->hidden('is_batch_import', __('Sub county id'))->default(0);
         $form->hidden('farm_id', __('Farm id'))->default(1);
 
 
-        $form->radio('is_batch_import', __('Event registration'))
-            ->options([
-                0 => 'Single event',
-                1 => 'BulK events',
-            ])
-            ->when(1, function (Form $form) {
-                $form->file('import_file', __('Select excel file'))
-                    ->help('A file that was exported by the reader.')
-                    ->rules('required');
-            })
-            ->default(0)
-            ->when(0, function (Form $form) {
-                $animals = [];
-                foreach (Animal::all() as $key => $v) {
-                    $animals[$v->id] = $v->e_id . " - " . $v->v_id;
+
+        $u = Admin::user();
+        $form->select('animal_id', 'Select Animal')
+            ->options(function ($id) {
+                $parent = Animal::find($id);
+                if ($parent != null) {
+                    return [$parent->id =>  $parent->v_id . " - " . $parent->e_id];
                 }
+            })
+            ->rules('required')
+            ->ajax(
+                url('/api/ajax-animals?'
+                    . "&administrator_id={$u->id}")
+            )->rules('required');
 
-                $form->select('animal_id', __('Select Animal'))
-                    ->options($animals)
-                    ->help('Use animal\'s V-ID or E-ID')
-                    ->rules('required');
-            })->rules('required');
 
-
-
+        $form->divider();
         $form->radio('type', __('Event type'))
             ->options(array(
-                'Disease' => 'Disease',
+                'Disease' => 'Disease test',
                 'Drug' => 'Teatment',
                 'Vaccination' => 'Vaccination',
+                'Pregnancy check' => 'Pregnancy check',
+                'Temprature check' => 'Temprature check',
                 'Birth' => 'Birth',
                 'Stolen' => 'Stolen',
                 'Home slaughter' => 'Home slaughter',
@@ -353,37 +338,103 @@ class EventController extends AdminController
                 'Other' => 'Other',
 
             ))
-            ->required()
+            ->rules('required')
+            ->when('Pregnancy check', function (Form $form) {
+                $form->radio('pregnancy_check_method', __(
+                    'Pregnancy check method used'
+                ))
+                    ->options(array(
+                        'Palpation' => 'Palpation',
+                        'Ultrasound' => 'Ultrasound',
+                        'Observation' => 'Observation',
+                        'Blood' => 'Blood',
+                        'Urine' => 'Urine',
+                    ))
+                    ->rules('required');
+
+                $form->radio('pregnancy_check_results', __( 
+                    'Pregnancy check results'
+                ))
+                    ->options(array(
+                        'Pregnant' => 'Is pregnant',
+                        'Not Pregnant' => 'Is not pregnant',
+                    ))
+                    ->when('Pregnant', function (Form $form) {
+                        $form->radio('pregnancy_fertilization_method', __(
+                            'Pregnancy fertilization method used'
+                        ))
+                            ->options(array(
+                                'Artificial insemination' => 'Artificial insemination',
+                                'Natural breeding' => 'Natural breeding',
+                            ))
+                            ->rules('required');
+                        $form->radio('pregnancy_expected_sex', __(
+                            'Expected calf sex'
+                        ))
+                            ->options(array(
+                                'Male' => 'Bull',
+                                'Heifer' => 'Heifer',
+                                'Unkown' => 'Unkown',
+                            ))
+                            ->rules('required');
+                    })
+                    ->rules('required');
+            })
             ->when('Disease', function (Form $form) {
                 $form->select('disease_id', __('Select disease'))
-                    ->options(Disease::all()->pluck('name', 'name'))
-                    ->help('Please select disease')
+                    ->options(Disease::all()->pluck('name', 'id'))
+                    ->rules('required');
+                $form->radio('disease_test_results', __(
+                    'Disease test results'
+                ))
+                    ->options(array(
+                        'Positive' => 'Positive (Has the disease)',
+                        'Negative' => 'Negative (Does not have the disease)',
+                    ))
                     ->rules('required');
             })
             ->when('Drug', function (Form $form) {
+                $drugs = [];
+                foreach (DrugStockBatch::where([
+                    'administrator_id' => Auth::user()->id
+                ])
+                    ->where('current_quantity', '>', 0)
+                    ->get() as $key => $v) {
+
+                    $unit = "";
+                    if ($v->category != null) {
+                        $unit = " - {$v->category->unit}";
+                    }
+
+                    $drugs[$v->id] = $v->name . " - Available QTY: {$v->current_quantity} {$unit}";
+                }
+
+
                 $form->select('medicine_id', __('Please select Drug'))
-                    ->options(Medicine::all()->pluck('name', 'name'))
+                    ->options($drugs)
                     ->rules('required');
+                $form->decimal('medicine_quantity', 'Applied quantity')->rules('required');
             })
             ->when('Vaccination', function (Form $form) {
                 $form->select('vaccine_id', __('Please select Vaccine'))
                     ->options(Vaccine::all()->pluck('name', 'name'))
                     ->rules('required');
             });
-
-        $form->text('detail', __('Detail'))->required()
+        $form->divider();
+        $form->text('detail', __('Event Details'))
             ->help("Specify the event and be as brief as possible. For example, if Death, only enter the cause of death in
         this detail field.");
 
         $user = Auth::user();
-        $form->select('approved_by', __('Approved by'))
-            ->options(array(
-                $user->id => $user->name
-            ))
+        $form->hidden('approved_by', __('Approved by'))
             ->default($user->id)
             ->value($user->id)
             ->readonly()
             ->required();
+
+
+        $form->disableEditingCheck();
+        $form->disableViewCheck();
 
         return $form;
     }

@@ -16,6 +16,7 @@ class CreateDrugStockBatchRecordsTable extends Migration
      */
     public function up()
     {
+        return;
         Schema::create('drug_stock_batch_records', function (Blueprint $table) {
             $table->id();
             $table->timestamps();

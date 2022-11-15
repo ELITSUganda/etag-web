@@ -154,11 +154,10 @@ return [
 
         // Disk in `config/filesystem.php`.
         'disk' => 'admin',
-
         // Image and file upload path under the disk above.
         'directory' => [
-            'image' => 'public/storage/images',
-            'file'  => 'public/storage/files',
+            'image' => '/images',
+            'file'  => 'files',
         ],
     ],
 
@@ -403,6 +402,11 @@ return [
     |
     */
     'extensions' => [
+
+        'grid-lightbox' => [
+            'enable' => true,
+        ],
+
         'chartjs' => [
 
             // Set to `false` if you want to disable this extension

@@ -45,8 +45,8 @@
                                 </div>
                             </div>
                             <div class="col-12">
-                                <div class="form-group"><input type="password" class="form-control"
-                                        placeholder="Password" name="password"><button class="form-icon"><i
+                                <div class="form-group"><input  type="password" class="form-control"
+                                        placeholder="Password" name="password" value="{{ old('password') }}"><button class="form-icon"><i
                                             class="eye fas fa-eye"></i></button><small class="form-alert">Password must
                                         be more than 6 characters</small>
                                     @error('password')
