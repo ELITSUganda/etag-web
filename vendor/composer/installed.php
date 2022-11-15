@@ -3,7 +3,7 @@
         'name' => 'laravel/laravel',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => 'ef848fa951d2e141533770255d3071e4b53b1e2d',
+        'reference' => 'f9d5c495e33ccaf92961446e108f27ce3aa860da',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -523,6 +523,15 @@
                 0 => 'v8.83.26',
             ),
         ),
+        'jxlwqq/material-ui' => array(
+            'pretty_version' => '1.0.7',
+            'version' => '1.0.7.0',
+            'reference' => 'b14700437fe2a1aec0717ad51a1195d4cae227a6',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../jxlwqq/material-ui',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'jxlwqq/quill' => array(
             'pretty_version' => '1.0.4',
             'version' => '1.0.4.0',
@@ -568,7 +577,7 @@
         'laravel/laravel' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => 'ef848fa951d2e141533770255d3071e4b53b1e2d',
+            'reference' => 'f9d5c495e33ccaf92961446e108f27ce3aa860da',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

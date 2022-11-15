@@ -164,6 +164,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'J' => 
         array (
             'Jxlwqq\\Quill\\' => 13,
+            'Jxlwqq\\MaterialUI\\' => 18,
         ),
         'I' => 
         array (
@@ -561,6 +562,10 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'Jxlwqq\\Quill\\' => 
         array (
             0 => __DIR__ . '/..' . '/jxlwqq/quill/src',
+        ),
+        'Jxlwqq\\MaterialUI\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/jxlwqq/material-ui/src',
         ),
         'Illuminate\\Support\\' => 
         array (
@@ -4227,6 +4232,8 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'Illuminate\\View\\ViewName' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/View/ViewName.php',
         'Illuminate\\View\\ViewServiceProvider' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/View/ViewServiceProvider.php',
         'JsonException' => __DIR__ . '/..' . '/symfony/polyfill-php73/Resources/stubs/JsonException.php',
+        'Jxlwqq\\MaterialUI\\MaterialUI' => __DIR__ . '/..' . '/jxlwqq/material-ui/src/MaterialUI.php',
+        'Jxlwqq\\MaterialUI\\MaterialUIServiceProvider' => __DIR__ . '/..' . '/jxlwqq/material-ui/src/MaterialUIServiceProvider.php',
         'Jxlwqq\\Quill\\Editor' => __DIR__ . '/..' . '/jxlwqq/quill/src/Editor.php',
         'Jxlwqq\\Quill\\Quill' => __DIR__ . '/..' . '/jxlwqq/quill/src/Quill.php',
         'Jxlwqq\\Quill\\QuillServiceProvider' => __DIR__ . '/..' . '/jxlwqq/quill/src/QuillServiceProvider.php',

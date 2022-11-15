@@ -3458,6 +3458,8 @@ return array(
     'Illuminate\\View\\ViewName' => $vendorDir . '/laravel/framework/src/Illuminate/View/ViewName.php',
     'Illuminate\\View\\ViewServiceProvider' => $vendorDir . '/laravel/framework/src/Illuminate/View/ViewServiceProvider.php',
     'JsonException' => $vendorDir . '/symfony/polyfill-php73/Resources/stubs/JsonException.php',
+    'Jxlwqq\\MaterialUI\\MaterialUI' => $vendorDir . '/jxlwqq/material-ui/src/MaterialUI.php',
+    'Jxlwqq\\MaterialUI\\MaterialUIServiceProvider' => $vendorDir . '/jxlwqq/material-ui/src/MaterialUIServiceProvider.php',
     'Jxlwqq\\Quill\\Editor' => $vendorDir . '/jxlwqq/quill/src/Editor.php',
     'Jxlwqq\\Quill\\Quill' => $vendorDir . '/jxlwqq/quill/src/Quill.php',
     'Jxlwqq\\Quill\\QuillServiceProvider' => $vendorDir . '/jxlwqq/quill/src/QuillServiceProvider.php',
