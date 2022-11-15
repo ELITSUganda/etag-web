@@ -87,7 +87,7 @@ class ApiLoginController extends Controller
 
         $u = Administrator::where('phone_number', $phone_number)->first();
         $u->role = 'farmer';
-        
+
 
         return Utils::response([
             'status' => 1,
@@ -113,12 +113,13 @@ class ApiLoginController extends Controller
         if (
             $request->username != null
         ) {
+
             $user = Administrator::where("username", trim($request->username))->first();
             if ($user == null) {
                 $user = Administrator::where("email", trim($request->username))->first();
             }
             if ($user == null) {
-                $user = Administrator::where("phone_number", Utils::prepare_phone_number(trim($request->phone_number)))->first();
+                $user = Administrator::where("phone_number", Utils::prepare_phone_number(trim($request->username)))->first();
             }
         }
 
@@ -140,14 +141,13 @@ class ApiLoginController extends Controller
         if ($user == null) {
             return Utils::response([
                 'status' => 0,
-                'message' => "You provided wrong username or email or phone number."
+                'message' => "You provided wrong credentials. Please contact us to re-set your password."
             ]);
         }
 
         if (password_verify(trim($request->password), $user->password)) {
             unset($user->password);
             $user->role =  Utils::get_role($user);
-
             $user->roles = $user->roles;
             return Utils::response([
                 'status' => 1,
