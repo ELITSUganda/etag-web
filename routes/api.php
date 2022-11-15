@@ -1,5 +1,4 @@
 <?php
-//rominah j
 use App\Admin\Controllers\FarmController;
 use App\Http\Controllers\ApiAnimalController;
 use App\Http\Controllers\ApiEventController;
@@ -237,7 +236,6 @@ Route::get('ajax-animals', function (Request $r) {
     foreach ($res_2 as $key => $v) {
         if (in_array($v->id, $done_ids)) {
             continue;
-        }
         $data[] = [
             'id' => $v->id,
             'text' => "{$v->e_id} - {$v->v_id}"

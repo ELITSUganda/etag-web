@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Utils;
 use Encore\Admin\Auth\Database\Administrator;
+use Hamcrest\Util;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -12,32 +13,26 @@ class ApiLoginController extends Controller
     public function create_account(Request $request)
     {
         if (
-            $request->username == null ||
-            $request->phone_number == null ||
             $request->name == null ||
+            $request->phone_number == null ||
             $request->password == null
         ) {
             return Utils::response([
                 'status' => 0,
-                'message' => "You must provide username, password, name and phone number."
+                'message' => "You must provide your name, phone number and  password."
             ]);
         }
 
-        $u = Administrator::where('username', $request->username)->first();
-        if ($u != null) {
+        if (!Utils::phone_number_is_valid($request->phone_number)) {
             return Utils::response([
                 'status' => 0,
-                'message' => "User with same username already exist."
+                'message' => "Provide a valid phone number."
             ]);
         }
-        $u = Administrator::where('email', $request->username)->first();
-        if ($u != null) {
-            return Utils::response([
-                'status' => 0,
-                'message' => "User with same email address already exist."
-            ]);
-        }
-        $u = Administrator::where('phone_number', $request->phone_number)->first();
+
+        $phone_number =  Utils::prepare_phone_number($request->phone_number);
+
+        $u = Administrator::where('phone_number', $phone_number)->first();
         if ($u != null) {
             return Utils::response([
                 'status' => 0,
@@ -45,25 +40,42 @@ class ApiLoginController extends Controller
             ]);
         }
 
+        $u = Administrator::where('username', $phone_number)->first();
+        if ($u != null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User with same username already exist."
+            ]);
+        }
+        $u = Administrator::where('email', $phone_number)->first();
+        if ($u != null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User with same email address already exist."
+            ]);
+        }
+
+
         $user = new Administrator();
 
-
         $user->name = $request->name;
-        $user->username = $request->username;
-        $user->phone_number = $request->phone_number;
+        $user->username = $phone_number;
+        $user->phone_number = $phone_number;
+        $user->email = '';
+        $user->address = '';
         $user->password = password_hash(trim($request->password), PASSWORD_DEFAULT);
         if (!$user->save()) {
             return Utils::response([
                 'status' => 0,
-                'message' => "Failed to create ACCOUNT."
+                'message' => "Failed to create account."
             ]);
         }
 
-        $u = Administrator::where('username', $request->username)->first();
-        if ($u === null) {
+        $u = Administrator::where('phone_number', $phone_number)->first();
+        if ($u == null) {
             return Utils::response([
                 'status' => 0,
-                'message' => "Failed to create account. Plase try agains."
+                'message' => "Failed to find account. Plase try agains."
             ]);
         }
 
@@ -72,7 +84,6 @@ class ApiLoginController extends Controller
             'user_id' => $u->id,
             'role_id' => 3
         ]);
-
 
         return Utils::response([
             'status' => 1,
@@ -130,7 +141,7 @@ class ApiLoginController extends Controller
         }
 
         if (password_verify(trim($request->password), $user->password)) {
-            unset($user->password); 
+            unset($user->password);
             $user->role =  Utils::get_role($user);
 
             $user->roles = $user->roles;
