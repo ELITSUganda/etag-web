@@ -98,7 +98,7 @@ class ApiLoginController extends Controller
 
     public function index(Request $request)
     {
-        if (
+        if ( 
             $request->password == null
         ) {
             return Utils::response([
@@ -158,6 +158,8 @@ class ApiLoginController extends Controller
 
         return Utils::response([
             'status' => 0,
+            'message' => "You provided wring passwrd.",
+            'data' => null
         ]);
     }
 }
