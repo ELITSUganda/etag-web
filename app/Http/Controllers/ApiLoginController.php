@@ -85,6 +85,10 @@ class ApiLoginController extends Controller
             'role_id' => 3
         ]);
 
+        $u = Administrator::where('phone_number', $phone_number)->first();
+        $u->role = 'farmer';
+        
+
         return Utils::response([
             'status' => 1,
             'message' => "Account created successfully.",

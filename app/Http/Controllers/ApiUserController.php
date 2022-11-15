@@ -46,7 +46,7 @@ class ApiUserController extends Controller
     public function store(Request $request)
     {
         $ad = new Administrator();
-        if (!isset($request->username)) {
+        if (!isset($request->username)) { 
             return Utils::response([
                 'status' => 0,
                 'message' => "You must provide username."
