@@ -13,10 +13,7 @@ class ApiFarmController extends Controller
 {
     public function locations(Request $request)
     {
-
-
         $data = Location::All();
-
         return Utils::response([
             'status' => 1,
             'message' => "Success",
