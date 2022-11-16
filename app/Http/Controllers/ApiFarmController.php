@@ -14,6 +14,10 @@ class ApiFarmController extends Controller
     public function locations(Request $request)
     {
 
+        ini_set('display_errors', 1);
+        ini_set('display_startup_errors', 1);
+        error_reporting(E_ALL);
+
         $res_1 = Location::where('parent', '!=', 0)->get();
         $data = [];
         foreach ($res_1 as $key => $v) {
