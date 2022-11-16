@@ -39,6 +39,13 @@ class Location extends Model
 
     public function getNameTextAttribute()
     {
+
+        if ($this->mum != null) {
+            return $this->mum->name . ", " . $this->name;
+        } else {
+            return $this->name;
+        }
+
         if (!isset($this->parent)) {
             return $this->name;
         }
@@ -71,6 +78,11 @@ class Location extends Model
             }
         }
         return $this->name;
+    }
+
+    public function mum()
+    {
+        return $this->belongsTo(Location::class, 'parent');
     }
 
     protected $appends = ['name_text'];
