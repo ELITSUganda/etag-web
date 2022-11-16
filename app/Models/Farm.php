@@ -106,7 +106,7 @@ class Farm extends Model
                 $model->holding_code = 'UG-000-00' . "-" . $num;
             }
 
-            return $model;
+            return $model; 
         });
 
 

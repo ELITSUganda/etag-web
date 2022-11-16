@@ -23,13 +23,13 @@ class ApiFarmController extends Controller
             $d['name_text'] = $v->name_text;
             $data[] = $d;
         }
- 
+
         return Utils::response([
             'status' => 1,
             'message' => "Success.",
             'data' => $data
         ]);
- 
+
 
         $has_search = false;
         if (isset($request->s)) {
@@ -96,13 +96,13 @@ class ApiFarmController extends Controller
         $data = Farm::where([
             'administrator_id' => $user_id
         ])->get();
- 
+
         return Utils::response([
             'status' => 1,
             'message' => "Success.",
             'data' => $data
         ]);
- 
+
 
         $has_search = false;
         if (isset($request->s)) {
@@ -185,13 +185,18 @@ class ApiFarmController extends Controller
     public function create(Request $request)
     {
 
+        $user_id = Utils::get_user_id($request);
+
+        $user = Farm::where([
+            'administrator_id' => $user_id
+        ])->first();
 
         if (
-            !isset($request->administrator_id)
+            $user == null
         ) {
             return Utils::response([
                 'status' => 0,
-                'message' => "You must provide farm owner."
+                'message' => "Farm owner not found."
             ]);
         }
 
@@ -203,42 +208,19 @@ class ApiFarmController extends Controller
                 'message' => "You must provide sub_county_id."
             ]);
         }
-        $administrator_id = 0;
-        if (isset($request->administrator_id)) {
-            $administrator_id = (int)($request->administrator_id);
-        }
-        $admin = Administrator::find($administrator_id);
 
-        if ($admin == null) {
-            $owner_temp_id = "";
-            if (isset($request->owner_temp_id)) {
-                $owner_temp_id = $request->owner_temp_id;
-            }
-            if (strlen($owner_temp_id) > 2) {
-                $admin = Administrator::where('temp_id', $owner_temp_id)->first();
-            }
-        }
-        if ($admin == null) {
-            return Utils::response([
-                'status' => 0,
-                'message' => "Farm owner not found."
-            ]);
-        }
-        if (!isset($admin->id)) {
-            return Utils::response([
-                'status' => 0,
-                'message' => "Farm owner ID not found."
-            ]);
-        }
-
+    
+        $user->sub_county_id = $request->sub_county_id;
+        $user->save();
+   
         $f = new Farm();
-        $f->administrator_id = $admin->id;
-        $f->animals_count = $request->animals_count;
-        $f->dfm = $request->dfm;
+        $f->administrator_id = $user->id;
+        $f->animals_count = 0;
+        $f->dfm = '1-1-2020';
         $f->farm_type = $request->farm_type;
-        $f->cattle_count = $request->cattle_count;
-        $f->sheep_count = $request->sheep_count;
-        $f->goats_count = $request->goats_count;
+        $f->cattle_count = 0;
+        $f->sheep_count = 0;
+        $f->goats_count = 0;
         $f->latitude = $request->latitude;
         $f->longitude = $request->longitude;
         $f->sub_county_id = $request->sub_county_id;
