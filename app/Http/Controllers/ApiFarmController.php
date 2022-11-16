@@ -14,8 +14,6 @@ class ApiFarmController extends Controller
     public function locations(Request $request)
     {
 
-
-
         $data = [];
         foreach (Location::All() as $v) {
             $d['id'] = $v->id;
@@ -207,10 +205,10 @@ class ApiFarmController extends Controller
             ]);
         }
 
-    
+
         $user->sub_county_id = $request->sub_county_id;
         $user->save();
-   
+
         $f = new Farm();
         $f->administrator_id = $user->id;
         $f->animals_count = 0;
