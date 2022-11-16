@@ -15,10 +15,17 @@ class ApiFarmController extends Controller
 
         $user_id = Utils::get_user_id($request);
         $user_role = Utils::is_admin($request);
- 
-        return Farm::where([
+
+        $data = Farm::where([
             'administrator_id' => $user_id
         ])->get();
+ 
+        return Utils::response([
+            'status' => 0,
+            'message' => "You must provide farm owner.",
+            'data' => $data
+        ]);
+ 
 
         $has_search = false;
         if (isset($request->s)) {
