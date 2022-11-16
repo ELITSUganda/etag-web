@@ -187,9 +187,7 @@ class ApiFarmController extends Controller
 
         $user_id = Utils::get_user_id($request);
 
-        $user = Farm::where([
-            'administrator_id' => $user_id
-        ])->first();
+        $user = Administrator::find($user_id);
 
         if (
             $user == null
