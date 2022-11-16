@@ -39,6 +39,8 @@ class Location extends Model
 
     public function getNameTextAttribute()
     {
+        return $this->name;
+
         if (!isset($this->parent)) {
             return $this->name;
         }
@@ -74,4 +76,18 @@ class Location extends Model
     }
 
     protected $appends = ['name_text'];
+
+    public function get_name()
+    {
+        $parent_id = ((int)($this->parent));
+        if ($parent_id < 1) {
+            return $this->name;
+        }
+        $m = Location::find($parent_id);
+        if ($m == null) {
+            return $this->name;
+        }
+
+        return $m->name . ", " . $this->name;
+    }
 }

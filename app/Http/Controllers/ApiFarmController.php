@@ -19,7 +19,7 @@ class ApiFarmController extends Controller
         foreach ($res_1 as $key => $v) {
             $data[] = [
                 'id' => $v->id,
-                'text' => "$v->name_text"
+                'text' => $v->get_name()
             ];
         }
 
