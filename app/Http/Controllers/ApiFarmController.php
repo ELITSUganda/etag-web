@@ -21,8 +21,8 @@ class ApiFarmController extends Controller
         ])->get();
  
         return Utils::response([
-            'status' => 0,
-            'message' => "You must provide farm owner.",
+            'status' => 1,
+            'message' => "Success.",
             'data' => $data
         ]);
  
