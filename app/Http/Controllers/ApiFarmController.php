@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Farm;
+use App\Models\Location;
 use App\Models\Utils;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
@@ -10,6 +11,20 @@ use Illuminate\Http\Request;
 
 class ApiFarmController extends Controller
 {
+    public function locations(Request $request)
+    {
+
+
+        $data = Location::All();
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success",
+            'data' => $data
+        ]);
+    }
+
+
     public function index(Request $request)
     {
 
@@ -19,13 +34,13 @@ class ApiFarmController extends Controller
         $data = Farm::where([
             'administrator_id' => $user_id
         ])->get();
- 
+
         return Utils::response([
             'status' => 1,
             'message' => "Success.",
             'data' => $data
         ]);
- 
+
 
         $has_search = false;
         if (isset($request->s)) {
@@ -81,6 +96,7 @@ class ApiFarmController extends Controller
 
         return $filtered_items;
     }
+
 
     public function show($id)
     {

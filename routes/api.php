@@ -59,6 +59,7 @@ Route::get('events/{id}', [ApiAnimalController::class, 'show']);
 Route::post('farms', [ApiFarmController::class, 'create']);
 Route::get('farms/{id}', [ApiFarmController::class, 'show']);
 Route::get('farms', [ApiFarmController::class, 'index']);
+Route::get('locations', [ApiFarmController::class, 'locations']);
 
 
 Route::get('users', [ApiUserController::class, 'index']);
