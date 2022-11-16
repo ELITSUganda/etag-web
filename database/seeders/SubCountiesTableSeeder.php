@@ -46,7 +46,7 @@ class SubCountiesTableSeeder extends Seeder
         ];
 
         $status = [
-            'Live',
+            'Active',
             'Sick',
             'Died',
             'Slaugtered',
@@ -57,7 +57,7 @@ class SubCountiesTableSeeder extends Seeder
             'Female',
         ];
         $type = [
-            'Live',
+            'Active',
             'Sick',
             'Died',
             'Slaugtered',

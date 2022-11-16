@@ -475,6 +475,15 @@ class ApiAnimalController extends Controller
             ]);
         }
 
+
+        $animal = Animal::where('e_id', $request->e_id)->first();
+        if ($animal != null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Animal with same E-ID already exist in the system."
+            ]);
+        }
+
         if (
             !isset($request->sex)
         ) {
@@ -484,14 +493,7 @@ class ApiAnimalController extends Controller
             ]);
         }
 
-        if (
-            !isset($request->fmd)
-        ) {
-            return Utils::response([
-                'status' => 0,
-                'message' => "You must provide fmd."
-            ]);
-        }
+
 
         $f = new Animal();
         $f->e_id = $request->e_id;
@@ -503,7 +505,8 @@ class ApiAnimalController extends Controller
         $f->sex = $request->sex;
         $f->dob = $request->dob;
         $f->fmd = $request->fmd;
-        $f->status = 'live';
+        $f->parent_id = $request->parent_id;
+        $f->status = 'Active';
 
 
         $f->save();
