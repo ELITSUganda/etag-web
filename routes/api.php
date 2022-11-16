@@ -56,9 +56,12 @@ Route::get('events/{id}', [ApiAnimalController::class, 'show']);
 // Animal controler //
 
 // ========== users starts ============== //
-Route::get('users', [ApiUserController::class, 'index']);
-Route::get('farms/{id}', [ApiFarmController::class, 'show']);
 Route::post('farms', [ApiFarmController::class, 'create']);
+Route::get('farms/{id}', [ApiFarmController::class, 'show']);
+Route::get('farms', [ApiFarmController::class, 'index']);
+
+
+Route::get('users', [ApiUserController::class, 'index']);
 Route::get('movements', [ApiMovement::class, 'index']);
 Route::post('movements', [ApiMovement::class, 'create']);
 Route::post('check-point-records', [ApiMovement::class, 'create_check_record']);
@@ -66,7 +69,6 @@ Route::get('check-point-records', [ApiMovement::class, 'get_check_record']);
 Route::post('movements', [ApiMovement::class, 'create']);
 Route::get('movements/{id}', [ApiMovement::class, 'show']);
 Route::post('users', [ApiLoginController::class, 'create_account']);
-Route::get('farms', [ApiFarmController::class, 'index']);
 // ========== users ends ============== //
 
 
@@ -224,7 +226,7 @@ Route::get('ajax-animals', function (Request $r) {
     $done_ids = [];
 
     foreach ($res_1 as $key => $v) {
-        if(in_array($v->id,$done_ids)){
+        if (in_array($v->id, $done_ids)) {
             continue;
         }
         $data[] = [

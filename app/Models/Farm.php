@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\Auth;
 class Farm extends Model
 {
     use HasFactory;
+    protected $appends = [
+        'administrator_text',
+        'district_text',
+        'sub_county_text',
+    ];
     protected $fillable = [
         'administrator_id',
         'district_id',
@@ -24,6 +29,21 @@ class Farm extends Model
         'farm_type',
         'holding_code',
     ];
+
+    public function getAdministratorTextAttribute()
+    {
+        return Utils::get_object(Administrator::class, $this->administrator_id)->name;
+    }
+
+    public function getSubCountyTextAttribute()
+    {
+        return Utils::get_object(Location::class, $this->sub_county_id)->name_text;
+    }
+
+    public function getDistrictTextAttribute()
+    {
+        return Utils::get_object(Location::class, $this->district_id)->name_text;
+    }
 
     public function animals()
     {
@@ -107,7 +127,7 @@ class Farm extends Model
 
     public function district()
     {
-        return $this->belongsTo(District::class);
+        return $this->belongsTo(Location::class, 'district_id');
     }
 
     public function sub_county()

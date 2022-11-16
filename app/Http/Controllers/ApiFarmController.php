@@ -15,6 +15,10 @@ class ApiFarmController extends Controller
 
         $user_id = Utils::get_user_id($request);
         $user_role = Utils::is_admin($request);
+ 
+        return Farm::where([
+            'administrator_id' => $user_id
+        ])->get();
 
         $has_search = false;
         if (isset($request->s)) {
@@ -55,7 +59,7 @@ class ApiFarmController extends Controller
             unset($items[$key]->district);
             unset($items[$key]->sub_county);
             $filtered_items[] = $items[$key];
-           /* if (
+            /* if (
                 ($user_role == 'administrator') ||
                 ($user_role == 'admin')
             ) {
