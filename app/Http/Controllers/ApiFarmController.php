@@ -13,15 +13,85 @@ class ApiFarmController extends Controller
 {
     public function locations(Request $request)
     {
+
+        $res_1 = Location::where('parent', '!=', 0)->get();
+        $data = [];
+        foreach ($res_1 as $key => $v) {
+            $data[] = [
+                'id' => $v->id,
+                'text' => "$v->name_text"
+            ];
+        }
+
+        return [
+            'data' => $data
+        ];
+
+
+
         $data = Location::All();
+
         return Utils::response([
             'status' => 1,
-            'message' => "Success",
+            'message' => "Success.",
             'data' => $data
         ]);
-    }
 
-    
+
+        $has_search = false;
+        if (isset($request->s)) {
+            if ($request->s != null) {
+                if (strlen($request->s) > 0) {
+                    $has_search = true;
+                }
+            }
+        }
+
+        $items = [];
+        if ($has_search) {
+            $items = Farm::where(
+                'holding_code',
+                'like',
+                '%' . trim($request->s) . '%',
+            )->paginate(1000)->withQueryString()->items();
+        } else {
+            $items = Farm::paginate(1000)->withQueryString()->items();
+        }
+
+
+        $filtered_items = [];
+        foreach ($items as $key => $value) {
+            $items[$key]->owner_name = "";
+            $items[$key]->district_name = "";
+            $items[$key]->created = Carbon::parse($value->created)->toFormattedDateString();
+            if ($value->user != null) {
+                $items[$key]->owner_name = $value->user->name;
+            }
+            if ($value->district != null) {
+                $items[$key]->district_name = $value->district->name;
+            }
+            if ($value->sub_county != null) {
+                $items[$key]->sub_county_name = $value->sub_county->name;
+            }
+            unset($items[$key]->farm);
+            unset($items[$key]->district);
+            unset($items[$key]->sub_county);
+            $filtered_items[] = $items[$key];
+            /* if (
+                ($user_role == 'administrator') ||
+                ($user_role == 'admin')
+            ) {
+                $filtered_items[] = $items[$key];
+            } else {
+                if ($user_id == $items[$key]->administrator_id) {
+                    unset($items[$key]->user);
+                    $filtered_items[] = $items[$key];
+                }
+            }*/
+        }
+
+        return $filtered_items;
+    }
 
 
     public function index(Request $request)

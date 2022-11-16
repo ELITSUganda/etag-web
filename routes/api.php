@@ -155,7 +155,6 @@ Route::get('ajax', function (Request $r) {
 
 Route::get('sub-counties', function (Request $r) {
 
-
     $q = trim($r->get('q'));
     if (strlen($q) < 1) {
         return [
