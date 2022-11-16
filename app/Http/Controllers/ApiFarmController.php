@@ -14,34 +14,22 @@ class ApiFarmController extends Controller
     public function locations(Request $request)
     {
 
-        ini_set('memory_limit', '1024M'); // or you could use 1G
-        ini_set('display_errors', 1);
-        ini_set('display_startup_errors', 1);
-        error_reporting(E_ALL);
 
-        $res_1 = Location::where('parent', '!=', 0)->get();
+
         $data = [];
-        foreach ($res_1 as $key => $v) {
-            $data[] = [
-                'id' => $v->id,
-                'text' => $v->get_name()
-            ];
+        foreach (Location::All() as $v) {
+            $d['id'] = $v->id;
+            $d['parent'] = $v->parent;
+            $d['name_text'] = $v->name_text;
+            $data[] = $d;
         }
-
-        return [
-            'data' => $data
-        ];
-
-
-
-        $data = Location::All();
-
+ 
         return Utils::response([
             'status' => 1,
             'message' => "Success.",
             'data' => $data
         ]);
-
+ 
 
         $has_search = false;
         if (isset($request->s)) {
@@ -108,13 +96,13 @@ class ApiFarmController extends Controller
         $data = Farm::where([
             'administrator_id' => $user_id
         ])->get();
-
+ 
         return Utils::response([
             'status' => 1,
             'message' => "Success.",
             'data' => $data
         ]);
-
+ 
 
         $has_search = false;
         if (isset($request->s)) {
