@@ -207,7 +207,10 @@ class ApiAnimalController extends Controller
         $user_id = Utils::get_user_id($request);
         $data = [];
 
-        foreach (Animal::where([])
+        
+        foreach (Animal::where([
+            'administrator_id' => $user_id
+        ])
             ->orderBy('id', 'desc')
             ->limit(10)
             ->get() as $animal) {
