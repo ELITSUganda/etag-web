@@ -15,6 +15,7 @@ class Farm extends Model
         'administrator_text',
         'district_text',
         'sub_county_text',
+        'created_text',
     ];
     protected $fillable = [
         'administrator_id',
@@ -29,6 +30,40 @@ class Farm extends Model
         'farm_type',
         'holding_code',
     ];
+
+    public function getCreatedTextAttribute()
+    {
+        return Utils::my_date($this->created_at);
+    }
+
+    public function getAnimalsCountAttribute()
+    {
+        return Animal::where([
+            'farm_id' => $this->id
+        ])->count();
+    }
+
+    public function getSheepCountAttribute()
+    {
+        return Animal::where([
+            'farm_id' => $this->id,
+            'type' => 'Sheep'
+        ])->count();
+    }
+    public function getGoatCountAttribute()
+    {
+        return Animal::where([
+            'farm_id' => $this->id,
+            'type' => 'Goat'
+        ])->count();
+    }
+    public function getCattleCountAttribute()
+    {
+        return Animal::where([
+            'farm_id' => $this->id,
+            'type' => 'Cattle'
+        ])->count();
+    }
 
     public function getAdministratorTextAttribute()
     {

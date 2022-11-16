@@ -2,14 +2,57 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Grid\Model;
 use Exception;
 use Zebra_Image;
+use Illuminate\Support\Str;
 
 class Utils extends Model
 {
+
+    public static function my_date($t)
+    {
+        $c = Carbon::parse($t);
+        if ($t == null) {
+            return $t;
+        }
+        return $c->format('d M, Y');
+    }
+
+    public static function my_date_time($t)
+    {
+        $c = Carbon::parse($t);
+        if ($t == null) {
+            return $t;
+        }
+        return $c->format('d M, Y - h:m a');
+    }
+
+    public static function to_date_time($raw)
+    {
+        $t = Carbon::parse($raw);
+        if ($t == null) {
+            return  "-";
+        }
+        $my_t = $t->toDateString();
+
+        return $my_t . " " . $t->toTimeString();
+    }
+    public static function number_format($num, $unit)
+    {
+        $num = (int)($num);
+        $resp = number_format($num);
+        if ($num < 2) {
+            $resp .= " " . $unit;
+        } else {
+            $resp .= " " . Str::plural($unit);
+        }
+        return $resp;
+    }
+
 
     public static function get_object($class, $id)
     {
