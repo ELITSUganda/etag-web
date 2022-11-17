@@ -329,12 +329,11 @@ class EventController extends AdminController
         $form->divider();
         $form->radio('type', __('Event type'))
             ->options(array(
-                'Disease' => 'Disease test',
-                'Drug' => 'Teatment',
+                'Disease test' => 'Disease test',
+                'Treatment' => 'Treatment',
                 'Vaccination' => 'Vaccination',
                 'Pregnancy check' => 'Pregnancy check',
-                'Temprature check' => 'Temprature check',
-                'Birth' => 'Birth',
+                'Temperature check' => 'Temperature check', 
                 'Stolen' => 'Stolen',
                 'Home slaughter' => 'Home slaughter',
                 'Death' => 'Death',
@@ -342,8 +341,7 @@ class EventController extends AdminController
 
             ))
             ->rules('required')
-            ->when('Temprature check', function (Form $form) {
-
+            ->when('Temperature check', function (Form $form) {
                 $form->decimal('temperature', 'Temperature value')
                     ->help('in degrees Celsius (°C)')
                     ->rules('required');
@@ -389,7 +387,7 @@ class EventController extends AdminController
                     })
                     ->rules('required');
             })
-            ->when('Disease', function (Form $form) {
+            ->when('Disease test', function (Form $form) {
                 $form->select('disease_id', __('Select disease'))
                     ->options(Disease::all()->pluck('name', 'id'))
                     ->rules('required');
@@ -402,7 +400,7 @@ class EventController extends AdminController
                     ))
                     ->rules('required');
             })
-            ->when('Drug', function (Form $form) {
+            ->when('Treatment', function (Form $form) {
                 $drugs = [];
                 foreach (DrugStockBatch::where([
                     'administrator_id' => Auth::user()->id
