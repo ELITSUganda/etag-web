@@ -153,7 +153,7 @@ Route::get('ajax', function (Request $r) {
 
 
 Route::get('diseases', function (Request $r) {
-    $data = Disease::all()->pluck('name', 'id');
+    $data = Disease::all();
     return $data;
 });
 
