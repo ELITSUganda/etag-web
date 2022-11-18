@@ -178,13 +178,33 @@ class ApiAnimalController extends Controller
 
         $event = new Event();
         $event->animal_id = (int)($request->animal_id);
+       
+       
         $event->detail = $request->detail;
+        $event->sub_county_id = $request->sub_county_id;
+        $event->farm_id = $request->farm_id;
+        $event->animal_id = $request->animal_id;
         $event->type = $request->type;
-        $event->disease_id = $request->disease;
-        $event->medicine_id = $request->treatment;
-        $event->vaccine_id = $request->vaccination;
-        $event->approved_by = 1;
+        $event->approved_by = $request->approved_by;
+        $event->detail = $request->detail;
+        $event->animal_type = $request->animal_type;
+        $event->vaccine_id = $request->vaccine_id;
+        $event->medicine_id = $request->medicine_id;
+        $event->medicine_quantity = $request->medicine_quantity;
+        $event->vaccination = $request->vaccination;
+        $event->time_stamp = $request->time_stamp;
+        $event->import_file = $request->import_file;
+        $event->description = $request->description;
+        $event->temperature = $request->temperature;
+        $event->e_id = $request->e_id;
+        $event->v_id = $request->v_id;
+        $event->pregnancy_check_method = $request->pregnancy_check_method;
+        $event->pregnancy_check_results = $request->pregnancy_check_results;
+        $event->pregnancy_expected_sex = $request->pregnancy_expected_sex;
+        $event->pregnancy_fertilization_method = $request->pregnancy_fertilization_method;
+        $event->disease_test_results = $request->disease_test_results;
 
+        
         if ($event->save()) {
             return Utils::response([
                 'status' => 1,
