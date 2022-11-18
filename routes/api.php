@@ -13,6 +13,7 @@ use App\Http\Controllers\ApiUserController;
 use App\Models\Animal;
 use App\Models\Disease;
 use App\Models\Location;
+use App\Models\Utils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -154,7 +155,13 @@ Route::get('ajax', function (Request $r) {
 
 Route::get('diseases', function (Request $r) {
     $data = Disease::all();
-    return $data;
+
+    return Utils::response([
+        'status' => 1,
+        'message' => "Event was created successfully.",
+        'data' => $data
+    ]);
+
 });
 
 Route::get('sub-counties', function (Request $r) {
