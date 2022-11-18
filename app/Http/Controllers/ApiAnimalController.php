@@ -204,6 +204,7 @@ class ApiAnimalController extends Controller
         $event->pregnancy_fertilization_method = $request->pregnancy_fertilization_method;
         $event->disease_test_results = $request->disease_test_results;
 
+      
         
         if ($event->save()) {
             return Utils::response([

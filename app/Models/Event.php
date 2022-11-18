@@ -18,6 +18,7 @@ class Event extends Model
 
         self::creating(function ($model) {
 
+            
             if ($model->is_batch_import) {
                 //$model->import_file = 'public/storage/files/1.xls';
                 //Event::process_btach_important($model);
@@ -29,6 +30,7 @@ class Event extends Model
                 die("Animal ID not system.");
                 return false;
             }
+
 
 
             $model->farm_id = $animal->farm_id;
@@ -136,29 +138,19 @@ class Event extends Model
             }
 
 
-            if (isset($model->disease_id)) {
-                unset($model->disease_id);
-            }
-            if (isset($model->disease_test_results)) {
-                unset($model->disease_test_results);
-            }
-
-            if (isset($model->medicine_quantity)) {
-                unset($model->medicine_quantity);
-            }
-            if (isset($model->pregnancy_check_method)) {
-                unset($model->pregnancy_check_method);
-            }
-            if (isset($model->pregnancy_check_results)) {
-                unset($model->pregnancy_check_results);
-            }
-            if (isset($model->pregnancy_fertilization_method)) {
-                unset($model->pregnancy_fertilization_method);
-            }
-            if (isset($model->pregnancy_expected_sex)) {
-                unset($model->pregnancy_expected_sex);
-            }
-
+    
+            
+            unset($model->disease_id);
+            unset($model->disease_test_results);
+            unset($model->medicine_quantity);
+            unset($model->pregnancy_check_method);
+            unset($model->pregnancy_check_results);
+            unset($model->pregnancy_fertilization_method);
+            unset($model->pregnancy_expected_sex);
+            unset($model->vaccination);
+            unset($model->e_id);
+            unset($model->v_id);
+            
 
             if ($model->description == null || (strlen($model->description) < 2)) {
                 $model->description = $model->detail;
