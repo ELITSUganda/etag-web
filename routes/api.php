@@ -11,6 +11,7 @@ use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\UtilsController;
 use App\Http\Controllers\ApiUserController;
 use App\Models\Animal;
+use App\Models\Disease;
 use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -151,7 +152,10 @@ Route::get('ajax', function (Request $r) {
 
 
 
-
+Route::get('diseases', function (Request $r) {
+    $data = Disease::all()->pluck('name', 'id');
+    return $data;
+});
 
 Route::get('sub-counties', function (Request $r) {
 

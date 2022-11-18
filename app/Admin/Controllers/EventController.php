@@ -389,7 +389,7 @@ class EventController extends AdminController
             })
             ->when('Disease test', function (Form $form) {
                 $form->select('disease_id', __('Select disease'))
-                    ->options(Disease::all()->pluck('name', 'id'))
+                    ->options(Disease::all()->pluck('name', 'id')) 
                     ->rules('required');
                 $form->radio('disease_test_results', __(
                     'Disease test results'
