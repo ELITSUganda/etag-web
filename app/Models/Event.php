@@ -154,6 +154,22 @@ class Event extends Model
                                 $record->description = "Applied Quantity: {$medicine_quantity} {$medicine->category->unit} of  Drug: {$medicine->category->name}, Stock ID: #{$medicine->id}, 
                                 Batch number: {$medicine->batch_number} to Animal ID: {$animal->id}, E-ID:  {$animal->e_id}, V-ID:  {$animal->v_id}.";
                                 $model->description = $record->description;
+                                
+                                $model->short_description = "Applied {$medicine->category->name} {$animal->id}, E-ID:  {$animal->e_id}, V-ID:  {$animal->v_id}.";
+
+                                $model->medicine_text = $medicine->category->name;
+                                $model->medicine_quantity = "{$medicine_quantity} {$medicine->category->unit}";
+
+                                $model->medicine_name = $medicine->name;
+                                $model->medicine_batch_number = $medicine->batch_number;
+                                $model->medicine_supplier = $medicine->source_text;
+                                $model->medicine_manufacturer = $medicine->manufacturer;
+                                $model->medicine_expiry_date = $medicine->expiry_date;
+                                $model->medicine_image = $medicine->image;
+
+
+   
+
                                 $record->save();
                             }
                         }
@@ -168,8 +184,7 @@ class Event extends Model
 
 
             unset($model->disease_id);
-            unset($model->disease_test_results);
-            unset($model->medicine_quantity);
+            unset($model->disease_test_results); 
             unset($model->pregnancy_check_method);
             unset($model->pregnancy_check_results);
             unset($model->pregnancy_fertilization_method);

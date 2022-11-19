@@ -185,8 +185,7 @@ class ApiAnimalController extends Controller
         $event->farm_id = $request->farm_id;
         $event->animal_id = $request->animal_id;
         $event->type = $request->type;
-        $event->approved_by = $request->approved_by;
-        $event->detail = $request->detail;
+        $event->approved_by = $request->approved_by; 
         $event->animal_type = $request->animal_type;
         $event->vaccine_id = $request->vaccine_id;
         $event->medicine_id = $request->medicine_id;
