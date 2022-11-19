@@ -188,8 +188,6 @@ class Event extends Model
             unset($model->pregnancy_check_results);
             unset($model->pregnancy_fertilization_method);
             unset($model->pregnancy_expected_sex);
-            unset($model->vaccination);
-
 
 
             if ($model->description == null || (strlen($model->description) < 2)) {
