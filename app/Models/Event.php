@@ -127,7 +127,7 @@ class Event extends Model
                         }
                     }
                 }
-            } else if ($model->type == 'Drug') {
+            } else if ($model->type == 'Treatment') {
                 $ok = false;
                 if (isset($model->medicine_quantity)) {
                     if ($model->medicine_id != null) {
@@ -194,10 +194,10 @@ class Event extends Model
 
 
             if ($model->description == null || (strlen($model->description) < 2)) {
-                //$model->description = $model->detail;
+                $model->description = $model->detail;
             }
             if ($model->detail == null || (strlen($model->detail) < 2)) {
-                //$model->detail = $model->description;
+                $model->detail = $model->description;
             }
 
 
