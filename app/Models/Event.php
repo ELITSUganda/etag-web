@@ -34,6 +34,7 @@ class Event extends Model
             $model->e_id = $animal->e_id;
             $model->v_id = $animal->v_id;
             $model->status = 'success';
+            $model->short_description = $model->type;
 
 
 
@@ -110,10 +111,10 @@ class Event extends Model
 
 
                                 if ($model->disease_test_results == 'Positive') {
-                                    $model->disease_test_results_text = 'Positive (Has this disease)';
+                                    $model->short_description = 'Positive (Has this disease)';
                                     $model->status = 'danger';
                                 } else {
-                                    $model->disease_test_results_text = 'Negative (Does not have this disease)';
+                                    $model->short_description = 'Negative (Does not have this disease)';
                                     $model->status = 'success';
                                 }
 
