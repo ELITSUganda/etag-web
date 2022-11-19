@@ -546,7 +546,7 @@ class ApiAnimalController extends Controller
 
         $user_id = Utils::get_user_id($request);
 
-        $data = Farm::where([
+        $data = Event::where([
             'administrator_id' => $user_id
         ])->get();
 
