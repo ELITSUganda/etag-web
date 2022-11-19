@@ -5,7 +5,7 @@
 
 
     $types = Array(
-                'Disease' ,
+                'Disease test' ,
                 'Drug' ,
                 'Vaccination',
                 'Birth' , 

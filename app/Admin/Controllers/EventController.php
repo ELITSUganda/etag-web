@@ -134,7 +134,7 @@ class EventController extends AdminController
 
             $filter->like('animal_id', "Animal")->select($animals);
             $filter->equal('type', "Event type")->select(array(
-                'Disease' => 'Disease',
+                'Disease test' => 'Disease',
                 'Drug' => 'Teatment',
                 'Vaccination' => 'Vaccination',
                 'Pregnancy' => 'Pregnancy test',
@@ -392,7 +392,7 @@ class EventController extends AdminController
                     ->options(Disease::all()->pluck('name', 'id')) 
                     ->rules('required');
                 $form->radio('disease_test_results', __(
-                    'Disease test results'
+                    'Disease test results' 
                 ))
                     ->options(array(
                         'Positive' => 'Positive (Has the disease)',

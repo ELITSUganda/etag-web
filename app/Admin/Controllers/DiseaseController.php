@@ -15,7 +15,7 @@ class DiseaseController extends AdminController
      *
      * @var string
      */
-    protected $title = 'Disease';
+    protected $title = 'Diseases';
 
     /**
      * Make a grid builder.
