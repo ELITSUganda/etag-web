@@ -543,10 +543,24 @@ class ApiAnimalController extends Controller
 
     public function events(Request $request)
     {
-        $per_page = 100000000;
+
+        $user_id = Utils::get_user_id($request);
+
+        $data = Farm::where([
+            'administrator_id' => $user_id
+        ])->get();
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success.",
+            'data' => $data
+        ]);
+
+
+        $per_page = 100000000; 
         if (isset($request->per_page)) {
             $per_page = $request->per_page;
-        }
+        } 
 
         $administrator_id = Utils::get_user_id($request);
         $user_id = Utils::get_user_id($request);
