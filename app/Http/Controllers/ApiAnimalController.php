@@ -203,6 +203,7 @@ class ApiAnimalController extends Controller
         $event->pregnancy_expected_sex = $request->pregnancy_expected_sex;
         $event->pregnancy_fertilization_method = $request->pregnancy_fertilization_method;
         $event->disease_test_results = $request->disease_test_results;
+        $event->disease_id = $request->disease_id;
 
       
         

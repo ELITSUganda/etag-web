@@ -43,6 +43,8 @@ class Event extends Model
             $model->district_id = $animal->farm->disease_id;
             $model->sub_county_id = $animal->farm->sub_county_id;
             $model->administrator_id = $animal->farm->administrator_id;
+            $model->type = trim($model->type);
+
 
             if ($model->type == 'Pregnancy check') {
                 $ok = false;
@@ -50,6 +52,7 @@ class Event extends Model
                     isset($model->pregnancy_check_method) &&
                     isset($model->pregnancy_check_results)
                 ) {
+                                die($model->type);
                     $pregnancy = new PregnantAnimal();
                     $pregnancy->administrator_id = $animal->farm->administrator_id;
                     $pregnancy->animal_id = $animal->id;
