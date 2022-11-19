@@ -111,10 +111,10 @@ class Event extends Model
 
 
                                 if ($model->disease_test_results == 'Positive') {
-                                    $model->short_description = 'Positive (Has this disease)';
+                                    $model->short_description = "Positive (Has {$model->disease_text})";
                                     $model->status = 'danger';
                                 } else {
-                                    $model->short_description = 'Negative (Does not have this disease)';
+                                    $model->short_description = "Negative (Has no {$model->disease_text})";
                                     $model->status = 'success';
                                 }
 
