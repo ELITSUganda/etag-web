@@ -171,7 +171,7 @@ class ApiAnimalController extends Controller
         $animal = Animal::find(((int)($request->animal_id)));
         if ($animal == null) {
             return Utils::response([
-                'status' => 0,
+                'status' => 2,
                 'message' => "Animal not found on our database.",
             ]);
         }
