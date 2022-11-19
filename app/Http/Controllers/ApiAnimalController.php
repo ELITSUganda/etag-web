@@ -156,14 +156,14 @@ class ApiAnimalController extends Controller
     {
         if ($request->animal_id == null) {
             return Utils::response([
-                'status' => 0,
+                'status' => 2,
                 'message' => "Animal ID must be provided.",
             ]);
         }
 
         if ($request->type == null) {
             return Utils::response([
-                'status' => 0,
+                'status' => 2,
                 'message' => "Event type must be provided.",
             ]);
         }
