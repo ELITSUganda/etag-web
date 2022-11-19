@@ -197,7 +197,7 @@ class Event extends Model
                 //$model->description = $model->detail;
             }
             if ($model->detail == null || (strlen($model->detail) < 2)) {
-                $model->detail = $model->description;
+                //$model->detail = $model->description;
             }
 
 
