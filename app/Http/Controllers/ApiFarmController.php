@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DrugStockBatch;
 use App\Models\Farm;
 use App\Models\Location;
 use App\Models\Utils;
@@ -85,6 +86,32 @@ class ApiFarmController extends Controller
     }
 
 
+    public function my_drugs(Request $request)
+    {
+        $drugs = [];
+        $user_id = Utils::get_user_id($request);
+
+        foreach (DrugStockBatch::where([
+            'administrator_id' => $user_id
+        ])
+            ->where('current_quantity', '>', 0)
+            ->get() as $key => $v) {
+
+            $unit = "";
+            if ($v->category != null) {
+                $unit = " - {$v->category->unit}";
+            }
+            $d['id'] = $v->id;
+            $d['name'] = $v->name . " - Available QTY: {$v->current_quantity} {$unit}";
+            $drugs[] = $v;
+        }
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success.",
+            'data' => $drugs
+        ]);
+    }
     public function index(Request $request)
     {
 

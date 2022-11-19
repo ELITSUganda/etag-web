@@ -412,7 +412,6 @@ class EventController extends AdminController
                     if ($v->category != null) {
                         $unit = " - {$v->category->unit}";
                     }
-
                     $drugs[$v->id] = $v->name . " - Available QTY: {$v->current_quantity} {$unit}";
                 }
 
