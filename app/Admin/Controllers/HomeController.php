@@ -13,6 +13,8 @@ use App\Models\Animal;
 use App\Models\Farm;
 use App\Models\FormDrugSeller;
 use App\Models\Movement;
+use App\Models\MyFaker;
+use Dflydev\DotAccessData\Util;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Widgets\Box;
@@ -35,18 +37,37 @@ class HomeController extends Controller
             'user_id' => Admin::user()->id,
         ])->delete();
 
-
         $role = new AdminRoleUser();
         $role->role_id = 3;
         $role->user_id = Admin::user()->id;
         $role->save();
-
         return redirect(admin_url('/'));
     }
     public function index(Content $content)
     {
 
-        $u = Admin::user(); 
+        //MyFaker::makeEvents(3000);
+        //die("as");  
+        //MyFaker::makeAnimals(1000);
+        $u = Admin::user();
+        $content
+            ->title('U-LITS - Dashboard')
+            ->description('Hello ' . $u->name . "!");
+
+        $content->row(function (Row $row) {
+            $row->column(4, function (Column $column) {
+                $column->append(Dashboard::farmerSummary());
+            });
+            $row->column(3, function (Column $column) {
+                $column->append(Dashboard::farmerEvents());
+            });
+            $row->column(5, function (Column $column) {
+                $column->append(Dashboard::milkCollection());
+            });
+        });
+
+        return $content;
+
         if ($u->isRole('farmer')) {
             if (count($u->farms) < 1) {
                 $content->row(function ($row) {

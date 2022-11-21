@@ -111,6 +111,10 @@ foreach (DrugStockBatchRecord::where(['batch_number' => NULL])->get() as $x) {
     $x->save();
 }
 
+Admin::css('assets/css/jquery-confirm.min.css');
+Admin::js('assets/js/charts.js');
+
+
 /* Admin::css('/assets/css/market-place.css'); */
 Admin::css(url('/assets/bootstrap.css'));
 Admin::css('/assets/styles.css');

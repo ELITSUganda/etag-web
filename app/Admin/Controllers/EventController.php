@@ -21,6 +21,7 @@ use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
 use Illuminate\Support\Facades\Auth;
+use Faker\Factory as Faker;
 
 class EventController extends AdminController
 {
@@ -134,6 +135,7 @@ class EventController extends AdminController
 
             $filter->like('animal_id', "Animal")->select($animals);
             $filter->equal('type', "Event type")->select(array(
+                'Milking' => 'Milking',
                 'Disease test' => 'Disease',
                 'Drug' => 'Teatment',
                 'Vaccination' => 'Vaccination',
@@ -299,11 +301,34 @@ class EventController extends AdminController
         $e->save();
         die("sone"); */
 
+
+        /*
+        $ids = [];
+        foreach (Animal::where([
+            'sex' => 'Female',
+            'administrator_id' => $u->id
+        ])->get() as $k => $a) {
+            $ids[] = $a->id;
+        }
+
+        $faker = Faker::create();
+        for ($x = 1; $x < 1000; $x++) {
+            shuffle($ids);
+            $e = new Event();
+            $e->animal_id = $ids[2];
+            $e->created_at = $faker->dateTimeBetween('-1 year');
+            $e->type = "Milking";
+            $e->milk = rand(1, 15);
+            $e->save();
+            echo $x."<br>";
+        }
+        die();*/
+
         Utils::display_alert_message();
         $form = new Form(new Event());
 
-
-        $form->hidden('administrator_id', __('Administrator id'))->default(1);
+        $u = Admin::user();
+        $form->hidden('administrator_id', __('Administrator id'))->default($u->id);
         $form->hidden('district_id', __('District id'))->default(1);
         $form->hidden('sub_county_id', __('Sub county id'))->default(1);
         $form->hidden('is_batch_import', __('Sub county id'))->default(0);
@@ -311,7 +336,7 @@ class EventController extends AdminController
 
 
 
-        $u = Admin::user();
+
         $form->select('animal_id', 'Select Animal')
             ->options(function ($id) {
                 $parent = Animal::find($id);
@@ -324,23 +349,41 @@ class EventController extends AdminController
                 url('/api/ajax-animals?'
                     . "&administrator_id={$u->id}")
             )->rules('required');
+        //            ALTER TABLE `events` ADD `weight` FLOAT NULL DEFAULT '0' AFTER `vaccination`, ADD `milk` FLOAT NULL DEFAULT '0' AFTER `weight`;
 
 
         $form->divider();
         $form->radio('type', __('Event type'))
             ->options(array(
+                'Milking' => 'Milking',
+                'Weight check' => 'Weight check',
                 'Disease test' => 'Disease test',
                 'Treatment' => 'Treatment',
                 'Vaccination' => 'Vaccination',
                 'Pregnancy check' => 'Pregnancy check',
-                'Temperature check' => 'Temperature check', 
+                'Temperature check' => 'Temperature check',
                 'Stolen' => 'Stolen',
                 'Home slaughter' => 'Home slaughter',
+                'Photo' => 'Photo',
                 'Death' => 'Death',
-                'Other' => 'Other',
+
 
             ))
             ->rules('required')
+            ->when('Weight check', function (Form $form) {
+                $form->decimal('weight', 'Weight value')
+                    ->help('in Killograms (KGs)')
+                    ->rules('required');
+            })
+            ->when('Photo', function (Form $form) {
+                $form->image('photo', 'Attach photo')
+                    ->rules('required');
+            })
+            ->when('Milking', function (Form $form) {
+                $form->decimal('milk', 'Milk quantity')
+                    ->help('in litters')
+                    ->rules('required');
+            })
             ->when('Temperature check', function (Form $form) {
                 $form->decimal('temperature', 'Temperature value')
                     ->help('in degrees Celsius (°C)')
@@ -389,10 +432,10 @@ class EventController extends AdminController
             })
             ->when('Disease test', function (Form $form) {
                 $form->select('disease_id', __('Select disease'))
-                    ->options(Disease::all()->pluck('name', 'id')) 
+                    ->options(Disease::all()->pluck('name', 'id'))
                     ->rules('required');
                 $form->radio('disease_test_results', __(
-                    'Disease test results' 
+                    'Disease test results'
                 ))
                     ->options(array(
                         'Positive' => 'Positive (Has the disease)',

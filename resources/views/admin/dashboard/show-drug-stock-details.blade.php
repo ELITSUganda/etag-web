@@ -1,22 +1,8 @@
 <style>
-    .details-page p{
- 
+    .details-page p {
         font-size: 2rem;
     }
 </style>
-{{-- created_at	
-updated_at	
-	
-drug_category_id	
-	
-	
-	
-	
-	 
-	
-image	
-last_ qactivity	
- --}}
 <div class="details-page">
     <p><b>Drug name:</b> {{ $item->name }}</p>
     <p><b>Drug Original quantity:</b> {{ $item->original_quantity }}</p>
@@ -31,4 +17,4 @@ last_ qactivity
     <p><b>Spirce froma:</b> {{ $item->source_id }}</p>
     <p><b>Belongs to:</b> {{ $item->administrator_id }}</p>
     <p><b>Details:</b> {{ $item->sub_county_id }}</p>
-</div>
+</div> 

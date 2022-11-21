@@ -6,7 +6,7 @@
  */
 
 :root {
-    --blue: var(--primary);
+    --blue: #6B3B00;
     --indigo: #6610f2;
     --purple: #6f42c1;
     --pink: #e83e8c;
@@ -19,7 +19,7 @@
     --white: #fff;
     --gray: #6c757d;
     --gray-dark: #343a40;
-    --primary: var(--primary);
+    --primary: #6B3B00;
     --secondary: #6c757d;
     --success: #28a745;
     --info: #17a2b8;
@@ -7252,8 +7252,8 @@ button.bg-dark:hover {
 }
 
 .rounded {
-    border-radius: .25rem!important
-}
+    border-radius: .8rem!important
+} 
 
 .rounded-top {
     border-top-left-radius: .25rem!important;
@@ -10662,4 +10662,56 @@ a.text-dark:hover {
 .help-block{ 
     margin-bottom: 0px!important;
     padding-bottom: 0px!important;
+}
+ 
+.fw-100{
+    font-weight: 100;
+}
+.fw-200{
+    font-weight: 200;
+}
+.fw-300{
+    font-weight: 300;
+}
+.fw-400{
+    font-weight: 400;
+}
+.fw-500{
+    font-weight: 500;
+}
+.fw-600{
+    font-weight: 600;
+}
+.fw-700{
+    font-weight: 700;
+}
+.fw-800{
+    font-weight: 800;
+}
+.fw-900{
+    font-weight: 900;
+}
+.fc-gray{
+    color: var(--gray);
+}
+.fc-gray-dark{
+    color: var(--gray-dark);
+}
+.fc-100{
+    color: var(--gray);
+}
+.fs-14{
+    font-size: 14px;
+}
+.fs-15{
+    font-size: 15px;
+}
+.fs-16{
+    font-size: 16px;
+}
+.fs-17{
+    font-size: 17px;
+}
+.fs-18{
+    font-size: 18px;
 }

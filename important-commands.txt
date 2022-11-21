@@ -9,6 +9,8 @@ php artisan make:migration create_archived_animals_table
 php artisan make:migration create_images_table
 php artisan make:migration create_sick_animals_table
 php artisan make:migration create_pregnant_animals_table
+php artisan make:migration create_finance_categories_table
+php artisan make:migration create_transactions_table
 
 
 php artisan make:migration create_import_export_permits_table
@@ -54,6 +56,8 @@ php artisan admin:make Animal1Controller --model=App\\Models\\Animal
 php artisan admin:make SickAnimalController --model=App\\Models\\SickAnimal
 php artisan admin:make EventController --model=App\\Models\\Event
 php artisan admin:make PregnantAnimalController --model=App\\Models\\PregnantAnimal
+php artisan admin:make FinanceCategoryController --model=App\\Models\\FinanceCategory
+php artisan admin:make TransactionController --model=App\\Models\\Transaction
 
 
 php artisan make:model CheckPoint
@@ -71,6 +75,8 @@ php artisan make:model Image
 php artisan make:model ProductOrder
 php artisan make:model SickAnimal
 php artisan make:model PregnantAnimal
+php artisan make:model FinanceCategory
+php artisan make:model Transaction
 
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs

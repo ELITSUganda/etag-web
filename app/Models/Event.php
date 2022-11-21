@@ -18,7 +18,6 @@ class Event extends Model
 
         self::creating(function ($model) {
 
-
             if ($model->is_batch_import) {
                 //$model->import_file = 'public/storage/files/1.xls';
                 //Event::process_btach_important($model);
@@ -27,7 +26,9 @@ class Event extends Model
 
             $animal = Animal::where('id', $model->animal_id)->first();
             if ($animal == null) {
-                die("Animal ID not system.");
+
+                die("Animal ID {$model->animal_id} not system.");
+                return false;
                 return false;
             }
 
@@ -52,7 +53,6 @@ class Event extends Model
                     isset($model->pregnancy_check_method) &&
                     isset($model->pregnancy_check_results)
                 ) {
-                                die($model->type);
                     $pregnancy = new PregnantAnimal();
                     $pregnancy->administrator_id = $animal->farm->administrator_id;
                     $pregnancy->animal_id = $animal->id;
@@ -80,7 +80,7 @@ class Event extends Model
                             $pregnancy->expected_sex = $model->pregnancy_expected_sex;
                         }
                     }
-                    $model->description = "Pregnancy check for animal {$animal->v_id} - {$animal->e_id} by {$pregnancy->pregnancy_check_method} method and found {$pregnancy->original_status}";
+                    $model->description = "Pregnancy check for animal {$animal->v_id} by {$pregnancy->pregnancy_check_method} method and found {$pregnancy->original_status}";
                     $pregnancy->save();
                     $ok = true;
                 }
@@ -100,7 +100,7 @@ class Event extends Model
                                 $sick->current_results = $model->current_results;
                                 $sick->district_id = $animal->farm->district_id;
                                 $sick->sub_county_id = $animal->farm->sub_county_id;
-                                $sick->description = "Disease test for animal {$animal->e_id} - {$animal->v_id} and found it {$model->disease_test_results}.";
+                                $sick->description = "Disease test for animal {$animal->v_id} and found it {$model->disease_test_results}.";
                                 $sick->details = $model->detail;
                                 $model->description = $sick->description;
 
@@ -126,6 +126,34 @@ class Event extends Model
                             }
                         }
                     }
+                }
+            } else if ($model->type == 'Milking') {
+                //ALTER TABLE `events` ADD `weight` FLOAT NULL DEFAULT '0' AFTER `vaccination`, ADD `milk` FLOAT NULL DEFAULT '0' AFTER `weight`;
+                $ok = false;
+                if (isset($model->milk)) {
+                    if ($animal->sex != 'Female') {
+                        die("You cannot milk a non female animal.");
+                    }
+                    if ($model->milk != null) {
+                        $ok = true;
+                        $model->milk = (float)($model->milk);
+                        $model->description = "Milked {$model->milk} liters from {$animal->v_id}.";
+                    }
+                }
+                if (!$ok) {
+                    die("enter valid milking parametters");
+                }
+            } else if ($model->type == 'Weight check') {
+                $ok = false;
+                if (isset($model->weight)) {
+                    if ($model->weight != null) {
+                        $ok = true;
+                        $model->weight = (float)($model->weight);
+                        $model->description = "{$animal->v_id} wighed {$model->weight} KGs.";
+                    }
+                }
+                if (!$ok) {
+                    die("enter valid milking parametters");
                 }
             } else if ($model->type == 'Treatment') {
                 $ok = false;
@@ -153,7 +181,7 @@ class Event extends Model
                                 $record->quantity = $medicine_quantity;
                                 $record->description = "Applied Quantity: {$medicine_quantity} {$medicine->category->unit} of  Drug: {$medicine->category->name}, Stock ID: #{$medicine->id}, Batch number: {$medicine->batch_number} to Animal ID: {$animal->id}, E-ID:  {$animal->e_id}, V-ID:  {$animal->v_id}.";
                                 $model->description = $record->description;
-                                
+
                                 $model->short_description = "Applied {$medicine->category->name} {$animal->id}, E-ID:  {$animal->e_id}, V-ID:  {$animal->v_id}.";
 
                                 $model->medicine_text = $medicine->category->name;
@@ -167,7 +195,7 @@ class Event extends Model
                                 $model->medicine_image = $medicine->image;
 
 
-   
+
 
                                 $record->save();
                             }
@@ -177,13 +205,38 @@ class Event extends Model
                 if (!$ok) {
                     die("enter valid treament parametters");
                 }
+            } else if ($model->type == 'Temperature check') {
+                $model->description = "{$animal->v_id} body temperature measured {$model->temperature} degrees Celsius.";
+            } else if ($model->type == 'Stolen') {
+                $model->description = "{$animal->v_id} - {$animal->e_id} was reported stollen.";
+            } else if ($model->type == 'Home slaughter') {
+                $model->description = "{$animal->v_id} was slaughtered from home.";
+            } else if ($model->type == 'Death') {
+                $model->description = "{$animal->v_id} died.";
+            } else if ($model->type == 'Photo') {
+                $model->detail =  "{$animal->v_id}'s photo was recorded.";
+            } else if ($model->type == 'Note') {
+                $model->detail =  "{$animal->v_id}'s note was recorded.";
+            } else {
+                $model->description = "{$animal->v_id} {$model->type} event was recorded.";
             }
+
+            /* 
+
+
+
+                '' => 'Stolen',
+                '' => 'Home slaughter',
+                '' => 'Death',
+                '' => 'Other',
+
+             */
 
 
 
 
             unset($model->disease_id);
-            unset($model->disease_test_results); 
+            unset($model->disease_test_results);
             unset($model->pregnancy_check_method);
             unset($model->pregnancy_check_results);
             unset($model->pregnancy_fertilization_method);
@@ -191,10 +244,10 @@ class Event extends Model
 
 
             if ($model->description == null || (strlen($model->description) < 2)) {
-                //$model->description = $model->detail;
+                $model->description = $model->detail;
             }
             if ($model->detail == null || (strlen($model->detail) < 2)) {
-                //$model->detail = $model->description;
+                $model->detail = $model->description;
             }
 
 

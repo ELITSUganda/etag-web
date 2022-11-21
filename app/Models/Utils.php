@@ -13,6 +13,25 @@ use Illuminate\Support\Str;
 class Utils extends Model
 {
 
+
+    public static function month($t)
+    {
+        $c = Carbon::parse($t);
+        if ($t == null) {
+            return $t;
+        }
+        return $c->format('M - Y');
+    }
+    public static function my_day($t)
+    {
+        $c = Carbon::parse($t);
+        if ($t == null) {
+            return $t;
+        }
+        return $c->format('d M');
+    }
+
+    
     public static function my_date($t)
     {
         $c = Carbon::parse($t);

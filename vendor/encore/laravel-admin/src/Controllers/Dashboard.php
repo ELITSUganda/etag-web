@@ -2,11 +2,197 @@
 
 namespace Encore\Admin\Controllers;
 
+use App\Models\Animal;
+use App\Models\Event;
+use App\Models\Transaction;
+use App\Models\Utils;
+use Carbon\Carbon;
 use Encore\Admin\Admin;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 
 class Dashboard
 {
+
+    public static function milkCollection()
+    {
+
+        $data = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $min = new Carbon();
+            $max = new Carbon();
+            $max->subDays($i);
+            $min->subDays(($i + 1));
+
+            $milk = Event::whereBetween('created_at', [$min, $max])
+                ->where([
+                    'type' => 'Milking'
+                ])
+                ->sum('milk');
+
+
+            $expence = Transaction::whereBetween('created_at', [$min, $max])
+                ->where([
+                    'is_income' => 0
+                ])
+                ->sum('amount');
+
+            $income = Transaction::whereBetween('created_at', [$min, $max])
+                ->where([
+                    'is_income' => 1
+                ])
+                ->sum('amount');
+
+            $data['data'][] = $milk;
+            $data['income'][] = $income;
+            $data['expence'][] = ((-1)*($expence));
+            $data['labels'][] = Utils::my_day($max);
+        }
+
+        return view('dashboard.farmerMilkCollection', $data);
+    }
+    public static function farmerEvents()
+    {
+        $u = Auth::user();
+        $events = Event::where([
+            'administrator_id' => $u->id
+        ])->orderBy('created_at', 'Desc')->limit(17)->get();
+        return view('dashboard.farmerEvents', [
+            'events' => $events
+        ]);
+    }
+
+    public static function farmerSummary()
+    {
+
+        $u = Auth::user();
+        for ($i = 12; $i >= 0; $i--) {
+            $min = new Carbon();
+            $max = new Carbon();
+            $max->subMonths($i);
+            $min->subMonths(($i + 1));
+            $allAnimals = Animal::whereBetween('dob', [$min, $max])
+                ->where([
+
+                    'administrator_id' => $u->id
+                ])
+                ->count();
+
+            $cattle = Animal::whereBetween('dob', [$min, $max])
+                ->where([
+                    'type' => 'Cattle',
+                    'administrator_id' => $u->id
+                ])
+                ->count();
+            $goat = Animal::whereBetween('dob', [$min, $max])
+                ->where([
+                    'type' => 'Goat',
+                    'administrator_id' => $u->id
+                ])
+                ->count();
+
+            $sheep = Animal::whereBetween('dob', [$min, $max])
+                ->where([
+                    'type' => 'Sheep',
+                    'administrator_id' => $u->id
+                ])
+                ->count();
+
+
+
+
+
+            $data['allAnimals'][] = $allAnimals;
+            $data['cattle'][] = $cattle;
+            $data['goat'][] = $goat;
+            $data['sheep'][] = $sheep;
+
+            $data['labels'][] = Utils::month($max);
+        }
+
+        $countCattle = Animal::where([
+            'type' => 'Cattle',
+            'administrator_id' => $u->id
+        ])
+            ->count();
+        $countCattleMale = Animal::where([
+            'type' => 'Cattle',
+            'sex' => 'Male',
+            'administrator_id' => $u->id
+        ])
+            ->count();
+        $countCattleFemale = Animal::where([
+            'type' => 'Cattle',
+            'sex' => 'Female',
+            'administrator_id' => $u->id
+        ])
+            ->count();
+
+
+        $countGoatFemale = Animal::where([
+            'type' => 'Goat',
+            'sex' => 'Female',
+            'administrator_id' => $u->id
+        ])->count();
+
+        $countGoatMale = Animal::where([
+            'type' => 'Goat',
+            'sex' => 'Male',
+            'administrator_id' => $u->id
+        ])->count();
+
+        $countGoat = Animal::where([
+            'type' => 'Goat',
+            'administrator_id' => $u->id
+        ])->count();
+
+
+        //////////////////SHEEP===///////////////
+        $countSheepFemale = Animal::where([
+            'type' => 'Sheep',
+            'sex' => 'Female',
+            'administrator_id' => $u->id
+        ])->count();
+
+        $countSheepMale = Animal::where([
+            'type' => 'Sheep',
+            'sex' => 'Male',
+            'administrator_id' => $u->id
+        ])->count();
+
+        $countSheep = Animal::where([
+            'type' => 'Sheep',
+            'administrator_id' => $u->id
+        ])->count();
+
+        $count = Animal::where([
+            'administrator_id' => $u->id
+        ])->count();
+
+
+
+        $data['countSheepFemale'] = $countSheepFemale;
+        $data['countSheepMale'] = $countSheepMale;
+        $data['countSheep'] = $countSheep;
+
+
+        $data['countGoat'] = $countGoat;
+        $data['countGoatMale'] = $countGoatMale;
+        $data['countGoatFemale'] = $countGoatFemale;
+        $data['countCattleFemale'] = $countCattleFemale;
+
+        $data['countCattle'] = $countCattle;
+        $data['countCattleMale'] = $countCattleMale;
+        $data['countCattleFemale'] = $countCattleFemale;
+
+        $data['count'] = $count;
+
+
+
+        return view('dashboard.farmerSummary', $data);
+    }
+
+
     /**
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
@@ -21,7 +207,7 @@ class Dashboard
     public static function environment()
     {
         $envs = [
-            ['name' => 'PHP version',       'value' => 'PHP/'.PHP_VERSION],
+            ['name' => 'PHP version',       'value' => 'PHP/' . PHP_VERSION],
             ['name' => 'Laravel version',   'value' => app()->version()],
             ['name' => 'CGI',               'value' => php_sapi_name()],
             ['name' => 'Uname',             'value' => php_uname()],

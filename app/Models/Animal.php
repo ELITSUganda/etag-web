@@ -56,7 +56,7 @@ class Animal extends Model
             }
 
 
-            $model->status = "Live";
+            $model->status = "Active";
             $model->administrator_id = $f->administrator_id;
             $model->district_id = $f->district_id;
             $model->sub_county_id = $f->sub_county_id;
@@ -99,11 +99,11 @@ class Animal extends Model
         });
 
         self::deleting(function ($model) {
-            if ($model->events != null) {
+            /* if ($model->events != null) {
                 foreach ($model->events as $key => $eve) {
                     $eve->delete();
                 }
-            }
+            } */ 
             return $model;
         });
 
