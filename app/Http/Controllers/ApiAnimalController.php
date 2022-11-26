@@ -530,6 +530,17 @@ class ApiAnimalController extends Controller
 
     public function create(Request $request)
     {
+        $administrator_id = Utils::get_user_id($request);
+        $u = Administrator::find($administrator_id);
+
+
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
+        }
+
         if (
             !isset($request->farm_id)
         ) {
@@ -607,9 +618,28 @@ class ApiAnimalController extends Controller
         $f->fmd = $request->fmd;
         $f->parent_id = $request->parent_id;
         $f->status = 'Active';
-
-
         $f->save();
+
+
+
+        if (isset($request->local_id)) {
+            $local_id = (int)($request->local_id);
+
+            $imgs = Image::where([
+                'administrator_id' => $administrator_id,
+                'parent_id' => $local_id,
+                'parent_endpoint' => 'animals-local',
+            ])->get();
+
+            foreach ($imgs as  $img) {
+                $img->parent_id = $f->id;
+                $img->parent_endpoint = 'Animal';
+                $img->save();
+            }
+        }
+
+
+
         return Utils::response([
             'status' => 1,
             'message' => "Animal created successfully.",
