@@ -550,6 +550,26 @@ class ApiAnimalController extends Controller
             ]);
         }
 
+        if (isset($request->has_no_tag)) {
+            $has_no_tag = ((int)($request->has_no_tag));
+            if ($has_no_tag == 1) {
+                $p = Animal::find($request->parent_id);
+                if ($p == null) {
+                    return Utils::response([
+                        'status' => 0,
+                        'message' => "Parent animal not found."
+                    ]);
+                }
+
+                $count = Animal::where([
+                    'parent_id' => $p->id
+                ])->count();
+                $count++;
+                $request->e_id = "temp-{$p->e_id}-{$count}";
+                $request->v_id = "temp-{$p->v_id}-{$count}";
+            }
+        }
+
         if (
             !isset($request->e_id)
         ) {
