@@ -82,10 +82,12 @@ Route::post('login/create-account', [ApiLoginController::class, 'create_account'
 // ========== lofin ends ============== //
 
 
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::post("post-media-upload", [ApiAnimalController::class, 'upload_media']);
 
 
 Route::get('ajax', function (Request $r) {
@@ -162,7 +164,6 @@ Route::get('diseases', function (Request $r) {
         'message' => "Event was created successfully.",
         'data' => $data
     ]);
-
 });
 
 Route::get('sub-counties', function (Request $r) {

@@ -41,6 +41,9 @@ use App\Models\Utils;
                             <p class="d-flex justify-content-between fc-gray fs-18 fw-600 my-0 p-0 "
                                 style="line-height: 1;
                             border-top: dashed 1px black;">
+                            <p class="d-flex justify-content-between fc-gray fs-18 fw-600 my-0 p-0 "
+                                style="line-height: 1;
+                            border-top: dashed 1px black;">
                                 <span>Total</span>
                                 <span>{{ number_format($countCattle) }}</span>
                             </p>

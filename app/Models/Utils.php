@@ -563,4 +563,15 @@ class Utils extends Model
 
         return $is_single_file ? $single_file : $uploaded_images;
     }
+
+
+    public static function docs_root($params = array())
+    {
+        $r = $_SERVER['DOCUMENT_ROOT'] . "";
+        $r = str_replace('/public', "", $r);
+        $r = $r . "/public";
+        return $r;
+    }
+
+    
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Animal;
 use App\Models\Event;
 use App\Models\Farm;
+use App\Models\Image;
 use App\Models\Movement;
 use App\Models\SlaughterRecord;
 use App\Models\Utils;
@@ -14,6 +15,81 @@ use Illuminate\Http\Request;
 
 class ApiAnimalController extends Controller
 {
+
+
+    public function upload_media(Request $request)
+    {
+
+        $administrator_id = Utils::get_user_id($request);
+        $u = Administrator::find($administrator_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
+        }
+
+
+        if (
+            !isset($request->parent_id) ||
+            $request->parent_id == null ||
+            ((int)($request->parent_id)) < 1
+        ) {
+
+            return Utils::response([
+                'status' => 0,
+                'message' => "Local parent ID is missing.",
+            ]);
+        }
+
+
+        if (
+            !isset($request->parent_endpoint) ||
+            $request->parent_endpoint == null ||
+            (strlen(($request->parent_endpoint))) < 3
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Local parent ID endpoint is missing.",
+            ]);
+        }
+
+        if (
+            empty($_FILES)
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Files not found.",
+            ]);
+        }
+
+        $images = Utils::upload_images_1($_FILES, false);
+        $_images = [];
+
+        if (empty($images)) {
+            return $this->error('Failed to upload files.');
+        }
+
+        foreach ($images as $src) {
+            $img = new Image();
+            $img->administrator_id =  $administrator_id;
+            $img->src =  $src;
+            $img->thumbnail =  null;
+            $img->parent_endpoint =  $request->parent_endpoint;
+            $img->parent_id =  (int)($request->parent_id);
+            $img->size = 0;
+            $img->save();
+            $_images[] = $img;
+        }
+        //Utils::process_images_in_backround();
+        return Utils::response([
+            'status' => 1,
+            'message' => "File uploaded successfully.",
+        ]);
+    }
+
+
+
     public function create_slaughter(Request $request)
     {
 
@@ -178,14 +254,14 @@ class ApiAnimalController extends Controller
 
         $event = new Event();
         $event->animal_id = (int)($request->animal_id);
-       
-       
+
+
         $event->detail = $request->detail;
         $event->sub_county_id = $request->sub_county_id;
         $event->farm_id = $request->farm_id;
         $event->animal_id = $request->animal_id;
         $event->type = $request->type;
-        $event->approved_by = $request->approved_by; 
+        $event->approved_by = $request->approved_by;
         $event->animal_type = $request->animal_type;
         $event->vaccine_id = $request->vaccine_id;
         $event->medicine_id = $request->medicine_id;
@@ -204,8 +280,8 @@ class ApiAnimalController extends Controller
         $event->disease_test_results = $request->disease_test_results;
         $event->disease_id = $request->disease_id;
 
-      
-        
+
+
         if ($event->save()) {
             return Utils::response([
                 'status' => 1,
@@ -228,7 +304,7 @@ class ApiAnimalController extends Controller
         $user_id = Utils::get_user_id($request);
         $data = [];
 
-        
+
         foreach (Animal::where([
             'administrator_id' => $user_id
         ])
@@ -557,10 +633,10 @@ class ApiAnimalController extends Controller
         ]);
 
 
-        $per_page = 100000000; 
+        $per_page = 100000000;
         if (isset($request->per_page)) {
             $per_page = $request->per_page;
-        } 
+        }
 
         $administrator_id = Utils::get_user_id($request);
         $user_id = Utils::get_user_id($request);
