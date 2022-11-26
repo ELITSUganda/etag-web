@@ -590,7 +590,7 @@ class ApiAnimalController extends Controller
         $animal = Animal::where('e_id', $request->e_id)->first();
         if ($animal != null) {
             return Utils::response([
-                'status' => 0,
+                'status' => 2,
                 'message' => "Animal with same E-ID already exist in the system."
             ]);
         }
