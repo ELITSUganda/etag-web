@@ -40,7 +40,7 @@ class Animal extends Model
             }
 
             $animal = Animal::where('v_id', $model->v_id)->first();
-           /*  if ($animal != null) {
+            /*  if ($animal != null) {
                 die("Animal with same Tag ID aready exist in the system.");
                 return false;
             } */
@@ -103,7 +103,7 @@ class Animal extends Model
                 foreach ($model->events as $key => $eve) {
                     $eve->delete();
                 }
-            } */ 
+            } */
             return $model;
         });
 
@@ -151,6 +151,7 @@ class Animal extends Model
     {
         return  Image::where([
             'parent_id' => $this->id,
+            'parent_endpoint' => 'Animal',
         ])->get();
     }
 

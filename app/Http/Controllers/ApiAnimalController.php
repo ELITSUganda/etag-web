@@ -305,12 +305,11 @@ class ApiAnimalController extends Controller
         $user_id = Utils::get_user_id($request);
         $data = [];
 
-
         foreach (Animal::where([
             'administrator_id' => $user_id
         ])
             ->orderBy('id', 'desc')
-            ->limit(10000)
+            ->limit(1000)
             ->get() as $animal) {
             $animal->district_text = "-";
             if ($animal->district != null) {
@@ -319,13 +318,17 @@ class ApiAnimalController extends Controller
             if ($animal->sub_county != null) {
                 $animal->sub_county_text = $animal->sub_county->name_text;
             }
-            $data[] = $animal;
+
+            $x = $animal;
+
+
+            $data[] = $x;
         }
 
         return Utils::response([
             'status' => 1,
             'message' => "Success.",
-            'data' => $data
+            'data' => $data[0]
         ]);
 
 
