@@ -328,7 +328,7 @@ class ApiAnimalController extends Controller
         return Utils::response([
             'status' => 1,
             'message' => "Success.",
-            'data' => $data[0]
+            'data' => $data
         ]);
 
 
