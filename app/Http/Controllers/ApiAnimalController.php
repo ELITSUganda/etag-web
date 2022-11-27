@@ -252,6 +252,16 @@ class ApiAnimalController extends Controller
             ]);
         }
 
+        if ($request->type == 'Milking') {
+            $milk = ((int)($request->milk));
+            if ($milk < 1) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Enter valid milk parameters.",
+                ]);
+            }
+        }
+
         $event = new Event();
         $event->animal_id = (int)($request->animal_id);
 
@@ -280,6 +290,7 @@ class ApiAnimalController extends Controller
         $event->disease_test_results = $request->disease_test_results;
         $event->disease_id = $request->disease_id;
         $event->milk = $request->milk;
+
 
 
 
@@ -687,7 +698,7 @@ class ApiAnimalController extends Controller
         ]);
 
 
-        $per_page = 100000000;
+        $per_page = 10000000;
         if (isset($request->per_page)) {
             $per_page = $request->per_page;
         }
