@@ -31,12 +31,12 @@ use App\Models\Utils;
                             <p class="d-flex justify-content-between fc-gray fs-18 fw-600 my-0 p-0 mt-5 "
                                 style="line-height: 1">
                                 <span>Bulls</span>
-                                <span>{{ number_format($countCattleFemale) }}</span>
+                                <span>{{ number_format($countCattleMale) }}</span>
                             </p>
                             <p class="d-flex justify-content-between fc-gray fs-18 fw-600 my-0 p-0 "
                                 style="line-height: 1">
                                 <span>Cows</span>
-                                <span>{{ number_format($countCattleMale) }}</span>
+                                <span>{{ number_format($countCattleFemale) }}</span>
                             </p>
                             <p class="d-flex justify-content-between fc-gray fs-18 fw-600 my-0 p-0 "
                                 style="line-height: 1;
