@@ -651,6 +651,7 @@ class ApiAnimalController extends Controller
         $f->sex = $request->sex;
         $f->dob = $request->dob;
         $f->fmd = $request->fmd;
+        $f->stage = $request->stage;
         $f->parent_id = $request->parent_id;
         $f->status = 'Active';
         $f->save();
