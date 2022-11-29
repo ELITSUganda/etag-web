@@ -147,10 +147,11 @@ class Animal extends Model
     }
     public function getImagesAttribute()
     {
-        return  Image::where([
+        $imgs =   Image::where([
             'parent_id' => $this->id,
             'parent_endpoint' => 'Animal',
         ])->get();
+        return json_encode($imgs);
     }
 
     public function getPhoneNumberAttribute()
