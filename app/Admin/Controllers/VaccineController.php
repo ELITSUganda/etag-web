@@ -26,8 +26,9 @@ class VaccineController extends AdminController
     {
         $grid = new Grid(new Vaccine());
 
-        $grid->column('id', __('Id')); 
-        $grid->column('name', __('Name')); 
+        $grid->column('id', __('Id'));
+        $grid->column('name', __('Name'));
+        $grid->column('details', __('Details'))->editable();
 
         return $grid;
     }
