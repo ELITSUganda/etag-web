@@ -29,9 +29,7 @@ class Animal extends Model
     public static function boot()
     {
         parent::boot();
-
         self::creating(function ($model) {
-
 
             $animal = Animal::where('e_id', $model->e_id)->first();
             if ($animal != null) {
@@ -180,5 +178,18 @@ class Animal extends Model
         return Carbon::parse($this->dob)->diffForHumans();
     }
 
-    protected $appends = ['images', 'phone_number', 'whatsapp', 'price_text', 'posted', 'age', 'location'];
+    public function getLastSeenAttribute()
+    {
+        $e = Event::where(['animal_id' => $this->id])->orderBy('id', 'Desc')->first();
+
+        $last_seen = $this->created_at;
+        if ($e != null) {
+            $last_seen = $e->created_at;
+        }
+        $c = Carbon::parse($last_seen);
+        $format = $c->format('d M, (') . $c->diffForHumans() . ").";
+        return $format;
+    }
+
+    protected $appends = ['images', 'last_seen', 'phone_number', 'whatsapp', 'price_text', 'posted', 'age', 'location'];
 }
