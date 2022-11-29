@@ -12,7 +12,7 @@ use Encore\Admin\Auth\Database\Administrator;
 use Exception;
 use Illuminate\Http\Request;
 
-class ApiProductController extends Controller
+class ApiProductController extends Controller 
 {
 
 

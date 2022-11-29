@@ -548,7 +548,6 @@ class ApiAnimalController extends Controller
         $administrator_id = Utils::get_user_id($request);
         $u = Administrator::find($administrator_id);
 
-
         if ($u == null) {
             return Utils::response([
                 'status' => 0,

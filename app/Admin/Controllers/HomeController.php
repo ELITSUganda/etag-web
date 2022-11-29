@@ -15,11 +15,11 @@ use App\Models\FormDrugSeller;
 use App\Models\Movement;
 use App\Models\MyFaker;
 use Dflydev\DotAccessData\Util;
+use Doctrine\DBAL\Driver\OCI8\ExecutionMode;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Widgets\Box;
-
-
+use Exception;
 
 class HomeController extends Controller
 {
@@ -43,9 +43,24 @@ class HomeController extends Controller
         $role->save();
         return redirect(admin_url('/'));
     }
+
+    public static function sayMyName()
+    {
+        throw new Exception('');
+
+        echo "Romina K";
+    }
     public function index(Content $content)
     {
 
+        try {
+            HomeController::sayMyName();
+            die("success");
+        } catch (Exception $e) {
+            print_r($e->getMessage());
+            die("failed");
+        }
+        die("");
         //MyFaker::makeEvents(3000);
         //die("as");  
         //MyFaker::makeAnimals(1000);

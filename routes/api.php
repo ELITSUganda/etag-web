@@ -7,6 +7,7 @@ use App\Http\Controllers\ApiFarmController;
 use App\Http\Controllers\ApiLoginController;
 use App\Http\Controllers\ApiMovement;
 use App\Http\Controllers\ApiProductController;
+use App\Http\Controllers\ApiResurceController;
 use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\UtilsController;
 use App\Http\Controllers\ApiUserController;
@@ -20,7 +21,13 @@ use Illuminate\Support\Facades\Route;
 
 
 
+Route::post('api/{model}', [ApiResurceController::class, 'store']);
+Route::put('api/{model}', [ApiResurceController::class, 'update']);
+
+//Route::resource('api', [ApiResurceController::class, 'product_image_upload']);
+
 Route::post('product-image-upload', [ApiProductController::class, 'product_image_upload']);
+
 Route::post('product-upload', [ApiProductController::class, 'product_upload']);
 Route::post('product-order', [ApiProductController::class, 'product_order_create']);
 Route::get('order', [ApiProductController::class, 'orders']);
