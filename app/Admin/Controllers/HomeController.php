@@ -49,24 +49,28 @@ class HomeController extends Controller
         //MyFaker::makeEvents(3000);
         //die("as");  
         //MyFaker::makeAnimals(1000);
+
         $u = Admin::user();
-        $content
-            ->title('U-LITS - Dashboard')
-            ->description('Hello ' . $u->name . "!");
+        if ($u->isRole('farmer')) {
+       
+            $content
+                ->title('U-LITS - Dashboard')
+                ->description('Hello ' . $u->name . "!");
 
-        $content->row(function (Row $row) {
-            $row->column(4, function (Column $column) {
-                $column->append(Dashboard::farmerSummary());
+            $content->row(function (Row $row) {
+                $row->column(4, function (Column $column) {
+                    $column->append(Dashboard::farmerSummary());
+                });
+                $row->column(3, function (Column $column) {
+                    $column->append(Dashboard::farmerEvents());
+                });
+                $row->column(5, function (Column $column) {
+                    $column->append(Dashboard::milkCollection());
+                });
             });
-            $row->column(3, function (Column $column) {
-                $column->append(Dashboard::farmerEvents());
-            });
-            $row->column(5, function (Column $column) {
-                $column->append(Dashboard::milkCollection());
-            });
-        });
 
-        return $content;
+            return $content;
+        }
 
         if ($u->isRole('farmer')) {
             if (count($u->farms) < 1) {
