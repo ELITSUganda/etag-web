@@ -87,16 +87,23 @@ class ApiAnimalController extends Controller
                 $msg .= "Note not set. ";
             }
 
-            if (($request->parent_endpoint == 'animals-local')) {
-                $animal = Animal::find(((int)($_POST['online_parent_id'])));
-                if ($animal != null) {
-                    $img->parent_endpoint =  'Animal';
-                    $img->parent_id =  $animal->id;
-                }else{
-                    $msg .= "parent_id NOT not found => {$request->online_parent_id}.";
+            $online_parent_id = ((int)($request->online_parent_id));
+            if (
+                $online_parent_id > 0
+            ) {
+                if (($request->parent_endpoint == 'animals-local')) {
+                    $animal = Animal::find($online_parent_id);
+                    if ($animal != null) {
+                        $img->parent_endpoint =  'Animal';
+                        $img->parent_id =  $animal->id;
+                    } else {
+                        $msg .= "parent_id NOT not found => {$request->online_parent_id}.";
+                    }
+                } else {
+                    $msg .= "parent_endpoint NOT animals-local.";
                 }
-            }else{
-                $msg .= "parent_endpoint NOT animals-local.";
+            } else {
+                $msg .= "Online_parent_id NOT set. ";
             }
 
             $img->save();
