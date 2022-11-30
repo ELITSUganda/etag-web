@@ -123,7 +123,7 @@ use App\Models\Utils;
 
                         {
                             type: 'line',
-                            label: 'Number of records',
+                            label: 'Animals milked',
                             backgroundColor: window.chartColors.red,
                             borderColor: window.chartColors.red,
                             data: {{ json_encode($count) }}
