@@ -112,7 +112,7 @@ class ApiAnimalController extends Controller
         //Utils::process_images_in_backround();
         return Utils::response([
             'status' => 1,
-            'data' => $msg,
+            'data' => json_encode($request),
             'message' => "File uploaded successfully.",
         ]);
     }
