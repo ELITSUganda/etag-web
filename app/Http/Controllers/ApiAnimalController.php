@@ -78,6 +78,24 @@ class ApiAnimalController extends Controller
             $img->parent_endpoint =  $request->parent_endpoint;
             $img->parent_id =  (int)($request->parent_id);
             $img->size = 0;
+            $img->note = '';
+            if (
+                isset($request->note)
+            ) {
+                $img->note =  $request->note;
+            }
+
+            if (
+                isset($request->online_parent_id) &&
+                ($request->parent_endpoint == 'animals-local')
+            ) {
+                $animal = Animal::find(((int)($request->online_parent_id)));
+                if ($animal != null) {
+                    $img->parent_endpoint =  'Animal';
+                    $img->parent_id =  $animal->id;
+                }
+            }
+
             $img->save();
             $_images[] = $img;
         }
