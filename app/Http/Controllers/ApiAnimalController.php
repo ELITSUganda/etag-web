@@ -103,7 +103,7 @@ class ApiAnimalController extends Controller
                     $msg .= "parent_endpoint NOT animals-local.";
                 }
             } else {
-                $msg .= "Online_parent_id NOT set. ";
+                $msg .= "Online_parent_id NOT set. => {$online_parent_id} ";
             }
 
             $img->save();
