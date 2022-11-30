@@ -119,12 +119,22 @@ use App\Models\Utils;
 
                 var chartData = {
                     labels: JSON.parse('<?php echo json_encode($labels); ?>'),
-                    datasets: [{
-                        type: 'bar',
-                        label: 'Milk collection',
-                        backgroundColor: window.chartColors.green,
-                        data: {{ json_encode($data) }}
-                    }]
+                    datasets: [
+
+                        {
+                            type: 'line',
+                            label: 'Number of records',
+                            backgroundColor: window.chartColors.red,
+                            borderColor: window.chartColors.red,
+                            data: {{ json_encode($count) }}
+                        }, {
+                            type: 'bar',
+                            label: 'Milk quantity',
+                            backgroundColor: window.chartColors.green,
+                            data: {{ json_encode($data) }}
+                        },
+
+                    ]
 
                 };
 

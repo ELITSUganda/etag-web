@@ -30,6 +30,12 @@ class Dashboard
                 ])
                 ->sum('milk');
 
+            $count = Event::whereBetween('created_at', [$min, $max])
+                ->where([
+                    'type' => 'Milking'
+                ])
+                ->count('animal_id');
+
 
             $expence = Transaction::whereBetween('created_at', [$min, $max])
                 ->where([
@@ -45,7 +51,8 @@ class Dashboard
 
             $data['data'][] = $milk;
             $data['income'][] = $income;
-            $data['expence'][] = ((-1)*($expence));
+            $data['count'][] = $count;
+            $data['expence'][] = ((-1) * ($expence));
             $data['labels'][] = Utils::my_day($max);
         }
 
