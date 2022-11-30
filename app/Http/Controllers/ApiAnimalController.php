@@ -70,6 +70,7 @@ class ApiAnimalController extends Controller
             return $this->error('Failed to upload files.');
         }
 
+        $msg = "";
         foreach ($images as $src) {
             $img = new Image();
             $img->administrator_id =  $administrator_id;
@@ -83,17 +84,25 @@ class ApiAnimalController extends Controller
                 isset($request->note)
             ) {
                 $img->note =  $request->note;
+                $msg .= "Note not set. ";
             }
 
             if (
-                isset($request->online_parent_id) &&
-                ($request->parent_endpoint == 'animals-local')
+                isset($request->online_parent_id)
             ) {
-                $animal = Animal::find(((int)($request->online_parent_id)));
-                if ($animal != null) {
-                    $img->parent_endpoint =  'Animal';
-                    $img->parent_id =  $animal->id;
+                if (($request->parent_endpoint == 'animals-local')) {
+                    $animal = Animal::find(((int)($request->online_parent_id)));
+                    if ($animal != null) {
+                        $img->parent_endpoint =  'Animal';
+                        $img->parent_id =  $animal->id;
+                    }else{
+                        $msg .= "parent_id NOT not found => {$request->online_parent_id}.";
+                    }
+                }else{
+                    $msg .= "parent_endpoint NOT animals-local.";
                 }
+            } else {
+                $msg .= "Online_parent_id NOT set. ";
             }
 
             $img->save();
