@@ -317,6 +317,7 @@ class ApiAnimalController extends Controller
 
 
         $event->detail = $request->detail;
+        $event->session_id = $session_id;
         $event->sub_county_id = $request->sub_county_id;
         $event->farm_id = $request->farm_id;
         $event->animal_id = $request->animal_id;
