@@ -291,6 +291,27 @@ class ApiAnimalController extends Controller
             }
         }
 
+
+        if (!isset($request->session_id)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Session not set.",
+            ]);
+        }
+        $session_id = trim($request->session_id);
+
+        $ev = Event::where([
+            'session_id' => $session_id,
+            'animal_id' => $request->animal_id,
+        ])->first();
+
+        if ($ev != null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Duplicate of event is detected.",
+            ]);
+        }
+
         $event = new Event();
         $event->animal_id = (int)($request->animal_id);
 
