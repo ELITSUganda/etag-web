@@ -32,6 +32,15 @@ class Utils extends Model
     }
 
     
+    public static function my_date_1($t)
+    {
+        $c = Carbon::parse($t);
+        if ($t == null) {
+            return $t;
+        }
+        return $c->format('D - d M'); 
+    }
+
     public static function my_date($t)
     {
         $c = Carbon::parse($t);

@@ -72,11 +72,11 @@ class EventController extends AdminController
         }
         dd("Done");*/
 
-
+ 
         if (Admin::user()->isRole('farmer')) {
             $grid->model()->where('administrator_id', '=', Admin::user()->id);
             $grid->actions(function ($actions) {
-                $actions->disableDelete();
+                //$actions->disableDelete();
                 $actions->disableEdit();
             });
             //$grid->disableCreateButton();

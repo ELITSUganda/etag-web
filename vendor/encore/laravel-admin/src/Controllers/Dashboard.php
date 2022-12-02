@@ -18,11 +18,23 @@ class Dashboard
     {
 
         $data = [];
+        $records = [];
+        $prev = 0;
         for ($i = 29; $i >= 0; $i--) {
             $min = new Carbon();
             $max = new Carbon();
             $max->subDays($i);
             $min->subDays(($i + 1));
+
+            //2022-11-03 19:33:51.955979 UTC (+00:00)
+
+            //2022-11-03 00:00:00.0 UTC (+00:00)
+            //2022-11-02 00:00:00.0 UTC (+00:00)
+
+
+            $max = Carbon::parse($max->format('Y-m-d'));
+            $min = Carbon::parse($min->format('Y-m-d'));
+
 
             $milk = Event::whereBetween('created_at', [$min, $max])
                 ->where([
@@ -54,8 +66,22 @@ class Dashboard
             $data['count'][] = $count;
             $data['expence'][] = ((-1) * ($expence));
             $data['labels'][] = Utils::my_day($max);
+
+            $rec['day'] = Utils::my_date_1($max);
+            $rec['animals'] = $count;
+            $rec['milk'] = $milk;
+
+            $rec['progress'] = 0;
+            if ($count > 0) {
+                $avg = $milk / $count;
+                $rec['progress'] =  $avg - $prev;
+                $prev = $avg;
+            } 
+
+            $data['records'][] = $rec;
         }
 
+        $data['records'] = array_reverse($data['records']);
         return view('dashboard.farmerMilkCollection', $data);
     }
     public static function farmerEvents()
