@@ -75,6 +75,59 @@ class ApiResurceController extends Controller
     }
 
 
+    public function delete(Request $r, $model)
+    {
+        $administrator_id = Utils::get_user_id($r);
+        $u = Administrator::find($administrator_id);
+
+
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
+        }
+
+
+        $className = "App\Models\\" . $model;
+        $id = ((int)($r->online_id));
+        $obj = $className::find($id);
+
+
+        if ($obj == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Item already deleted.",
+            ]);
+        }
+
+
+        try {
+            $obj->delete();
+            $msg = "Deleted successfully.";
+            $success = true;
+        } catch (Exception $e) {
+            $success = false;
+            $msg = $e->getMessage();
+        }
+
+
+        if ($success) {
+            return Utils::response([
+                'status' => 1,
+                'data' => $obj,
+                'message' => $msg
+            ]);
+        } else {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => $msg
+            ]);
+        }
+    }
+
+
     public function update(Request $r, $model)
     {
         $administrator_id = Utils::get_user_id($r);
