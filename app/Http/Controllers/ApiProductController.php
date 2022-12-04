@@ -403,9 +403,11 @@ address
 
         $data['records'] = array_reverse($data['records']);
 
+        $_data['data'] = json_encode($data); 
+
         return Utils::response([
             'status' => 0,
-            'data' => $data,
+            'data' => $_data,
             'message' => "User not found."
         ]);
     }
