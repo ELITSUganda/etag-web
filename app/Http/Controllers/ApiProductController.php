@@ -403,7 +403,6 @@ address
 
         $data['records'] = array_reverse($data['records']);
 
-        $_data['id'] = json_encode($data); 
         $_data['data'] = json_encode($data); 
 
         return Utils::response([
