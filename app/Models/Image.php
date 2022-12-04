@@ -12,7 +12,7 @@ class Image extends Model
     use HasFactory;
     protected $fillable = [
         'administrator_id',
-        'src',
+        'src', 
         'thumbnail',
         'parent_id',
         'size',
