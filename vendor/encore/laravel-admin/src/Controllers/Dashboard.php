@@ -20,11 +20,11 @@ class Dashboard
         $data = [];
         $records = [];
         $prev = 0;
-        for ($i = 29; $i > -1; $i--) {
+        for ($i = 29; $i >= 0; $i--) {
             $min = new Carbon();
             $max = new Carbon();
-            $max->subDays($i+1);
-            $min->subDays(($i +2));
+            $max->subDays($i);
+            $min->subDays(($i + 1));
 
             //2022-11-03 19:33:51.955979 UTC (+00:00)
 
