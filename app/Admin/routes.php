@@ -43,4 +43,5 @@ Route::group([
     $router->resource('pregnant-animals', PregnantAnimalController::class);
     $router->resource('finance-categories', FinanceCategoryController::class);
     $router->resource('transactions', TransactionController::class);
+    $router->resource('milk', MilkController::class);
 });

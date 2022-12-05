@@ -58,6 +58,7 @@ php artisan admin:make EventController --model=App\\Models\\Event
 php artisan admin:make PregnantAnimalController --model=App\\Models\\PregnantAnimal
 php artisan admin:make FinanceCategoryController --model=App\\Models\\FinanceCategory
 php artisan admin:make TransactionController --model=App\\Models\\Transaction
+php artisan admin:make MilkController --model=App\\Models\\Event
 
 
 php artisan make:model CheckPoint
