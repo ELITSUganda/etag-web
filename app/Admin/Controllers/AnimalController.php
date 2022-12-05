@@ -307,7 +307,7 @@ class AnimalController extends AdminController
                 '1' => "Yes",
             ])
             ->default(null)
-            ->when(1, function ($f) {
+            ->when(1, function ($f) { 
                 $u = Admin::user();
                 $f->select('parent_id', 'Select parent')
                     ->options(function ($id) {

@@ -7,6 +7,7 @@ use App\Models\Event;
 use App\Models\Farm;
 use App\Models\Utils;
 use Encore\Admin\Controllers\AdminController;
+use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
@@ -30,7 +31,34 @@ class MilkController extends AdminController
     {
         $grid = new Grid(new Event());
 
-        
+        $grid->filter(function ($filter) {
+            // Remove the default id filter
+            $filter->disableIdFilter();
+            $u = Admin::user();
+
+
+            $filter->between('created_at', 'Created between')->date();
+
+            $farms = [];
+            foreach (Farm::where([
+                'administrator_id' => Auth::user()->id,
+            ])->get() as $key => $f) {
+                $farms[$f->id] = $f->holding_code;
+            }
+            $filter->equal('farm_id', 'Filter by farm')
+                ->select($farms);
+
+
+            $filter->equal('animal_id', 'Filter by animal')
+                ->select(function ($id) {
+                    $parent = Animal::find($id);
+                    if ($parent != null) {
+                        return [$parent->id =>  $parent->v_id . " - " . $parent->e_id];
+                    }
+                })->ajax(url('/api/ajax-animals?'
+                    . "&administrator_id={$u->id}"));
+        });
+
 
         //$grid->disableActions();
         $grid->disableBatchActions();
@@ -49,19 +77,24 @@ class MilkController extends AdminController
         $grid->column('sub_county_id', __('Sub county id'));
         $grid->column('parish_id', __('Parish id'));
         $grid->column('weight', __('Weight'));*/
+        /* $grid->quickSearch('session_id')->placeholder('Filter by session ID'); */
         $grid->column('farm_id', __('Farm'))
             ->display(function ($id) {
                 return Utils::get_object(Farm::class, $id)->holding_code;
             })->sortable();
         $grid->column('animal_id', __('Animal'))
             ->display(function ($id) {
-                return Utils::get_object(Animal::class, $id)->v_id;
+                $animal = Utils::get_object(Animal::class, $id);
+                return $animal->v_id . " - " . $animal->e_id;
             })->sortable();
         $grid->column('e_id', __('E-id'))->hide();
         $grid->column('milk', __('Milk quantity'))
             ->display(function ($count) {
                 return $count . " Ltrs";
-            })->sortable();
+            })
+            ->sortable()->totalRow(function ($x) {
+                return  number_format($x) . " Ltrs";
+            });
 
         $grid->column('description', __('Description'));
         $grid->column('detail', __('Detail'))->hide();
