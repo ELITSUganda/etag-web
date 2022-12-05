@@ -65,9 +65,9 @@ class Dashboard
             $data['income'][] = $income;
             $data['count'][] = $count;
             $data['expence'][] = ((-1) * ($expence));
-            $data['labels'][] = Utils::my_day($max);
+            $data['labels'][] = Utils::my_day($min);
 
-            $rec['day'] = Utils::my_date_1($max);
+            $rec['day'] = Utils::my_date_1($min);
             $rec['animals'] = $count;
             $rec['milk'] = $milk;
 
