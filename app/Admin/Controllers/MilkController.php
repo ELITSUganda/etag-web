@@ -30,7 +30,8 @@ class MilkController extends AdminController
     {
         $grid = new Grid(new Event());
 
-        $grid->disableActions();
+        //$grid->disableActions();
+        $grid->disableBatchActions();
         $grid->model()->where([
             'type' => 'Milking',
             'administrator_id' => Auth::user()->id,
