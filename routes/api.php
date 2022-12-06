@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Route;
 
 
 
+Route::get('api/{model}', [ApiResurceController::class, 'index']);
 Route::post('api/{model}', [ApiResurceController::class, 'store']);
 Route::put('api/{model}', [ApiResurceController::class, 'update']);
 Route::delete('api/{model}', [ApiResurceController::class, 'delete']);

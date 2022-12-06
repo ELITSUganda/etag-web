@@ -18,9 +18,73 @@ class ApiResurceController extends Controller
 
 
 
-    public function store(Request $r, $model)
+    public function index(Request $r, $model)
     {
 
+        $className = "App\Models\\" . $model;
+        $obj = new $className;
+
+        if (isset($_POST['_method'])) {
+            unset($_POST['_method']);
+        }
+        if (isset($_GET['_method'])) {
+            unset($_GET['_method']);
+        }
+
+        $conditions = [];
+        foreach ($_GET as $k => $v) {
+            if (substr($k, 0, 2) == 'q_') {
+                $conditions[substr($k, 2, strlen($k))] = trim($v);
+            }
+        }
+        $is_private = true;
+        if (isset($_GET['is_not_private'])) {
+            $is_not_private = ((int)($_GET['is_not_private']));
+            if ($is_not_private == 1) {
+                $is_private = false;
+            }
+        }
+        if ($is_private) {
+            $administrator_id = Utils::get_user_id($r);
+            $u = Administrator::find($administrator_id);
+
+            if ($u == null) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "User not found.",
+                ]);
+            }
+            $conditions['administrator_id'] = $administrator_id;
+        }
+
+        $items = [];
+        $msg = "";
+
+        try {
+            $items = $className::where($conditions)->get();
+            $msg = "Success";
+            $success = true;
+        } catch (Exception $e) {
+            $success = false;
+            $msg = $e->getMessage();
+        }
+
+        if ($success) {
+            return Utils::response([
+                'status' => 1,
+                'data' => $items,
+                'message' => 'Success'
+            ]);
+        } else {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => $msg
+            ]);
+        }
+    }
+    public function store(Request $r, $model)
+    {
         $administrator_id = Utils::get_user_id($r);
         $u = Administrator::find($administrator_id);
 
@@ -41,6 +105,32 @@ class ApiResurceController extends Controller
         if (isset($_POST['online_id'])) {
             unset($_POST['online_id']);
         }
+
+
+
+
+        $is_private = true;
+        if (isset($_GET['is_not_private'])) {
+            $is_not_private = ((int)($_GET['is_not_private']));
+            if ($is_not_private == 1) {
+                $is_private = false;
+            }
+        }
+        if ($is_private) {
+            $administrator_id = Utils::get_user_id($r);
+            $u = Administrator::find($administrator_id);
+
+            if ($u == null) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "User not found.",
+                ]);
+            }
+            $_POST['administrator_id'] = $administrator_id;
+        }
+
+     
+
 
 
         foreach ($_POST as $key => $value) {
