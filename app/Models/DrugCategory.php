@@ -21,7 +21,7 @@ class DrugCategory extends Model
         parent::boot();
         self::creating(function ($m) {
             $name = trim($m->name);
-            $resp = FinanceCategory::where([
+            $resp = DrugCategory::where([
                 'name' => $name,
             ])->first();
             if ($resp != null) {
