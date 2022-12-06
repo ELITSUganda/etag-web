@@ -110,11 +110,13 @@ class ApiResurceController extends Controller
 
 
         $is_private = true;
-        if (isset($_GET['is_not_private'])) {
-            $is_not_private = ((int)($_GET['is_not_private']));
+        if (isset($_POST['is_not_private'])) {
+            $is_not_private = ((int)($_POST['is_not_private']));
             if ($is_not_private == 1) {
                 $is_private = false;
             }
+
+            unset($_POST['is_not_private']);
         }
         if ($is_private) {
             $administrator_id = Utils::get_user_id($r);
@@ -129,7 +131,7 @@ class ApiResurceController extends Controller
             $_POST['administrator_id'] = $administrator_id;
         }
 
-     
+
 
 
 
