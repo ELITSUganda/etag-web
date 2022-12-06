@@ -20,7 +20,7 @@ class Dashboard
         $data = [];
         $records = [];
         $prev = 0;
-        for ($i = 29; $i >= 0; $i--) {
+        for ($i = 29; $i >= -1; $i--) {
             $min = new Carbon();
             $max = new Carbon();
             $max->subDays($i);

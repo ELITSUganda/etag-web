@@ -30,6 +30,7 @@ class MilkController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new Event());
+        $grid->disableCreateButton();
 
         $grid->filter(function ($filter) {
             // Remove the default id filter
