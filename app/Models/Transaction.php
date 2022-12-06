@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -20,13 +21,16 @@ class Transaction extends Model
         });
         self::creating(function ($m) {
 
-            $f = Farm::find($m->farm_id);
+
             $financeAcc = FinanceCategory::find($m->finance_category_id);
-            if ($f == null ) {
-                die("Farm not found.");
-            }
+
             if ($financeAcc == null) {
-                die("Finance Acc not found.");
+                throw new Exception("Finance Acc not found.");
+            }
+
+            $f = Farm::where('administrator_id', $financeAcc->administrator_id)->first();
+            if ($f == null) {
+                throw new Exception('Farm not found.');
             }
 
             $m->administrator_id = $f->administrator_id;
