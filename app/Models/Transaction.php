@@ -21,7 +21,6 @@ class Transaction extends Model
         });
         self::creating(function ($m) {
 
-
             $financeAcc = FinanceCategory::find($m->finance_category_id);
 
             if ($financeAcc == null) {
@@ -48,4 +47,20 @@ class Transaction extends Model
             $m->amount = $amount;
         });
     }
+
+
+    public function getAmountTextAttribute()
+    {
+        return "UGX " . number_format($this->amount);
+    }
+
+    public function getTransactionDateAttribute()
+    {
+        return Utils::my_date_time($this->created_at);
+    }
+
+    protected $appends = [
+        'transaction_date',
+        'amount_text',
+    ];
 }
