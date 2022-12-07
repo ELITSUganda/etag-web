@@ -58,7 +58,11 @@ class DrugStockBatch extends Model
 
     function getQuantityTextAttribute($x)
     {
-        return number_format($this->current_quantity);
+        $units = "";
+        if ($this->category != null) {
+            $units = " " . $this->category->unit;
+        }
+        return number_format($this->current_quantity) . $units;
     }
 
     function category()
@@ -66,5 +70,58 @@ class DrugStockBatch extends Model
         return $this->belongsTo(DrugCategory::class, 'drug_category_id');
     }
 
-    protected $appends = ['quantity_text'];
+
+    function getCurrentQuantityTextAttribute($x)
+    {
+        $units = "";
+        if ($this->category != null) {
+            $units = " " . $this->category->unit;
+        }
+        return number_format($this->current_quantity) . $units;
+    }
+
+    function getOriginalQuantityTextAttribute($x)
+    {
+        $units = "";
+        if ($this->category != null) {
+            $units = " " . $this->category->unit;
+        }
+        return number_format($this->original_quantity) . $units;
+    }
+
+
+    function getDrugCategoryTextAttribute($x)
+    {
+        $cat_name = $this->drug_category_id;
+        if ($this->category != null) {
+            $cat_name =  $this->category->name;
+        }
+        return $cat_name;
+    }
+    function getDrugCategoryText($x)
+    {
+        $units = "";
+        if ($this->category != null) {
+            $units = " " . $this->category->unit;
+        }
+        return number_format($this->original_quantity_text) . $units;
+    }
+    function getExpiryDateTextAttribute($x)
+    {
+        return Utils::my_date($this->expiry_date);
+    }
+    function getCreatedAtTextAttribute($x)
+    {
+        return Utils::my_date($this->created_at);
+    }
+
+
+    protected $appends = [
+        'quantity_text',
+        'created_at_text',
+        'drug_category_text',
+        'expiry_date_text',
+        'original_quantity_text',
+        'current_quantity_text',
+    ];
 }
