@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -21,6 +22,13 @@ class DrugStockBatch extends Model
         self::creating(function ($m) {
 
             $m->current_quantity = $m->original_quantity;
+            $f = Farm::where([
+                'administrator_id' => $m->administrator_id
+            ])->first();
+            if ($f == null) {
+                throw new Exception("You must have at least one farm to create drug stock.");
+            }
+            $m->sub_county_id = $f->sub_county_id;
             //$m->batch_number .= '-' . time();
             return $m;
         });
