@@ -9,6 +9,7 @@ use App\Models\Utils;
 use App\Models\Image;
 use App\Models\Product;
 use App\Models\ProductOrder;
+use App\Models\Transaction;
 use App\Models\Vaccine;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
@@ -18,6 +19,73 @@ use Illuminate\Http\Request;
 class ApiResurceController extends Controller
 {
 
+
+
+    public function dialy_milk_records(Request $r)
+    {
+        $administrator_id = Utils::get_user_id($r);
+        $u = Administrator::find($administrator_id);
+
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
+        }
+
+        $data = [];
+        $records = [];
+        $prev = 0;
+        $id = 0;
+        for ($i = 29; $i >= -1; $i--) {
+            $min = new Carbon();
+            $max = new Carbon();
+            $max->subDays($i);
+            $min->subDays(($i + 1));
+            $id++;
+
+            $max = Carbon::parse($max->format('Y-m-d'));
+            $min = Carbon::parse($min->format('Y-m-d'));
+
+
+            $milk = Event::whereBetween('created_at', [$min, $max])
+                ->where([
+                    'type' => 'Milking',
+                    'administrator_id' => $administrator_id,
+                ])
+                ->sum('milk');
+
+            $count = Event::whereBetween('created_at', [$min, $max])
+                ->where([
+                    'type' => 'Milking',
+                    'administrator_id' => $administrator_id,
+                ])
+                ->count('animal_id');
+
+
+
+
+            $rec['day'] = Utils::my_date_1($min);
+            $rec['animals'] = $count;
+            $rec['milk'] = $milk;
+            $rec['id'] = $id;
+
+            $rec['progress'] = 0;
+            if ($count > 0) {
+                $avg = $milk / $count;
+                $rec['progress'] =  round($avg - $prev,2);
+                $prev = $avg;
+            }
+
+            $data['records'][] = $rec;
+        }
+
+        $data['records'] = array_reverse($data['records']);
+
+        return $data['records'];
+
+        return 'manifest';
+    }
 
 
     public function manifest(Request $r)
@@ -100,7 +168,7 @@ class ApiResurceController extends Controller
             ->count('id');
 
 
-        $manifest['average_production'] = round(($tot_milk / $tot_pros),2);
+        $manifest['average_production'] = round(($tot_milk / $tot_pros), 2);
         $manifest['last_update'] = Utils::my_date_time(Carbon::now());
 
         $data[] = $manifest;
@@ -111,6 +179,10 @@ class ApiResurceController extends Controller
         ]);
         return 'manifest';
     }
+
+
+
+
     public function index(Request $r, $model)
     {
 
