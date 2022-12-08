@@ -82,9 +82,11 @@ class ApiResurceController extends Controller
 
         $data['records'] = array_reverse($data['records']);
 
-        return $data['records'];
-
-        return 'manifest';
+         return Utils::response([
+            'status' => 1,
+            'data' => $data['records'],
+            'message' => 'Success'
+        ]);
     }
 
 
