@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::get('manifest', [ApiResurceController::class, 'manifest']);
-Route::get('dialy-milk-records', [ApiResurceController::class, 'dialy_milk_records']);
+Route::get('daily-milk-records', [ApiResurceController::class, 'dialy_milk_records']);
 Route::get('api/{model}', [ApiResurceController::class, 'index']);
 Route::post('api/{model}', [ApiResurceController::class, 'store']);
 Route::put('api/{model}', [ApiResurceController::class, 'update']);
