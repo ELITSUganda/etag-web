@@ -87,6 +87,20 @@ class ApiResurceController extends Controller
             ])
             ->sum('milk');
 
+        $tot_milk = Event::where([
+            'type' => 'Milking',
+            'administrator_id' => $administrator_id,
+        ])
+            ->sum('milk');
+
+        $tot_pros = Event::where([
+            'type' => 'Milking',
+            'administrator_id' => $administrator_id,
+        ])
+            ->count('id');
+
+
+        $manifest['average_production'] = $tot_milk / $tot_pros;
         $manifest['last_update'] = Utils::my_date_time(time());
 
         $data[] = $manifest;
