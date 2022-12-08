@@ -316,7 +316,7 @@ class ApiAnimalController extends Controller
         $event->animal_id = (int)($request->animal_id);
 
         if(isset($request->session_date)){
-            $event->created_at = Carbon::parse($request->session_date);
+            $event->created_at = $request->session_date;
         }
         
         $event->detail = $request->detail;
