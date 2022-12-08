@@ -33,13 +33,12 @@ class Utils extends Model
         if (count($animals) < 1) {
             return;
         }
-
+ 
         foreach ($animals as $key => $animal) {
             $animal->calculateAverageMilk(); 
         }
 
-        
-        dd(count($animals));
+         
         //average_milk
  
     }
