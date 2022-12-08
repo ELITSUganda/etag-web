@@ -190,7 +190,7 @@ class Animal extends Model
             'type' => 'Milking',
             'animal_id' => $this->id,
         ])
-            ->sum('id');
+            ->count('id');
 
         $avg = 0;
         if ($count > 0) {
