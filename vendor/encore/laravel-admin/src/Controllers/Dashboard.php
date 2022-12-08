@@ -17,6 +17,7 @@ class Dashboard
     public static function milkCollection()
     {
 
+        $administrator_id = Auth::user()->id;
         $data = [];
         $records = [];
         $prev = 0;
@@ -38,26 +39,30 @@ class Dashboard
 
             $milk = Event::whereBetween('created_at', [$min, $max])
                 ->where([
-                    'type' => 'Milking'
+                    'type' => 'Milking',
+                    'administrator_id' => $administrator_id,
                 ])
                 ->sum('milk');
 
             $count = Event::whereBetween('created_at', [$min, $max])
                 ->where([
-                    'type' => 'Milking'
+                    'type' => 'Milking',
+                    'administrator_id' => $administrator_id,
                 ])
                 ->count('animal_id');
 
 
             $expence = Transaction::whereBetween('created_at', [$min, $max])
                 ->where([
-                    'is_income' => 0
+                    'is_income' => 0,
+                    'administrator_id' => $administrator_id,
                 ])
                 ->sum('amount');
 
             $income = Transaction::whereBetween('created_at', [$min, $max])
                 ->where([
-                    'is_income' => 1
+                    'is_income' => 1,
+                    'administrator_id' => $administrator_id,
                 ])
                 ->sum('amount');
 
@@ -76,7 +81,7 @@ class Dashboard
                 $avg = $milk / $count;
                 $rec['progress'] =  $avg - $prev;
                 $prev = $avg;
-            } 
+            }
 
             $data['records'][] = $rec;
         }

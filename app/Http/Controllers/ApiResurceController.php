@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Animal;
 use App\Models\District;
+use App\Models\Event;
 use App\Models\Utils;
 use App\Models\Image;
 use App\Models\Product;
 use App\Models\ProductOrder;
 use App\Models\Vaccine;
+use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
 use Exception;
 use Illuminate\Http\Request;
@@ -18,6 +20,81 @@ class ApiResurceController extends Controller
 
 
 
+    public function manifest(Request $r)
+    {
+        $administrator_id = Utils::get_user_id($r);
+        $u = Administrator::find($administrator_id);
+
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
+        }
+
+        $max = new Carbon();
+        $min_week = new Carbon();
+        $min_prev_week = new Carbon();
+        $min_prev_month = new Carbon();
+        $min_this_month = new Carbon();
+        $min_this_year = new Carbon();
+        $min_week->subDays(7);
+        $min_prev_week->subDays(14);
+        $min_this_month->subDays(30);
+        $min_this_year->subDays(365);
+
+        $max = Carbon::parse($max->format('Y-m-d'));
+        $min_week = Carbon::parse($min_week->format('Y-m-d'));
+        $min_prev_week = Carbon::parse($min_prev_week->format('Y-m-d'));
+        $min_this_month = Carbon::parse($min_this_month->format('Y-m-d'));
+        $min_prev_month = Carbon::parse($min_prev_month->format('Y-m-d'));
+        $min_this_year = Carbon::parse($min_this_year->format('Y-m-d'));
+        $manifest['id'] = 1;
+
+
+        $manifest['milk_this_week_quantity'] = Event::whereBetween('created_at', [$min_week, $max])
+            ->where([
+                'type' => 'Milking',
+                'administrator_id' => $administrator_id,
+            ])
+            ->sum('milk');
+
+        $manifest['milk_prev_week_quantity'] = Event::whereBetween('created_at', [$min_prev_week, $min_week])
+            ->where([
+                'type' => 'Milking',
+                'administrator_id' => $administrator_id,
+            ])
+            ->sum('milk');
+
+        $manifest['milk_this_month_quantity'] = Event::whereBetween('created_at', [$min_this_month, $max])
+            ->where([
+                'type' => 'Milking',
+                'administrator_id' => $administrator_id,
+            ])
+            ->sum('milk');
+
+        $manifest['milk_prev_month_quantity'] = Event::whereBetween('created_at', [$min_prev_month, $min_this_month])
+            ->where([
+                'type' => 'Milking',
+                'administrator_id' => $administrator_id,
+            ])
+            ->sum('milk');
+
+        $manifest['milk_this_year_quantity'] = Event::whereBetween('created_at', [$min_this_year, $max])
+            ->where([
+                'type' => 'Milking',
+                'administrator_id' => $administrator_id,
+            ])
+            ->sum('milk');
+
+        $data[] = $manifest;
+        return Utils::response([
+            'status' => 1,
+            'data' => $data,
+            'message' => 'Success'
+        ]);
+        return 'manifest';
+    }
     public function index(Request $r, $model)
     {
 
