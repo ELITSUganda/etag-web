@@ -73,7 +73,7 @@ class ApiResurceController extends Controller
             $rec['progress'] = 0;
             if ($count > 0) {
                 $avg = $milk / $count;
-                $rec['progress'] =  round($avg - $prev,2);
+                $rec['progress'] =  $avg - $prev;
                 $prev = $avg;
             }
 
