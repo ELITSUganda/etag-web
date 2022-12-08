@@ -87,6 +87,8 @@ class ApiResurceController extends Controller
             ])
             ->sum('milk');
 
+        $manifest['last_update'] = Utils::my_date_time(time());
+
         $data[] = $manifest;
         return Utils::response([
             'status' => 1,
