@@ -256,6 +256,15 @@ class Event extends Model
 
         self::created(function ($model) {
 
+
+
+            if ($model->type == 'Milking') {
+                $animal = Animal::find($model->animal_id);
+                if ($animal == null) {
+                    return false;
+                }
+                $animal->calculateAverageMilk();
+            }
             $type = trim($model->type);
             $events = ['Stolen', 'Home slaughter', 'Death'];
             $user = Administrator::find($model->administrator_id);
@@ -271,7 +280,7 @@ class Event extends Model
             }
 
 
-            $animal = Animal::find($model->animal_id)->first();
+            $animal = Animal::find($model->animal_id);
             if ($animal == null) {
                 return false;
             }

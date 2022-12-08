@@ -179,6 +179,28 @@ class Animal extends Model
         return Carbon::parse($this->dob)->diffForHumans();
     }
 
+    public function calculateAverageMilk()
+    {
+        $milk = Event::where([
+            'type' => 'Milking',
+            'animal_id' => $this->id,
+        ])
+            ->sum('milk');
+        $count = Event::where([
+            'type' => 'Milking',
+            'animal_id' => $this->id,
+        ])
+            ->sum('id');
+
+        $avg = 0;
+        if ($count > 0) {
+            $avg = $milk / $count;
+        }
+
+        $this->average_milk = $avg;
+        $this->save(); 
+    }
+
     public function getLastSeenAttribute()
     {
         $e = Event::where(['animal_id' => $this->id])->orderBy('id', 'Desc')->first();

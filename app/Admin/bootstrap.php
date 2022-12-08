@@ -27,11 +27,15 @@ use App\Models\User;
 use App\Models\Utils;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Facades\Admin;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 //Admin::disablePjax();
 Admin::css('css.css');
 Encore\Admin\Form::forget(['map', 'editor']);
+
+
+Utils::systemBoot(Auth::user());
 /*
 foreach (SubCounty::all() as $key => $s) {
     $l = Location::where([

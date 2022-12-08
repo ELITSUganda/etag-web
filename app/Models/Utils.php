@@ -7,12 +7,42 @@ use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Grid\Model;
 use Exception;
+use Illuminate\Support\Facades\DB;
 use Zebra_Image;
 use Illuminate\Support\Str;
 
 class Utils extends Model
 {
 
+
+
+    public static function systemBoot($u){
+        if($u == null){
+            return;
+        }
+        Utils::prepareAverageMilk();
+    }
+    public static function prepareAverageMilk()
+    {
+
+        
+        $animals = Animal::where([
+            'sex' => 'Female',
+            'average_milk' => NULL,
+        ])->get();
+        if (count($animals) < 1) {
+            return;
+        }
+
+        foreach ($animals as $key => $animal) {
+            $animal->calculateAverageMilk(); 
+        }
+
+        
+        dd(count($animals));
+        //average_milk
+ 
+    }
 
     public static function month($t)
     {
@@ -31,14 +61,14 @@ class Utils extends Model
         return $c->format('d M');
     }
 
-    
+
     public static function my_date_1($t)
     {
         $c = Carbon::parse($t);
         if ($t == null) {
             return $t;
         }
-        return $c->format('D - d M'); 
+        return $c->format('D - d M');
     }
 
     public static function my_date($t)
@@ -581,6 +611,4 @@ class Utils extends Model
         $r = $r . "/public";
         return $r;
     }
-
-    
 }
