@@ -669,10 +669,10 @@ class ApiAnimalController extends Controller
             !isset($request->breed)
         ) {
             $request->breed = 'Other';
-            return Utils::response([
+            /* return Utils::response([
                 'status' => 0,
                 'message' => "You must provide breed."
-            ]);
+            ]); */
         }
 
 
