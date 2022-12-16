@@ -302,7 +302,7 @@ class ApiAnimalController extends Controller
 
         $ev = Event::where([
             'session_id' => $session_id,
-            'animal_id' => $request->animal_id, 
+            'animal_id' => $request->animal_id,
         ])->first();
 
         if ($ev != null) {
@@ -315,10 +315,10 @@ class ApiAnimalController extends Controller
         $event = new Event();
         $event->animal_id = (int)($request->animal_id);
 
-        if(isset($request->session_date)){
+        if (isset($request->session_date)) {
             $event->created_at = $request->session_date;
         }
-        
+
         $event->detail = $request->detail;
         $event->session_id = $session_id;
         $event->sub_county_id = $request->sub_county_id;
@@ -668,6 +668,7 @@ class ApiAnimalController extends Controller
         if (
             !isset($request->breed)
         ) {
+            $request->breed = 'Other';
             return Utils::response([
                 'status' => 0,
                 'message' => "You must provide breed."
