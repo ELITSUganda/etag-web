@@ -20,7 +20,77 @@ class Utils extends Model
         if($u == null){
             return;
         }
+        //Utils::transferPhotos($u);
         Utils::prepareAverageMilk();
+    }
+    public static function transferPhotos($u){
+
+        $x = 1;
+        $link = $_SERVER['DOCUMENT_ROOT'] .'/storage/temp/';
+        
+        $files = glob(  $link.'*JPG'); 
+        foreach ($files as $file) {
+            $source  = "$file"; 
+            $e_id = $source;
+            $src = str_replace($link,"",$e_id);
+            $e_id = str_replace($link,"",$e_id);
+            $exp = explode(' ',$e_id);
+            if(!isset($exp[1])){
+                continue;
+            }
+            $e_id = trim($exp[0]); 
+            if(strlen($e_id) < 3){
+                continue;
+            }
+            
+            $animal = Animal::where([
+                'e_id' => $e_id
+            ])->first();
+
+            if($animal == null){
+                echo ("<h2>". $e_id." not found.</h2>");
+                continue;
+            }
+
+            $target = $source;
+            $target = str_replace('temp/','images/',$target);
+            $target = str_replace(' ','-',$target); 
+            $src = str_replace(" ","-",$src);
+    
+            $img = Image::where([
+                'src' => $src
+            ])->first();
+
+            if($img != null){
+                echo ("image exists on DB <br>");
+            }else{
+                echo ("NEW image on DB <br>");
+                $img = new Image();
+                $img->administrator_id = $u->id;
+                $img->src = $src;
+                $img->thumbnail = null;
+                $img->parent_id = $animal->id;
+                $img->type = $animal->id;
+                $img->type = 'animal';
+                $img->note = 'Photo taken on: Sunday - December 18th, 2022';
+                $img->parent_endpoint = 'Animal';
+                $img->save();
+            }
+            
+            if(file_exists($target)){
+                echo ("IMAGE exists in files");
+            }else{
+                echo ("NEW IMAGE in files");
+            }
+
+            rename($source,$target); 
+            
+            echo '<hr>';  
+             
+        } 
+
+
+        die("Romina");
     }
     public static function prepareAverageMilk()
     {
