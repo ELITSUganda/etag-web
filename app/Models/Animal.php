@@ -156,6 +156,7 @@ class Animal extends Model
 
     public function getPhotoAttribute($photo)
     {
+        return $photo;
         return str_replace("storage/","",$photo); 
     }
     

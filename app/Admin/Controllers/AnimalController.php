@@ -146,7 +146,8 @@ class AnimalController extends AdminController
 
         $grid->model()->orderBy('id', 'DESC');
         $grid->column('photo', __('Photo'))
-        ->lightbox(['width' => 60, 'height' => 60])
+        ->image(url(""),60,60)
+        //->lightbox(['width' => 60, 'height' => 60])
         ->sortable();
         $grid->column('e_id', __('E-ID'))->sortable();
         $grid->column('v_id', __('V-ID'))->sortable();
