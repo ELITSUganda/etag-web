@@ -20,9 +20,50 @@ class Utils extends Model
         if($u == null){
             return;
         }
+        //Utils::make_profile_pics($u);
         //Utils::transferPhotos($u);
         Utils::prepareAverageMilk();
     }
+    
+    public static function make_profile_pics($u){
+
+        $x = 1;
+        $link = $_SERVER['DOCUMENT_ROOT'] .'/storage/images/';
+        
+        $files = glob(  $link.'*JPG'); 
+        foreach ($files as $file) {
+            $source  = "$file"; 
+            $e_id = $source;
+            $src = str_replace($link,"",$e_id);
+            
+            if (!str_contains($src, '(m)')) {
+                continue;
+            }
+
+            $e_id = str_replace('-(m).JPG','',$src);
+
+            $animal = Animal::where([
+                'e_id' => $e_id
+            ])->first();
+
+            if($animal == null){
+                die("Animal not found.");
+            }
+
+            $animal->photo =  'storage/images/'.$src ;
+
+            $animal->save();
+            echo "<img src=\"$animal->photo\" >";
+            
+           
+            echo $e_id.' <hr>';  
+             
+        } 
+
+
+        die("Romina");
+    }
+    
     public static function transferPhotos($u){
 
         $x = 1;
@@ -92,6 +133,7 @@ class Utils extends Model
 
         die("Romina");
     }
+
     public static function prepareAverageMilk()
     {
 

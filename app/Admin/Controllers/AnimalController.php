@@ -61,6 +61,7 @@ class AnimalController extends AdminController
         }*/
 
         $grid = new Grid(new Animal());
+        $grid->disableBatchActions();
         if (Admin::user()->isRole('farmer')) {
 
 
@@ -144,6 +145,9 @@ class AnimalController extends AdminController
         });
 
         $grid->model()->orderBy('id', 'DESC');
+        $grid->column('photo', __('Photo'))
+        ->lightbox(['width' => 60, 'height' => 60])
+        ->sortable();
         $grid->column('e_id', __('E-ID'))->sortable();
         $grid->column('v_id', __('V-ID'))->sortable();
         $grid->column('lhc', __('LHC'))->sortable();

@@ -154,6 +154,11 @@ class Animal extends Model
         return json_encode($imgs);
     }
 
+    public function getPhotoAttribute($photo)
+    {
+        return str_replace("storage/","",$photo); 
+    }
+    
     public function getPhoneNumberAttribute()
     {
         return "+256706638494";
