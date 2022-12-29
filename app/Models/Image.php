@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Dflydev\DotAccessData\Util;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -20,4 +21,16 @@ class Image extends Model
         'type',
         'product_id',
     ];
+
+    public function create_thumbail(){
+        $src = $this->src; 
+        $source = Utils::docs_root() ."/storage/images/".$this->src; 
+        if(file_exists($source)){
+            echo "exhists";
+        }else{
+            echo "DNE";
+        }
+        dd($source);
+        Utils::create_thumbail(); 
+    }
 }

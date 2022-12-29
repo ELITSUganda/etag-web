@@ -22,7 +22,32 @@ class Utils extends Model
         }
         //Utils::make_profile_pics($u);
         //Utils::transferPhotos($u);
+        Utils::prepareThumbnails();
         Utils::prepareAverageMilk();
+    }
+
+    public static function prepareThumbnails()
+    {
+
+ 
+        $imgs = Image::where([ 
+            'thumbnail' => NULL,
+        ])
+        ->orderBy('id','Desc')
+        ->get();
+        if (count($imgs) < 1) {
+            return;
+        }
+        
+
+        foreach ($imgs as $key => $img) {
+            $img->create_thumbail();  
+        }
+        die("done"); 
+
+         
+        //average_milk
+ 
     }
     
     public static function make_profile_pics($u){
@@ -63,6 +88,7 @@ class Utils extends Model
 
         die("Romina");
     }
+    
     
     public static function transferPhotos($u){
 
@@ -715,11 +741,12 @@ class Utils extends Model
     }
 
 
-    public static function docs_root($params = array())
+    public static function docs_root()
     {
         $r = $_SERVER['DOCUMENT_ROOT'] . "";
         $r = str_replace('/public', "", $r);
-        $r = $r . "/public";
+        $r = str_replace('\public', "", $r);
+        $r = $r . "/public"; 
         return $r;
     }
 }
