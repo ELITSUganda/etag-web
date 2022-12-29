@@ -30,6 +30,9 @@ class Image extends Model
         }else{
             echo "DNE";
         }
+
+       
+
         dd($source);
         Utils::create_thumbail(); 
     }

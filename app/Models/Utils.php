@@ -744,9 +744,23 @@ class Utils extends Model
     public static function docs_root()
     {
         $r = $_SERVER['DOCUMENT_ROOT'] . "";
-        $r = str_replace('/public', "", $r);
-        $r = str_replace('\public', "", $r);
-        $r = $r . "/public"; 
+
+        if(!str_contains($r,'home/')){
+            $r = str_replace('/public', "", $r);
+            $r = str_replace('\public', "", $r);
+            $r = $r . "/public"; 
+        }
+
+
+
+
+    
+
+        /* 
+         "/home/ulitscom_html/public/storage/images/956000011639246-(m).JPG
+        
+        public_html/public/storage/images
+        */
         return $r;
     }
 }
