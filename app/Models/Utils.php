@@ -748,10 +748,9 @@ class Utils extends Model
         if(!str_contains($r,'home/')){
             $r = str_replace('/public', "", $r);
             $r = str_replace('\public', "", $r);
-            $r = $r . "/public"; 
         }
 
-
+        $r = $r . "/public"; 
 
 
     
