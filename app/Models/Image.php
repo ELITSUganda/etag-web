@@ -25,15 +25,10 @@ class Image extends Model
     public function create_thumbail(){
         $src = $this->src; 
         $source = Utils::docs_root() ."/storage/images/".$this->src; 
-        if(file_exists($source)){
-            echo "exhists";
-        }else{
-            echo "DNE";
-        }
-
-       
-
-        dd($source);
-        Utils::create_thumbail(); 
+        if(!file_exists($source)){ 
+            echo "DNE => <code>$src</code> <hr>";
+        } 
+         
+        //Utils::create_thumbail(); 
     }
 }
