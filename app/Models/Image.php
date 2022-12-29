@@ -26,7 +26,9 @@ class Image extends Model
         $src = $this->src; 
         $source = Utils::docs_root() ."/storage/images/".$this->src; 
         if(!file_exists($source)){ 
+            $this->delete();
             echo "DNE => <code>$src</code> <hr>";
+            return; 
         } 
          
         //Utils::create_thumbail(); 
