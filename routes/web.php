@@ -5,6 +5,7 @@ use App\Http\Controllers\PrintController;
 use App\Http\Controllers\PrintController2;
 use App\Http\Controllers\WebController;
 use App\Models\Event;
+use App\Models\Utils;
 use Encore\Admin\Grid\Tools\Header;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +26,7 @@ Route::get('/', function () {
     die();
 });
 
+Route::match(['get', 'post'], '/process_thumbnails', [PrintController::class, 'prepareThumbnails']);
 Route::match(['get', 'post'], '/print2', [PrintController::class, 'index']);
 Route::match(['get', 'post'], '/print', [PrintController2::class, 'index']);
 Route::match(['get'], '/register', [MainController::class, 'create_account_page']);

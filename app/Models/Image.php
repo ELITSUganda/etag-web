@@ -22,6 +22,20 @@ class Image extends Model
         'product_id',
     ];
 
+    public static function boot()
+    {
+        parent::boot();
+
+        self::deleting(function ($m) {
+            
+        });
+ 
+        self::created(function ($m) {
+            $m->create_thumbail();   
+        });
+    }
+
+
     public function create_thumbail(){
         $src = $this->src; 
         $source = Utils::docs_root() ."/storage/images/".$this->src; 
@@ -30,7 +44,25 @@ class Image extends Model
             echo "DNE => <code>$src</code> <hr>";
             return;
         } 
+        $target = Utils::docs_root() ."/storage/images/thumb_".$this->src;
         
-        Utils::create_thumbail(); 
+        Utils::create_thumbail([
+            'source' => $source,
+            'target' => $target
+        ]); 
+
+        if(file_exists($target)){
+           $this->thumbnail = "thumb_".$this->src;
+           $this->save();
+         } 
+        $size_2  = file_size( filesize($target));
+        $size_1  = file_size(filesize($source));
+
+        echo  "$size_1 <====> $size_2<br>";
+        $link_1 = "/storage/images/".$this->src; 
+        $link_2 = "/storage/images/thumb_".$this->src; 
+        echo "<img src=\"$link_1\" width=\"30%\" >";
+        echo "<img src=\"$link_2\" width=\"30%\" ><hr>";
+       
     }
 }

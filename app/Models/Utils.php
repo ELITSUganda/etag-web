@@ -22,7 +22,7 @@ class Utils extends Model
         }
         //Utils::make_profile_pics($u);
         //Utils::transferPhotos($u);
-       // Utils::prepareThumbnails();
+        //Utils::prepareThumbnails();
         Utils::prepareAverageMilk();
     }
 
@@ -40,12 +40,13 @@ class Utils extends Model
         }
         
 
+        $i = 1;
         foreach ($imgs as $key => $img) {
-            $img->create_thumbail();  
-        }
-        die("done"); 
-
-         
+            $i++;   
+            echo "<h2>$i</h2>";
+            $img->create_thumbail();   
+        } 
+ 
         //average_milk
  
     }
@@ -612,32 +613,13 @@ class Utils extends Model
 
         $img_size = getimagesize($image->source_path); // returns an array that is filled with info
 
-        $width = 300;
-        $heigt = 300;
-
-        if (isset($img_size[0]) && isset($img_size[1])) {
-            $width = $img_size[0];
-            $heigt = $img_size[1];
-        }
-        //dd("W: $width \n H: $heigt");
-
-        if ($width < $heigt) {
-            $heigt = $width;
-        } else {
-            $width = $heigt;
-        }
-
-        if (isset($params['width'])) {
-            $width = $params['width'];
-        }
-
-        if (isset($params['heigt'])) {
-            $width = $params['heigt'];
-        }
+         
+    
+ 
 
         $image->jpeg_quality = 50;
         $image->jpeg_quality = Utils::get_jpeg_quality(filesize($image->source_path));
-        if (!$image->resize($width, $heigt, ZEBRA_IMAGE_CROP_CENTER)) {
+        if (!$image->resize(0, 0, ZEBRA_IMAGE_CROP_CENTER)) {
             return $image->source_path;
         } else {
             return $image->target_path;
@@ -652,17 +634,17 @@ class Utils extends Model
         if ($size > 5) {
             $qt = 10;
         } else if ($size > 4) {
-            $qt = 13;
+            $qt = 10;
         } else if ($size > 2) {
-            $qt = 15;
+            $qt = 10;
         } else if ($size > 1) {
-            $qt = 17;
+            $qt = 11;
         } else if ($size > 0.8) {
-            $qt = 50;
+            $qt = 11;
         } else if ($size > .5) {
-            $qt = 80;
+            $qt = 12;
         } else {
-            $qt = 90;
+            $qt = 15;
         }
 
         return $qt;
@@ -748,7 +730,7 @@ class Utils extends Model
         if(!str_contains($r,'home/')){
             $r = str_replace('/public', "", $r);
             $r = str_replace('\public', "", $r);
-        }
+        }   
 
         $r = $r . "/public"; 
 

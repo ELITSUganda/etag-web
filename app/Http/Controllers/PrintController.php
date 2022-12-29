@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\District;
 use App\Models\Movement;
 use App\Models\SubCounty;
+use App\Models\Utils;
 use Encore\Admin\Facades\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -22,6 +23,9 @@ class PrintController extends Controller
                 </tr>';
     }
 
+    public function prepareThumbnails(){
+        Utils::prepareThumbnails();
+    }
     public function index()
     {
         $id = (int)(trim($_GET['id']));
