@@ -22,7 +22,7 @@ class Utils extends Model
         }
         //Utils::make_profile_pics($u);
         //Utils::transferPhotos($u);
-        Utils::prepareThumbnails();
+       // Utils::prepareThumbnails();
         Utils::prepareAverageMilk();
     }
 

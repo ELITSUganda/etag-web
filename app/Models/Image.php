@@ -28,9 +28,9 @@ class Image extends Model
         if(!file_exists($source)){ 
             $this->delete();
             echo "DNE => <code>$src</code> <hr>";
-            return; 
+            return;
         } 
-         
-        //Utils::create_thumbail(); 
+        
+        Utils::create_thumbail(); 
     }
 }
