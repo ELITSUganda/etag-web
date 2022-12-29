@@ -46,7 +46,7 @@ class Utils extends Model
             echo "<h2>$i</h2>";
             $img->create_thumbail();   
         } 
- 
+        
         //average_milk
  
     }
