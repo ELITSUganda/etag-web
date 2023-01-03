@@ -16,8 +16,9 @@ class Utils extends Model
 
 
 
-    public static function systemBoot($u){
-        if($u == null){
+    public static function systemBoot($u)
+    {
+        if ($u == null) {
             return;
         }
         //Utils::make_profile_pics($u);
@@ -29,109 +30,110 @@ class Utils extends Model
     public static function prepareThumbnails()
     {
 
- 
-        $imgs = Image::where([ 
+
+        $imgs = Image::where([
             'thumbnail' => NULL,
         ])
-        ->orderBy('id','Desc')
-        ->get();
+            ->orderBy('id', 'Desc')
+            ->get();
         if (count($imgs) < 1) {
             return;
         }
-        
+
 
         $i = 1;
         foreach ($imgs as $key => $img) {
-            $i++;   
+            $i++;
             echo "<h2>$i</h2>";
-            $img->create_thumbail();   
-        } 
-        
+            $img->create_thumbail();
+        }
+
         //average_milk
- 
+
     }
-    
-    public static function make_profile_pics($u){
+
+    public static function make_profile_pics($u)
+    {
 
         $x = 1;
-        $link = $_SERVER['DOCUMENT_ROOT'] .'/storage/images/';
-        
-        $files = glob(  $link.'*JPG'); 
+        $link = $_SERVER['DOCUMENT_ROOT'] . '/storage/images/';
+
+        $files = glob($link . '*JPG');
         foreach ($files as $file) {
-            $source  = "$file"; 
+            $source  = "$file";
             $e_id = $source;
-            $src = str_replace($link,"",$e_id);
-            
+            $src = str_replace($link, "", $e_id);
+
             if (!str_contains($src, '(m)')) {
                 continue;
             }
 
-            $e_id = str_replace('-(m).JPG','',$src);
+            $e_id = str_replace('-(m).JPG', '', $src);
 
             $animal = Animal::where([
                 'e_id' => $e_id
             ])->first();
 
-            if($animal == null){
+            if ($animal == null) {
                 die("Animal not found.");
             }
 
-            $animal->photo =  'storage/images/'.$src ;
+            $animal->photo =  'storage/images/' . $src;
 
             $animal->save();
             echo "<img src=\"$animal->photo\" >";
-            
-           
-            echo $e_id.' <hr>';  
-             
-        } 
+
+
+            echo $e_id . ' <hr>';
+        }
 
 
         die("Romina");
     }
-    
-    
-    public static function transferPhotos($u){
+
+
+    public static function transferPhotos($u)
+    {
 
         $x = 1;
-        $link = $_SERVER['DOCUMENT_ROOT'] .'/storage/temp/';
-        
-        $files = glob(  $link.'*JPG'); 
+        $link = $_SERVER['DOCUMENT_ROOT'] . '/storage/temp/';
+
+        $files = glob($link . '*JPG');
         foreach ($files as $file) {
-            $source  = "$file"; 
+            $source  = "$file";
             $e_id = $source;
-            $src = str_replace($link,"",$e_id);
-            $e_id = str_replace($link,"",$e_id);
-            $exp = explode(' ',$e_id);
-            if(!isset($exp[1])){
+            $src = str_replace($link, "", $e_id);
+            $e_id = str_replace($link, "", $e_id);
+            $exp = explode(' ', $e_id);
+            if (!isset($exp[1])) {
                 continue;
             }
-            $e_id = trim($exp[0]); 
-            if(strlen($e_id) < 3){
+            $e_id = trim($exp[0]);
+            if (strlen($e_id) < 3) {
                 continue;
             }
-            
+
             $animal = Animal::where([
                 'e_id' => $e_id
             ])->first();
 
-            if($animal == null){
-                echo ("<h2>". $e_id." not found.</h2>");
+            if ($animal == null) {
+                echo ("<h2>" . $e_id . " not found.</h2>");
                 continue;
             }
 
             $target = $source;
-            $target = str_replace('temp/','images/',$target);
-            $target = str_replace(' ','-',$target); 
-            $src = str_replace(" ","-",$src);
-    
+            $target = str_replace('temp/', 'images/', $target);
+            $target = str_replace(' ', '-', $target);
+            $src = str_replace(" ", "-", $src);
+
             $img = Image::where([
                 'src' => $src
             ])->first();
 
-            if($img != null){
+            if ($img != null) {
                 echo ("image exists on DB <br>");
-            }else{
+            } else {
                 echo ("NEW image on DB <br>");
                 $img = new Image();
                 $img->administrator_id = $u->id;
@@ -144,18 +146,17 @@ class Utils extends Model
                 $img->parent_endpoint = 'Animal';
                 $img->save();
             }
-            
-            if(file_exists($target)){
+
+            if (file_exists($target)) {
                 echo ("IMAGE exists in files");
-            }else{
+            } else {
                 echo ("NEW IMAGE in files");
             }
 
-            rename($source,$target); 
-            
-            echo '<hr>';  
-             
-        } 
+            rename($source, $target);
+
+            echo '<hr>';
+        }
 
 
         die("Romina");
@@ -164,7 +165,7 @@ class Utils extends Model
     public static function prepareAverageMilk()
     {
 
-        
+
         $animals = Animal::where([
             'sex' => 'Female',
             'average_milk' => NULL,
@@ -172,14 +173,14 @@ class Utils extends Model
         if (count($animals) < 1) {
             return;
         }
- 
+
         foreach ($animals as $key => $animal) {
-            $animal->calculateAverageMilk(); 
+            $animal->calculateAverageMilk();
         }
 
-         
+
         //average_milk
- 
+
     }
 
     public static function month($t)
@@ -613,9 +614,9 @@ class Utils extends Model
 
         $img_size = getimagesize($image->source_path); // returns an array that is filled with info
 
-         
-    
- 
+
+
+
 
         $image->jpeg_quality = 50;
         $image->jpeg_quality = Utils::get_jpeg_quality(filesize($image->source_path));
@@ -727,15 +728,15 @@ class Utils extends Model
     {
         $r = $_SERVER['DOCUMENT_ROOT'] . "";
 
-        if(!str_contains($r,'home/')){
+        if (!str_contains($r, 'home/')) {
             $r = str_replace('/public', "", $r);
             $r = str_replace('\public', "", $r);
-        }   
+        }
 
-        $r = $r . "/public"; 
+        $r = $r . "/public";
 
 
-    
+
 
         /* 
          "/home/ulitscom_html/public/storage/images/956000011639246-(m).JPG
