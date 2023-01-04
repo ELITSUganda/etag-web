@@ -374,7 +374,7 @@ class ApiAnimalController extends Controller
             'administrator_id' => $user_id
         ])
             ->orderBy('id', 'desc')
-            ->limit(1000)
+            ->limit(1)
             ->get() as $animal) {
             $animal->district_text = "-";
             if ($animal->district != null) {

@@ -41,7 +41,7 @@ class EventController extends AdminController
     protected function grid()
     {
 
-        Utils::display_alert_message();
+        //Utils::display_alert_message();
         $grid = new Grid(new Event());
 
         $grid->actions(function ($actions) {
@@ -71,6 +71,12 @@ class EventController extends AdminController
             $e->save();
         }
         dd("Done");*/
+        $e = new Event();
+        $e->weight = 130;
+        $e->type = 'Weight check';
+        $e->animal_id = 16186;
+
+        $e->save();
 
  
         if (Admin::user()->isRole('farmer')) {
@@ -287,18 +293,9 @@ class EventController extends AdminController
      */
     protected function form()
     {
-        /* $e = new Event();
-        $e->administrator_id = 1;
-        $e->district_id = 1;
-        $e->sub_county_id = 1;
-        $e->farm_id = 1;
-        $e->is_batch_import = 1;
-        $e->type = 'Other';
-        $e->detail = 'Test details Other';
-        $e->approved_by = 1;
-        $e->import_file = 'public/storage/files/1.xls';
 
-        $e->save();
+      
+        /*
         die("sone"); */
 
 
@@ -349,9 +346,7 @@ class EventController extends AdminController
                 url('/api/ajax-animals?'
                     . "&administrator_id={$u->id}")
             )->rules('required');
-        //            ALTER TABLE `events` ADD `weight` FLOAT NULL DEFAULT '0' AFTER `vaccination`, ADD `milk` FLOAT NULL DEFAULT '0' AFTER `weight`;
-
-
+    
         $form->divider();
         $form->radio('type', __('Event type'))
             ->options(array(
@@ -376,8 +371,7 @@ class EventController extends AdminController
                     ->rules('required');
             })
             ->when('Photo', function (Form $form) {
-                $form->image('photo', 'Attach photo')
-                    ->rules('required');
+                $form->image('photo', 'Attach photo');
             })
             ->when('Milking', function (Form $form) {
                 $form->decimal('milk', 'Milk quantity')

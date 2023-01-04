@@ -18,6 +18,7 @@ class Event extends Model
 
         self::creating(function ($model) {
 
+ 
             if ($model->is_batch_import) {
                 //$model->import_file = 'public/storage/files/1.xls';
                 //Event::process_btach_important($model);
@@ -31,6 +32,7 @@ class Event extends Model
                 return false;
                 return false;
             }
+ 
 
             $model->e_id = $animal->e_id;
             $model->v_id = $animal->v_id;
@@ -45,6 +47,7 @@ class Event extends Model
             $model->sub_county_id = $animal->farm->sub_county_id;
             $model->administrator_id = $animal->farm->administrator_id;
             $model->type = trim($model->type);
+
 
 
             if ($model->type == 'Pregnancy check') {
@@ -121,14 +124,12 @@ class Event extends Model
                                     $model->status = 'success';
                                 }
 
-
                                 $sick->save();
                             }
                         }
                     }
                 }
             } else if ($model->type == 'Milking') {
-                //ALTER TABLE `events` ADD `weight` FLOAT NULL DEFAULT '0' AFTER `vaccination`, ADD `milk` FLOAT NULL DEFAULT '0' AFTER `weight`;
                 $ok = false;
                 if (isset($model->milk)) {
                     if ($animal->sex != 'Female') {
@@ -143,17 +144,17 @@ class Event extends Model
                 if (!$ok) {
                     die("enter valid milking parametters");
                 }
-            } else if ($model->type == 'Weight check') {
-                $ok = false;
+            } else if ($model->type == 'Weight check') { 
                 if (isset($model->weight)) {
-                    if ($model->weight != null) {
+                    if ($model->weight != null) { 
                         $ok = true;
                         $model->weight = (float)($model->weight);
                         $model->description = "{$animal->v_id} wighed {$model->weight} KGs.";
+                        $animal->weight = $model->weight;
+                        $_time = Utils::my_date(Carbon::now());
+                        $animal->weight_text = $animal->weight . "KGs - $_time";
+                        $animal->save();
                     }
-                }
-                if (!$ok) {
-                    die("enter valid milking parametters");
                 }
             } else if ($model->type == 'Treatment') {
                 $ok = false;
@@ -249,8 +250,7 @@ class Event extends Model
             if ($model->detail == null || (strlen($model->detail) < 2)) {
                 $model->detail = $model->description;
             }
-
-
+ 
             return $model;
         });
 
