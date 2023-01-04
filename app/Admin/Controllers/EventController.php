@@ -71,12 +71,12 @@ class EventController extends AdminController
             $e->save();
         }
         dd("Done");*/
-        $e = new Event();
+       /*  $e = new Event();
         $e->weight = 130;
         $e->type = 'Weight check';
         $e->animal_id = 16186;
 
-        $e->save();
+        $e->save(); */
 
  
         if (Admin::user()->isRole('farmer')) {
