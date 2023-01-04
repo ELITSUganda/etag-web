@@ -59,7 +59,7 @@ class Image extends Model
         if (!file_exists($source)) {
             return 'logo.png';
         }
-        return $source;
+        return $src;
     }
     public function getThumbnailAttribute($src)
     {
@@ -68,7 +68,7 @@ class Image extends Model
         if (!file_exists($source)) {
             return 'logo.png';
         }
-        return $source;
+        return $src;
     }
 
     public function create_thumbail()
