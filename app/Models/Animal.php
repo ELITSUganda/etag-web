@@ -180,6 +180,15 @@ class Animal extends Model
         return Carbon::parse($this->created_at)->diffForHumans();
     }
 
+    public function getAverageMilkAttribute($x)
+    {
+        if ($x == null) {
+            return 0;
+        }
+        return
+            round($x, 2);
+    }
+
     public function getAgeAttribute()
     {
         return Carbon::parse($this->dob)->diffForHumans();
