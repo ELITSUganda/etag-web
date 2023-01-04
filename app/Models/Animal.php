@@ -157,9 +157,9 @@ class Animal extends Model
     public function getPhotoAttribute($photo)
     {
         return $photo;
-        return str_replace("storage/","",$photo); 
+        return str_replace("storage/", "", $photo);
     }
-    
+
     public function getPhoneNumberAttribute()
     {
         return "+256706638494";
@@ -185,6 +185,14 @@ class Animal extends Model
         return Carbon::parse($this->dob)->diffForHumans();
     }
 
+    public function getWeightTextAttribute($x)
+    {
+        if ($x == null || strlen($x) < 2) {
+            return "No weight";
+        }
+        return $x;
+    }
+
     public function calculateAverageMilk()
     {
         $milk = Event::where([
@@ -204,7 +212,7 @@ class Animal extends Model
         }
 
         $this->average_milk = $avg;
-        $this->save(); 
+        $this->save();
     }
 
     public function getLastSeenAttribute()

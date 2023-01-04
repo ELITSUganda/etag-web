@@ -146,17 +146,28 @@ class AnimalController extends AdminController
 
         $grid->model()->orderBy('id', 'DESC');
         $grid->column('photo', __('Photo'))
-        ->image(url(""),60,60)
-        //->lightbox(['width' => 60, 'height' => 60])
-        ->sortable();
+            ->image(url(""), 60, 60)
+            //->lightbox(['width' => 60, 'height' => 60])
+            ->sortable();
         $grid->column('e_id', __('E-ID'))->sortable();
-        $grid->column('v_id', __('V-ID'))->sortable();
-        $grid->column('lhc', __('LHC'))->sortable();
+        $grid->column('v_id', __('V-ID'))->sortable()->hide();
+        $grid->column('lhc', __('LHC'))->sortable()->hide();
         $grid->column('type', __('Species'))->sortable();
-        $grid->column('breed', __('Breed'))->sortable();
         $grid->column('sex', __('Sex'))->sortable();
-        $grid->column('dob', __('Year born'))->sortable();
-        $grid->column('fmd', __('Last FMD'))->sortable();
+        $grid->column('breed', __('Breed'))->sortable()->hide();
+        $grid->column('weight', __('Weight'))->display(function () {
+            return $this->weight_text;
+        })->sortable();
+        $grid->column('average_milk', __('Average milk'))->display(function () {
+            if (((int)($this->average_milk)) < 1) {
+                return "N/A";
+            }
+            return round($this->average_milk, 2) . " Litters";
+        })->sortable();
+        $grid->column('dob', __('Born'))->display(function ($y) {
+            return Utils::my_date($y);
+        })->sortable();
+        $grid->column('fmd', __('Last FMD'))->hide()->sortable();
         $grid->column('status', __('Status'))->sortable();
 
 
@@ -312,7 +323,7 @@ class AnimalController extends AdminController
                 '1' => "Yes",
             ])
             ->default(null)
-            ->when(1, function ($f) { 
+            ->when(1, function ($f) {
                 $u = Admin::user();
                 $f->select('parent_id', 'Select parent')
                     ->options(function ($id) {
