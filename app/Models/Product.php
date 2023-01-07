@@ -24,8 +24,19 @@ class Product extends Model
     }
 
 
-    public function images()
+    public function getSlugAttribute($s)
     {
+        if ($s == null) {
+            $s = Utils::makeSlug($this->name);
+            $this->slug = $s;
+            $this->save();
+        }
+        return $s;
+    }
+
+
+    public function images()
+    { 
         return $this->hasMany(Image::class);
     }
 
@@ -34,9 +45,18 @@ class Product extends Model
         return $this->belongsTo(ProductCategory::class);
     }
 
+    public function animal()
+    {
+        return $this->belongsTo(Animal::class);
+    }
+
     public static function boot()
     {
         parent::boot();
+        self::creating(function ($m) {
+            $m->name = "$m->weight KGs $m->breed $m->type for sell 2023 - best for $m->best_for @ UGX $m->price";
+            $m->slug = Utils::makeSlug($m->name);
+        });
         self::created(function ($m) {
             Utils::process_images_in_foreround();
         });

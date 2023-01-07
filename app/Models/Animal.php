@@ -154,6 +154,15 @@ class Animal extends Model
         return json_encode($imgs);
     }
 
+    public function getPhotosAttribute()
+    {
+        $imgs =   Image::where([
+            'parent_id' => $this->id,
+            'parent_endpoint' => 'Animal',
+        ])->get();
+        return  $imgs;
+    }
+
     public function getPhotoAttribute($photo)
     {
         return $photo;
@@ -171,9 +180,8 @@ class Animal extends Model
     }
 
     public function getPriceTextAttribute() //romina
-    {
-        return 'UGX 999,000';
-        return number_format($this->price);
+    { 
+        return "UGX ".number_format($this->price);
     }
 
     public function getPostedAttribute()
@@ -238,5 +246,5 @@ class Animal extends Model
         return $format;
     }
 
-    protected $appends = ['images', 'last_seen', 'phone_number', 'whatsapp', 'price_text', 'posted', 'age', 'location'];
+    protected $appends = ['images','photos', 'last_seen', 'phone_number', 'whatsapp', 'price_text', 'posted', 'age', 'location'];
 }

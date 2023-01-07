@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MainController;
+use App\Http\Controllers\MarketController;
 use App\Http\Controllers\PrintController;
 use App\Http\Controllers\PrintController2;
 use App\Http\Controllers\WebController;
@@ -21,13 +22,17 @@ use Illuminate\Support\Facades\Route;
 */
 
 //Route::get('/', [WebController::class, 'index']);
-Route::get('/', function () { 
+Route::get('/', function () {
     header('Location: ' . admin_url());
     die();
 });
+
+Route::get('market', [MarketController::class, 'index'])->name('market');
+
 
 Route::match(['get', 'post'], '/process_thumbnails', [PrintController::class, 'prepareThumbnails']);
 Route::match(['get', 'post'], '/print2', [PrintController::class, 'index']);
 Route::match(['get', 'post'], '/print', [PrintController2::class, 'index']);
 Route::match(['get'], '/register', [MainController::class, 'create_account_page']);
 Route::match(['post'], '/register', [MainController::class, 'create_account_save']);
+Route::get('/{slug}', [MarketController::class, 'product'])->name('product');
