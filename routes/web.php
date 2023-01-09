@@ -5,6 +5,7 @@ use App\Http\Controllers\MarketController;
 use App\Http\Controllers\PrintController;
 use App\Http\Controllers\PrintController2;
 use App\Http\Controllers\WebController;
+use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Models\Event;
 use App\Models\Utils;
 use Encore\Admin\Grid\Tools\Header;
@@ -28,6 +29,13 @@ Route::get('/', function () {
 });
 
 Route::get('market', [MarketController::class, 'index'])->name('market');
+Route::get('market/register', [MarketController::class, 'register'])->name('m-register');
+Route::get('market/account-orders', [MarketController::class, 'account_orders'])->name('account-orders');
+Route::get('market/account-logout', [MarketController::class, 'account_logout'])->name('account-logout');
+Route::get('buy-now/{id}', [MarketController::class, 'buy_now'])->name('buy-now');
+
+Route::post('market/register', [MarketController::class, 'register_post'])
+    ->middleware(RedirectIfAuthenticated::class)->name('m-register-post');
 
 
 Route::match(['get', 'post'], '/process_thumbnails', [PrintController::class, 'prepareThumbnails']);

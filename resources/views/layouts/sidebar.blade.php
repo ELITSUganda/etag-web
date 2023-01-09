@@ -17,25 +17,21 @@
                 Account menu
                 <i class="bx bx-chevron-down fs-lg ms-1"></i>
             </button>
-
-
-
-
-
             <div id="account-menu" class="list-group list-group-flush collapse d-md-block">
-               
-               
+
+
                 <a href="javascsript:;" class="list-group-item list-group-item-action d-flex align-items-center">
                     <i class="bx bx-collection fs-xl opacity-60 me-2"></i>
                     My Courses
                 </a>
-    
+
                 <a href="javascsript:;" class="list-group-item list-group-item-action d-flex align-items-center">
                     <i class="bx bx-bookmark fs-xl opacity-60 me-2"></i>
                     Favourite Courses
                 </a>
 
-                <a href="account-details" class="list-group-item list-group-item-action d-flex align-items-center active">
+                <a href="account-details"
+                    class="list-group-item list-group-item-action d-flex align-items-center active">
                     <i class="bx bx-cog fs-xl opacity-60 me-2"></i>
                     Account Details
                 </a>

@@ -78,7 +78,8 @@
                 </div>
             </div>
             <div class="col-xl-5 px-0 px-md-2 mb-2">
-                <div class="h-100 bg-light rounded-3 py-2 py-md-5 px-2 px-md-4 "><a class="product-meta d-block fs-sm pb-2"
+                <div class="h-100 bg-light rounded-3 py-2 py-md-5 px-2 px-md-4 "><a
+                        class="product-meta d-block fs-sm pb-2"
                         href="{{ config('app.market_url') }}/{{ strtolower($product->type) }}">{{ $product->type }},
                         {{ $product->breed }}</a>
                     <h1 class="h2">{{ $product->name }}</h1>
@@ -107,7 +108,7 @@
                         <li><i class="ci-check-circle text-success me-2"></i>
                             <strong class="text-uppercase">weight:</strong>
                             <span>{{ $product->animal->weight_text }}</span>
-                        </li> 
+                        </li>
                         <li><i class="ci-check-circle text-success me-2"></i>
                             <strong class="text-uppercase">Birth date:</strong>
                             <span>{{ $product->animal->dob }}</span>
@@ -125,11 +126,12 @@
                             <span>{{ $product->best_for }}</span>
                         </li>
                     </ul>
- 
+
 
                     <div class="d-flex flex-wrap align-items-center pt-4 pb-2 mb-3">
-                        <button class="btn btn-primary btn-shadow d-block w-100 mb-3 rounded-0" type="submit"><i
-                                class="ci-cart fs-lg me-2"></i>BUY NOW</button>
+                        <a href="{{ route('buy-now', $product->id) }}"
+                            class="btn btn-primary btn-shadow d-block w-100 mb-3 rounded-0" type="submit"><i
+                                class="ci-cart fs-lg me-2"></i>BUY NOW</a>
                     </div>
 
                     <h6 class="mt-2 mt-md-2 h4">More details</h6>

@@ -1,8 +1,17 @@
-</main>
+<?php
+$_disableSidebar = false;
+$_offcanvas = ' offcanvas-enabled ';
+if (isset($disableSidebar)) {
+    if ($disableSidebar) {
+        $_disableSidebar = true;
+        $_offcanvas = '';
+    }
+}
+?></main>
 
 
 
-<div class="offcanvas-enabled content-wrapper">
+<div class="{{$_offcanvas}} content-wrapper">
     <!-- Back to top button -->
     <a href="#top" class="btn-scroll-top" data-scroll>
         <span class="btn-scroll-top-tooltip text-muted fs-sm me-2">Top</span>
@@ -170,12 +179,9 @@
 <script src="js/theme.min.js"></script>
 
 <script>
-    $(document).pjax('a:not(a[target="_blank"])', {
+    $(document).pjax('[data-pjax] a, a[data-pjax]', {
         container: '#pjax-container'
     });
- 
-
-
 </script>
 
 </body>

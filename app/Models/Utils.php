@@ -98,15 +98,16 @@ class Utils extends Model
     }
 
 
-    public static function makeSlug($s){
-        $s = Str::slug($s,'-');
+    public static function makeSlug($s)
+    {
+        $s = Str::slug($s, '-');
         $count = Product::where([
             'slug' => $s
         ])->count();
-        if($count > 0){ 
-            $s .= "-".$count;
-        } 
-        return $s; 
+        if ($count > 0) {
+            $s .= "-" . $count;
+        }
+        return $s;
     }
 
     public static function prepareThumbnails()
@@ -358,29 +359,21 @@ class Utils extends Model
     }
     public static function prepare_phone_number($phone_number)
     {
-
-        if (strlen($phone_number) == 14) {
-            $phone_number = str_replace("+", "", $phone_number);
-            $phone_number = str_replace("256", "", $phone_number);
-        }
-
-
-        if (strlen($phone_number) > 11) {
+        $original = $phone_number;
+        //$phone_number = '+256783204665';
+        //0783204665
+        if (strlen($phone_number) > 10) {
             $phone_number = str_replace("+", "", $phone_number);
             $phone_number = substr($phone_number, 3, strlen($phone_number));
         } else {
-            if (strlen($phone_number) == 10) {
+            if (substr($phone_number, 0, 1) == "0") {
                 $phone_number = substr($phone_number, 1, strlen($phone_number));
             }
         }
-
-
         if (strlen($phone_number) != 9) {
-            return $phone_number;
+            return $original;
         }
-
-        $phone_number = "+256" . $phone_number;
-        return $phone_number;
+        return "+256" . $phone_number;
     }
 
 

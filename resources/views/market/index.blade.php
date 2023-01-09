@@ -26,7 +26,7 @@
                     <div class="card product-card card-static pb-3">
                         <button class="btn-wishlist btn-sm" type="button" data-bs-toggle="tooltip"
                             data-bs-placement="left" title="Add to wishlist"><i class="ci-heart"></i></button><a
-                            class="card-img-top d-block overflow-hidden" href="/{{ $pro->slug }}"><img
+                            class="card-img-top d-block overflow-hidden" data-pjax href="/{{ $pro->slug }}"><img
                                 src="storage/images/{{ $pro->thumbnail }}" alt="Product"></a>
                         <div class="card-body py-2"><a class="product-meta d-block fs-xs pb-1" href="#">Fruits and
                                 Vegetables</a>
