@@ -74,7 +74,7 @@ class ApiResurceController extends Controller
             if ($count > 0) {
                 $avg = $milk / $count;
                 $rec['progress'] =  $avg - $prev;
-                $rec['progress'] = round($rec['progress'],2);
+                $rec['progress'] = round($rec['progress'], 2);
                 $prev = $avg;
             }
 
@@ -83,7 +83,7 @@ class ApiResurceController extends Controller
 
         $data['records'] = array_reverse($data['records']);
 
-         return Utils::response([
+        return Utils::response([
             'status' => 1,
             'data' => $data['records'],
             'message' => 'Success'
@@ -112,6 +112,7 @@ class ApiResurceController extends Controller
         $min_week->subDays(7);
         $min_prev_week->subDays(14);
         $min_this_month->subDays(30);
+        $min_prev_month->subDays(60);
         $min_this_year->subDays(365);
 
         $max = Carbon::parse($max->format('Y-m-d'));
@@ -143,7 +144,7 @@ class ApiResurceController extends Controller
                 'administrator_id' => $administrator_id,
             ])
             ->sum('milk');
-
+ 
         $manifest['milk_prev_month_quantity'] = Event::whereBetween('created_at', [$min_prev_month, $min_this_month])
             ->where([
                 'type' => 'Milking',
