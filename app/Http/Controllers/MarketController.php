@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Animal;
+use App\Models\Order;
 use App\Models\Product;
+use App\Models\ProductOrder;
 use App\Models\Utils;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Facades\Admin;
@@ -26,15 +29,87 @@ class MarketController extends Controller
         ]);
     }
 
-    public function buy_now(Request $r)
+    public function buy_now_post(Request $r, $product_id)
     {
 
+        if (Validator::make($_POST, [
+            'first_name' => 'required|string|min:4'
+        ])->fails()) {
+            return back()
+                ->withErrors(['first_name' => 'Enter your valid first name.'])
+                ->withInput();
+        }
+
+        if (Validator::make($_POST, [
+            'last_name' => 'required|string|min:4'
+        ])->fails()) {
+            return back()
+                ->withErrors(['first_name' => 'Enter your valid last name.'])
+                ->withInput();
+        }
+
+
+        if (!Utils::phone_number_is_valid($r->phone_number)) {
+            return back()
+                ->withErrors(['phone_number' => 'Enter a valid uganda phone number.'])
+                ->withInput();
+        }
+
+        $phone_number_2 = "";
+        $phone_number = Utils::prepare_phone_number($r->phone_number);
+        if (Utils::phone_number_is_valid($r->phone_number_2)) {
+            $phone_number_2 = Utils::prepare_phone_number($r->phone_number_2);
+        }
+
+        $u = Auth::user();
+        if (!empty($phone_number_2)) {
+            $u->phone_number_2 = $phone_number_2;
+        }
+
+        if (!empty($phone_number_2)) {
+            $u->phone_number_2 = $phone_number_2;
+        }
+        if (!empty($r->address)) {
+            $u->address = $r->address;
+        }
+        $u->save();
+
+        if (Validator::make($_POST, [
+            'address' => 'required|string|min:4'
+        ])->fails()) {
+            return back()
+                ->withErrors(['address' => 'Enter a correct address.'])
+                ->withInput();
+        }
+        $product = Product::findOrFail($product_id);
+        $order = new ProductOrder();
+        $order->name = $r->first_name . " " . $order->last_name;
+        $order->phone_number = $phone_number;
+        $order->phone_number_2 = $phone_number_2;
+        $order->address = $r->address;
+        $order->note = $r->order_note;
+        $order->status = 1;
+        $order->latitude = 0.;
+        $order->product_id = $product_id;
+        $order->customer_id = Auth::user()->id;
+        $order->customer_data = json_encode($product);
+        $order->total_price = $product->price;
+        $order->save();
+
+        Utils::alert_message('success', 'Account created successfully');
+        return redirect(route('account-orders'));
+    }
+    public function buy_now(Request $r, $id)
+    {
         if (!Auth::guard()->check()) {
             return redirect(route('m-register'));
         }
 
+        $product = Product::findOrFail($id);
+
         return  view('market.buy-now', [
             'isPjax' => false,
+            'product' => $product,
             'layoutsParams' => [
                 'disableSidebar' => false,
             ]

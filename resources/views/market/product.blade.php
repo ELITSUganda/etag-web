@@ -22,7 +22,7 @@
         <!-- Content thumbnail  956000011635915-(m).JPG -->
         <!-- Product Gallery + description-->
         <section class="row g-0 mx-n2 pb-5 mb-xl-3 ">
-            <div class="col-xl-7 px-0 px-md-2 mb-3">
+            <div class="col-xl-7 px-0 px-md-2 mb-0">
                 <div class="h-100 bg-light rounded-3 p-0 p-md-4">
                     <div class="product-gallery">
                         <div class="product-gallery-preview order-sm-2">
@@ -77,7 +77,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-5 px-0 px-md-2 mb-2">
+            <div class="col-xl-5 px-0 px-md-2 mb-0">
                 <div class="h-100 bg-light rounded-3 py-2 py-md-5 px-2 px-md-4 "><a
                         class="product-meta d-block fs-sm pb-2"
                         href="{{ config('app.market_url') }}/{{ strtolower($product->type) }}">{{ $product->type }},
@@ -134,11 +134,16 @@
                                 class="ci-cart fs-lg me-2"></i>BUY NOW</a>
                     </div>
 
-                    <h6 class="mt-2 mt-md-2 h4">More details</h6>
-                    <p>{{ $product->details }}</p>
-
                 </div>
             </div>
+
+            <div class="col-12">
+                <div class="bg-light rounded-3 p-2 mt-3 ms-2">
+                    <h6 class="mt-2 mt-md-2 h4">More details</h6>
+                    <p>{{ $product->details }}</p>
+                </div>
+            </div>
+
         </section>
         <!-- Related products-->
         <section class="pb-5 mb-2 mb-xl-4">

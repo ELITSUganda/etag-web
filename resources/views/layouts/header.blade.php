@@ -1,4 +1,6 @@
 <?php
+use App\Models\Utils;
+
 $_disableSidebar = false;
 $_offcanvas = ' offcanvas-enabled ';
 if (isset($disableSidebar)) {
@@ -6,6 +8,11 @@ if (isset($disableSidebar)) {
         $_disableSidebar = true;
         $_offcanvas = '';
     }
+}
+
+$un_paid_order_sum = 0;
+if (Auth::user() != null) {
+    $un_paid_order_sum = Utils::un_paid_order_sum(Auth::user());
 }
 ?>
 <!DOCTYPE html>
@@ -142,27 +149,7 @@ if (isset($disableSidebar)) {
                     class="navbar-brand d-sm-none me-2" href="{{ url('market') }}"><img src="img/logo-icon.png"
                         width="74" alt="Cartzilla"></a>
                 <!-- Search-->
-                <div class="input-group d-none d-lg-flex flex-nowrap mx-4"><i
-                        class="ci-search position-absolute top-50 start-0 translate-middle-y ms-3"></i>
-                    <input class="form-control rounded-start w-100" type="text" placeholder="Search for products">
-                    <select class="form-select flex-shrink-0" style="width: 14rem;">
-                        <option>All categories</option>
-                        <option>Bakery</option>
-                        <option>Fruits and Vegetables</option>
-                        <option>Dairy and Eggs</option>
-                        <option>Meat and Poultry</option>
-                        <option>Fish and Seafood</option>
-                        <option>Sauces and Spices</option>
-                        <option>Canned Food and Oil</option>
-                        <option>Alcoholic Beverages</option>
-                        <option>Soft Drinks and Juice</option>
-                        <option>Packets, Cereals</option>
-                        <option>Frozen</option>
-                        <option>Snaks, Sweets and Chips</option>
-                        <option>Personal hygiene</option>
-                        <option>Kitchenware</option>
-                    </select>
-                </div>
+
                 <!-- Toolbar-->
                 <div class="navbar-toolbar d-flex flex-shrink-0 align-items-center ms-xl-2">
                     <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas"
@@ -171,20 +158,22 @@ if (isset($disableSidebar)) {
                         role="button" aria-expanded="false" aria-controls="searchBox"><span
                             class="navbar-tool-tooltip">Search</span>
                         <div class="navbar-tool-icon-box"><i class="navbar-tool-icon ci-search"></i></div>
-                    </a><a class="navbar-tool d-none d-lg-flex" href="#"><span
-                            class="navbar-tool-tooltip">Wishlist</span>
-                        <div class="navbar-tool-icon-box"><i class="navbar-tool-icon ci-heart"></i></div>
-                    </a><a class="navbar-tool ms-1 ms-lg-0 me-n1 me-lg-2" href="{{ route('m-register') }}">
+                    </a>
+                    <a class="navbar-tool ms-1 ms-lg-0 me-n1 me-lg-2"
+                        href="{{ Auth::user() != null ? route('account-orders') : route('m-register') }}">
                         <div class="navbar-tool-icon-box"><i class="navbar-tool-icon ci-user"></i></div>
-                        <div class="navbar-tool-text ms-n3"><small>Hello, Sign in</small>My Account</div>
+                        <div class="navbar-tool-text ms-n3"><small>Hello,
+                                {{ Auth::user() != null ? Auth::user()->last_name : 'Sign in' }}</small>My
+                            Account</div>
                     </a>
                     <div class="navbar-tool dropdown ms-3"><a
                             class="navbar-tool-icon-box bg-secondary dropdown-toggle"
                             href="grocery-checkout.html"><span class="navbar-tool-label">3</span><i
                                 class="navbar-tool-icon ci-cart"></i></a><a class="navbar-tool-text"
-                            href="grocery-checkout.html"><small>My Cart</small>$25.00</a>
+                            href="grocery-checkout.html"><small>My Orders</small>UGX
+                            {{ number_format($un_paid_order_sum) }}</a>
                         <div class="dropdown-menu dropdown-menu-end">
-                            <div class="widget widget-cart px-3 pt-2 pb-3" style="width: 20rem;">
+                            <div class1="widget widget-cart px-3 pt-2 pb-3" style="width: 20rem;">
                                 <div style="height: 15rem;" data-simplebar data-simplebar-auto-hide="false">
                                     <div class="widget-cart-item pb-2 border-bottom">
                                         <button class="btn-close text-danger" type="button"
@@ -257,9 +246,12 @@ if (isset($disableSidebar)) {
             </div>
         </div>
     </header>
+
     <!-- Sidebar menu-->
     @if (!$_disableSidebar)
         @include('layouts.sidebar-main')
     @endif
     <!-- Page-->
     <main class="{{ $_offcanvas }}  content-wrapper" id="pjax-container" style="padding-top: 5rem;">
+
+        {{ Utils::display_alert_message() }}

@@ -33,6 +33,7 @@ Route::get('market/register', [MarketController::class, 'register'])->name('m-re
 Route::get('market/account-orders', [MarketController::class, 'account_orders'])->name('account-orders');
 Route::get('market/account-logout', [MarketController::class, 'account_logout'])->name('account-logout');
 Route::get('buy-now/{id}', [MarketController::class, 'buy_now'])->name('buy-now');
+Route::post('buy-now/{id}', [MarketController::class, 'buy_now_post'])->name('buy-now-post');
 
 Route::post('market/register', [MarketController::class, 'register_post'])
     ->middleware(RedirectIfAuthenticated::class)->name('m-register-post');

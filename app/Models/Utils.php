@@ -110,6 +110,28 @@ class Utils extends Model
         return $s;
     }
 
+    public static function un_paid_order_sum($u)
+    {
+        $count = ProductOrder::where(
+            'order_is_paid', '!=' ,1
+        )->where([
+            'customer_id' => $u->id
+        ])
+        ->sum('total_price'); 
+        return $count;
+    } 
+
+    public static function get_pending_orders($u)
+    {
+        $count = ProductOrder::where(
+            'order_is_paid', '!=' ,1
+        )->where([
+            'customer_id' => $u->id
+        ])
+        ->sum('total_price'); 
+        return $count;
+    } 
+
     public static function prepareThumbnails()
     {
 
@@ -377,7 +399,6 @@ class Utils extends Model
     }
 
 
-
     public static function display_alert_message()
     {
         Utils::start_session();
@@ -385,13 +406,7 @@ class Utils extends Model
             if ($_SESSION['alerts'] != null) {
                 foreach ($_SESSION['alerts'] as $key => $v) {
                     if (isset($v['type']) && isset($v['msg'])) {
-                        if ($v['type'] == 'danger') {
-                            admin_error('Warning', $v['msg']);
-                        } else if ($v['type'] == 'success') {
-                            admin_success('Success!', $v['msg']);
-                        } else {
-                            admin_info('Alert', $v['msg']);
-                        }
+                        echo view('components.alert', $v);
                     }
                 }
             }
