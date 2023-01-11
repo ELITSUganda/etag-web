@@ -122,6 +122,7 @@ class ApiResurceController extends Controller
         $min_prev_month = Carbon::parse($min_prev_month->format('Y-m-d'));
         $min_this_year = Carbon::parse($min_this_year->format('Y-m-d'));
         $manifest['id'] = 1;
+        $manifest['milk_price'] = $u->milk_price;
 
 
         $manifest['milk_this_week_quantity'] = Event::whereBetween('created_at', [$min_week, $max])
