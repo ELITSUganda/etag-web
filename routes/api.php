@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('manifest', [ApiResurceController::class, 'manifest']);
 Route::get('daily-milk-records', [ApiResurceController::class, 'dialy_milk_records']);
 Route::get('api/{model}', [ApiResurceController::class, 'index']);
+Route::post('drug-dosages', [ApiResurceController::class, 'save_new_drug_dosage']);
 Route::post('api/{model}', [ApiResurceController::class, 'store']);
 Route::put('api/{model}', [ApiResurceController::class, 'update']);
 Route::delete('api/{model}', [ApiResurceController::class, 'delete']);

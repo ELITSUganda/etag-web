@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Animal;
 use App\Models\District;
+use App\Models\DrugDosage;
 use App\Models\Event;
 use App\Models\Utils;
 use App\Models\Image;
@@ -258,6 +259,53 @@ class ApiResurceController extends Controller
 
 
 
+    public function save_new_drug_dosage(Request $r)
+    {
+        $administrator_id = Utils::get_user_id($r);
+        $u = Administrator::find($administrator_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
+        }
+
+        $obj = new DrugDosage();
+        $cols = Utils::getTableColumns($obj);
+        foreach ($_POST as $key => $value) {
+            if (!in_array($key, $cols,)) {
+                continue;
+            }
+            $obj->$key = $value;
+        }
+        $obj->administrator_id = $u->id; 
+
+        $success = false;
+        $msg = "";
+
+        try {
+            $obj->save();
+            $msg = "Successfully saved.";
+            $success = true;
+        } catch (Exception $e) {
+            $success = false;
+            $msg = $e->getMessage();
+        }
+
+        if ($success) {
+            return Utils::response([
+                'status' => 1,
+                'data' => $obj,
+                'message' => $msg
+            ]);
+        } else {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => $msg
+            ]);
+        }
+    }
     public function store(Request $r, $model)
     {
         $administrator_id = Utils::get_user_id($r);
@@ -269,7 +317,7 @@ class ApiResurceController extends Controller
                 'message' => "User not found.",
             ]);
         }
-         
+
         if (isset($_POST['_method'])) {
             unset($_POST['_method']);
         }
@@ -280,7 +328,7 @@ class ApiResurceController extends Controller
         $className = "App\Models\\" . $model;
         $obj = new $className;
         $cols = Utils::getTableColumns($obj);
-        
+
 
 
 
@@ -307,15 +355,15 @@ class ApiResurceController extends Controller
         }
 
 
- 
+
 
         foreach ($_POST as $key => $value) {
-            if(!in_array($key, $cols, )){
+            if (!in_array($key, $cols,)) {
                 continue;
             }
-            $obj->$key = $value; 
+            $obj->$key = $value;
         }
- 
+
         $success = false;
         $msg = "";
 
