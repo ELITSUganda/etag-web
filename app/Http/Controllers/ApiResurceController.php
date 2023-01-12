@@ -15,6 +15,8 @@ use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class ApiResurceController extends Controller
 {
@@ -253,6 +255,9 @@ class ApiResurceController extends Controller
             ]);
         }
     }
+
+
+
     public function store(Request $r, $model)
     {
         $administrator_id = Utils::get_user_id($r);
@@ -264,11 +269,7 @@ class ApiResurceController extends Controller
                 'message' => "User not found.",
             ]);
         }
-
-
-        $className = "App\Models\\" . $model;
-        $obj = new $className;
-
+         
         if (isset($_POST['_method'])) {
             unset($_POST['_method']);
         }
@@ -276,6 +277,10 @@ class ApiResurceController extends Controller
             unset($_POST['online_id']);
         }
 
+        $className = "App\Models\\" . $model;
+        $obj = new $className;
+        $cols = Utils::getTableColumns($obj);
+        
 
 
 
@@ -302,13 +307,15 @@ class ApiResurceController extends Controller
         }
 
 
-
-
+ 
 
         foreach ($_POST as $key => $value) {
-            $obj->$key = $value;
+            if(!in_array($key, $cols, )){
+                continue;
+            }
+            $obj->$key = $value; 
         }
-
+ 
         $success = false;
         $msg = "";
 

@@ -8,6 +8,7 @@ use Encore\Admin\Facades\Admin;
 use Encore\Admin\Grid\Model;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Zebra_Image;
 use Illuminate\Support\Str;
 
@@ -835,4 +836,24 @@ class Utils extends Model
         */
         return $r;
     }
+
+    public static function getTableColumns($obj)
+    { 
+        $table = $obj->getTable(); 
+
+
+        $cols = DB::getSchemaBuilder()->getColumnListing($table); 
+        if($cols == null){
+            $cols = [];
+        }
+        if(!is_array($cols)){
+            $cols = [];
+        }
+        return  $cols;
+
+        // OR
+
+        return Schema::getColumnListing($table);
+    }
+
 }
