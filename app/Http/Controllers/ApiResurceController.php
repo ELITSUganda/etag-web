@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Animal;
 use App\Models\District;
 use App\Models\DrugDosage;
+use App\Models\DrugDosageItem;
 use App\Models\Event;
 use App\Models\Utils;
 use App\Models\Image;
@@ -261,6 +262,23 @@ class ApiResurceController extends Controller
 
     public function save_new_drug_dosage(Request $r)
     {
+        $_items = $r->items;
+        if ($_items == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'No item found.'
+            ]);
+        }
+        $items = json_decode($_items);
+        if ((!is_array($items)) || empty($items)) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'No presecription item found.'
+            ]);
+        }
+
         $administrator_id = Utils::get_user_id($r);
         $u = Administrator::find($administrator_id);
         if ($u == null) {
@@ -278,7 +296,7 @@ class ApiResurceController extends Controller
             }
             $obj->$key = $value;
         }
-        $obj->administrator_id = $u->id; 
+        $obj->administrator_id = $u->id;
 
         $success = false;
         $msg = "";
@@ -290,6 +308,26 @@ class ApiResurceController extends Controller
         } catch (Exception $e) {
             $success = false;
             $msg = $e->getMessage();
+        }
+
+        if ($success) {
+            foreach ($items as $key => $item) {
+                $times_days = ((int)($item->times_days));
+                for ($j = 0; $j < $times_days; $j++) {
+                    $i = new DrugDosageItem();
+                    $i->drug_name = $item->drug_name;
+                    $i->drug_dosage_id = $obj->id;
+                    $i->quantity = $item->quantity;
+                    $i->times_days = $item->times_days;
+                    $i->status = 0;
+                    $i->date_to_be_done = Carbon::now();
+                    $i->date_to_be_done->addDay($j);
+                    $i->times_per_day = $item->times_per_day;
+                    $i->administrator_id = $obj->administrator_id;
+                    $i->rout = ($j + 1);
+                    $i->save();
+                }
+            }
         }
 
         if ($success) {

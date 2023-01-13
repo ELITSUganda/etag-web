@@ -25,9 +25,9 @@ class CreateDrugDosageItemsTable extends Migration
             $table->float('quantity')->nullable();
             $table->integer('times_per_day')->nullable();
             $table->integer('times_days')->nullable();
-            $table->integer('status')->nullable();
+            $table->integer('status')->nullable(); 
         });
-    }
+    } 
 
     /**
      * Reverse the migrations.
