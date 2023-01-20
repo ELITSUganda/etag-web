@@ -46,13 +46,23 @@ class HomeController extends Controller
     public function index(Content $content)
     {
 
+/*         \OneSignal::setParam('android_channel_id', 'f3469729-c2b4-4fce-89da-78550d5a2dd1')->sendNotificationToExternalUser(
+            "Some Message",
+            '777',
+            $url = null,
+            $data = null,
+            $buttons = null,
+            $schedule = null
+        );
+ */
+  
         //MyFaker::makeEvents(3000);
         //die("as");  
         //MyFaker::makeAnimals(1000);
 
         $u = Admin::user();
         if ($u->isRole('farmer')) {
-       
+
             $content
                 ->title('U-LITS - Dashboard')
                 ->description('Hello ' . $u->name . "!");

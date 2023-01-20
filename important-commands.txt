@@ -31,6 +31,7 @@ php artisan make:migration create_drug_stock_batch_records_table
 php artisan make:migration create_product_orders_table
 php artisan make:migration create_drug_dosages_table
 php artisan make:migration create_drug_dosage_items_table
+php artisan make:migration create_slaughter_houses_table
 
 Encore\Admin\Auth\Database\Administrator::class,
 php artisan admin:make FormSr4Controller --model=App\FormSr4
@@ -61,6 +62,7 @@ php artisan admin:make PregnantAnimalController --model=App\\Models\\PregnantAni
 php artisan admin:make FinanceCategoryController --model=App\\Models\\FinanceCategory
 php artisan admin:make TransactionController --model=App\\Models\\Transaction
 php artisan admin:make MilkController --model=App\\Models\\Event
+php artisan admin:make SlaughterHouseController --model=App\Models\SlaughterHouse
 
 
 php artisan make:model CheckPoint
@@ -82,6 +84,7 @@ php artisan make:model FinanceCategory
 php artisan make:model Transaction
 php artisan make:model DrugDosage
 php artisan make:model DrugDosageItem
+php artisan make:model SlaughterHouse
 
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs

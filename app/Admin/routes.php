@@ -44,4 +44,5 @@ Route::group([
     $router->resource('finance-categories', FinanceCategoryController::class);
     $router->resource('transactions', TransactionController::class);
     $router->resource('milk', MilkController::class);
+    $router->resource('slaughter-houses', SlaughterHouseController::class);
 });

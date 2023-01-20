@@ -116,7 +116,7 @@ class CheckPointController extends AdminController
             ->options($admins)
             ->required();
 
-        $form->latlong('latitube', 'longitude', 'Location in map')->height(300);
+        $form->latlong('latitube', 'longitude', 'Location on map')->height(300);
         $form->textarea('details', __('Details'))->required();
 
         return $form;

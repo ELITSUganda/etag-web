@@ -29,17 +29,17 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'f0906e6318348a765ffb6eb24e0d0938' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Foundation/helpers.php',
         '58571171fd5812e6e447dce228f52f4d' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Support/helpers.php',
         '4e8671d7be9056dcd04ddd9e8e15f9cc' => __DIR__ . '/..' . '/encore/laravel-admin/src/helpers.php',
-        '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
-        '9cdd7b9056abc3081735233ba9dd9c7f' => __DIR__ . '/..' . '/facade/flare-client-php/src/helpers.php',
+        '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
         'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
+        '9cdd7b9056abc3081735233ba9dd9c7f' => __DIR__ . '/..' . '/facade/flare-client-php/src/helpers.php',
+        '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
         '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
         'decc78cc4436b1292c6c0d151b19445c' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/bootstrap.php',
         '801c31d8ed748cfa537fa45402288c95' => __DIR__ . '/..' . '/psy/psysh/src/functions.php',
         '4a1f389d6ce373bda9e57857d3b61c84' => __DIR__ . '/..' . '/barryvdh/laravel-debugbar/src/helpers.php',
         '9be1c2bab389f876c8b9376199151a90' => __DIR__ . '/..' . '/binarytorch/larecipe/src/Helpers/helpers.php',
         'ed962a97bd972bc82007176b647d4e36' => __DIR__ . '/..' . '/facade/ignition/src/helpers.php',
-        '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
         'a1af1fc0cffb5f61cbaf64dbe030fdb9' => __DIR__ . '/..' . '/laravel/legacy-factories/helpers.php',
         'f18cc91337d49233e5754e93f3ed9ec3' => __DIR__ . '/..' . '/laravelcollective/html/src/helpers.php',
         'ec07570ca5a812141189b1fa81503674' => __DIR__ . '/..' . '/phpunit/phpunit/src/Framework/Assert/Functions.php',
@@ -231,6 +231,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         array (
             'Brick\\Math\\' => 11,
             'BinaryTorch\\LaRecipe\\' => 21,
+            'Berkayk\\OneSignal\\' => 18,
             'Barryvdh\\DomPDF\\' => 16,
             'Barryvdh\\Debugbar\\' => 18,
             'BaconQrCode\\' => 12,
@@ -738,6 +739,10 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         array (
             0 => __DIR__ . '/..' . '/binarytorch/larecipe/src',
         ),
+        'Berkayk\\OneSignal\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/berkayk/onesignal-laravel/src',
+        ),
         'Barryvdh\\DomPDF\\' => 
         array (
             0 => __DIR__ . '/..' . '/barryvdh/laravel-dompdf/src',
@@ -854,6 +859,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'App\\Models\\Disease' => __DIR__ . '/../..' . '/app/Models/Disease.php',
         'App\\Models\\DrugCategory' => __DIR__ . '/../..' . '/app/Models/DrugCategory.php',
         'App\\Models\\DrugDosage' => __DIR__ . '/../..' . '/app/Models/DrugDosage.php',
+        'App\\Models\\DrugDosageItem' => __DIR__ . '/../..' . '/app/Models/DrugDosageItem.php',
         'App\\Models\\DrugStockBatch' => __DIR__ . '/../..' . '/app/Models/DrugStockBatch.php',
         'App\\Models\\DrugStockBatchRecord' => __DIR__ . '/../..' . '/app/Models/DrugStockBatchRecord.php',
         'App\\Models\\Event' => __DIR__ . '/../..' . '/app/Models/Event.php',
@@ -993,6 +999,9 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'Barryvdh\\DomPDF\\Facade\\Pdf' => __DIR__ . '/..' . '/barryvdh/laravel-dompdf/src/Facade/Pdf.php',
         'Barryvdh\\DomPDF\\PDF' => __DIR__ . '/..' . '/barryvdh/laravel-dompdf/src/PDF.php',
         'Barryvdh\\DomPDF\\ServiceProvider' => __DIR__ . '/..' . '/barryvdh/laravel-dompdf/src/ServiceProvider.php',
+        'Berkayk\\OneSignal\\OneSignalClient' => __DIR__ . '/..' . '/berkayk/onesignal-laravel/src/OneSignalClient.php',
+        'Berkayk\\OneSignal\\OneSignalFacade' => __DIR__ . '/..' . '/berkayk/onesignal-laravel/src/OneSignalFacade.php',
+        'Berkayk\\OneSignal\\OneSignalServiceProvider' => __DIR__ . '/..' . '/berkayk/onesignal-laravel/src/OneSignalServiceProvider.php',
         'BinaryTorch\\LaRecipe\\Cache' => __DIR__ . '/..' . '/binarytorch/larecipe/src/Cache.php',
         'BinaryTorch\\LaRecipe\\Commands\\AssetCommand' => __DIR__ . '/..' . '/binarytorch/larecipe/src/Commands/AssetCommand.php',
         'BinaryTorch\\LaRecipe\\Commands\\GenerateDocumentationCommand' => __DIR__ . '/..' . '/binarytorch/larecipe/src/Commands/GenerateDocumentationCommand.php',
