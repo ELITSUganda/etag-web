@@ -42,7 +42,7 @@ class Movement extends Model
                 $model->destination_slaughter_house = 0;
 
             }else if ($model->destination == "To slaughter") {
-                $destination_slaughter_house = (int)($model->destination_slaughter_house);
+                /* $destination_slaughter_house = (int)($model->destination_slaughter_house);
                 $dest = Administrator::find($destination_slaughter_house);
                 if($dest == null){
                     die(json_encode(Utils::response([
@@ -51,9 +51,9 @@ class Movement extends Model
                     ])));
                 }
                 $sub_county_id = (int)($dest->sub_county_id);
-                $sub = SubCounty::find($sub_county_id);
+                $sub = Location::find($sub_county_id);
                 if($sub == null){
-                    $sub = SubCounty::all()->first();
+                    $sub = Location::all()->first();
                     $dest->sub_county_id = $sub->id;
                     $dest->save();
                 }
@@ -67,11 +67,11 @@ class Movement extends Model
                 $model->sub_county_to = $sub->id;
                 $model->district_to = $sub->district->id;
                 $model->destination_farm = 0;
-
+ */
  
             }else{
-                $model->destination_slaughter_house = 0;      
-                $model->destination_farm = 0;
+            /*     $model->destination_slaughter_house = 0;      
+                $model->destination_farm = 0; */
                                            
             }
             return $model;
