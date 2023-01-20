@@ -10,6 +10,7 @@ use App\Models\Farm;
 use App\Models\Location;
 use App\Models\Movement;
 use App\Models\MovementHasMovementAnimal;
+use App\Models\SlaughterHouse;
 use App\Models\Utils;
 use Carbon\Carbon;
 use COM;
@@ -367,7 +368,7 @@ class ApiMovement extends Controller
             }
         }
         if ($movement->destination == 'To slaughter') {
-            $destination_slaughter_house = Farm::find($movement->destination_slaughter_house);
+            $destination_slaughter_house = SlaughterHouse::find($movement->destination_slaughter_house);
             if ($destination_slaughter_house == null) {
                 return Utils::response(['status' => 0, 'message' => "Slaughter $movement->destination_slaughter_house house was not found.",]);
             }
