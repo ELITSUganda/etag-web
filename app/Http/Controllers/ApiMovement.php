@@ -7,6 +7,7 @@ use App\Models\CheckPoint;
 use App\Models\CheckPointRecord;
 use App\Models\Event;
 use App\Models\Farm;
+use App\Models\Location;
 use App\Models\Movement;
 use App\Models\MovementHasMovementAnimal;
 use App\Models\Utils;
@@ -210,31 +211,31 @@ class ApiMovement extends Controller
     public function get_check_record(Request $request)
     {
         if (
-            $request->permit == null 
+            $request->permit == null
         ) {
             return [];
         }
- 
+
 
         $records = CheckPointRecord::where([
-            'movement_id' => $request->permit, 
-        ])->get(); 
-        
+            'movement_id' => $request->permit,
+        ])->get();
+
         $items = [];
         foreach ($records as $key => $value) {
 
             $check = CheckPoint::find($value->check_point_id);
-            if($check  == null){
+            if ($check  == null) {
                 continue;
             }
- 
-            $value->check_point = $check->sub_county->district->name.", ".$check->sub_county->name; 
-            $value->sub_county = $check->sub_county->name; 
+
+            $value->check_point = $check->sub_county->district->name . ", " . $check->sub_county->name;
+            $value->sub_county = $check->sub_county->name;
             $value->time = Carbon::parse($value->created_at)->toFormattedDateString();
 
             $items[] = $value;
         }
-     
+
         return $items;
     }
 
@@ -318,6 +319,8 @@ class ApiMovement extends Controller
 
         $movement = new Movement();
 
+
+
         $movement->administrator_id = $request->administrator_id;
         $movement->vehicle = $request->vehicle;
         $movement->reason = $request->reason;
@@ -339,15 +342,45 @@ class ApiMovement extends Controller
         $movement->valid_from_Date = $request->valid_from_Date;
         $movement->valid_to_Date = $request->valid_to_Date;
         $movement->status_comment = $request->status_comment;
-        $movement->destination = $request->destination;
+        $movement->destination = trim($request->destination);
         $movement->destination_slaughter_house = $request->destination_slaughter_house;
         $movement->details = $request->details;
         $movement->destination_farm = $request->destination_farm;
         $movement->is_paid = $request->is_paid;
         $movement->paid_id = $request->paid_id;
         $movement->paid_method = $request->paid_method;
+        $movement->paid_amount = $request->paid_amount;
 
+        $sub_county_from = Location::find($movement->sub_county_from);
+        if ($sub_county_from == null) {
+            return Utils::response(['status' => 0, 'message' => "Subcount from was not found.",]);
+        }
 
+        if($movement->destination != 'To farm' && $movement->destination != 'To slaughter' && 'Other'){
+            return Utils::response(['status' => 0, 'message' => "Destination $movement->destination type was not found.",]);
+        }
+
+        if($movement->destination == 'To farm'){
+            $destination_farm = Farm::find($movement->destination_farm);
+            if($destination_farm == null){
+                return Utils::response(['status' => 0, 'message' => "Destination $movement->destination_farm farm was not found.",]);
+            }
+        }
+        if($movement->destination == 'To slaughter'){
+            $destination_slaughter_house = Farm::find($movement->destination_slaughter_house);
+            if($destination_slaughter_house == null){
+                return Utils::response(['status' => 0, 'message' => "Slaughter $movement->destination_slaughter_house house was not found.",]);
+            }
+        }
+        if($movement->destination == 'To slaughter'){
+            $sub_county_to = Farm::find($movement->sub_county_to);
+            if($sub_county_to == null){
+                return Utils::response(['status' => 0, 'message' => "Subcounty $movement->sub_county_to   was not found.",]);
+            }
+        }
+ 
+ 
+ 
         if ($movement->save()) {
             $movement_animal_id = $movement->id;
             foreach ($animal_ids as $key => $value) {
