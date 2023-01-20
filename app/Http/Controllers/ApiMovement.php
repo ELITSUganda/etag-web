@@ -373,7 +373,7 @@ class ApiMovement extends Controller
             }
         }
         if ($movement->destination == 'Other') {
-            $sub_county_to = Farm::find($movement->sub_county_to);
+            $sub_county_to = Location::find($movement->sub_county_to);
             if ($sub_county_to == null) {
                 return Utils::response(['status' => 0, 'message' => "Subcounty $movement->sub_county_to   was not found.",]);
             }
