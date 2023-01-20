@@ -342,7 +342,7 @@ class ApiMovement extends Controller
         $movement->valid_from_Date = $request->valid_from_Date;
         $movement->valid_to_Date = $request->valid_to_Date;
         $movement->status_comment = $request->status_comment;
-        $movement->destination = (int)trim($request->destination);
+        $movement->destination = trim($request->destination);
         $movement->destination_slaughter_house = $request->destination_slaughter_house;
         $movement->details = $request->details;
         $movement->destination_farm = $request->destination_farm;
@@ -356,7 +356,7 @@ class ApiMovement extends Controller
             return Utils::response(['status' => 0, 'message' => "Subcount from was not found.",]);
         }
 
-        if ($movement->destination != 'To farm' && $movement->destination != 'To slaughter' && 'Other') {
+        if ($movement->destination != 'To farm' && $movement->destination != 'To slaughter' &&   $movement->destination != 'Other') {
             return Utils::response(['status' => 0, 'message' => "Destination $movement->destination type was not found.",]);
         }
 
