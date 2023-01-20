@@ -40,8 +40,29 @@ class SlaughterHouse extends Model
     {
         return $this->belongsTo(Location::class);
     }
+
     public function admin()
     {
         return $this->belongsTo(Administrator::class, 'administrator_id');
     }
+
+    public function getSubcountyTextAttribute()
+    {
+        $loc = Location::find($this->subcounty_id);
+        if ($loc == null) {
+            return '-';
+        }
+        return $loc->name;
+    }
+
+    public function getDistrictTextAttribute()
+    {
+        $loc = Location::find($this->district_id);
+        if ($loc == null) {
+            return '-';
+        }
+        return $loc->name;
+    }
+
+    protected $appends = ['subcounty_text', 'district_text'];
 }
