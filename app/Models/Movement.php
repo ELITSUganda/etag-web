@@ -92,7 +92,7 @@ class Movement extends Model
                 foreach ($rs as $v) { 
                     Utils::sendNotification(
                         "{$name} has applied for a movement permit and its now pending for your approval, please open the app to review the application.",
-                        $v->id,
+                        $v->user_id,
                         $headings = 'Movement permit application - review'
                     );
                 }
