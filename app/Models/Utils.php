@@ -862,7 +862,7 @@ class Utils extends Model
             )
                 ->sendNotificationToExternalUser(
                     $msg,
-                    $receiver,
+                    "$receiver",
                     $url = $url,
                     $data = $data,
                     $buttons = $buttons,
