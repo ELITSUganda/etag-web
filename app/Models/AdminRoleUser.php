@@ -14,7 +14,7 @@ class AdminRoleUser extends Model
 
     public function owner()
     {
-        $r = AdminRole::find($this->user_id);
+        $r = Administrator::find($this->user_id);
         if ($r == null) {
             $this->delete();
         }
