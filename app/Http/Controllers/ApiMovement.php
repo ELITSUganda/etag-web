@@ -242,6 +242,13 @@ class ApiMovement extends Controller
 
     public function create(Request $request)
     {
+
+        $sub_county_from = Location::find($request->sub_county_from);
+        if ($sub_county_from == null) {
+            return Utils::response(['status' => 0, 'message' => "Subcount from was not found.",]);
+        }
+ 
+
         $has_animals = false;
         $animal_ids = [];
         if ($request->animal_ids != null) {

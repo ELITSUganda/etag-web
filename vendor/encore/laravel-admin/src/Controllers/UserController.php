@@ -14,7 +14,7 @@ class UserController extends AdminController
      */
     protected function title()
     {
-        return trans('admin.administrator');
+        return 'Users';
     }
 
     /**
@@ -26,14 +26,22 @@ class UserController extends AdminController
     {
         $userModel = config('admin.database.users_model');
 
+        
+
+
         $grid = new Grid(new $userModel());
 
+        $grid->filter(function ($filter) {
+            $filter->disableIdFilter(); 
+            $filter->like('username','By username');
+        });
+        $grid->quickSearch('name')->placeholder('Search by name');
+        $grid->disableBatchActions();
         $grid->column('id', 'ID')->sortable();
-        $grid->column('username', trans('admin.username'));
-        $grid->column('name', trans('admin.name'));
+        $grid->column('username', trans('admin.username'))->sortable();
+        $grid->column('name', trans('admin.name'))->sortable();
         $grid->column('roles', trans('admin.roles'))->pluck('name')->label();
-        $grid->column('created_at', trans('admin.created_at'));
-        $grid->column('updated_at', trans('admin.updated_at'));
+        $grid->column('created_at', 'Joined'); 
 
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             if ($actions->getKey() == 1) {
@@ -108,13 +116,13 @@ class UserController extends AdminController
             });
 
         $form->ignore(['password_confirmation']);
-
+/* 
         $form->multipleSelect('roles', trans('admin.roles'))->options($roleModel::all()->pluck('name', 'id'));
         $form->multipleSelect('permissions', trans('admin.permissions'))->options($permissionModel::all()->pluck('name', 'id'));
 
         $form->display('created_at', trans('admin.created_at'));
         $form->display('updated_at', trans('admin.updated_at'));
-
+ */
         $form->saving(function (Form $form) {
             if ($form->password && $form->model()->password != $form->password) {
                 $form->password = Hash::make($form->password);

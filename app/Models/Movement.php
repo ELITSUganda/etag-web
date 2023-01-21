@@ -36,12 +36,11 @@ class Movement extends Model
                         'status' => 0,
                         'message' => "Destination farm was not found on our database."
                     ])));
-                } 
+                }
                 $model->sub_county_to = $farm->sub_county->id;
-                $model->district_to = $farm->sub_county->district_id; 
+                $model->district_to = $farm->sub_county->district_id;
                 $model->destination_slaughter_house = 0;
-
-            }else if ($model->destination == "To slaughter") {
+            } else if ($model->destination == "To slaughter") {
                 /* $destination_slaughter_house = (int)($model->destination_slaughter_house);
                 $dest = Administrator::find($destination_slaughter_house);
                 if($dest == null){
@@ -68,23 +67,52 @@ class Movement extends Model
                 $model->district_to = $sub->district->id;
                 $model->destination_farm = 0;
  */
- 
-            }else{
-            /*     $model->destination_slaughter_house = 0;      
+            } else {
+                /*     $model->destination_slaughter_house = 0;      
                 $model->destination_farm = 0; */
-                                           
             }
             return $model;
         });
 
 
-        self::created(function ($model) {
+        self::created(function ($m) {
+            $u = Administrator::find($m->administrator_id);
+            $name = "";
+            if ($u != null) {
+                $name = "Hello {$u->name}, ";
+            }
+            $sub_county_from = Location::find($m->sub_county_from);
+
+
+            if ($sub_county_from != null) {
+                $rs = AdminRoleUser::where([
+                    'role_type' => 'dvo',
+                    'type_id' => $sub_county_from->parent,
+                ])->get();
+                foreach ($rs as $v) { 
+                    Utils::sendNotification(
+                        "{$name} has applied for a movement permit and its now pending for your approval, please open the app to review the application.",
+                        $v->id,
+                        $headings = 'Movement permit application - review'
+                    );
+                }
+            }
+
+
+
+            //$items = Movement::where('sub_county_from', '=', $user->scvo)->where('status', '=', 'Approved')->get(); 
+
+            Utils::sendNotification(
+                "{$name}We have successfully received your movement permit. We are going to work on it and notify you our decisions as soon as possible application.\nThank you.",
+                $m->administrator_id,
+                $headings = 'Movement permit application received!'
+            );
         });
 
         self::updating(function ($model) {
             if ($model->status == "Approved") {
 
-                $model->permit_Number = "00000".$model->id;
+                $model->permit_Number = "00000" . $model->id;
 
                 if ($model->destination == "To farm") {
                     if ($model->destination_farm != null) {
@@ -103,7 +131,7 @@ class Movement extends Model
         });
 
 
-        self::updated(function ($model) { 
+        self::updated(function ($model) {
             Utils::make_movement_qr($model);
         });
 

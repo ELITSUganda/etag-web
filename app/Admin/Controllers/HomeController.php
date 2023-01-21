@@ -26,7 +26,7 @@ class HomeController extends Controller
     public function become_farmer(Content $content)
     {
 
-        AdminRoleUser::where([
+     /*    AdminRoleUser::where([
             'role_id' => 12,
             'user_id' => Admin::user()->id,
         ])->delete();
@@ -40,7 +40,7 @@ class HomeController extends Controller
         $role = new AdminRoleUser();
         $role->role_id = 3;
         $role->user_id = Admin::user()->id;
-        $role->save();
+        $role->save(); */
         return redirect(admin_url('/'));
     }
     public function index(Content $content)

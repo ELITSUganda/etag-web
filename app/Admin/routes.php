@@ -45,4 +45,5 @@ Route::group([
     $router->resource('transactions', TransactionController::class);
     $router->resource('milk', MilkController::class);
     $router->resource('slaughter-houses', SlaughterHouseController::class);
+    $router->resource('admin-role-users', AdminRoleUserController::class);
 });

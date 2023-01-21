@@ -63,6 +63,7 @@ php artisan admin:make FinanceCategoryController --model=App\\Models\\FinanceCat
 php artisan admin:make TransactionController --model=App\\Models\\Transaction
 php artisan admin:make MilkController --model=App\\Models\\Event
 php artisan admin:make SlaughterHouseController --model=App\Models\SlaughterHouse
+php artisan admin:make AdminRoleUserController --model=App\Models\AdminRoleUser
 
 
 php artisan make:model CheckPoint
@@ -85,6 +86,7 @@ php artisan make:model Transaction
 php artisan make:model DrugDosage
 php artisan make:model DrugDosageItem
 php artisan make:model SlaughterHouse
+php artisan make:model AdminRole
 
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs

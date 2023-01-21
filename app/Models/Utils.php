@@ -114,24 +114,28 @@ class Utils extends Model
     public static function un_paid_order_sum($u)
     {
         $count = ProductOrder::where(
-            'order_is_paid', '!=' ,1
+            'order_is_paid',
+            '!=',
+            1
         )->where([
             'customer_id' => $u->id
         ])
-        ->sum('total_price'); 
+            ->sum('total_price');
         return $count;
-    } 
+    }
 
     public static function get_pending_orders($u)
     {
         $count = ProductOrder::where(
-            'order_is_paid', '!=' ,1
+            'order_is_paid',
+            '!=',
+            1
         )->where([
             'customer_id' => $u->id
         ])
-        ->sum('total_price'); 
+            ->sum('total_price');
         return $count;
-    } 
+    }
 
     public static function prepareThumbnails()
     {
@@ -837,16 +841,51 @@ class Utils extends Model
         return $r;
     }
 
+    public static function sendNotification(
+        $msg,
+        $receiver,
+        $headings = 'U-LITS',
+        $data = null,
+        $url = null,
+        $buttons = null,
+        $schedule = null,
+    ) {
+
+
+        try {
+            \OneSignal::addParams(
+                [
+                    'android_channel_id' => 'f3469729-c2b4-4fce-89da-78550d5a2dd1',
+                    'large_icon' => 'https://u-lits.com/logo-1.png',
+                    'small_icon' => 'logo_1',
+                ]
+            )
+                ->sendNotificationToExternalUser(
+                    $msg,
+                    $receiver,
+                    $url = $url,
+                    $data = $data,
+                    $buttons = $buttons,
+                    $schedule = $schedule,
+                    $headings = $headings
+                );
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+
+
+        return;
+    }
     public static function getTableColumns($obj)
-    { 
-        $table = $obj->getTable(); 
+    {
+        $table = $obj->getTable();
 
 
-        $cols = DB::getSchemaBuilder()->getColumnListing($table); 
-        if($cols == null){
+        $cols = DB::getSchemaBuilder()->getColumnListing($table);
+        if ($cols == null) {
             $cols = [];
         }
-        if(!is_array($cols)){
+        if (!is_array($cols)) {
             $cols = [];
         }
         return  $cols;
@@ -855,5 +894,4 @@ class Utils extends Model
 
         return Schema::getColumnListing($table);
     }
-
 }
