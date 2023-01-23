@@ -388,6 +388,7 @@ class ApiMovement extends Controller
         }
 
 
+ 
 
         if ($movement->save()) {
             $movement_animal_id = $movement->id;

@@ -26,9 +26,9 @@ class Movement extends Model
                 ])));
             }
 
-            $model->trader_nin = $applicant->nin;
+            /*             $model->trader_nin = $applicant->nin;
             $model->trader_name = $applicant->name;
-            $model->trader_phone = $applicant->phone_number;
+            $model->trader_phone = $applicant->phone_number; */
             if ($model->destination == "To farm") {
                 $farm = Farm::find($model->destination_farm);
                 if ($farm == null) {
@@ -89,7 +89,7 @@ class Movement extends Model
                     'role_type' => 'dvo',
                     'type_id' => $sub_county_from->parent,
                 ])->get();
-                foreach ($rs as $v) { 
+                foreach ($rs as $v) {
                     Utils::sendNotification(
                         "{$name} has applied for a movement permit and its now pending for your approval, please open the app to review the application.",
                         $v->user_id,
@@ -97,7 +97,7 @@ class Movement extends Model
                     );
                 }
             }
-            
+
 
 
 
@@ -156,6 +156,15 @@ class Movement extends Model
     }
 
 
+    public function getAnimalsAttribute()
+    {
+        $has_animals = MovementHasMovementAnimal::where(['movement_id' => $this->id])->get();
+        $ans = [];
+        foreach ($has_animals as  $an) {
+            $ans[] = $an->animal;
+        }
+        return  $ans;
+    }
     public function movement_animals()
     {
         return $this->hasMany(MovementAnimal::class);
@@ -171,4 +180,5 @@ class Movement extends Model
     {
         return $this->belongsTo(Farm::class, 'to');
     }
+    protected $appends = ['animals'];
 }

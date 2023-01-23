@@ -12,7 +12,7 @@ class UserController extends AdminController
     /**
      * {@inheritdoc}
      */
-    protected function title()
+    protected function title() 
     {
         return 'Users';
     }

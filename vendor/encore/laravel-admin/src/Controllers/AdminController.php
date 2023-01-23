@@ -12,7 +12,7 @@ class AdminController extends Controller
     /**
      * Title for current resource.
      *
-     * @var string
+     * @var string 
      */
     protected $title = 'Title';
 
