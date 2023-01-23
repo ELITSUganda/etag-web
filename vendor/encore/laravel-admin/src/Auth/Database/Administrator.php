@@ -2,6 +2,7 @@
 
 namespace Encore\Admin\Auth\Database;
 
+use App\Models\AdminRoleUser;
 use App\Models\Farm;
 use App\Models\Utils;
 use Encore\Admin\Traits\DefaultDatetimeFormat;
@@ -121,6 +122,13 @@ class Administrator extends Model implements AuthenticatableContract
 
         return admin_asset($default);
     }
+
+
+    public function user_roles()
+    {
+        return $this->hasMany(AdminRoleUser::class, 'user_id',);
+    }
+
 
     /**
      * A user has and belongs to many roles.

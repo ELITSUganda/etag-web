@@ -25,6 +25,8 @@ class Movement extends Model
                     'message' => "Permit applicant not found on database."
                 ])));
             }
+            $sub_county_from = Location::find($model->sub_county_from);
+            $model->district_from = $sub_county_from->parent;
 
             /*             $model->trader_nin = $applicant->nin;
             $model->trader_name = $applicant->name;
@@ -84,6 +86,7 @@ class Movement extends Model
             $sub_county_from = Location::find($m->sub_county_from);
 
 
+
             if ($sub_county_from != null) {
                 $rs = AdminRoleUser::where([
                     'role_type' => 'dvo',
@@ -135,7 +138,7 @@ class Movement extends Model
                 $_s = 'Declined';
             } 
 
-            Utils::sendNotification(
+    Utils::sendNotification(
                 "Your Movement Permit #{$model->id} has been {$_s}. Open the App for more details.",
                 $model->administrator_id,
                 $headings = "Movement permit application."
