@@ -16,7 +16,7 @@ class Movement extends Model
         parent::boot();
 
         self::creating(function ($model) {
-            $model->status = "Pending";
+            $model->status = "0";
             $applicant = Administrator::find($model->administrator_id);
 
             if ($applicant == null) {
@@ -110,11 +110,13 @@ class Movement extends Model
             );
         });
 
+
         self::updating(function ($model) {
-            if ($model->status == "Approved") {
-
+            $model->status = ((string)($model->status));
+            $_s = 'Reviewed';
+            if ($model->status == "1") {
+                $_s = 'Approved';
                 $model->permit_Number = "00000" . $model->id;
-
                 if ($model->destination == "To farm") {
                     if ($model->destination_farm != null) {
                         foreach ($model->movement_has_movement_animals as $key => $value) {
@@ -128,6 +130,17 @@ class Movement extends Model
                     }
                 }
             }
+
+            if ($model->status  == '2') {
+                $_s = 'Declined';
+            } 
+
+            Utils::sendNotification(
+                "Your Movement Permit #{$model->id} has been {$_s}. Open the App for more details.",
+                $model->administrator_id,
+                $headings = "Movement permit application."
+            );
+
             return $model;
         });
 

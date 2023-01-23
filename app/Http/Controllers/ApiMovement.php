@@ -240,6 +240,23 @@ class ApiMovement extends Controller
         return $items;
     }
 
+    public function review(Request $request, $id)
+    {
+        $mv = Movement::find($id);
+        if ($mv == null) {
+            return Utils::response(['status' => 0, 'message' => "Application not was not found.",]);
+        }
+
+        $mv->status = $request->status;
+        $mv->reason = $request->reason;
+        $mv->save();
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "Movement permit application reviewed successfully.",
+            'data' => $mv
+        ]);
+    }
     public function create(Request $request)
     {
 
@@ -247,7 +264,7 @@ class ApiMovement extends Controller
         if ($sub_county_from == null) {
             return Utils::response(['status' => 0, 'message' => "Subcount from was not found.",]);
         }
- 
+
 
         $has_animals = false;
         $animal_ids = [];
@@ -388,7 +405,7 @@ class ApiMovement extends Controller
         }
 
 
- 
+
 
         if ($movement->save()) {
             $movement_animal_id = $movement->id;
