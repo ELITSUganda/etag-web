@@ -36,7 +36,7 @@ class ApiMovement extends Controller
 
         foreach ($user->user_roles as $_role) {
             if ($_role->role_id == 3) {
-                //farmer
+                //farmer---
                 $_permits = Movement::where(['administrator_id' => $user_id])->get();
                 foreach ($_permits as $_permit) {
                     if (in_array($_permit->id, $done_ids)) {
@@ -47,7 +47,7 @@ class ApiMovement extends Controller
                 }
             }
             if ($_role->role_id == 9) {
-                //farmer
+                //checkpoint officer---
                 $_permits = Movement::where(['status' => '1'])->get();
                 foreach ($_permits as $_permit) {
                     if (in_array($_permit->id, $done_ids)) {
