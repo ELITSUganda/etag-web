@@ -33,11 +33,22 @@ class ApiMovement extends Controller
         $role = Utils::get_role($user);
         $permits = [];
         $done_ids = [];
- 
+
         foreach ($user->user_roles as $_role) {
             if ($_role->role_id == 3) {
                 //farmer
                 $_permits = Movement::where(['administrator_id' => $user_id])->get();
+                foreach ($_permits as $_permit) {
+                    if (in_array($_permit->id, $done_ids)) {
+                        continue;
+                    }
+                    $done_ids[] = $_permit->id;
+                    $permits[] = $_permit;
+                }
+            }
+            if ($_role->role_id == 9) {
+                //farmer
+                $_permits = Movement::where(['status' => '1'])->get();
                 foreach ($_permits as $_permit) {
                     if (in_array($_permit->id, $done_ids)) {
                         continue;
@@ -58,16 +69,17 @@ class ApiMovement extends Controller
                     $permits[] = $_permit;
                 }
             }
-
         }
- 
+
+         
+
         return Utils::response([
             'status' => 1,
             'data' => $permits,
             'message' => 'Success'
         ]);
-         
-        return $user->roles;
+
+
         if ($user->isRole('dvo')) {
             return 'Yes';
         } else {

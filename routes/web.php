@@ -28,8 +28,9 @@ Route::get('/', function () {
     die();
 });
 
-Route::get('demo', function(){
-    return '<h2>DVO Lyantonde: <code>+256775679511</code></h2>';
+Route::get('demo', function () {
+    return '<h2>DVO Lyantonde: <code>+256775679511</code></h2>' .
+        '<h2>DVO Checkpoint officer: <code>+256706638491</code></h2>';
 });
 Route::get('market', [MarketController::class, 'index'])->name('market');
 Route::get('market/register', [MarketController::class, 'register'])->name('m-register');
