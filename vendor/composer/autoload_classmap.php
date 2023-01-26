@@ -6,6 +6,7 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'App\\Admin\\Controllers\\AdminRoleUserController' => $baseDir . '/app/Admin/Controllers/AdminRoleUserController.php',
     'App\\Admin\\Controllers\\Animal1Controller' => $baseDir . '/app/Admin/Controllers/Animal1Controller.php',
     'App\\Admin\\Controllers\\AnimalController' => $baseDir . '/app/Admin/Controllers/AnimalController.php',
     'App\\Admin\\Controllers\\AnimalSalesController' => $baseDir . '/app/Admin/Controllers/AnimalSalesController.php',
@@ -36,6 +37,7 @@ return array(
     'App\\Admin\\Controllers\\ProductCategoryController' => $baseDir . '/app/Admin/Controllers/ProductCategoryController.php',
     'App\\Admin\\Controllers\\ProductController' => $baseDir . '/app/Admin/Controllers/ProductController.php',
     'App\\Admin\\Controllers\\SickAnimalController' => $baseDir . '/app/Admin/Controllers/SickAnimalController.php',
+    'App\\Admin\\Controllers\\SlaughterHouseController' => $baseDir . '/app/Admin/Controllers/SlaughterHouseController.php',
     'App\\Admin\\Controllers\\SlaughterRecordController' => $baseDir . '/app/Admin/Controllers/SlaughterRecordController.php',
     'App\\Admin\\Controllers\\SubCountyController' => $baseDir . '/app/Admin/Controllers/SubCountyController.php',
     'App\\Admin\\Controllers\\TransactionController' => $baseDir . '/app/Admin/Controllers/TransactionController.php',
@@ -67,6 +69,7 @@ return array(
     'App\\Http\\Middleware\\TrustHosts' => $baseDir . '/app/Http/Middleware/TrustHosts.php',
     'App\\Http\\Middleware\\TrustProxies' => $baseDir . '/app/Http/Middleware/TrustProxies.php',
     'App\\Http\\Middleware\\VerifyCsrfToken' => $baseDir . '/app/Http/Middleware/VerifyCsrfToken.php',
+    'App\\Models\\AdminRole' => $baseDir . '/app/Models/AdminRole.php',
     'App\\Models\\AdminRoleUser' => $baseDir . '/app/Models/AdminRoleUser.php',
     'App\\Models\\Animal' => $baseDir . '/app/Models/Animal.php',
     'App\\Models\\ArchivedAnimal' => $baseDir . '/app/Models/ArchivedAnimal.php',
@@ -98,6 +101,7 @@ return array(
     'App\\Models\\ProductCategory' => $baseDir . '/app/Models/ProductCategory.php',
     'App\\Models\\ProductOrder' => $baseDir . '/app/Models/ProductOrder.php',
     'App\\Models\\SickAnimal' => $baseDir . '/app/Models/SickAnimal.php',
+    'App\\Models\\SlaughterHouse' => $baseDir . '/app/Models/SlaughterHouse.php',
     'App\\Models\\SlaughterRecord' => $baseDir . '/app/Models/SlaughterRecord.php',
     'App\\Models\\Transaction' => $baseDir . '/app/Models/Transaction.php',
     'App\\Models\\User' => $baseDir . '/app/Models/User.php',

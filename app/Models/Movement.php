@@ -94,7 +94,7 @@ class Movement extends Model
                 ])->get();
                 foreach ($rs as $v) {
                     Utils::sendNotification(
-                        "{$name} has applied for a movement permit and its now pending for your approval, please open the app to review the application.",
+                        "{$name} has applied for a movement permit and its now pending for your approval.",
                         $v->user_id,
                         $headings = 'Movement permit application - review'
                     );
@@ -107,7 +107,7 @@ class Movement extends Model
             //$items = Movement::where('sub_county_from', '=', $user->scvo)->where('status', '=', 'Approved')->get(); 
 
             Utils::sendNotification(
-                "{$name}We have successfully received your movement permit. We are going to work on it and notify you our decisions as soon as possible application.\nThank you.",
+                "Your movement permit application has been received.\nThank you.",
                 $m->administrator_id,
                 $headings = 'Movement permit application received!'
             );
@@ -126,7 +126,7 @@ class Movement extends Model
                             if ($value->movement_animal_id != null) {
                                 $transfer['animal_id'] = $value->movement_animal_id;
                                 $transfer['destination_farm_id'] = $model->destination_farm;
-                                Utils::move_animal($transfer);
+                                //Utils::move_animal($transfer);
                             }
                         }
                         $transfer['destination'] = $model->destination_farm;
@@ -136,9 +136,9 @@ class Movement extends Model
 
             if ($model->status  == '2') {
                 $_s = 'Declined';
-            } 
+            }
 
-    Utils::sendNotification(
+            Utils::sendNotification(
                 "Your Movement Permit #{$model->id} has been {$_s}. Open the App for more details.",
                 $model->administrator_id,
                 $headings = "Movement permit application."

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Animal;
 use App\Models\CheckPoint;
 use App\Models\CheckPointRecord;
+use App\Models\CheckpointSession;
 use App\Models\Event;
 use App\Models\Farm;
 use App\Models\Location;
@@ -71,7 +72,7 @@ class ApiMovement extends Controller
             }
         }
 
-         
+
 
         return Utils::response([
             'status' => 1,
@@ -294,11 +295,78 @@ class ApiMovement extends Controller
         return $items;
     }
 
+    public function checkpoint_session(Request $request, $id)
+    {
+
+        $mv = Movement::find($id);
+        if ($mv == null) {
+            return Utils::response(['status' => 0, 'message' => "Movement permit not found.",]);
+        }
+
+        $user_id = ((int)(Utils::get_user_id($request)));
+        $user = Administrator::find($user_id);
+
+        if ($user == null) {
+            return Utils::response(['status' => 0, 'message' => "User not found.",]);
+        }
+
+
+
+        $found_animals = json_decode($request->found_animals);
+
+        $real_found = [];
+        $real_not_found = [];
+        foreach ($mv->animals as $animal) {
+
+            $found = false;
+            foreach ($found_animals as $found_id) {
+                $_found_id = ((int)($found_id));
+                if ($animal->id == $_found_id) {
+                    $found = true;
+                    break;
+                }
+            }
+
+            if ($found) {
+                $real_found[] = $animal;
+            } else {
+                $real_not_found[] = $animal;
+            }
+        }
+
+
+        $session  =  new CheckpointSession();
+        $session->checked_by = $user->id;
+        $session->movement_id = $mv->id;
+        $session->check_point_id = 1;
+        $session->animals_expected = count($real_not_found) + count($real_found);
+        $session->animals_checked = count($real_not_found) + count($real_found); 
+        $session->animals_found = count($real_found);
+        $session->animals_missed = count($real_not_found);
+        $session->details = $request->details;
+        foreach ($user->user_roles as $role) {
+            if ($role->role_type == 'check-point-officer') {
+                if ($role->type_id != null) {
+                    $session->check_point_id = $role->type_id;
+                    break;
+                }
+            }
+        }
+
+        $session->save();
+
+        return Utils::response([
+            'status' => 1, 
+            'message' => "Session saved successfully.", 
+            'data' => $session
+        ]);
+    }
+
     public function review(Request $request, $id)
     {
         $mv = Movement::find($id);
         if ($mv == null) {
-            return Utils::response(['status' => 0, 'message' => "Application not was not found.",]);
+            return Utils::response(['status' => 0, 'message' => "Application was not found.",]);
         }
 
         $mv->status = $request->status;

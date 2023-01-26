@@ -790,6 +790,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
     );
 
     public static $classMap = array (
+        'App\\Admin\\Controllers\\AdminRoleUserController' => __DIR__ . '/../..' . '/app/Admin/Controllers/AdminRoleUserController.php',
         'App\\Admin\\Controllers\\Animal1Controller' => __DIR__ . '/../..' . '/app/Admin/Controllers/Animal1Controller.php',
         'App\\Admin\\Controllers\\AnimalController' => __DIR__ . '/../..' . '/app/Admin/Controllers/AnimalController.php',
         'App\\Admin\\Controllers\\AnimalSalesController' => __DIR__ . '/../..' . '/app/Admin/Controllers/AnimalSalesController.php',
@@ -820,6 +821,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'App\\Admin\\Controllers\\ProductCategoryController' => __DIR__ . '/../..' . '/app/Admin/Controllers/ProductCategoryController.php',
         'App\\Admin\\Controllers\\ProductController' => __DIR__ . '/../..' . '/app/Admin/Controllers/ProductController.php',
         'App\\Admin\\Controllers\\SickAnimalController' => __DIR__ . '/../..' . '/app/Admin/Controllers/SickAnimalController.php',
+        'App\\Admin\\Controllers\\SlaughterHouseController' => __DIR__ . '/../..' . '/app/Admin/Controllers/SlaughterHouseController.php',
         'App\\Admin\\Controllers\\SlaughterRecordController' => __DIR__ . '/../..' . '/app/Admin/Controllers/SlaughterRecordController.php',
         'App\\Admin\\Controllers\\SubCountyController' => __DIR__ . '/../..' . '/app/Admin/Controllers/SubCountyController.php',
         'App\\Admin\\Controllers\\TransactionController' => __DIR__ . '/../..' . '/app/Admin/Controllers/TransactionController.php',
@@ -851,6 +853,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'App\\Http\\Middleware\\TrustHosts' => __DIR__ . '/../..' . '/app/Http/Middleware/TrustHosts.php',
         'App\\Http\\Middleware\\TrustProxies' => __DIR__ . '/../..' . '/app/Http/Middleware/TrustProxies.php',
         'App\\Http\\Middleware\\VerifyCsrfToken' => __DIR__ . '/../..' . '/app/Http/Middleware/VerifyCsrfToken.php',
+        'App\\Models\\AdminRole' => __DIR__ . '/../..' . '/app/Models/AdminRole.php',
         'App\\Models\\AdminRoleUser' => __DIR__ . '/../..' . '/app/Models/AdminRoleUser.php',
         'App\\Models\\Animal' => __DIR__ . '/../..' . '/app/Models/Animal.php',
         'App\\Models\\ArchivedAnimal' => __DIR__ . '/../..' . '/app/Models/ArchivedAnimal.php',
@@ -882,6 +885,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'App\\Models\\ProductCategory' => __DIR__ . '/../..' . '/app/Models/ProductCategory.php',
         'App\\Models\\ProductOrder' => __DIR__ . '/../..' . '/app/Models/ProductOrder.php',
         'App\\Models\\SickAnimal' => __DIR__ . '/../..' . '/app/Models/SickAnimal.php',
+        'App\\Models\\SlaughterHouse' => __DIR__ . '/../..' . '/app/Models/SlaughterHouse.php',
         'App\\Models\\SlaughterRecord' => __DIR__ . '/../..' . '/app/Models/SlaughterRecord.php',
         'App\\Models\\Transaction' => __DIR__ . '/../..' . '/app/Models/Transaction.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',

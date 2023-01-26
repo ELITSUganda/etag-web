@@ -83,6 +83,7 @@ Route::get('users', [ApiUserController::class, 'index']);
 Route::get('movements', [ApiMovement::class, 'index']);
 
 
+Route::post('checkpoint-session/{id}', [ApiMovement::class, 'checkpoint_session']);
 Route::post('movements-review/{id}', [ApiMovement::class, 'review']);
 
 Route::post('check-point-records', [ApiMovement::class, 'create_check_record']);

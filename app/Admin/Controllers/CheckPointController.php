@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Models\CheckPoint;
+use App\Models\Location;
 use App\Models\SubCounty;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
@@ -50,7 +51,7 @@ class CheckPointController extends AdminController
             })->sortable();
         $grid->column('sub_county_id', __('Sub county id'))
             ->display(function ($id) {
-                $u = SubCounty::find($id);
+                $u = Location::find($id);
                 if (!$u) {
                     return $id;
                 }
@@ -92,25 +93,19 @@ class CheckPointController extends AdminController
     {
         $form = new Form(new CheckPoint());
 
-        $sub_counties = [];
-        foreach (SubCounty::all() as $key => $p) {
-            $sub_counties[$p->id] = $p->name . ", " .
-                $p->district->name . ".";
-        }
+        $sub_counties =  Location::get_sub_counties();
         $admins = [];
         foreach (Administrator::all() as $key => $v) {
-            if (!$v->isRole('check-point-officer')) {
-                continue;
-            }
+           
             $admins[$v->id] = $v->name . " - " . $v->id . " - ({$v->username})";
         }
 
 
         $form->text('name', __('Checkpoinnt Name/Route'))->required();
 
-        $form->select('sub_county_id', __('Sub-county'))
-            ->options($sub_counties)
-            ->required();
+        $form->select('sub_county_id', 'Subcounty')->options(
+            $sub_counties->pluck('name_text', 'id')
+        )->rules('required');
 
         $form->select('administrator_id', __('Chech-point officer'))
             ->options($admins)

@@ -4,6 +4,7 @@ namespace App\Admin\Controllers;
 
 use App\Models\AdminRole;
 use App\Models\AdminRoleUser;
+use App\Models\CheckPoint;
 use App\Models\Location;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Controllers\AdminController;
@@ -161,6 +162,7 @@ class AdminRoleUserController extends AdminController
             ->options([
                 'dvo' => 'D.V.O',
                 'scvo' => 'S.C.V.O',
+                'check-point-officer' => 'Checkpoint officer',
                 'other' => 'Other',
             ])
             ->when('dvo', function ($f) {
@@ -191,10 +193,18 @@ class AdminRoleUserController extends AdminController
                         url('/api/sub-counties')
                     );
             })
+            ->when('check-point-officer', function ($f) {
+                $f->hidden('role_id', __('Role id'))->default(9);
+                $f->select('type_id', 'Select sub-county')
+                    ->options(function ($id) { 
+                        return CheckPoint::all()->pluck('name', 'id');
+                    })
+                    ->rules('required'); 
+            })
             ->when('other', function ($f) {
                 $roles = [];
                 foreach (AdminRole::all() as $key => $v) {
-                    if ($v->id == 7 || $v->id == 2) {
+                    if ($v->id == 7 || $v->id == 2 || $v->id == 9) {
                         continue;
                     }
                     $roles[$v->id] = $v->name;
