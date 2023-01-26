@@ -340,7 +340,7 @@ class ApiMovement extends Controller
         $session->movement_id = $mv->id;
         $session->check_point_id = 1;
         $session->animals_expected = count($real_not_found) + count($real_found);
-        $session->animals_checked = count($real_not_found) + count($real_found); 
+        $session->animals_checked = count($real_not_found) + count($real_found);
         $session->animals_found = count($real_found);
         $session->animals_missed = count($real_not_found);
         $session->details = $request->details;
@@ -356,8 +356,8 @@ class ApiMovement extends Controller
         $session->save();
 
         return Utils::response([
-            'status' => 1, 
-            'message' => "Session saved successfully.", 
+            'status' => 1,
+            'message' => "Session saved successfully.",
             'data' => $session
         ]);
     }
@@ -375,7 +375,7 @@ class ApiMovement extends Controller
 
         return Utils::response([
             'status' => 1,
-            'message' => "Movement permit application reviewed successfully.",
+            'message' => "Movement permit checked successfully.",
             'data' => $mv
         ]);
     }

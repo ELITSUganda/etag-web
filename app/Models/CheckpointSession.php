@@ -43,8 +43,7 @@ class CheckpointSession extends Model
                     }
                 }
 
-
-                //$items = Movement::where('sub_county_from', '=', $user->scvo)->where('status', '=', 'Approved')->get(); 
+                //$items = Movement::where('sub_county_from', '=', $user->scvo)->where('status', '=', 'Approved')->get();  
 
                 Utils::sendNotification(
                     "Your movement permit #{$m->id} has been checked at {$model->check_point->name}. $model->animals_found animals found, $model->animals_missed animals missed. ",
