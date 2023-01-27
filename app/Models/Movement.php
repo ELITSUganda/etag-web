@@ -188,8 +188,8 @@ class Movement extends Model
         $farm = Farm::find($this->destination_farm);
         if ($farm == null) {
             return "-";
-        }
-        return  $farm->name;
+        } 
+        return  $farm->holding_code;
     }
 
     public function getSubcountyFromTextAttribute()
