@@ -196,6 +196,31 @@ class ApiAnimalController extends Controller
         ]);
     }
 
+    public function change_tag(Request $r, $id)
+    {
+
+        $animal = Animal::find($id);
+        if ($animal == null) {
+            return Utils::response(['status' => 0, 'message' => "Animal was not found.",]);
+        }
+        if ($r->new_v_id == null) {
+            return Utils::response(['status' => 0, 'message' => "V-id is required.",]);
+        }
+
+        if ($r->new_e_id == null) {
+            return Utils::response(['status' => 0, 'message' => "E-id is required.",]);
+        }
+
+        $animal->v_id = $r->new_v_id;
+        $animal->e_id = $r->new_e_id;
+        $animal->save();
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "Animal's E-ID and V-ID was changed successfully.",
+        ]);
+    }
+
 
     public function create_sale(Request $request)
     {
