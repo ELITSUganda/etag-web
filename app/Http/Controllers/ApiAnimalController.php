@@ -214,12 +214,12 @@ class ApiAnimalController extends Controller
 
         $an_1 = Animal::where('v_id', $r->new_v_id)->first();
 
-        if ($an_1 == null) {
+        if ($an_1 != null) {
             return Utils::response(['status' => 0, 'message' => "Animal with same V-id already exist.",]);
         }
 
         $an_1 = Animal::where('e_id', $r->new_e_id)->first();
-        if ($an_1 == null) {
+        if ($an_1 != null) {
             return Utils::response(['status' => 0, 'message' => "Animal with same E-id already exist.",]);
         }
 
