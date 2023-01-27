@@ -181,6 +181,17 @@ class Movement extends Model
         }
         return  $ans;
     }
+
+
+    public function getDestinationFarmTextAttribute()
+    {
+        $farm = Farm::find($this->destination_farm);
+        if ($farm == null) {
+            return "-";
+        }
+        return  $farm->holding_code;
+    }
+
     public function movement_animals()
     {
         return $this->hasMany(MovementAnimal::class);
@@ -196,5 +207,5 @@ class Movement extends Model
     {
         return $this->belongsTo(Farm::class, 'to');
     }
-    protected $appends = ['animals'];
+    protected $appends = ['animals', 'destination_farm_text'];
 }
