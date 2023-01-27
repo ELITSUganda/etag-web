@@ -189,7 +189,29 @@ class Movement extends Model
         if ($farm == null) {
             return "-";
         }
-        return  $farm->holding_code;
+        return  $farm->name;
+    }
+
+    public function getSubcountyFromTextAttribute()
+    {
+        $sub = Location::find($this->sub_county_from);
+        if ($sub == null) {
+            return "-";
+        }
+        return  $sub->name_text;
+    }
+
+    public function getDistrictFromTextAttribute()
+    {
+        $sub = Location::find($this->sub_county_from);
+        if ($sub == null) {
+            return "-";
+        }
+        $dis = Location::find($sub->parent); 
+        if ($dis == null) {
+            return "-";
+        } 
+        return  $dis->name;
     }
 
     public function movement_animals()
@@ -207,5 +229,9 @@ class Movement extends Model
     {
         return $this->belongsTo(Farm::class, 'to');
     }
-    protected $appends = ['animals', 'destination_farm_text'];
+    protected $appends = [
+        'animals', 'destination_farm_text',
+        'subcounty_from_text',
+        'district_from_text'
+    ];
 }
