@@ -370,8 +370,10 @@ class ApiMovement extends Controller
         }
 
         $mv->status = $request->status;
-        $mv->reason = $request->reason;
-        $mv->save();
+        $mv->reason = $request->reason; 
+        $mv->valid_to_Date = $request->valid_to_Date; 
+        $mv->valid_from_Date = $request->valid_from_Date; 
+        $mv->save(); 
 
         return Utils::response([
             'status' => 1,
