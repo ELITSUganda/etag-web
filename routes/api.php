@@ -68,6 +68,7 @@ Route::get('animals/{id}', [ApiAnimalController::class, 'show']);
 
 Route::get('events', [ApiAnimalController::class, 'events']);
 Route::post('events', [ApiAnimalController::class, 'store_event']);
+Route::post('batch-events', [ApiAnimalController::class, 'store_batch_event']);
 Route::get('events/{id}', [ApiAnimalController::class, 'show']);
 // Animal controler //
 

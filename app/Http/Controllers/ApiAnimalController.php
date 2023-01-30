@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Animal;
+use App\Models\BatchSession;
 use App\Models\Event;
 use App\Models\Farm;
 use App\Models\Image;
@@ -116,7 +117,6 @@ class ApiAnimalController extends Controller
             'message' => "File uploaded successfully.",
         ]);
     }
-
 
 
     public function create_slaughter(Request $request)
@@ -290,6 +290,114 @@ class ApiAnimalController extends Controller
         return Utils::response([
             'status' => 1,
             'message' => "{$i} Animals were assigned to trader successfully.",
+        ]);
+    }
+
+
+    public function store_batch_event(Request $r)
+    {
+        $user_id = Utils::get_user_id($r);
+
+        if (
+
+            $r->name == null ||
+            $r->session_date == null ||
+            $r->type == null ||
+            $user_id == null ||
+            $r->items == null
+        ) {
+            return Utils::response([
+                'status' => 2,
+                'message' => "Some parameters missing.",
+            ]);
+        }
+
+        $items = json_decode($r->items);
+        $date = Carbon::parse($r->session_date);
+        $type = "";
+        if ($r->type == 'Roll call') {
+            $type = 'Roll call';
+        } else if ($r->type == 'Treatment') {
+            $type = 'Treatment';
+        }
+
+        $session = new BatchSession();
+        $session->administrator_id = $user_id;
+        $session->name = $r->name;
+        $session->type = $r->type;
+        $session->description = $r->description;
+        $session->save();
+        $animal_ids_found = [];
+
+        foreach ($items as $v) {
+            $an = Animal::find(((int)($v->animal_id)));
+            if ($an == null) {
+                continue;
+            }
+            $animal_ids_found[] = $an->id;
+            if ($r->type == 'Roll call') {
+                $ev = new Event();
+                $ev->created_at =  $date;
+                $ev->updated_at =  $date;
+                $ev->time_stamp =  $date;
+                $ev->administrator_id =  $an->administrator_id;
+                $ev->animal_id =  $an->id;
+                $ev->e_id =  $an->e_id;
+                $ev->v_id =  $an->v_id;
+                $ev->type =  $type;
+                $ev->is_batch_import =  0;
+                $ev->detail =  "Present in Roll-call - {$r->name}.";
+                $ev->description =  "Present in Roll-call - {$r->name}.";
+                $ev->short_description =  "Roll-call - {$r->name}.";
+                $ev->session_id =  $session->id;
+                $ev->is_present =  1;
+                $ev->save();
+            }
+        }
+
+
+        $absent = 0;
+        foreach (Animal::where([
+            'administrator_id' => $user_id
+        ])->get() as $an) {
+            if (in_array($an->id, $animal_ids_found)) {
+                continue;
+            }
+            $absent++;
+
+            $ev = new Event();
+            $ev->created_at =  $date;
+            $ev->updated_at =  $date;
+            $ev->time_stamp =  $date;
+            $ev->administrator_id =  $an->administrator_id;
+            $ev->animal_id =  $an->id;
+            $ev->e_id =  $an->e_id;
+            $ev->v_id =  $an->v_id;
+            $ev->type =  $type;
+            $ev->is_batch_import =  0;
+            $ev->detail =  "Absent from Roll-call - {$r->name}.";
+            $ev->description =  "Absent from Roll-call - {$r->name}.";
+            $ev->short_description =  "Roll-call - {$r->name}.";
+            $ev->session_id =  $session->id;
+            $ev->is_present =  0;
+            $ev->save();
+        }
+
+        $session->present = count($animal_ids_found);
+        $session->absent =  $absent;
+        $session->save();
+
+        Utils::sendNotification(
+            "{$session->name}. Animals present: {$session->present}, Animals absent: {$session->absent}. Open the App to see full list.",
+            $session->administrator_id,
+            $headings = 'Roll-call'
+        );
+
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "Event was created successfully.",
+            'data' => null 
         ]);
     }
 
