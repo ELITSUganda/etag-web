@@ -304,8 +304,7 @@ class ApiAnimalController extends Controller
 
             $r->name == null ||
             $r->session_date == null ||
-            $r->type == null ||
-            $r->session_category == null ||
+            $r->type == null || 
             $user_id == null ||
             $r->items == null
         ) {
