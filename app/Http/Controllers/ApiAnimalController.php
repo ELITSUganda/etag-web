@@ -298,6 +298,7 @@ class ApiAnimalController extends Controller
     public function store_batch_event(Request $r)
     {
         $user_id = Utils::get_user_id($r);
+        return "romina";
 
         if (
 
