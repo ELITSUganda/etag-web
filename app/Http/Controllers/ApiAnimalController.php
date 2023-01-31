@@ -648,6 +648,7 @@ class ApiAnimalController extends Controller
         $event->disease_test_results = $request->disease_test_results;
         $event->disease_id = $request->disease_id;
         $event->milk = $request->milk;
+        $event->weight = $request->weight; 
 
 
 
