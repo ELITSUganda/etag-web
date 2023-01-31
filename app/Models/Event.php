@@ -7,6 +7,7 @@ use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Excel;
+use Exception;
 
 class Event extends Model
 {
@@ -27,8 +28,8 @@ class Event extends Model
 
             $animal = Animal::where('id', $model->animal_id)->first();
             if ($animal == null) {
-
-                die("Animal ID {$model->animal_id} not system.");
+                
+                throw new Exception("Animal ID {$model->animal_id} not system.");
                 return false;
                 return false;
             }
@@ -88,7 +89,7 @@ class Event extends Model
                     $ok = true;
                 }
                 if (!$ok) {
-                    die("enter valid Pregnancy check parametters");
+                    throw new Exception("enter valid Pregnancy check parametters");
                 }
             } else if ($model->type == 'Disease test') {
                 if (isset($model->disease_id)) {
@@ -133,7 +134,7 @@ class Event extends Model
                 $ok = false;
                 if (isset($model->milk)) {
                     if ($animal->sex != 'Female') {
-                        die("You cannot milk a non female animal.");
+                        throw new Exception("You cannot milk a non female animal.");
                     }
                     if ($model->milk != null) {
                         $ok = true;
@@ -142,7 +143,7 @@ class Event extends Model
                     }
                 }
                 if (!$ok) {
-                    die("enter valid milking parametters");
+                    throw new Exception("enter valid milking parametters");
                 }
             } else if ($model->type == 'Weight check') { 
                 if (isset($model->weight)) {
@@ -166,7 +167,7 @@ class Event extends Model
 
                                 $medicine_quantity = ((int)($model->medicine_quantity));
                                 if ($medicine->current_quantity < $medicine_quantity) {
-                                    die("Failed to created event because available drug quantity is less than what you have entered.");
+                                    throw new Exception("Failed to created event because available drug quantity is less than what you have entered.");
                                 }
                                 $ok = true;
                                 $record = new DrugStockBatchRecord();
@@ -204,7 +205,7 @@ class Event extends Model
                     }
                 }
                 if (!$ok) {
-                    die("enter valid treament parametters");
+                    throw new Exception("enter valid treament parametters");
                 }
             } else if ($model->type == 'Temperature check') {
                 $model->description = "{$animal->v_id} body temperature measured {$model->temperature} degrees Celsius.";
@@ -331,7 +332,7 @@ class Event extends Model
         self::updated(function ($model) {
             $animal = Animal::find($model->animal_id);
             if ($animal == null) {
-                die("Animal with same elecetronic ID aready exist in the system.");
+                throw new Exception("Animal with same elecetronic ID aready exist in the system.");
                 return false;
             }
             $animal->status = $model->type;
@@ -361,7 +362,7 @@ class Event extends Model
         }
 
         if ($file == null) {
-            die("not found");
+            throw new Exception("not found");
             return;
         }
 

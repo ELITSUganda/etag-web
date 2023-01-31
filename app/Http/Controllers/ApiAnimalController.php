@@ -304,7 +304,7 @@ class ApiAnimalController extends Controller
 
             $r->name == null ||
             $r->session_date == null ||
-            $r->type == null || 
+            $r->type == null ||
             $user_id == null ||
             $r->items == null
         ) {
@@ -321,15 +321,15 @@ class ApiAnimalController extends Controller
             $type = 'Roll call';
         } else if ($r->type == 'Treatment') {
             $type = 'Treatment';
-        }else if ($r->type == 'Milk') {
+        } else if ($r->type == 'Milk') {
             $type = 'Milking';
         }
 
-        
+
         if ($r->type == 'Milk') {
-         
-  
- 
+
+
+
             $session = new BatchSession();
             $session->administrator_id = $user_id;
             $session->name = $r->name;
@@ -545,6 +545,27 @@ class ApiAnimalController extends Controller
 
     public function store_event(Request $request)
     {
+
+        $user_id = Utils::get_user_id($request);
+
+
+        if ($request->session_id != null) {
+            if (strlen($request->session_id) > 3) {
+                $e =  Event::where([
+                    'session_id' => $request->session_id,
+                    'administrator_id' => $user_id
+                ])->first();
+                if ($e != null) {
+                    return Utils::response([
+                        'status' => 1,
+                        'message' => "This event is a duplicate.",
+                        'data' => null
+                    ]);
+                }
+            }
+        }
+ 
+
         if ($request->animal_id == null) {
             return Utils::response([
                 'status' => 2,
@@ -633,19 +654,26 @@ class ApiAnimalController extends Controller
 
 
 
-
-        if ($event->save()) {
+        try {
+            $event->save(); 
             return Utils::response([
                 'status' => 1,
                 'message' => "Event was created successfully.",
                 'data' => $event
             ]);
+        } catch (\Throwable $th) {
+            return Utils::response([
+                'status' => 2,
+                'message' => "Failed -  $th",
+            ]);
         }
 
+       
         return Utils::response([
             'status' => 0,
             'message' => "Failed to save event on database.",
         ]);
+        
     }
 
 
