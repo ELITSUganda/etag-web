@@ -129,7 +129,7 @@ class Event extends Model
                         }
                     }
                 }
-            } else if ($model->type == 'Milking') {
+            } else if ($model->type == 'Milking') { 
                 $ok = false;
                 if (isset($model->milk)) {
                     if ($animal->sex != 'Female') {

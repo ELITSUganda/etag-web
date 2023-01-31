@@ -321,7 +321,63 @@ class ApiAnimalController extends Controller
             $type = 'Roll call';
         } else if ($r->type == 'Treatment') {
             $type = 'Treatment';
+        }else if ($r->type == 'Milk') {
+            $type = 'Milking';
         }
+
+        
+        if ($r->type == 'Milk') {
+         
+  
+ 
+            $session = new BatchSession();
+            $session->administrator_id = $user_id;
+            $session->name = $r->name;
+            $session->type = 'Milking';
+            $session->description = "Milked animals";
+            $session->save();
+            $animal_ids_found = [];
+            $litters = 0;
+
+
+            foreach ($items as $v) {
+                $an = Animal::where([
+                    'id' => ((int)($v->animal_id)),
+                ])->first();
+                if ($an == null) {
+                    continue;
+                }
+                $animal_ids_found[] = $an->id;
+                $ev = new Event();
+                $ev->created_at =  $date;
+                $ev->updated_at =  $date;
+                $ev->time_stamp =  $date;
+                $ev->administrator_id =  $an->administrator_id;
+                $ev->animal_id =  $an->id;
+                $ev->e_id =  $an->e_id;
+                $ev->v_id =  $an->v_id;
+                $ev->milk =  $v->milk;
+                $ev->type = 'Milking';
+                $ev->is_batch_import =  0;
+                $ev->detail =  "$ev->milk litteres milked from $ev->v_id";
+                $ev->description =  $ev->detail;
+                $ev->short_description =  $ev->detail;
+                $ev->session_id =  $session->id;
+                $ev->is_present =  1;
+                $ev->save();
+                $litters += ((int)($ev->milk));
+            }
+
+            $num = count($animal_ids_found);
+            $session->description =    "Milked {$litters} litters from {$num} animals in a {$session->name} session. Open the App to see details.";
+            $session->save();
+            Utils::sendNotification(
+                $session->description,
+                $session->administrator_id,
+                $headings = "Milked {$num} animals."
+            );
+        }
+
 
 
 
