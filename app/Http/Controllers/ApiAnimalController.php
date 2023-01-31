@@ -303,6 +303,7 @@ class ApiAnimalController extends Controller
             $r->name == null ||
             $r->session_date == null ||
             $r->type == null ||
+            $r->session_category == null ||
             $user_id == null ||
             $r->items == null
         ) {
@@ -330,7 +331,10 @@ class ApiAnimalController extends Controller
         $animal_ids_found = [];
 
         foreach ($items as $v) {
-            $an = Animal::find(((int)($v->animal_id)));
+            $an = Animal::where([
+                'id' => ((int)($v->animal_id)),
+                'type' => $r->session_category,
+            ])->first();
             if ($an == null) {
                 continue;
             }
@@ -358,13 +362,13 @@ class ApiAnimalController extends Controller
 
         $absent = 0;
         foreach (Animal::where([
-            'administrator_id' => $user_id
+            'administrator_id' => $user_id,
+            'type' => $r->session_category,
         ])->get() as $an) {
             if (in_array($an->id, $animal_ids_found)) {
                 continue;
             }
             $absent++;
-
             $ev = new Event();
             $ev->created_at =  $date;
             $ev->updated_at =  $date;
@@ -390,14 +394,14 @@ class ApiAnimalController extends Controller
         Utils::sendNotification(
             "{$session->name}. Animals present: {$session->present}, Animals absent: {$session->absent}. Open the App to see full list.",
             $session->administrator_id,
-            $headings = 'Roll-call'
+            $headings = $r->session_category . ' Roll-call'
         );
 
 
         return Utils::response([
             'status' => 1,
-            'message' => "Event was created successfully.",
-            'data' => null 
+            'message' => "Event were created successfully.",
+            'data' => null
         ]);
     }
 

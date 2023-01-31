@@ -100,9 +100,7 @@ class Movement extends Model
                     );
                 }
             }
-
-
-
+ 
 
             //$items = Movement::where('sub_county_from', '=', $user->scvo)->where('status', '=', 'Approved')->get(); 
 
