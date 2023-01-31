@@ -298,7 +298,7 @@ class ApiAnimalController extends Controller
     public function store_batch_event(Request $r)
     {
         $user_id = Utils::get_user_id($r);
- 
+
 
         if (
 
@@ -306,7 +306,6 @@ class ApiAnimalController extends Controller
             $r->session_date == null ||
             $r->type == null ||
             $r->session_category == null ||
-            $r->drugItem == null ||
             $user_id == null ||
             $r->items == null
         ) {
@@ -335,6 +334,16 @@ class ApiAnimalController extends Controller
             } catch (\Throwable $th) {
                 $meds = [];
             }
+
+            if (
+                $r->drugItem == null
+            ) {
+                return Utils::response([
+                    'status' => 2,
+                    'message' => "Drugs   missing.",
+                ]);
+            }
+
             $meds_text = "";
 
             foreach ($meds as $m) {
@@ -352,7 +361,7 @@ class ApiAnimalController extends Controller
             $session->description = "Treated animals with  $meds_text.";
             $session->save();
             $animal_ids_found = [];
- 
+
 
             foreach ($items as $v) {
                 $an = Animal::where([
