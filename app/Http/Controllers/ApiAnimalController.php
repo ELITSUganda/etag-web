@@ -614,7 +614,7 @@ class ApiAnimalController extends Controller
 
         if ($ev != null) {
             return Utils::response([
-                'status' => 2,
+                'status' => 1,
                 'message' => "Duplicate of event is detected.",
             ]);
         }
