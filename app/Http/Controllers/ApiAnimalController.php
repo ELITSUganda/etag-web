@@ -622,10 +622,7 @@ class ApiAnimalController extends Controller
         $event = new Event();
         $event->animal_id = (int)($request->animal_id);
 
-        if (isset($request->session_date)) {
-            $event->created_at = $request->session_date;
-        }
-
+   
         $event->detail = $request->detail;
         $event->session_id = $session_id;
         $event->sub_county_id = $request->sub_county_id;
