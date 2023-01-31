@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Animal;
 use App\Models\BatchSession;
+use App\Models\DrugStockBatch;
 use App\Models\Event;
 use App\Models\Farm;
 use App\Models\Image;
@@ -304,6 +305,7 @@ class ApiAnimalController extends Controller
             $r->session_date == null ||
             $r->type == null ||
             $r->session_category == null ||
+            $r->drugItem == null ||
             $user_id == null ||
             $r->items == null
         ) {
@@ -322,24 +324,121 @@ class ApiAnimalController extends Controller
             $type = 'Treatment';
         }
 
-        $session = new BatchSession();
-        $session->administrator_id = $user_id;
-        $session->name = $r->name;
-        $session->type = $r->type;
-        $session->description = $r->description;
-        $session->save();
-        $animal_ids_found = [];
 
-        foreach ($items as $v) {
-            $an = Animal::where([
-                'id' => ((int)($v->animal_id)),
-                'type' => $r->session_category,
-            ])->first();
-            if ($an == null) {
-                continue;
+
+        if ($r->type == 'Treatment') {
+            $meds =   [];
+
+            try {
+                $meds = json_decode($r->drugItem);
+            } catch (\Throwable $th) {
+                $meds = [];
             }
-            $animal_ids_found[] = $an->id;
-            if ($r->type == 'Roll call') {
+            $meds_text = "";
+
+            foreach ($meds as $m) {
+                $meds_text .= "$m->name: $m->quantity units, ";
+                $d = DrugStockBatch::find(((int)($m->id)));
+                if ($d == null) {
+                    continue;
+                }
+                $d->current_quantity = $d->current_quantity - ((int)($m->quantity));
+            }
+            $session = new BatchSession();
+            $session->administrator_id = $user_id;
+            $session->name = $r->name;
+            $session->type = $r->type;
+            $session->description = "Treated animals with  $meds_text.";
+            $session->save();
+            $animal_ids_found = [];
+ 
+
+            foreach ($items as $v) {
+                $an = Animal::where([
+                    'id' => ((int)($v->animal_id)),
+                ])->first();
+                if ($an == null) {
+                    continue;
+                }
+                $animal_ids_found[] = $an->id;
+                $ev = new Event();
+                $ev->created_at =  $date;
+                $ev->updated_at =  $date;
+                $ev->time_stamp =  $date;
+                $ev->administrator_id =  $an->administrator_id;
+                $ev->animal_id =  $an->id;
+                $ev->e_id =  $an->e_id;
+                $ev->v_id =  $an->v_id;
+                $ev->type = 'Batch Treatment';
+                $ev->is_batch_import =  0;
+                $ev->detail =  "$meds_text was applied to this animal.";
+                $ev->description =  "$meds_text was applied to this animal.";
+                $ev->short_description =  "Treatment - {$meds_text}.";
+                $ev->session_id =  $session->id;
+                $ev->is_present =  1;
+                $ev->save();
+            }
+
+            $num = count($animal_ids_found);
+
+            Utils::sendNotification(
+                "Treated {$num} animals with  {$meds_text} in a {$session->name} session. Open the App to see details.",
+                $session->administrator_id,
+                $headings = $session->name . ' - Batch treatment'
+            );
+        }
+
+
+        if ($r->type == 'Roll call') {
+
+            $session = new BatchSession();
+            $session->administrator_id = $user_id;
+            $session->name = $r->name;
+            $session->type = $r->type;
+            $session->description = $r->description;
+            $session->save();
+            $animal_ids_found = [];
+
+
+            foreach ($items as $v) {
+                $an = Animal::where([
+                    'id' => ((int)($v->animal_id)),
+                    'type' => $r->session_category,
+                ])->first();
+                if ($an == null) {
+                    continue;
+                }
+                $animal_ids_found[] = $an->id;
+                if ($r->type == 'Roll call') {
+                    $ev = new Event();
+                    $ev->created_at =  $date;
+                    $ev->updated_at =  $date;
+                    $ev->time_stamp =  $date;
+                    $ev->administrator_id =  $an->administrator_id;
+                    $ev->animal_id =  $an->id;
+                    $ev->e_id =  $an->e_id;
+                    $ev->v_id =  $an->v_id;
+                    $ev->type =  $type;
+                    $ev->is_batch_import =  0;
+                    $ev->detail =  "Present in Roll-call - {$r->name}.";
+                    $ev->description =  "Present in Roll-call - {$r->name}.";
+                    $ev->short_description =  "Roll-call - {$r->name}.";
+                    $ev->session_id =  $session->id;
+                    $ev->is_present =  1;
+                    $ev->save();
+                }
+            }
+
+
+            $absent = 0;
+            foreach (Animal::where([
+                'administrator_id' => $user_id,
+                'type' => $r->session_category,
+            ])->get() as $an) {
+                if (in_array($an->id, $animal_ids_found)) {
+                    continue;
+                }
+                $absent++;
                 $ev = new Event();
                 $ev->created_at =  $date;
                 $ev->updated_at =  $date;
@@ -350,57 +449,30 @@ class ApiAnimalController extends Controller
                 $ev->v_id =  $an->v_id;
                 $ev->type =  $type;
                 $ev->is_batch_import =  0;
-                $ev->detail =  "Present in Roll-call - {$r->name}.";
-                $ev->description =  "Present in Roll-call - {$r->name}.";
+                $ev->detail =  "Absent from Roll-call - {$r->name}.";
+                $ev->description =  "Absent from Roll-call - {$r->name}.";
                 $ev->short_description =  "Roll-call - {$r->name}.";
                 $ev->session_id =  $session->id;
-                $ev->is_present =  1;
+                $ev->is_present =  0;
                 $ev->save();
             }
+
+            $session->present = count($animal_ids_found);
+            $session->absent =  $absent;
+            $session->save();
+
+            Utils::sendNotification(
+                "{$session->name}. Animals present: {$session->present}, Animals absent: {$session->absent}. Open the App to see full list.",
+                $session->administrator_id,
+                $headings = $r->session_category . ' Roll-call'
+            );
         }
 
-
-        $absent = 0;
-        foreach (Animal::where([
-            'administrator_id' => $user_id,
-            'type' => $r->session_category,
-        ])->get() as $an) {
-            if (in_array($an->id, $animal_ids_found)) {
-                continue;
-            }
-            $absent++;
-            $ev = new Event();
-            $ev->created_at =  $date;
-            $ev->updated_at =  $date;
-            $ev->time_stamp =  $date;
-            $ev->administrator_id =  $an->administrator_id;
-            $ev->animal_id =  $an->id;
-            $ev->e_id =  $an->e_id;
-            $ev->v_id =  $an->v_id;
-            $ev->type =  $type;
-            $ev->is_batch_import =  0;
-            $ev->detail =  "Absent from Roll-call - {$r->name}.";
-            $ev->description =  "Absent from Roll-call - {$r->name}.";
-            $ev->short_description =  "Roll-call - {$r->name}.";
-            $ev->session_id =  $session->id;
-            $ev->is_present =  0;
-            $ev->save();
-        }
-
-        $session->present = count($animal_ids_found);
-        $session->absent =  $absent;
-        $session->save();
-
-        Utils::sendNotification(
-            "{$session->name}. Animals present: {$session->present}, Animals absent: {$session->absent}. Open the App to see full list.",
-            $session->administrator_id,
-            $headings = $r->session_category . ' Roll-call'
-        );
 
 
         return Utils::response([
             'status' => 1,
-            'message' => "Event were created successfully.",
+            'message' => "Events were created successfully.",
             'data' => null
         ]);
     }
