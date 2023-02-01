@@ -53,6 +53,7 @@ class HomeController extends Controller
             ])
             ->where('id','>','3831')
             ->delete(); 
+            $b->delete();
             
             # code...
         }
