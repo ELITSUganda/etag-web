@@ -10,6 +10,8 @@ use Encore\Admin\Layout\Row;
 use Encore\Admin\Widgets\InfoBox;
 use App\Models\AdminRoleUser;
 use App\Models\Animal;
+use App\Models\BatchSession;
+use App\Models\Event;
 use App\Models\Farm;
 use App\Models\FormDrugSeller;
 use App\Models\Movement;
@@ -45,6 +47,15 @@ class HomeController extends Controller
     }
     public function index(Content $content)
     {
+        foreach (BatchSession::all() as $b) {
+            Event::where([
+                'session_id' => $b->id,
+            ])
+            ->where('id','>','3831')
+            ->delete(); 
+            
+            # code...
+        }
 
 /*         \OneSignal::setParam('android_channel_id', 'f3469729-c2b4-4fce-89da-78550d5a2dd1')->sendNotificationToExternalUser(
             "Some Message",
