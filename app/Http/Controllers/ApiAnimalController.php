@@ -408,6 +408,7 @@ class ApiAnimalController extends Controller
                     continue;
                 }
                 $d->current_quantity = $d->current_quantity - ((int)($m->quantity));
+                $d->save(); 
             }
             $session = new BatchSession();
             $session->administrator_id = $user_id;
