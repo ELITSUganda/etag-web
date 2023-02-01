@@ -47,6 +47,7 @@ class HomeController extends Controller
     }
     public function index(Content $content)
     {
+        /*
         foreach (BatchSession::all() as $b) {
             Event::where([
                 'session_id' => $b->id,
@@ -57,8 +58,7 @@ class HomeController extends Controller
             
             # code...
         }
-
-/*         \OneSignal::setParam('android_channel_id', 'f3469729-c2b4-4fce-89da-78550d5a2dd1')->sendNotificationToExternalUser(
+         \OneSignal::setParam('android_channel_id', 'f3469729-c2b4-4fce-89da-78550d5a2dd1')->sendNotificationToExternalUser(
             "Some Message",
             '777',
             $url = null,
