@@ -106,8 +106,10 @@ class Animal extends Model
         });
 
         self::deleted(function ($model) {
-            // ... code here
-        });
+            Event::where([
+                'animal_id' => $model->id
+            ])->delete();
+        }); 
     }
 
 
@@ -180,8 +182,8 @@ class Animal extends Model
     }
 
     public function getPriceTextAttribute() //romina
-    { 
-        return "UGX ".number_format($this->price);
+    {
+        return "UGX " . number_format($this->price);
     }
 
     public function getPostedAttribute()
@@ -246,5 +248,5 @@ class Animal extends Model
         return $format;
     }
 
-    protected $appends = ['images','photos', 'last_seen', 'phone_number', 'whatsapp', 'price_text', 'posted', 'age', 'location'];
+    protected $appends = ['images', 'photos', 'last_seen', 'phone_number', 'whatsapp', 'price_text', 'posted', 'age', 'location'];
 }

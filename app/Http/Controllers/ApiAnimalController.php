@@ -197,6 +197,61 @@ class ApiAnimalController extends Controller
         ]);
     }
 
+
+
+    public function archive_animal(Request $r, $id)
+    {
+
+        $administrator_id = Utils::get_user_id($r);
+        $u = Administrator::find($administrator_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
+        }
+
+        $animal = Animal::find($id);
+        if ($animal == null) {
+            return Utils::response(['status' => 0, 'message' => "Animal was not found.",]);
+        }
+ 
+
+        $mgs = "{$animal->type} - {$animal->v_id} has been archived. Reason: {$r->reason}, {$r->details}. Open the App to see more details.";
+        $title = "DELETED ANIMAL - {$animal->v_id}";
+
+     
+        if ($r->reason == null) {
+            return Utils::response(['status' => 0, 'message' => "Reason is required.",]);
+        }
+
+        if ($r->details == null) {
+            return Utils::response(['details' => 0, 'message' => "Details is required.",]);
+        }
+
+
+        Utils::archive_animal([
+            'animal_id' => $animal->id,
+            'reason' => $r->reason,
+            'details' => $r->details,
+        ]);
+
+        Utils::sendNotification(
+            $mgs,
+            $u->id,
+            $headings =  $title
+        );
+
+
+        return Utils::response([
+            'status' => 1,
+            'message' => $mgs,
+        ]);
+    }
+
+
+
+
     public function change_tag(Request $r, $id)
     {
 
@@ -408,7 +463,7 @@ class ApiAnimalController extends Controller
                     continue;
                 }
                 $d->current_quantity = $d->current_quantity - ((int)($m->quantity));
-                $d->save(); 
+                $d->save();
             }
             $session = new BatchSession();
             $session->administrator_id = $user_id;
@@ -565,7 +620,7 @@ class ApiAnimalController extends Controller
                 }
             }
         }
- 
+
 
         if ($request->animal_id == null) {
             return Utils::response([
@@ -623,7 +678,7 @@ class ApiAnimalController extends Controller
         $event = new Event();
         $event->animal_id = (int)($request->animal_id);
 
-   
+
         $event->detail = $request->detail;
         $event->session_id = $session_id;
         $event->sub_county_id = $request->sub_county_id;
@@ -649,12 +704,12 @@ class ApiAnimalController extends Controller
         $event->disease_test_results = $request->disease_test_results;
         $event->disease_id = $request->disease_id;
         $event->milk = $request->milk;
-        $event->weight = $request->weight; 
+        $event->weight = $request->weight;
 
 
 
         try {
-            $event->save(); 
+            $event->save();
             return Utils::response([
                 'status' => 1,
                 'message' => "Event was created successfully.",
@@ -667,12 +722,11 @@ class ApiAnimalController extends Controller
             ]);
         }
 
-       
+
         return Utils::response([
             'status' => 0,
             'message' => "Failed to save event on database.",
         ]);
-        
     }
 
 

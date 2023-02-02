@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('api/Movement', [ApiMovement::class, 'index']);
 Route::get('manifest', [ApiResurceController::class, 'manifest']);
 Route::get('daily-milk-records', [ApiResurceController::class, 'dialy_milk_records']);
-Route::get('api/{model}', [ApiResurceController::class, 'index']); 
+Route::get('api/{model}', [ApiResurceController::class, 'index']);
 Route::post('drug-dosages', [ApiResurceController::class, 'save_new_drug_dosage']);
 Route::post('api/{model}', [ApiResurceController::class, 'store']);
 Route::put('api/{model}', [ApiResurceController::class, 'update']);
@@ -87,6 +87,7 @@ Route::get('movements', [ApiMovement::class, 'index']);
 Route::post('checkpoint-session/{id}', [ApiMovement::class, 'checkpoint_session']);
 Route::post('movements-review/{id}', [ApiMovement::class, 'review']);
 Route::post('change-tag/{id}', [ApiAnimalController::class, 'change_tag']);
+Route::post('archive-animal/{id}', [ApiAnimalController::class, 'archive_animal']);
 
 Route::post('check-point-records', [ApiMovement::class, 'create_check_record']);
 Route::get('check-point-records', [ApiMovement::class, 'get_check_record']);

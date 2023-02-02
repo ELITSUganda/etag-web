@@ -639,6 +639,7 @@ class Utils extends Model
             return false;
         }
 
+
         $ArchivedAnimal = new ArchivedAnimal();
         $ArchivedAnimal->owner = "-";
         if (isset($data['event'])) {
@@ -647,6 +648,11 @@ class Utils extends Model
         if (isset($data['details'])) {
             $ArchivedAnimal->details = $data['details'];
         }
+
+        if (isset($data['reason'])) {
+            $ArchivedAnimal->last_event = $data['reason'];
+        }
+
 
         if (($animal->farm != null)) {
             if (($animal->farm->owner() != null)) {
@@ -662,10 +668,16 @@ class Utils extends Model
         $ArchivedAnimal->breed = $animal->breed;
         $ArchivedAnimal->sex = $animal->sex;
         $ArchivedAnimal->dob = $animal->dob;
+
+
+
         $ArchivedAnimal->events = json_encode($animal->events);
         if ($ArchivedAnimal->save()) {
             $animal->delete();
-            return true;
+            Event::where([
+                'animal_id' => $animal_id
+            ])->delete(); 
+            return true; 
         }
         return true;
     }
