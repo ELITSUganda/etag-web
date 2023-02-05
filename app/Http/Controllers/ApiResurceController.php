@@ -122,10 +122,10 @@ class ApiResurceController extends Controller
                 $event['e_id'] = $eve->e_id;
                 $event['v_id'] = $eve->v_id;
                 $event['is_present'] = $eve->is_present;
-                if ($eve->animal != null) {
+                if($eve->animal!=null){
                     $event['animal_photo'] = url($eve->animal->photo);
-                } else {
-                    continue;
+                }else{
+                    $event['animal_photo'] = "";
                 }
 
                 $events[] = $event;

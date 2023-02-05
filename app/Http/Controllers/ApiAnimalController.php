@@ -215,12 +215,12 @@ class ApiAnimalController extends Controller
         if ($animal == null) {
             return Utils::response(['status' => 0, 'message' => "Animal was not found.",]);
         }
- 
+
 
         $mgs = "{$animal->type} - {$animal->v_id} has been archived. Reason: {$r->reason}, {$r->details}. Open the App to see more details.";
         $title = "DELETED ANIMAL - {$animal->v_id}";
 
-     
+
         if ($r->reason == null) {
             return Utils::response(['status' => 0, 'message' => "Reason is required.",]);
         }
@@ -516,6 +516,7 @@ class ApiAnimalController extends Controller
             $session->administrator_id = $user_id;
             $session->name = $r->name;
             $session->type = $r->type;
+            $session->session_category = $r->session_category;
             $session->description = $r->description;
             $session->save();
             $animal_ids_found = [];
