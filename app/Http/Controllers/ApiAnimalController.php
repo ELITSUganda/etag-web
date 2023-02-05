@@ -354,7 +354,6 @@ class ApiAnimalController extends Controller
     {
         $user_id = Utils::get_user_id($r);
 
-
         if (
 
             $r->name == null ||
@@ -366,6 +365,19 @@ class ApiAnimalController extends Controller
             return Utils::response([
                 'status' => 2,
                 'message' => "Some parameters missing.",
+            ]);
+        }
+
+        $exist = BatchSession::where([
+            'session_date' => $r->session_date,
+            'administrator_id' => $user_id
+        ])->first();
+
+        if ($exist != null) {
+            return Utils::response([
+                'status' => 1,
+                'message' => "Events already created.",
+                'data' => null
             ]);
         }
 
@@ -388,6 +400,7 @@ class ApiAnimalController extends Controller
             $session = new BatchSession();
             $session->administrator_id = $user_id;
             $session->name = $r->name;
+            $session->session_date = $r->session_date;
             $session->type = 'Milking';
             $session->description = "Milked animals";
             $session->save();
@@ -469,6 +482,7 @@ class ApiAnimalController extends Controller
             $session->administrator_id = $user_id;
             $session->name = $r->name;
             $session->type = $r->type;
+            $session->session_date = $r->session_date;
             $session->description = "Treated animals with  $meds_text.";
             $session->save();
             $animal_ids_found = [];
@@ -516,6 +530,7 @@ class ApiAnimalController extends Controller
             $session->administrator_id = $user_id;
             $session->name = $r->name;
             $session->type = $r->type;
+            $session->session_date = $r->session_date;
             $session->session_category = $r->session_category;
             $session->description = $r->description;
             $session->save();
