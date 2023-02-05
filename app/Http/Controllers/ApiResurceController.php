@@ -108,17 +108,39 @@ class ApiResurceController extends Controller
                 'message' => "User not found.",
             ]);
         }
-        $data = BatchSession::where([
+
+        $data = [];
+        foreach (BatchSession::where([
             'administrator_id' => $administrator_id,
             'type' => 'Roll call'
-        ])->get();
+        ])->get() as $session) {
+            $events = [];
+            foreach (Event::where([
+                'session_id' => $session->id
+            ])->get() as $eve) {
+                $event['animal_id'] = $eve->animal_id;
+                $event['e_id'] = $eve->e_id;
+                $event['v_id'] = $eve->v_id;
+                $event['is_present'] = $eve->is_present;
+                if ($eve->animal != null) {
+                    $event['animal_photo'] = url($eve->animal->photo);
+                } else {
+                    continue;
+                }
+
+                $events[] = $event;
+            }
+            $session->events = json_encode($events);
+            $data[] = $session;
+        }
+
+
 
         return Utils::response([
             'status' => 1,
             'data' => $data,
             'message' => 'Success'
-        ]); 
- 
+        ]);
     }
 
     public function manifest(Request $r)
