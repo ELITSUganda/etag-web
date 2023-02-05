@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Animal;
+use App\Models\BatchSession;
 use App\Models\District;
 use App\Models\DrugDosage;
 use App\Models\DrugDosageItem;
@@ -15,6 +16,7 @@ use App\Models\Transaction;
 use App\Models\Vaccine;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
+use Encore\Admin\Middleware\Session;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -94,6 +96,30 @@ class ApiResurceController extends Controller
         ]);
     }
 
+
+    public function roll_call(Request $r)
+    {
+        $administrator_id = Utils::get_user_id($r);
+        $u = Administrator::find($administrator_id);
+
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
+        }
+        $data = BatchSession::where([
+            'administrator_id' => $administrator_id,
+            'type' => 'Roll call'
+        ])->get();
+
+        return Utils::response([
+            'status' => 1,
+            'data' => $data,
+            'message' => 'Success'
+        ]); 
+ 
+    }
 
     public function manifest(Request $r)
     {
