@@ -858,6 +858,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'App\\Models\\AdminRoleUser' => __DIR__ . '/../..' . '/app/Models/AdminRoleUser.php',
         'App\\Models\\Animal' => __DIR__ . '/../..' . '/app/Models/Animal.php',
         'App\\Models\\ArchivedAnimal' => __DIR__ . '/../..' . '/app/Models/ArchivedAnimal.php',
+        'App\\Models\\BatchSession' => __DIR__ . '/../..' . '/app/Models/BatchSession.php',
         'App\\Models\\CheckPoint' => __DIR__ . '/../..' . '/app/Models/CheckPoint.php',
         'App\\Models\\CheckPointRecord' => __DIR__ . '/../..' . '/app/Models/CheckPointRecord.php',
         'App\\Models\\CheckpointSession' => __DIR__ . '/../..' . '/app/Models/CheckpointSession.php',

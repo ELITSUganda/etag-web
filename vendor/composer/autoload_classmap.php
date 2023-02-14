@@ -74,6 +74,7 @@ return array(
     'App\\Models\\AdminRoleUser' => $baseDir . '/app/Models/AdminRoleUser.php',
     'App\\Models\\Animal' => $baseDir . '/app/Models/Animal.php',
     'App\\Models\\ArchivedAnimal' => $baseDir . '/app/Models/ArchivedAnimal.php',
+    'App\\Models\\BatchSession' => $baseDir . '/app/Models/BatchSession.php',
     'App\\Models\\CheckPoint' => $baseDir . '/app/Models/CheckPoint.php',
     'App\\Models\\CheckPointRecord' => $baseDir . '/app/Models/CheckPointRecord.php',
     'App\\Models\\CheckpointSession' => $baseDir . '/app/Models/CheckpointSession.php',
