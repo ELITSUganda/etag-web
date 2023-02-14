@@ -313,36 +313,28 @@ class MarketController extends Controller
 
     function generate_variables()
     {
-        $data = ' 
-        id	
-        username	
-        password	
-        name	
-        avatar	
-        remember_token	
-        created_at	
-        updated_at	
-        phone_number	
-        email	
-        address	
-        nin	
-        gender	
-        phone_number_2	
-        details	
-        temp_id	
-        sub_county_id	
-        dvo	
-        scvo	
-        user_type	
-        status	
-        first_name	
-        last_name	
-        milk_price';
+        $data = ' created_at
+        administrator_id
+        business_subcounty_id
+        business_district_id
+        verified
+        business_name
+        business_cover_photo
+        business_logo
+        business_phone_number_1
+        business_phone_number_2
+        business_email
+        business_address
+        business_about
+        license
+        ';
 
         $recs = preg_split('/\r\n|\n\r|\r|\n/', $data);
-        MarketController::create_table($recs, 'logged_in_user');
-        MarketController::fromJson($recs);
+        
         MarketController::from_json($recs);
+        MarketController::fromJson($recs); 
+        MarketController::create_table($recs, 'logged_in_user');
+
         //MainController::to_json($recs);
         // MainController::generate_vars($recs);
     }
@@ -408,7 +400,7 @@ class MarketController extends Controller
             if (strlen($key) < 2) {
                 continue;
             }
-            $_data .= "$key : $key,<br>";
+            $_data .= '"'.$key.'"'." : $key,<br>";
         }
 
         echo "<pre>";

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Location;
 use App\Models\Utils;
+use App\Models\Vet;
 use Encore\Admin\Auth\Database\Administrator;
 use Hamcrest\Util;
 use Illuminate\Http\Request;
@@ -21,16 +23,16 @@ class ApiLoginController extends Controller
                 'message' => "User not found."
             ]);
         }
-       
+
         $u->roles;
         $u->vet_profile;
         return Utils::response([
             'status' => 1,
             'message' => "Success",
             'data' => $u
-        ]); 
+        ]);
     }
-    
+
     public function update_roles(Request $r)
     {
 
@@ -72,6 +74,67 @@ class ApiLoginController extends Controller
             'data' => null
         ]);
     }
+
+
+    public function vet_profile(Request $r)
+    {
+
+        if (
+            $r->business_subcounty_id == null ||
+            $r->business_name == null ||
+            $r->business_phone_number_1 == null
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Some information is missing."
+            ]);
+        }
+
+
+
+        $administrator_id = ((int) (Utils::get_user_id($r)));
+        $u = Administrator::find($administrator_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found."
+            ]);
+        }
+
+        $u->createVetProfile();
+
+        $vet = Vet::where([
+            'administrator_id' => $u->id,
+        ])->first();
+
+        if ($vet == null) {
+            $vet = new Vet();
+        }
+
+        $vet->business_subcounty_id = $r->business_subcounty_id;
+        $vet->administrator_id = $u->id;
+
+        $s = Location::find($vet->business_subcounty_id);
+        $vet->business_district_id = 1;
+        if ($s != null) {
+            $vet->business_district_id =  ((int)($s->parent));
+        }
+        $vet->business_name = $r->business_name;
+        $vet->business_phone_number_1 = $r->business_phone_number_1;
+        $vet->business_phone_number_2 = $r->business_phone_number_2;
+        $vet->business_email = $r->business_email;
+        $vet->business_address = $r->business_address;
+        $vet->business_about = $r->business_about;
+        $vet->license = $r->license;
+        $vet->save();
+ 
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success.", 
+            'data' => null
+        ]);
+    }
+
     public function create_account(Request $request)
     {
         if (
