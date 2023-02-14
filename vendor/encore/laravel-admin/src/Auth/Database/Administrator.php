@@ -131,6 +131,11 @@ class Administrator extends Model implements AuthenticatableContract
         return $this->hasMany(AdminRoleUser::class, 'user_id',);
     }
 
+    public function vet_profile()
+    {
+        return $this->belongsTo(Vet::class);
+    }
+
 
     /**
      * A user has and belongs to many roles.

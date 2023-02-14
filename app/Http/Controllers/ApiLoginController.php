@@ -11,6 +11,26 @@ use Throwable;
 
 class ApiLoginController extends Controller
 {
+    public function me(Request $r)
+    {
+        $administrator_id = ((int) (Utils::get_user_id($r)));
+        $u = Administrator::find($administrator_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found."
+            ]);
+        }
+       
+        $u->roles;
+        $u->vet_profile;
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success",
+            'data' => $u
+        ]); 
+    }
+    
     public function update_roles(Request $r)
     {
 
