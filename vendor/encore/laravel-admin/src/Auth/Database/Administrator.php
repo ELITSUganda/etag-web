@@ -2,9 +2,11 @@
 
 namespace Encore\Admin\Auth\Database;
 
+use App\Models\AdminRole;
 use App\Models\AdminRoleUser;
 use App\Models\Farm;
 use App\Models\Utils;
+use App\Models\Vet;
 use Encore\Admin\Traits\DefaultDatetimeFormat;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
@@ -160,6 +162,49 @@ class Administrator extends Model implements AuthenticatableContract
 
 
 
+    public function createVetProfile()
+    {
+        $r = AdminRoleUser::where([
+            'user_id' => $this->id,
+            'role_id' => 11,
+        ])->first();
+        if ($r == null) {
+            $r = new AdminRoleUser();
+            $r->role_id = 11;
+            $r->user_id = $this->id;
+            $r->save();
+        }
+        /* 
+        $v  = Vet::where([
+            'administrator_id' => $this->id
+        ])->first();
+        if ($v ==  null) {
+            $v = new Vet();
+            $v->administrator_id = $this->id;
+            $v->save();
+        } */
+    }
+
+
+    public function removeVetProfile()
+    {
+        $r = AdminRoleUser::where([
+            'user_id' => $this->id,
+            'role_id' => 11,
+        ])->first();
+        if ($r != null) {
+            $r->delete();
+        } 
+        /* 
+        $v  = Vet::where([
+            'administrator_id' => $this->id
+        ])->first();
+        if ($v ==  null) {
+            $v = new Vet();
+            $v->administrator_id = $this->id;
+            $v->save();
+        } */
+    }
     public function farms()
     {
         return $this->hasMany(Farm::class, 'administrator_id');

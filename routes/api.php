@@ -100,6 +100,7 @@ Route::post('users', [ApiLoginController::class, 'create_account']);
 
 // ========== lofin starts ============== //
 Route::post('login', [ApiLoginController::class, 'index']);
+Route::post('update-roles', [ApiLoginController::class, 'update_roles']);
 Route::post('login/create-account', [ApiLoginController::class, 'create_account']);
 // ========== lofin ends ============== //
 

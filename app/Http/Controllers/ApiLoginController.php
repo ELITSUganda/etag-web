@@ -7,9 +7,51 @@ use Encore\Admin\Auth\Database\Administrator;
 use Hamcrest\Util;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class ApiLoginController extends Controller
 {
+    public function update_roles(Request $r)
+    {
+
+        if (
+            $r->roles == null
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Roles not found."
+            ]);
+        }
+
+        $administrator_id = ((int) (Utils::get_user_id($r)));
+        $u = Administrator::find($administrator_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found."
+            ]);
+        }
+
+        $new_roles = [];
+
+        try {
+            $new_roles = json_decode($r->roles);
+        } catch (Throwable $t) {
+            $new_roles = [];
+        }
+
+        if (in_array('Veterinary', $new_roles)) {
+            $u->createVetProfile();
+        } else {
+            $u->removeVetProfile();
+        }
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "Roles updated successfully.",
+            'data' => null
+        ]);
+    }
     public function create_account(Request $request)
     {
         if (
@@ -98,7 +140,7 @@ class ApiLoginController extends Controller
 
     public function index(Request $request)
     {
-        if ( 
+        if (
             $request->password == null
         ) {
             return Utils::response([
