@@ -120,17 +120,24 @@ class ApiLoginController extends Controller
             $vet->business_district_id =  ((int)($s->parent));
         }
         $vet->business_name = $r->business_name;
-        $vet->business_phone_number_1 = $r->business_phone_number_1;
-        $vet->business_phone_number_2 = $r->business_phone_number_2;
+        $vet->business_phone_number_1 = Utils::prepare_phone_number($r->business_phone_number_1);
+
+        if ($r->business_phone_number_2 != null) {
+            if (strlen($r->business_phone_number_2) > 2) {
+                $vet->business_phone_number_2 = Utils::prepare_phone_number($r->business_phone_number_2);
+            }
+        }
+
+
         $vet->business_email = $r->business_email;
         $vet->business_address = $r->business_address;
         $vet->business_about = $r->business_about;
         $vet->license = $r->license;
         $vet->save();
- 
+
         return Utils::response([
             'status' => 1,
-            'message' => "Success.", 
+            'message' => "Success.",
             'data' => null
         ]);
     }
