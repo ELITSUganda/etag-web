@@ -24,8 +24,8 @@ class ApiLoginController extends Controller
             ]);
         }
 
-        $u->roles;
-        $u->vet_profile;
+        $u->roles = $u->roles;
+        $u->vet_profile = Vet::where('administrator_id',$u->id)->first();
         return Utils::response([
             'status' => 1,
             'message' => "Success",

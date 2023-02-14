@@ -132,8 +132,10 @@ class Administrator extends Model implements AuthenticatableContract
     }
 
     public function vet_profile()
-    {
-        return $this->belongsTo(Vet::class);
+    {  
+        $d = Vet::where('administrator_id',$this->id)->first();
+   
+        return $this->belongsTo(Vet::class,'administrator_id');
     }
 
 
