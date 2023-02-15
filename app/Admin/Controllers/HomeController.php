@@ -17,6 +17,7 @@ use App\Models\FormDrugSeller;
 use App\Models\Movement;
 use App\Models\MyFaker;
 use App\Models\Utils;
+use App\Models\VetServiceCategory;
 use Carbon\Carbon;
 use Dflydev\DotAccessData\Util;
 use Encore\Admin\Auth\Database\Administrator;
@@ -51,9 +52,32 @@ class HomeController extends Controller
     }
     public function index(Content $content)
     {
-  /*
 
-        $min = Carbon::parse('02/01/2023');  
+        $cats = [
+            "Hardware disease treatment",
+            "Health and travel certificates",
+            "Lameness evaluation and treatment",
+            "Lumpy jaw and woody tongue",
+            "Navel infections",
+            "Oxygen supplementation",
+            "Pneumonia treatments",
+            "Pregnancy evaluations",
+            "Routine newborn care",
+            "Vaccinations",
+            "Vaginal and rectal prolapse",
+            "Wound care",
+            "Blood donation"
+        ];
+
+        foreach ( $cats  as $key => $c) {
+            $cat = new  VetServiceCategory();
+            $cat->service_name = trim($c);
+            $cat->service_description = trim($c);
+            $cat->save();
+        }
+
+        /*
+  $min = Carbon::parse('02/01/2023');  
         $max = Carbon::parse('02/02/2023');  
   
         192
@@ -117,7 +141,7 @@ class HomeController extends Controller
             $schedule = null
         );
  */
-  
+
         //MyFaker::makeEvents(3000);
         //die("as");  
         //MyFaker::makeAnimals(1000);
