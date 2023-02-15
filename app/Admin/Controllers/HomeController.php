@@ -16,6 +16,8 @@ use App\Models\Farm;
 use App\Models\FormDrugSeller;
 use App\Models\Movement;
 use App\Models\MyFaker;
+use App\Models\Utils;
+use Carbon\Carbon;
 use Dflydev\DotAccessData\Util;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Facades\Admin;
@@ -25,6 +27,8 @@ use Encore\Admin\Widgets\Box;
 
 class HomeController extends Controller
 {
+
+
     public function become_farmer(Content $content)
     {
 
@@ -47,7 +51,53 @@ class HomeController extends Controller
     }
     public function index(Content $content)
     {
-        /*
+  /*
+
+        $min = Carbon::parse('02/01/2023');  
+        $max = Carbon::parse('02/02/2023');  
+  
+        192
+        807
+        548.0 
+        807.0
+
+        128
+        
+       "02 Feb, 2023 - 12:02 am" 
+       "03 Feb, 2023 - 12:02 am"
+   
+ 
+ 
+
+        $milk = Event::whereBetween('created_at', [$min, $max])
+        ->where([
+            'type' => 'Milking', 
+        ])
+        ->sum('milk');
+
+        $animals = [];
+        $i = 0;
+        foreach (Event::whereBetween('created_at', [$min, $max])
+        ->where([
+            'type' => 'Milking', 
+        ])->get() as $key => $ev) {
+            $i++;
+            if(!in_array($ev->animal_id,$animals)){
+                $animals[] = $ev->animal_id;
+            }else{
+                $ev->delete();
+            } 
+
+        }
+    
+        echo "ALL animals ==> ".$i."<===<br>";
+        echo "UNIQUE animals ==> ".count($animals)."<===<br>";
+        echo "milk ==> {$milk}<===<br>";
+
+
+        die(".");
+
+       
         foreach (BatchSession::all() as $b) {
             Event::where([
                 'session_id' => $b->id,

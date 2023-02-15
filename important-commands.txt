@@ -34,7 +34,8 @@ php artisan make:migration create_drug_dosage_items_table
 php artisan make:migration create_slaughter_houses_table
 php artisan make:migration create_checkpoint_sessions_table
 php artisan make:migration create_batch_sessions_table
-`php artisan make:migration create_vets_table`
+`php artisan make:migration create_vets_table
+`php artisan make:migration create_vet_service_categories_table
 
 Encore\Admin\Auth\Database\Administrator::class,
 php artisan admin:make FormSr4Controller --model=App\FormSr4
@@ -68,6 +69,7 @@ php artisan admin:make MilkController --model=App\\Models\\Event
 php artisan admin:make SlaughterHouseController --model=App\Models\SlaughterHouse
 php artisan admin:make AdminRoleUserController --model=App\Models\AdminRoleUser
 php artisan admin:make CheckpointSessionController --model=App\Models\CheckpointSession
+php artisan admin:make VetServiceCategoryController --model=App\Models\VetServiceCategory
 
 
 php artisan make:model CheckPoint
@@ -94,6 +96,7 @@ php artisan make:model AdminRole
 php artisan make:model CheckpointSession
 php artisan make:model BatchSession
 php artisan make:model Vet
+php artisan make:model VetServiceCategory
 
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs

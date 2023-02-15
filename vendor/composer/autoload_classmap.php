@@ -110,6 +110,7 @@ return array(
     'App\\Models\\User' => $baseDir . '/app/Models/User.php',
     'App\\Models\\Utils' => $baseDir . '/app/Models/Utils.php',
     'App\\Models\\Vaccine' => $baseDir . '/app/Models/Vaccine.php',
+    'App\\Models\\Vet' => $baseDir . '/app/Models/Vet.php',
     'App\\Providers\\AppServiceProvider' => $baseDir . '/app/Providers/AppServiceProvider.php',
     'App\\Providers\\AuthServiceProvider' => $baseDir . '/app/Providers/AuthServiceProvider.php',
     'App\\Providers\\BroadcastServiceProvider' => $baseDir . '/app/Providers/BroadcastServiceProvider.php',

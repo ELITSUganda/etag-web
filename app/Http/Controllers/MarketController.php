@@ -331,8 +331,10 @@ class MarketController extends Controller
 
         $recs = preg_split('/\r\n|\n\r|\r|\n/', $data);
         
+
+        MarketController::fromJson($recs);  
         MarketController::from_json($recs);
-        MarketController::fromJson($recs); 
+
         MarketController::create_table($recs, 'logged_in_user');
 
         //MainController::to_json($recs);
@@ -351,7 +353,7 @@ class MarketController extends Controller
             if ($key == 'id') {
                 $_data .= "obj.{$key} = Utils.int_parse(m['{$key}']);<br>";
             } else {
-                $_data .= "obj.{$key} = Utils.to_str(m['{$key}']'');<br>";
+                $_data .= "obj.{$key} = Utils.toStr(m['{$key}'],'');<br>";
             }
         }
 
