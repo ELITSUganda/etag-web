@@ -15,9 +15,9 @@ class VetServiceCategory extends Model
         parent::boot();
 
         self::creating(function ($m) {
-            $name = trim($m->name);
+            $service_name = trim($m->service_name);
             $resp = VetServiceCategory::where([
-                'name' => $name,
+                'service_name' => $service_name,
             ])->first();
             if ($resp != null) {
                 return false;
