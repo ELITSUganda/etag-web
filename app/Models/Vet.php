@@ -34,5 +34,17 @@ class Vet extends Model
         return $text;
     }
 
-    protected $appends = ['business_subcounty_text', 'services_text'];
+    public function getServicesIdsAttribute($x)
+    {
+
+        $ids = [];
+        foreach (VetHasService::where([
+            'vet_id' =>  $this->id,
+        ])->get() as $key => $value) {
+            $ids[] = $value->vet_service_category_id;
+        }
+        return json_encode($ids);
+    }
+
+    protected $appends = ['business_subcounty_text', 'services_text','services_ids'];
 }
