@@ -15,7 +15,7 @@ class VetServiceCategoryController extends AdminController
      *
      * @var string
      */
-    protected $title = 'VetServiceCategory';
+    protected $title = 'Vet service category';
 
     /**
      * Make a grid builder.
@@ -25,10 +25,9 @@ class VetServiceCategoryController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new VetServiceCategory());
+        $grid->disableBatchActions();
 
         $grid->column('id', __('Id'));
-        $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('Updated at'));
         $grid->column('service_name', __('Service name'));
         $grid->column('service_description', __('Service description'));
         $grid->column('photo', __('Photo'));

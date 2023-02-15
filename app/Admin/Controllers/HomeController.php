@@ -53,7 +53,7 @@ class HomeController extends Controller
     public function index(Content $content)
     {
 
-        $cats = [
+      /*   $cats = [
             "Hardware disease treatment",
             "Health and travel certificates",
             "Lameness evaluation and treatment",
@@ -74,7 +74,7 @@ class HomeController extends Controller
             $cat->service_name = trim($c);
             $cat->service_description = trim($c);
             $cat->save();
-        }
+        } */
 
         /*
   $min = Carbon::parse('02/01/2023');  

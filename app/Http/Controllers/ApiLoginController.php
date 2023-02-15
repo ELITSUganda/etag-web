@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Location;
 use App\Models\Utils;
 use App\Models\Vet;
+use App\Models\VetHasService;
+use App\Models\VetServiceCategory;
 use Encore\Admin\Auth\Database\Administrator;
 use Hamcrest\Util;
 use Illuminate\Http\Request;
@@ -24,8 +26,8 @@ class ApiLoginController extends Controller
             ]);
         }
 
-        $u->roles = $u->roles;
-        $u->vet_profile = Vet::where('administrator_id',$u->id)->first();
+        $u->roles;
+        $u->vet_profile;
         return Utils::response([
             'status' => 1,
             'message' => "Success",
@@ -133,7 +135,44 @@ class ApiLoginController extends Controller
         $vet->business_address = $r->business_address;
         $vet->business_about = $r->business_about;
         $vet->license = $r->license;
+        $vet->specialist_name = $r->specialist_name;
+        $vet->specialist_details = $r->specialist_details; 
         $vet->save();
+
+        $services_ids = [];
+        try {
+            $services_ids = json_decode($r->services_ids);
+        } catch (Throwable $t) {
+            $services_ids = [];
+        }
+
+
+        $offered = [];
+        $offered_not = [];
+        foreach (VetServiceCategory::all() as $available) {
+            if (in_array($available->id, $services_ids)) {
+                $offered[] = $available->id;
+            } else {
+                $offered_not[] = $available->id;
+            }
+        }
+
+        foreach ($offered as $key => $id) {
+            $o = new VetHasService();
+            $o->vet_id = $vet->id;
+            $o->vet_service_category_id = $id; 
+            $o->administrator_id = $u->id;  
+            $o->save(); 
+        }
+        foreach ( $offered_not as $key => $id) {
+            $no = VetHasService::where([ 
+                'vet_id' =>  $vet->id,
+                'vet_service_category_id' => $id
+            ])->first(); 
+            if($no!=null){
+                $no->delete();
+            }
+        } 
 
         return Utils::response([
             'status' => 1,
