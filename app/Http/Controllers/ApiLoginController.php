@@ -27,7 +27,6 @@ class ApiLoginController extends Controller
         }
 
         $u->roles;
-        $u->vet_profile;
         return Utils::response([
             'status' => 1,
             'message' => "Success",
@@ -136,7 +135,7 @@ class ApiLoginController extends Controller
         $vet->business_about = $r->business_about;
         $vet->license = $r->license;
         $vet->specialist_name = $r->specialist_name;
-        $vet->specialist_details = $r->specialist_details; 
+        $vet->specialist_details = $r->specialist_details;
         $vet->save();
 
         $services_ids = [];
@@ -160,19 +159,19 @@ class ApiLoginController extends Controller
         foreach ($offered as $key => $id) {
             $o = new VetHasService();
             $o->vet_id = $vet->id;
-            $o->vet_service_category_id = $id; 
-            $o->administrator_id = $u->id;  
-            $o->save(); 
+            $o->vet_service_category_id = $id;
+            $o->administrator_id = $u->id;
+            $o->save();
         }
-        foreach ( $offered_not as $key => $id) {
-            $no = VetHasService::where([ 
+        foreach ($offered_not as $key => $id) {
+            $no = VetHasService::where([
                 'vet_id' =>  $vet->id,
                 'vet_service_category_id' => $id
-            ])->first(); 
-            if($no!=null){
+            ])->first();
+            if ($no != null) {
                 $no->delete();
             }
-        } 
+        }
 
         return Utils::response([
             'status' => 1,

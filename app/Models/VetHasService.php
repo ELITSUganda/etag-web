@@ -25,4 +25,9 @@ class VetHasService extends Model
         });
     }
 
+    public function cat()
+    {
+        return $this->belongsTo(VetServiceCategory::class,'vet_service_category_id');
+    }
+
 }

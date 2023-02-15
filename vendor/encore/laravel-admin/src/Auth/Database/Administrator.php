@@ -26,6 +26,7 @@ class Administrator extends Model implements AuthenticatableContract
     use DefaultDatetimeFormat;
 
     protected $fillable = ['username', 'password', 'name', 'avatar'];
+    protected $appends = ['vet_profile'];
 
     public static function boot()
     {
@@ -131,11 +132,9 @@ class Administrator extends Model implements AuthenticatableContract
         return $this->hasMany(AdminRoleUser::class, 'user_id',);
     }
 
-    public function vet_profile()
+    public function getVetProfileAttribute()
     {  
-        $d = Vet::where('administrator_id',$this->id)->first();
-   
-        return $this->belongsTo(Vet::class,'administrator_id');
+       return Vet::where('administrator_id',$this->id)->first(); 
     }
 
 
