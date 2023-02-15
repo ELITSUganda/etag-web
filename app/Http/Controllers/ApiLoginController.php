@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdminRoleUser;
 use App\Models\Location;
 use App\Models\Utils;
 use App\Models\Vet;
@@ -75,6 +76,50 @@ class ApiLoginController extends Controller
         return Utils::response([
             'status' => 1,
             'message' => "Roles updated successfully.",
+            'data' => null
+        ]);
+    }
+
+    public function remove_vet_role(Request $r)
+    {
+
+        if (
+            $r->roles == null
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Roles not found."
+            ]);
+        }
+
+        $administrator_id = ((int) (Utils::get_user_id($r)));
+        $u = Administrator::find($administrator_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found."
+            ]);
+        }
+
+        $roles = [];
+
+        try {
+            $roles = json_decode($r->roles);
+        } catch (Throwable $t) {
+            $roles = [];
+        }
+
+
+        AdminRoleUser::where([
+            'role_id' => 11,
+            'user_id' => $u->id,
+        ])->delete(); 
+  
+      
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "Removed vet role successfully.",
             'data' => null
         ]);
     }
