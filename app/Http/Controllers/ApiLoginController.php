@@ -69,6 +69,9 @@ class ApiLoginController extends Controller
             $u->removeVetProfile();
         }
 
+        $u->picked_roles = 1;
+        $u->save();
+
         return Utils::response([
             'status' => 1,
             'message' => "Roles updated successfully.",
