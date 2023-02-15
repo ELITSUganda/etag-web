@@ -301,18 +301,16 @@ address
                 'message' => "User not found."
             ]);
         }
-        $images = Utils::upload_images_1($_FILES, false);
+        $images = Utils::upload_images_2($_FILES, false);
         foreach ($images as $src) {
             $img = new Image();
             $img->administrator_id =  $administrator_id;
             $img->src =  $src;
             $img->thumbnail =  null;
             $img->parent_id =  null;
-            $img->size = filesize('public/storage/images/' . $img->src);
             $img->save();
         }
         Utils::process_images_in_backround();
-
         return Utils::response([
             'status' => 1,
             'data' => $images,
@@ -403,7 +401,7 @@ address
 
         $data['records'] = array_reverse($data['records']);
 
-        $_data['data'] = json_encode($data); 
+        $_data['data'] = json_encode($data);
 
         return Utils::response([
             'status' => 0,
