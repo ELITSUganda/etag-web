@@ -80,6 +80,9 @@ class ApiLoginController extends Controller
     public function vet_profile(Request $r)
     {
 
+
+
+
         if (
             $r->business_subcounty_id == null ||
             $r->business_name == null ||
@@ -112,6 +115,18 @@ class ApiLoginController extends Controller
             $vet = new Vet();
         }
 
+        $image = "";
+        if (!empty($_FILES)) {
+            try {
+                $image = Utils::upload_images_2($_FILES, true);
+            } catch (Throwable $t) {
+                $image = "";
+            }
+        }
+
+        if (strlen($image) > 2) {
+            $vet->business_cover_photo = $image;
+        }
         $vet->business_subcounty_id = $r->business_subcounty_id;
         $vet->administrator_id = $u->id;
 
