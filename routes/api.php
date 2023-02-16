@@ -35,7 +35,8 @@ Route::delete('api/{model}', [ApiResurceController::class, 'delete']);
 
 Route::post('product-image-upload', [ApiProductController::class, 'product_image_upload']);
 
-Route::post('product-upload', [ApiProductController::class, 'product_upload']);
+Route::post('product-upload', [ApiProductController::class, 'product_upload']); 
+Route::post('product-drugs-upload', [ApiProductController::class, 'product_drugs_upload']); 
 Route::post('product-order', [ApiProductController::class, 'product_order_create']);
 Route::get('order', [ApiProductController::class, 'orders']);
 

@@ -112,6 +112,7 @@ return array(
     'App\\Models\\Utils' => $baseDir . '/app/Models/Utils.php',
     'App\\Models\\Vaccine' => $baseDir . '/app/Models/Vaccine.php',
     'App\\Models\\Vet' => $baseDir . '/app/Models/Vet.php',
+    'App\\Models\\VetHasService' => $baseDir . '/app/Models/VetHasService.php',
     'App\\Models\\VetServiceCategory' => $baseDir . '/app/Models/VetServiceCategory.php',
     'App\\Providers\\AppServiceProvider' => $baseDir . '/app/Providers/AppServiceProvider.php',
     'App\\Providers\\AuthServiceProvider' => $baseDir . '/app/Providers/AuthServiceProvider.php',

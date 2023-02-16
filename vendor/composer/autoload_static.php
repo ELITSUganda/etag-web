@@ -896,6 +896,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'App\\Models\\Utils' => __DIR__ . '/../..' . '/app/Models/Utils.php',
         'App\\Models\\Vaccine' => __DIR__ . '/../..' . '/app/Models/Vaccine.php',
         'App\\Models\\Vet' => __DIR__ . '/../..' . '/app/Models/Vet.php',
+        'App\\Models\\VetHasService' => __DIR__ . '/../..' . '/app/Models/VetHasService.php',
         'App\\Models\\VetServiceCategory' => __DIR__ . '/../..' . '/app/Models/VetServiceCategory.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
         'App\\Providers\\AuthServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AuthServiceProvider.php',

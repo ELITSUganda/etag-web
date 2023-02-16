@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Animal;
 use App\Models\District;
+use App\Models\DrugForSale;
 use App\Models\Event;
 use App\Models\Utils;
 use App\Models\Image;
 use App\Models\Product;
 use App\Models\ProductOrder;
 use App\Models\Transaction;
+use App\Models\Vet;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
 use Exception;
@@ -286,6 +288,71 @@ address
         return Utils::response([
             'status' => 1,
             'message' => "Animal posted successfully."
+        ]);
+    }
+
+
+    public function product_drugs_upload(Request $r)
+    {
+        $administrator_id = ((int) (Utils::get_user_id($r)));
+        $u = Administrator::find($administrator_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found."
+            ]);
+        }
+
+        if ($u->vet_profile == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "You need vet profile to post a drug or service."
+            ]);
+        }
+
+
+        if (
+            $r->selling_price == null ||
+            $r->drug_category_id == null ||
+            $r->name == null
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Some parameters are missing."
+            ]);
+        }
+
+        Utils::process_images_in_foreround();
+        $d = new DrugForSale();
+        $d->administrator_id = $u->id;
+        $d->drug_category_id = $r->drug_category_id;
+        $d->manufacturer = $r->manufacturer;
+        $d->ingredients = $r->ingredients;
+        $d->batch_number = $r->batch_number;
+        $d->name = $r->name;
+        $d->vet_id = $u->vet_profile->id;
+        $d->expiry_date = $r->expiry_date;
+        $d->original_quantity = $r->original_quantity;
+        $d->selling_price = $r->selling_price;
+        $d->details = $r->details;
+        $d->save();
+        $imgs = Image::where([
+            'administrator_id' => $administrator_id,
+            'parent_id' => null,
+        ])->get();
+
+        foreach ($imgs as $v) {
+            $v->parent_id = $d->id;
+            $v->product_id = $d->id;
+            $v->type = 'DrugForSale';
+            $v->parent_endpoint = 'DrugForSale';
+            $v->note = $d->name;
+            $v->save();
+        }
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "Item uploaded successfully."
         ]);
     }
 
