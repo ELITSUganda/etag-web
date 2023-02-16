@@ -55,7 +55,7 @@ class HomeController extends Controller
     public function index(Content $content)
     {
 
-        $txt =
+       /*  $txt =
             'acepromazine - sedative, tranquilizer, and antiemetic
         albendazole - antihelminthic
         alprazolam - benzodiazepine used as an anxiolytic and tranquilizer
@@ -239,7 +239,7 @@ class HomeController extends Controller
             echo "$name<br>";
         }
         die(" added $iii");
-        dd($txt);
+        dd($txt); */
 
         /*   $cats = [
             "Hardware disease treatment",
