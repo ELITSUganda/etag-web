@@ -8,4 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class DrugForSale extends Model
 {
     use HasFactory;
+
+    public function getImagesAttribute()
+    {
+        return  Image::where([
+            'type' => 'DrugForSale',
+            'parent_id' => $this->id,
+        ])->get(); 
+    }
+    protected $appends = ['images'];
 }

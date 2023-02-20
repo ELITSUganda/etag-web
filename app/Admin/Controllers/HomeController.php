@@ -55,8 +55,20 @@ class HomeController extends Controller
     public function index(Content $content)
     {
 
-       /*  $txt =
-            'acepromazine - sedative, tranquilizer, and antiemetic
+
+        $added = 0;
+        foreach (DrugForSale::all() as $key => $v) {
+            if ($v->images->count() > 3) {
+                continue;
+            }
+            $added++;
+            break;
+        }
+
+        dd("added ==>{$added} <====");
+
+        /*  $txt =
+        'acepromazine - sedative, tranquilizer, and antiemetic
         albendazole - antihelminthic
         alprazolam - benzodiazepine used as an anxiolytic and tranquilizer
         altrenogest - used to synchronizes estrus
