@@ -57,7 +57,7 @@ class HomeController extends Controller
     {
 
 
-        $added = 0;
+/*         $added = 0;
         foreach (DrugForSale::all() as $key => $v) {
             if ($v->images->count() > 3) {
                 continue;
@@ -71,7 +71,7 @@ class HomeController extends Controller
                 $img->product_id = $v->id;
                 $img->src = rand(1,31).".jpg";
                 $img->administrator_id = $v->administrator_id;
-                //$img->thumbnail = $img->src;
+                $img->thumbnail = $img->src;
                 $img->note = $v->name;
                 $img->size = 1; 
                 $img->save();
@@ -81,7 +81,7 @@ class HomeController extends Controller
         }
 
         dd("added ==>{$added} <====");
-
+ */
         /*  $txt =
         'acepromazine - sedative, tranquilizer, and antiemetic
         albendazole - antihelminthic
