@@ -73,6 +73,8 @@ class Image extends Model
 
     public function create_thumbail()
     {
+        set_time_limit(-1);
+
         $src = $this->src;
         $source = Utils::docs_root() . "/storage/images/" . $this->src;
         if (!file_exists($source)) {

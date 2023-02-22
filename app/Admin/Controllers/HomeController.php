@@ -16,6 +16,7 @@ use App\Models\DrugForSale;
 use App\Models\Event;
 use App\Models\Farm;
 use App\Models\FormDrugSeller;
+use App\Models\Image;
 use App\Models\Movement;
 use App\Models\MyFaker;
 use App\Models\Utils;
@@ -61,8 +62,22 @@ class HomeController extends Controller
             if ($v->images->count() > 3) {
                 continue;
             }
-            $added++;
-            break;
+            
+            for ($i=0; $i < 4; $i++) { 
+                $img = new Image();
+                $img->type = 'DrugForSale';
+                $img->parent_endpoint = 'DrugForSale';
+                $img->parent_id = $v->id;
+                $img->product_id = $v->id;
+                $img->src = rand(1,31).".jpg";
+                $img->administrator_id = $v->administrator_id;
+                //$img->thumbnail = $img->src;
+                $img->note = $v->name;
+                $img->size = 1; 
+                $img->save();
+                
+            } 
+            $added++; 
         }
 
         dd("added ==>{$added} <====");
