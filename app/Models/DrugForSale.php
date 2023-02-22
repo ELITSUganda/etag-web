@@ -14,7 +14,34 @@ class DrugForSale extends Model
         return  Image::where([
             'type' => 'DrugForSale',
             'parent_id' => $this->id,
-        ])->get(); 
+        ])->get();
     }
-    protected $appends = ['images'];
+
+    public function getVetTextAttribute()
+    {
+        $cat = Vet::find($this->vet_id); 
+        if ($cat == null) {
+            return "-";
+        }
+        return $cat->business_name; 
+    }
+
+    public function getBusinessLogoAttribute()
+    {
+        $cat = Vet::find($this->vet_id); 
+        if ($cat == null) {
+            return "-";
+        }
+        return $cat->business_logo; 
+    }
+
+    public function getDrugCategoryTextAttribute()
+    {
+        $cat = DrugCategory::find($this->drug_category_id);
+        if ($cat == null) {
+            return "-";
+        }
+        return $cat->name;
+    }
+    protected $appends = ['images', 'drug_category_text','vet_text','business_logo'];
 }

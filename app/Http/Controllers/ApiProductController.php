@@ -292,6 +292,13 @@ address
     }
 
 
+    public function product_drugs_list(Request $r){
+        return Utils::response([
+            'status' => 1,
+            'data' => DrugForSale::where([])->get(), 
+            'message' => "Item uploaded successfully."
+        ]);
+    }
     public function product_drugs_upload(Request $r)
     {
         $administrator_id = ((int) (Utils::get_user_id($r)));
