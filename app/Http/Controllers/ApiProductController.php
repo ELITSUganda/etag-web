@@ -175,6 +175,70 @@ decline_reason
 	
 address
 */
+    public function drugs_order_create(Request $r)
+    {
+  
+        if (
+            (!isset($r->product_id)) ||
+            (!isset($r->name)) ||
+            (!isset($r->phone_number)) ||
+            (!isset($r->address)) ||
+            (!isset($r->note))
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "You must submit all required information."
+            ]);
+        }
+
+
+        $administrator_id = ((int) (Utils::get_user_id($r)));
+        $u = Administrator::find($administrator_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found."
+            ]);
+        }
+
+        $drug = DrugForSale::find(((int)($r->product_id)));
+        if ($drug == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Drugs not found."
+            ]);
+        }
+
+ 
+        $p = new ProductOrder();
+        $p->status = 1;
+        $p->customer_id = $u->id;
+        $p->address = $r->id;
+        $p->note = $r->note;
+        $p->name = $r->name;
+        $p->phone_number = $r->phone_number;
+        $p->product_id = $drug->id;
+        $p->latitude = $r->latitude;
+        $p->longitude = $r->longitude;
+        $p->type = 'Drug';
+        $p->product_data = json_encode($drug);
+        $p->customer_data = json_encode($u);
+        if ($p->save()) {
+            return Utils::response([
+                'status' => 1,
+                'data' => $p,
+                'message' => "Order submitted successfully."
+            ]);
+        } else {
+            return Utils::response([
+                'status' => 0, 
+                'data' => null,
+                'message' => "Failed to submit order. Please try gain."
+            ]);
+        }
+    }
+
+
     public function product_order_create(Request $r)
     {
         if (
@@ -214,6 +278,7 @@ address
         $p->customer_id = $u->id;
         $p->address = $r->id;
         $p->note = $r->note;
+        $p->type = 'Animal';
         $p->name = $r->name;
         $p->phone_number = $r->phone_number;
         $p->product_id = $animal->id;
