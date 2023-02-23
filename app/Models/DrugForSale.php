@@ -11,28 +11,28 @@ class DrugForSale extends Model
 
     public function getImagesAttribute()
     {
-        return  Image::where([
+        return  json_encode(Image::where([
             'type' => 'DrugForSale',
             'parent_id' => $this->id,
-        ])->get();
+        ])->get());
     }
 
     public function getVetTextAttribute()
     {
-        $cat = Vet::find($this->vet_id); 
+        $cat = Vet::find($this->vet_id);
         if ($cat == null) {
             return "-";
         }
-        return $cat->business_name; 
+        return $cat->business_name;
     }
 
     public function getBusinessLogoAttribute()
     {
-        $cat = Vet::find($this->vet_id); 
+        $cat = Vet::find($this->vet_id);
         if ($cat == null) {
             return "-";
         }
-        return $cat->business_logo; 
+        return $cat->business_logo;
     }
 
     public function getDrugCategoryTextAttribute()
@@ -43,5 +43,5 @@ class DrugForSale extends Model
         }
         return $cat->name;
     }
-    protected $appends = ['images', 'drug_category_text','vet_text','business_logo'];
+    protected $appends = ['images', 'drug_category_text', 'vet_text', 'business_logo'];
 }
