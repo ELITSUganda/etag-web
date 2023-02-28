@@ -11,6 +11,21 @@ class AdminRoleUser extends Model
     use HasFactory;
     protected $primaryKey = 'id'; // or null
 
+    public static function boot()
+    {
+        parent::boot();
+        self::creating(function ($model) {
+            if (isset($model->type_id_1)) {
+                if ($model->type_id_1 != null) {
+                    $t = (int)($model->type_id_1);
+                    if ($t > 0) {
+                        $model->type_id = $t;
+                    }
+                }
+                unset($model->type_id_1);
+            }
+        });
+    }
 
     public function owner()
     {
@@ -32,6 +47,5 @@ class AdminRoleUser extends Model
             return $this->belongsTo(Location::class, 'type_id');
         }
         return $this->belongsTo(Location::class, 'type_id');
-
     }
 }

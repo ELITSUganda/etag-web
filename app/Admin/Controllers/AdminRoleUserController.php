@@ -86,6 +86,7 @@ class AdminRoleUserController extends AdminController
                 ->select($roles);
         });
 
+        $grid->model()->orderBy('id','desc');
 
 
 
@@ -167,7 +168,7 @@ class AdminRoleUserController extends AdminController
             ])
             ->when('dvo', function ($f) {
                 $f->hidden('role_id', __('Role id'))->default(7);
-                $f->select('type_id', 'Select District')
+                $f->select('type_id_1', 'Select District')
                     ->options(function ($id) {
                         $parent = Location::find($id);
                         if ($parent != null) {
@@ -196,10 +197,10 @@ class AdminRoleUserController extends AdminController
             ->when('check-point-officer', function ($f) {
                 $f->hidden('role_id', __('Role id'))->default(9);
                 $f->select('type_id', 'Select sub-county')
-                    ->options(function ($id) { 
+                    ->options(function ($id) {
                         return CheckPoint::all()->pluck('name', 'id');
                     })
-                    ->rules('required'); 
+                    ->rules('required');
             })
             ->when('other', function ($f) {
                 $roles = [];
