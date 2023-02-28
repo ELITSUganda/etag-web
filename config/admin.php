@@ -258,7 +258,7 @@ return [
     | Supported: "tencent", "google", "yandex".
     |
     */
-    'map_provider' => 'tencent',
+    'map_provider' => 'google',
 
     /*
     |--------------------------------------------------------------------------
@@ -419,17 +419,17 @@ return [
         'latlong' => [
 
             // Whether to enable this extension, defaults to true
-            'enable' => false,
+            'enable' => true,
 
             // Specify the default provider
-            'default' => 'tencent',
+            'default' => 'google',
 
             // According to the selected provider above, fill in the corresponding api_key
             'providers' => [
 
-               /*  'google' => [
+                'google' => [
                     'api_key' => 'AIzaSyAcctJQgkbQQI37Ae_2rAeck-l6nyDRQj0',
-                ], */
+                ],
 
                 'yandex' => [
                     'api_key' => '',
