@@ -126,7 +126,7 @@ class SubCountyController extends AdminController
         $form->text('code', __('CODE'))->readonly();
         $form->select('district_id', __('District'))
             ->options(District::all()->pluck("name", 'id'))
-            ->required();
+            ->required(); 
 
         $form->select('administrator_id', __('SubCounty veterinary officer'))
             ->options($admins)

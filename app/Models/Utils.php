@@ -884,10 +884,7 @@ class Utils extends Model
         }
 
         $r = $r . "/public";
-
-
-
-
+ 
         /* 
          "/home/ulitscom_html/public/storage/images/956000011639246-(m).JPG
         
