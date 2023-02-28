@@ -44,9 +44,10 @@ class AdminRoleUserController extends AdminController
             $r->save();   
         } */
         $grid = new Grid(new AdminRoleUser());
-        $grid->disableBatchActions();
+        $grid->disableBatchActions(); 
 
 
+        $grid->model()->orderBy('id', 'DESC'); 
 
         $grid->filter(function ($filter) {
             // Remove the default id filter
@@ -90,6 +91,8 @@ class AdminRoleUserController extends AdminController
 
 
 
+
+        $grid->column('id', __('ID'))->sortable();
 
         $grid->column('user_id', __('User'))
             ->display(function () {
