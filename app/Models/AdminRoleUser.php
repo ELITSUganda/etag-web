@@ -24,6 +24,15 @@ class AdminRoleUser extends Model
                 }
                 unset($model->type_id_1);
             }
+            if (isset($model->type_id_3)) {
+                if ($model->type_id_3 != null) {
+                    $t = (int)($model->type_id_3);
+                    if ($t > 0) {
+                        $model->type_id = $t;
+                    }
+                }
+                unset($model->type_id_3);
+            }
         });
     }
 

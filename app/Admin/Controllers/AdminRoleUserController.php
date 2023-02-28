@@ -199,7 +199,7 @@ class AdminRoleUserController extends AdminController
             })
             ->when('check-point-officer', function ($f) {
                 $f->hidden('role_id', __('Role id'))->default(9);
-                $f->select('type_id', 'Select sub-county')
+                $f->select('type_id_3', 'Select sub-county')
                     ->options(function ($id) {
                         return CheckPoint::all()->pluck('name', 'id');
                     })
