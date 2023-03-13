@@ -204,6 +204,10 @@ class Animal extends Model
     {
         return Carbon::parse($this->dob)->diffForHumans();
     }
+    public function getDobAttribute($dob)
+    {
+        return Utils::my_date($dob);
+    }
 
     public function getWeightTextAttribute($x)
     {

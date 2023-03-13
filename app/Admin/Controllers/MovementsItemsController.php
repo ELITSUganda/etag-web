@@ -4,8 +4,8 @@ namespace App\Admin\Controllers;
 
 use App\Models\Animal;
 use App\Models\District;
-use App\Models\MovementHasMovementAnimal;
-use App\Models\SubCounty;
+use App\Models\Location;
+use App\Models\MovementHasMovementAnimal; 
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Controllers\AdminController;
@@ -104,7 +104,7 @@ class MovementsItemsController extends AdminController
             if($this->movement->sub_county_from == null){
                 return "";
             }
-            $_user = SubCounty::find($this->movement->sub_county_from);
+            $_user = Location::find($this->movement->sub_county_from);
             if (!$_user) {
                 return "-";
             }

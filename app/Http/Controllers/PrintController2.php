@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\District;
 use App\Models\Movement;
-use App\Models\SubCounty;
+use App\Models\Location;
 use App\Models\Utils;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Facades\Admin;
@@ -27,11 +27,19 @@ class PrintController2 extends Controller
 
     public function index()
     {
-        
-        
 
-        
-        
+
+        $id = (int)(trim($_GET['id']));
+        $m =  Movement::find($id);
+        if ($m == null) {
+            dd("Movement not found.");
+        }
+
+        return view('print-1.blade.php', [
+            'm' => $m
+        ]);
+
+
         $id = (int)(trim($_GET['id']));
         $m =  Movement::find($id);
         if ($m == null) {
@@ -44,15 +52,17 @@ class PrintController2 extends Controller
 
         $administrator_id = (int)($m->administrator_id);
         $applicant = Administrator::find($administrator_id);
-        if($applicant == null){
+        if ($applicant == null) {
             die("Applicant not found our databse.");
         }
 
 
-        $qr_code_data = Utils::make_movement_qr($m);
-        $base = base64_encode(QrCode::format('png')->size(150)->generate($qr_code_data));
-        $qr_code_image = '<img src="data:image/png;base64, '.$base.' ">';
-        
+        //$qr_code_data = Utils::make_movement_qr($m);
+        //$base = base64_encode(QrCode::format('png')->size(150)->generate($qr_code_data));
+        $base = "";
+        $qr_code_image = '<img src="data:image/png;base64, ' . $base . ' ">';
+        $qr_code_image = '';
+
 
         $i = 0;
         $animals = "";
@@ -72,15 +82,15 @@ class PrintController2 extends Controller
         }
 
 
-        $d =  District::find($m->district_from);
+        $d =  Location::find($m->district_from);
         $district_from = "-";
 
 
-        $d =  District::find($m->district_to);
+        $d =  Location::find($m->district_to);
         $district_to = "-";
 
 
-        $sub =  SubCounty::find($m->sub_county_from);
+        $sub =  Location::find($m->sub_county_from);
         $sub_county_from = "-";
         if ($sub != null) {
             $sub_county_from = $sub->name . " ($sub->code)";
@@ -89,7 +99,7 @@ class PrintController2 extends Controller
             }
         }
 
-        $sub =  SubCounty::find($m->sub_county_to);
+        $sub =  Location::find($m->sub_county_to);
         $sub_county_to = "-";
         if ($sub != null) {
             $sub_county_to = $sub->name . " ($sub->code)";
@@ -159,7 +169,7 @@ class PrintController2 extends Controller
                         <p>Permit status.: ' . $m->status . '  
                         <p>Permit no.: ' . $m->permit_Number . '  
                         </td>
-                        <td width="20%"><img width="70%" src="' . $logo_link . '"/></td>
+                        <td width="20%">photo</td>
                         <td width="45%">
                         <p>MINISTRY OF AGRICULTURE, ANIMAL INDUSTRY AND FISHERIES.</p> 
                         <p>DEPARTMENT OF ANIMAL HEALTH</p><br>
@@ -169,7 +179,7 @@ class PrintController2 extends Controller
                         </td>
                     </tr>
                 </table>';
- 
+
 
         $data .= '<br><h3 style="text-align: center;  margin: 0; padding: 0; font-weight: 100; font-size:15px;">' . $sub_title . '</h3>';
 
@@ -181,12 +191,12 @@ class PrintController2 extends Controller
             <br><h2 style="text-align: center;  margin: 0; padding: 0; font-weight: 100;">' . $title . '</h2>
             <h3 style="text-align: center; margin: 0; padding: 0; font-weight: 100; color: grey;">NOT TO MOVE AT NIGHT</h3>
             </td>
-            <td width="15%"><img width="100%" src="'.$applicant->avatar.'"/> 
+            <td width="15%">AVVATAR 
             </td>
         </tr>
     </table>';
 
- 
+
 
         $data .= "<br>";
 
@@ -238,7 +248,7 @@ class PrintController2 extends Controller
                     <tbody>
 
                         <tr>
-                        <td width="25%" >'.$qr_code_image.'</td>
+                        <td width="25%" >' . $qr_code_image . '</td>
                         <td>
                         <p>
                             Animals are to remain under isolation and none to be removed or added in transit up to the final designated slaughter / processing places 
@@ -255,7 +265,7 @@ class PrintController2 extends Controller
                 </table>';
 
 
- 
+
         $pdf = App::make('dompdf.wrapper');
         $pdf->loadHTML($data);
         return $pdf->stream();

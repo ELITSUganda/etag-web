@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\District;
 use App\Models\Movement;
-use App\Models\SubCounty;
+use App\Models\Location;
 use App\Models\Utils;
 use Encore\Admin\Facades\Admin;
 use Illuminate\Http\Request;
@@ -23,11 +23,28 @@ class PrintController extends Controller
                 </tr>';
     }
 
-    public function prepareThumbnails(){
+    public function prepareThumbnails()
+    {
         Utils::prepareThumbnails();
     }
     public function index()
     {
+
+
+        $id = (int)(trim($_GET['id']));
+        $m =  Movement::find($id);
+        if ($m == null) { 
+            dd("Movement not found.");
+        }
+
+        $pdf = App::make('dompdf.wrapper');
+        $pdf->loadHTML(view('print', [
+            'm' => $m
+        ]));
+        return $pdf->stream();
+
+        return view('print');
+        return view('print');
         $id = (int)(trim($_GET['id']));
         $m =  Movement::find($id);
         if ($m == null) {
@@ -37,7 +54,7 @@ class PrintController extends Controller
         $i = 0;
         $animals = "";
         foreach ($m->movement_has_movement_animals as $key => $v) {
-            if($v->animal == null){
+            if ($v->animal == null) {
                 continue;
             }
             $i++;
@@ -52,31 +69,33 @@ class PrintController extends Controller
         }
 
 
-        $d =  District::find($m->district_from);
+        $d =  Location::find($m->district_from);
         $district_from = "-";
-        
 
-        $d =  District::find($m->district_to);
+
+        $d =  Location::find($m->district_to);
         $district_to = "-";
-         
 
-        $sub =  SubCounty::find($m->sub_county_from);
+
+        $sub =  Location::find($m->sub_county_from);
         $sub_county_from = "-";
         if ($sub != null) {
             $sub_county_from = $sub->name . " ($sub->code)";
-            if($sub->district != null){
+            if ($sub->district != null) {
                 $district_from = $sub->district->name;
             }
         }
 
-        $sub =  SubCounty::find($m->sub_county_to);
+        $sub =  Location::find($m->sub_county_to);
         $sub_county_to = "-";
+        $district_to = "-";
         if ($sub != null) {
             $sub_county_to = $sub->name . " ($sub->code)";
-            if($sub->district != null){
+            if ($sub->district != null) {
                 $district_to = $sub->district->name;
             }
         }
+
 
 
         if ($m == null) {
@@ -155,7 +174,7 @@ class PrintController extends Controller
             PrintController::get_row(
                 'District',
                 $district_from,
-                'Subcounty',
+                'Location',
                 $sub_county_from
             ) .
             PrintController::get_row(
@@ -173,7 +192,7 @@ class PrintController extends Controller
             PrintController::get_row(
                 'District',
                 $district_to,
-                'Subcounty',
+                'Location',
                 $sub_county_to
             ) .
             PrintController::get_row(

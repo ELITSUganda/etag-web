@@ -6,10 +6,10 @@ use App\Models\Animal;
 use App\Models\District;
 use App\Models\Event;
 use App\Models\Farm;
+use App\Models\Location;
 use App\Models\Movement;
 use App\Models\MovementAnimal;
 use App\Models\MovementHasMovementAnimal;
-use App\Models\SubCounty;
 use App\Models\Utils;
 use Carbon\Carbon;
 use Encore\Admin\Widgets\Table;
@@ -141,7 +141,7 @@ class MovementController extends AdminController
         $grid->column('vehicle', __('Vehicle Reg. No.'));
 
         $grid->column('sub_county_to', __('To subcounty'))->display(function ($user) {
-            $s = SubCounty::find($user);
+            $s = Location::find($user);
             if (!$s) {
                 return "-";
             }
@@ -343,7 +343,7 @@ status
 
             $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Animals\' departure info. <b>(FROM)</b></h4>');
             $items = [];
-            foreach (SubCounty::all() as $key => $f) {
+            foreach (Location::all() as $key => $f) {
                 if ($f->locked_down) {
                     continue;
                 }
@@ -387,7 +387,7 @@ status
                 })
                 ->when('Other', function (Form $form) {
                     $items = [];
-                    foreach (SubCounty::all() as $key => $f) {
+                    foreach (Location::all() as $key => $f) {
                         if ($f->locked_down) {
                             continue;
                         }
@@ -433,7 +433,7 @@ status
 
             $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Animals\' departure info. <b>(FROM)</b></h4>');
             $items = [];
-            foreach (SubCounty::all() as $key => $f) {
+            foreach (Location::all() as $key => $f) {
                 if ($f->locked_down) {
                     continue;
                 }
@@ -482,7 +482,7 @@ status
                 })
                 ->when('Other', function (Form $form) {
                     $items = [];
-                    foreach (SubCounty::all() as $key => $f) {
+                    foreach (Location::all() as $key => $f) {
                         if ($f->locked_down) {
                             continue;
                         }
