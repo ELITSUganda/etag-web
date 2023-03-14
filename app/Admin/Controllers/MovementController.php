@@ -3,7 +3,6 @@
 namespace App\Admin\Controllers;
 
 use App\Models\Animal;
-use App\Models\District;
 use App\Models\Event;
 use App\Models\Farm;
 use App\Models\Location;
@@ -213,7 +212,6 @@ class MovementController extends AdminController
 "created_at" => "2022-01-14 22:02:51"
 "updated_at" => "2022-01-14 22:02:51"
 "administrator_id" => 196
-"district_id" => 85
 "sub_county_id" => 3
 "parish_id" => 15
 "status" => "Sick"
@@ -238,8 +236,7 @@ Expand/CollapseStructureadmin_users
 Expand/CollapseStructureadmin_user_permissions
 Expand/CollapseStructureanimals
 Expand/CollapseStructurearchived_animals
-Expand/CollapseStructurediseases
-Expand/CollapseStructuredistricts
+Expand/CollapseStructurediseases 
 Expand/CollapseStructureevents
 Expand/CollapseStructurefailed_jobs
 Expand/CollapseStructurefarms
@@ -312,7 +309,7 @@ Expand/CollapseStructurevaccines
         $m->save();*/
         /*
 
-district_from
+
 
 permit_Number
 status
@@ -328,7 +325,7 @@ status
         $form->hidden('<h4 style="padding: 0px!important; margin: 0px!important;">Teader\'s info.</h4>')->readonly();
         $form->hidden('administrator_id')->default(Admin::user()->id)->required();
         $form->text('trader_name', __('Trader \'s name'))->default($u->name)->readonly()->required();
-        $form->text('trader_nin', __('Trader\'s NIN'))->default($u->nin)->readonly()->required();
+        $form->text('trader_nin', __('Trader\'s NIN'))->default($u->nin)->required();
         $form->text('trader_phone', __('Trader\'s Phone no.'))->default($u->phone_number)->readonly();
 
 
@@ -342,13 +339,7 @@ status
         ) {
 
             $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Animals\' departure info. <b>(FROM)</b></h4>');
-            $items = [];
-            foreach (Location::all() as $key => $f) {
-                if ($f->locked_down) {
-                    continue;
-                }
-                $items[$f->id] = $f->name . ", " . $f->district->name;
-            }
+            $items = Location::get_sub_counties_array();
             $form->select('sub_county_from', __('Subcounty from'))
                 ->options($items)
                 ->required();
@@ -386,13 +377,7 @@ status
                         ->help('Please select slaughter house');
                 })
                 ->when('Other', function (Form $form) {
-                    $items = [];
-                    foreach (Location::all() as $key => $f) {
-                        if ($f->locked_down) {
-                            continue;
-                        }
-                        $items[$f->id] = $f->name . ", " . $f->district->name;
-                    }
+                    $items = Location::get_sub_counties_array();  
                     $form->text('reason', __('Specify purpose of movement'));
                     $form->select('sub_county_to', __('Subcounty to'))
                         ->options($items);
@@ -432,13 +417,7 @@ status
         } else {
 
             $form->html('<h4 style="padding: 0px!important; margin: 0px!important;">Animals\' departure info. <b>(FROM)</b></h4>');
-            $items = [];
-            foreach (Location::all() as $key => $f) {
-                if ($f->locked_down) {
-                    continue;
-                }
-                $items[$f->id] = $f->name . ", " . $f->district->name;
-            }
+            $items = Location::get_sub_counties_array();
             $form->select('sub_county_from', __('Subcounty from'))
                 ->options($items)
                 ->readOnly();
@@ -481,13 +460,7 @@ status
                         ->readOnly();
                 })
                 ->when('Other', function (Form $form) {
-                    $items = [];
-                    foreach (Location::all() as $key => $f) {
-                        if ($f->locked_down) {
-                            continue;
-                        }
-                        $items[$f->id] = $f->name . ", " . $f->district->name;
-                    }
+                    $items = Location::get_sub_counties_array(); 
                     $form->text('reason', __('Specify purpose of movement'))
                         ->readOnly()
                         ->readOnly();

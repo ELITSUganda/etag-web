@@ -4,10 +4,29 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Location extends Model
 {
     use HasFactory;
+
+    public static function get_sub_counties_array()
+    {
+        $subs = [];
+        foreach (Location::get_sub_counties1() as $key => $value) {
+            $subs[$value->id] = ((string)($value->name)) .", " . ((string)($value->district_name));
+        }
+        return $subs;
+    }
+
+
+    public static function get_sub_counties1()
+    {
+        $sql = "SELECT locations.id as id, locations.name as name, districts.name as district_name FROM  locations, districts WHERE  locations.parent = districts.id AND locations.parent > 0";
+        return DB::select($sql);
+    }
+
+
 
     public static function get_sub_counties()
     {

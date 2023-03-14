@@ -28,6 +28,23 @@ if ($sub != null) {
     }
 }
 
+
+$district_from = "-";
+
+
+$d =  Location::find($m->district_to);
+$district_to = "-";
+
+
+$sub =  Location::find($m->sub_county_from);
+$sub_county_from = "-";
+if ($sub != null) {
+    $sub_county_from = $sub->name . " ($sub->code)";
+    if ($sub->district != null) {
+        $district_from = $sub->district->name;
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -104,7 +121,7 @@ if ($sub != null) {
     <p>Name of owner / farm / ranch /unit <u> {{ $m->trader_name }} </u> is permitted to move animals within <u>
             {{ $m->valid_from_Date }} </u> - <u> {{ $m->valid_to_Date }} </u> days From the Sub-county / Division Of
         <u>
-            {{ $m->village_from }}</u> in the District of <u>{{ $sub_county_from }}, $district_from</u>.
+            {{ $m->village_from }}</u> in the District of <u>{{ $sub_county_from }}, {{$district_from}}</u>.
     </p>
     <h5 class="mb-1 mt-2">iii. Destination of animals</h5>
     <p>To the District Of <u>{{ $m->village_to }} </u> in the Sub-county / Division of <u>{{ $sub_county_to }},
