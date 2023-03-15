@@ -43,50 +43,31 @@ class AuthController extends Controller
      */
     public function postLogin(Request $request)
     { 
+        $phone_number = Utils::prepare_phone_number($request->phone_number);
+        if (!Utils::phone_number_is_valid($phone_number)) {
+            return back()->withInput()->withErrors([
+                'phone_number' => "Enter valid phone number.",
+            ]);
+        }
 
 
-
-        $credentials['phone_number'] = $request->phone_number;
+        $credentials['phone_number'] = $phone_number;
         $credentials['password'] = trim($request->password);
         $remember = true;
         if ($this->guard()->attempt($credentials, $remember)) {
             return $this->sendLoginResponse($request);
         }
 
-
-      
-
-        $credentials['phone_number'] = $request->phone_number;
-        if ($this->guard()->attempt($credentials, $remember)) {
-            return $this->sendLoginResponse($request);
-        }
-
-        $credentials['username'] = $request->phone_number;
-        if ($this->guard()->attempt($credentials, $remember)) {
-            return $this->sendLoginResponse($request);
-        }
-
-        $credentials['email'] = $request->phone_number;
-        if ($this->guard()->attempt($credentials, $remember)) {
-            return $this->sendLoginResponse($request);
-        }
- 
-        $phone_number = Utils::prepare_phone_number($request->phone_number);
-        $credentials['email'] = $phone_number;
-        if ($this->guard()->attempt($credentials, $remember)) {
-            return $this->sendLoginResponse($request);
-        }
-       
         $credentials['phone_number'] = $phone_number;
         if ($this->guard()->attempt($credentials, $remember)) {
             return $this->sendLoginResponse($request);
         }
-  
-       /*  if (!Utils::phone_number_is_valid($phone_number)) {
-            return back()->withInput()->withErrors([
-                'phone_number' => "Enter valid phone number.",
-            ]);
-        } */
+
+        $credentials['email'] = $phone_number;
+        if ($this->guard()->attempt($credentials, $remember)) {
+            return $this->sendLoginResponse($request);
+        }
+ 
 
         return back()->withInput()->withErrors([
             'phone_number' => "Enter valid credentials.",
