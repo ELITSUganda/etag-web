@@ -61,6 +61,11 @@ class AuthController extends Controller
             return $this->sendLoginResponse($request);
         }
 
+        $credentials['username'] = $request->phone_number;
+        if ($this->guard()->attempt($credentials, $remember)) {
+            return $this->sendLoginResponse($request);
+        }
+
         $credentials['email'] = $request->phone_number;
         if ($this->guard()->attempt($credentials, $remember)) {
             return $this->sendLoginResponse($request);
