@@ -33,7 +33,7 @@ class MovementController extends AdminController
      *
      * @var string
      */
-    protected $title = 'LMPR - (Permits)';
+    protected $title = 'LMPR - (Movement Permits)';
 
     /**
      * Make a grid builder.
@@ -70,9 +70,21 @@ class MovementController extends AdminController
         $grid->disableBatchActions();
 
         if (Admin::user()->isRole('slaughter')) {
-            $grid->model()->where('destination_slaughter_house', '=', Admin::user()->id)
 
-                ->where('status', '=', 'Approved');
+            $u = Auth::user();
+            $recs = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 5])->get();
+            $ids = [];
+            foreach ($recs as $rec) {
+                $ids[] = $rec->type_id;
+            }
+
+            $grid->model()
+                ->where('destination_slaughter_house', $ids)
+                ->where([
+                    'status' => 'Approved'
+                ])->orderBy('id', 'DESC');
+
+
             $grid->actions(function ($actions) {
                 $actions->disableDelete();
                 $actions->disableEdit();
@@ -121,23 +133,37 @@ class MovementController extends AdminController
         if (
             Admin::user()->isRole('dvo')
         ) {
+            $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
 
-            $grid->header(function ($query) {
-                $move = Movement::where('status', 'pending')->first();
-                if ($move != null) {
+            if ($r != null) {
+                $dis = Location::find($r->type_id);
+                if ($dis != null) {
 
-                    $content  = '';
-                    $content  = 'There is a movement permit application that is prending for verification.';
-                    $content .= '<p><a href="' . admin_url('movements/' . $move->id . '/edit') . '" class="btn btn-success  ">Review Application</a></p>';
+                    $grid->header(function ($query) {
+                        $r = AdminRoleUser::where(['user_id' => Admin::user()->id, 'role_id' => 7])->first();
+                        $dis = Location::find($r->type_id);
+                        $move = Movement::where(
+                            [
+                                'district_from' => $dis->id,
+                                'status' => 'pending'
+                            ]
+                        )->first();
+                        if ($move != null) {
 
-                    if ($content != "") {
-                        $box = new Box('Confirm pending movement - form #' . $move->id, $content);
-                        $box->style('danger');
-                        $box->solid();
-                        return $box;
-                    }
+                            $content  = '';
+                            $content  = 'There is a movement permit application that is prending for verification.';
+                            $content .= '<p><a href="' . admin_url('movements/' . $move->id . '/edit') . '" class="btn btn-success  ">Review Application</a></p>';
+
+                            if ($content != "") {
+                                $box = new Box('Confirm pending movement - form #' . $move->id, $content);
+                                $box->style('danger');
+                                $box->solid();
+                                return $box;
+                            }
+                        }
+                    });
                 }
-            });
+            }
         }
 
         $grid->column('id', __('ID'))->sortable();
@@ -145,9 +171,21 @@ class MovementController extends AdminController
             ->display(function ($f) {
                 return Carbon::parse($f)->toFormattedDateString();
             })->sortable();
-        $grid->column('destination', __('Destination'));
+        $grid->column('destination', __('Destination'))
+            ->filter([
+                'To farm' => 'To farm',
+                'To slaughter' => 'To slaughter',
+                'Other' => 'Other',
+            ])
+            ->sortable();
 
-
+        $grid->column('destination_slaughter_house', __('Slaughter house'))->display(function ($id) {
+            $s = SlaughterHouse::find($id);
+            if ($s == null) {
+                return '-';
+            }
+            return $s->name_text;
+        })->sortable();
         $grid->column('trader_name', __('Applicant'))->sortable();
         $grid->column('transporter_name', __('Transporter'))->sortable();
         $grid->column('vehicle', __('Vehicle Reg. No.'));

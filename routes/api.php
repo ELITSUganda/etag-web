@@ -217,6 +217,9 @@ Route::get('sub-counties', function (Request $r) {
         ->limit(20)->get();
     $data = [];
     foreach ($res_1 as $key => $v) {
+        if($v->parent == 0){
+            continue;
+        }
         $data[] = [
             'id' => $v->id,
             'text' => "$v->name_text"

@@ -39,7 +39,7 @@ class Movement extends Model
         } else if ($model->destination == "To slaughter") {
             $house  = SlaughterHouse::find($model->destination_slaughter_house);
             if ($house == null) {
-                throw new Exception("Slaughter house not found.", 1);
+                throw new Exception("Slaughter house not fouassnd.", 1);
             }
             if ($house->subcounty == null) {
                 throw new Exception("Slaughter house subcounty not found.", 1);
@@ -47,6 +47,11 @@ class Movement extends Model
 
             $model->sub_county_to = $house->subcounty->id;
             $model->district_to = $house->subcounty->parent;
+
+
+
+
+
             return $model;
         } else {
         }
@@ -131,6 +136,31 @@ class Movement extends Model
                         }
                         $transfer['destination'] = $model->destination_farm;
                     }
+                } else if ($model->destination == "To slaughter") {
+                    $house  = SlaughterHouse::find($model->destination_slaughter_house);
+                    if ($house == null) {
+                        throw new Exception("Slaughter house not fouassnd.", 1);
+                    }
+                    if ($house->subcounty == null) {
+                        throw new Exception("Slaughter house subcounty not found.", 1);
+                    }
+
+                    $model->sub_county_to = $house->subcounty->id;
+                    $model->district_to = $house->subcounty->parent;
+
+                    foreach ($model->movement_has_movement_animals as $key => $value) {
+                        if ($value->movement_animal_id != null) {
+                            $animal = Animal::find($value->movement_animal_id);
+                            if ($animal != null) {
+                                $animal->slaughter_house_id = $house->id;
+                                $animal->movement_id = $model->id;
+                                $animal->save();
+                            }
+                        }
+                    }
+
+                    return $model;
+                } else {
                 }
             } else if ($model->status  == 'Rejected') {
                 $_s = 'Declined';

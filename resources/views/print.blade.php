@@ -60,7 +60,17 @@ if ($sub != null) {
 
     <table style="width: 100%">
         <tr>
-            <td colspan="3" class="text-center">
+            <td style="width: 25%;" class="">
+            </td>
+            <td class="text-center" style="width: 20%;">
+                <img style="width: 120px" src="{{ public_path('assets/images/coat_of_arms-min.png') }}">
+            </td>
+            <td style="width: 25%;" class="">
+
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3" class="text-center pt-3">
                 <p class="text-center" style="font-size: 18px"><b>MINISTRY OF AGRICULTURE, ANIMAL INDUSTRY AND
                         FISHERIES.</b></p>
                 <p class="mb-1" class="text-center" style="font-size: 18px"><b>DEPARTMENT OF ANIMAL HEALTH</b></p>
@@ -71,18 +81,7 @@ if ($sub != null) {
                     320166, 320376</p>
             </td>
         </tr>
-        <tr>
-            <td style="width: 25%;" class="">
 
-
-            </td>
-            <td class="text-center" style="width: 20%;">
-                <img style="width: 120px" src="{{ public_path('assets/images/coat_of_arms-min.png') }}">
-            </td>
-            <td style="width: 25%;" class="">
-
-            </td>
-        </tr>
     </table>
     <h2 class="text-center mt-3">INTER-DISTRICT VETERINARY HEALTH CERTIFICATE PERMITTING THE MOVEMENT OF SLAUGHTER
         ANIMALS (ALL SPECIES)

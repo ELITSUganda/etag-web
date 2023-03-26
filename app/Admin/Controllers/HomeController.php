@@ -10,6 +10,7 @@ use Encore\Admin\Layout\Row;
 use Encore\Admin\Widgets\InfoBox;
 use App\Models\AdminRoleUser;
 use App\Models\Animal;
+use App\Models\ArchivedAnimal;
 use App\Models\BatchSession;
 use App\Models\DrugCategory;
 use App\Models\DrugForSale;
@@ -20,6 +21,7 @@ use App\Models\Image;
 use App\Models\Location;
 use App\Models\Movement;
 use App\Models\MyFaker;
+use App\Models\SlaughterRecord;
 use App\Models\SubCounty;
 use App\Models\Utils;
 use App\Models\VetServiceCategory;
@@ -86,15 +88,73 @@ class HomeController extends Controller
         } 
         die('done'); */
         $u = Admin::user();
+        $content
+            ->title('U-LITS - Dashboard')
+            ->description('Hello ' . $u->name . "!");
+
+        if ($u->isRole('slaughter')) {
+
+
+
+
+            $content->row(function (Row $row) {
+                $row->column(3, function (Column $column) {
+                    $recs = AdminRoleUser::where(['user_id' => Auth::user()->id, 'role_id' => 5])->get();
+                    $ids = [];
+                    foreach ($recs as $rec) {
+                        $ids[] = $rec->type_id;
+                    }
+                    $counts = Movement::where('destination_slaughter_house', $ids)->count();
+                    $column->append(view('widgets.box-5', [
+                        'is_dark' => false,
+                        'title' => 'Movement permits',
+                        'sub_title' => 'Permits destined to this slaughter house',
+                        'number' => number_format($counts),
+                        'link' => admin_url('movements')
+                    ]));
+                });
+
+                $row->column(3, function (Column $column) {
+                    $recs = AdminRoleUser::where(['user_id' => Auth::user()->id, 'role_id' => 5])->get();
+                    $ids = [];
+                    foreach ($recs as $rec) {
+                        $ids[] = $rec->type_id;
+                    }
+                    $counts = Animal::where('slaughter_house_id', $ids)->count();
+                    $column->append(view('widgets.box-5', [
+                        'is_dark' => false,
+                        'title' => 'Animals',
+                        'sub_title' => 'Animals pending for slaughter',
+                        'number' => number_format($counts),
+                        'link' => admin_url('animals')
+                    ]));
+                });
+                $row->column(3, function (Column $column) {
+                    $counts = ArchivedAnimal::where([])->count();
+                    $column->append(view('widgets.box-5', [
+                        'is_dark' => false,
+                        'title' => 'Archived Animals',
+                        'sub_title' => 'Animals slaughter history',
+                        'number' => number_format($counts),
+                        'link' => admin_url('slaughter-records')
+                    ]));
+                });
+                $row->column(3, function (Column $column) {
+                    $counts = SlaughterRecord::where([])->count();
+                    $column->append(view('widgets.box-5', [
+                        'is_dark' => true,
+                        'title' => 'Slaughter Records',
+                        'sub_title' => 'Create & manage Slaughter records',
+                        'number' => number_format($counts),
+                        'link' => admin_url('slaughter-records')
+                    ]));
+                });
+            });
+
+            return $content;
+        }
 
         if ($u->isRole('dvo')) {
-
-
-
-
-            $content
-                ->title('U-LITS - Dashboard')
-                ->description('Hello ' . $u->name . "!");
 
 
             $u = Auth::user();

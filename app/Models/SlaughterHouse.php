@@ -46,6 +46,15 @@ class SlaughterHouse extends Model
         return $this->belongsTo(Administrator::class, 'administrator_id');
     }
 
+    public function getNameTextAttribute()
+    {
+        $loc = Location::find($this->subcounty_id);
+        if ($loc == null) {
+            return $this->name;
+        }
+        return $this->name . ' - ' . $loc->name_text;
+    }
+
     public function getSubcountyTextAttribute()
     {
         $loc = Location::find($this->subcounty_id);
@@ -64,5 +73,5 @@ class SlaughterHouse extends Model
         return $loc->name;
     }
 
-    protected $appends = ['subcounty_text', 'district_text'];
+    protected $appends = ['subcounty_text', 'name_text', 'district_text'];
 }

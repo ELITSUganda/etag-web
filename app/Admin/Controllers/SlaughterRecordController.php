@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\AdminRoleUser;
 use App\Models\Animal;
 use App\Models\ArchivedAnimal;
 use App\Models\Movement;
@@ -15,6 +16,7 @@ use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
 use Hamcrest\Util;
+use Illuminate\Support\Facades\Auth;
 use Monolog\Handler\Slack\SlackRecord;
 
 class SlaughterRecordController extends AdminController
@@ -34,11 +36,11 @@ class SlaughterRecordController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new SlaughterRecord());
-        
-        $grid->model()->orderBy('id','DESC');            
+
+        $grid->model()->orderBy('id', 'DESC');
 
         $grid->disableActions();
-        $grid->disableBatchActions(); 
+        $grid->disableBatchActions();
         if (!Admin::user()->isRole('slaughter')) {
             $grid->disableCreateButton();
         }
@@ -51,20 +53,20 @@ class SlaughterRecordController extends AdminController
         $grid->column('e_id', __('EID'))->sortable();
         $grid->column('v_id', __('VID'))->sortable();
         $grid->column('lhc', __('LHC'))->sortable();
-        $grid->column('type', __('Species'))->sortable(); 
-        $grid->column('breed', __('Breed'))->sortable(); 
+        $grid->column('type', __('Species'))->sortable();
+        $grid->column('breed', __('Breed'))->sortable();
         $grid->column('sex', __('Sex'))->sortable();
         $grid->column('dob', __('DoB'))->sortable();
         $grid->column('fmd', __('FMD'))->sortable();
         $grid->column('destination_slaughter_house', __('Abattoir'))->sortable();
         $grid->column('details', __('Details'))->hide();
- 
+
 
         return $grid;
     }
 
 
-  
+
 
 
     /**
@@ -110,7 +112,7 @@ class SlaughterRecordController extends AdminController
 
 
         $form = new Form(new Animal());
-       
+
         $form->submitted(function (Form $form) {
             if (
                 isset($_POST['animals']) &&
@@ -119,9 +121,9 @@ class SlaughterRecordController extends AdminController
             ) {
                 foreach ($_POST['animals'] as $key => $value) {
 
- 
+
                     $an = Animal::find($value);
-                    if($an==null){
+                    if ($an == null) {
                         continue;
                     }
 
@@ -140,9 +142,9 @@ class SlaughterRecordController extends AdminController
                     $sr->destination_slaughter_house = $u->name;
 
                     $sr->save();
-                
 
-                    $details = "Slautered by ".$u->name.", ID ".$u->id;
+
+                    $details = "Slautered by " . $u->name . ", ID " . $u->id;
                     Utils::archive_animal([
                         'animal_id' => $value,
                         'details' => $details,
@@ -159,14 +161,18 @@ class SlaughterRecordController extends AdminController
         $permists = Movement::where('destination_slaughter_house', '=', Admin::user()->id)
             ->where('status', '=', 'Approved')->get();
         $_items = [];
-        foreach ($permists as $permit) {
-            if ($permit->movement_has_movement_animals != null) {
-                foreach ($permit->movement_has_movement_animals as $animal) {
-                    if ($animal->animal != null) {
-                        $item = $animal->animal;
-                        $_items[$item->id] = $item->e_id . " - " . $item->v_id;
-                    }
-                }
+
+
+        if (Admin::user()->isRole('slaughter')) {
+            $u = Auth::user();
+            $recs = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 5])->get();
+            $ids = [];
+            foreach ($recs as $rec) {
+                $ids[] = $rec->type_id;
+            }
+
+            foreach (Animal::where('slaughter_house_id', $ids)->get() as $key => $item) {
+                $_items[$item->id] = $item->e_id . " - " . $item->v_id;
             }
         }
 
@@ -175,7 +181,7 @@ class SlaughterRecordController extends AdminController
             ->options($_items)
             ->required();
 
-            $form->textarea('details','Details');
+        $form->textarea('details', 'Details');
         $form->checkbox('accept', "Are you sure you have slaughtered animals selected?")->options([1 => 'Yes'])->required();
 
 

@@ -6,6 +6,7 @@ use App\Models\AdminRole;
 use App\Models\AdminRoleUser;
 use App\Models\CheckPoint;
 use App\Models\Location;
+use App\Models\SlaughterHouse;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
@@ -44,10 +45,10 @@ class AdminRoleUserController extends AdminController
             $r->save();   
         } */
         $grid = new Grid(new AdminRoleUser());
-        $grid->disableBatchActions(); 
+        $grid->disableBatchActions();
 
 
-        $grid->model()->orderBy('id', 'DESC'); 
+        $grid->model()->orderBy('id', 'DESC');
 
         $grid->filter(function ($filter) {
             // Remove the default id filter
@@ -87,7 +88,7 @@ class AdminRoleUserController extends AdminController
                 ->select($roles);
         });
 
-        $grid->model()->orderBy('id','desc');
+        $grid->model()->orderBy('id', 'desc');
 
 
 
@@ -167,6 +168,7 @@ class AdminRoleUserController extends AdminController
                 'dvo' => 'D.V.O',
                 'scvo' => 'S.C.V.O',
                 'check-point-officer' => 'Checkpoint officer',
+                'slaughter' => 'Slaugter house officer',
                 'other' => 'Other',
             ])
             ->when('dvo', function ($f) {
@@ -199,19 +201,27 @@ class AdminRoleUserController extends AdminController
             })
             ->when('check-point-officer', function ($f) {
                 $f->hidden('role_id', __('Role id'))->default(9);
-                $f->select('type_id_3', 'Select sub-county')
+                $f->select('type_id_3', 'Select checkpoint')
                     ->options(function ($id) {
                         return CheckPoint::all()->pluck('name', 'id');
+                    })
+                    ->rules('required');
+            })
+            ->when('slaughter', function ($f) {
+                $f->hidden('role_id', __('Role id'))->default(5);
+                $f->select('type_id_4', 'Select slaughter house')
+                    ->options(function ($id) {
+                        return SlaughterHouse::all()->pluck('name_text', 'id');
                     })
                     ->rules('required');
             })
             ->when('other', function ($f) {
                 $roles = [];
                 foreach (AdminRole::all() as $key => $v) {
-                    if ($v->id == 7 || $v->id == 2 || $v->id == 9) {
+                    if ($v->id == 7 || $v->id == 2 || $v->id == 9 || $v->id == 5) {
                         continue;
                     }
-                    $roles[$v->id] = $v->name;
+                    $roles[$v->id] = $v->name . " " . $v->slug . " " . $v->id;
                 }
                 $f->radio('role_id', 'Select Role')
                     ->options($roles)
@@ -223,4 +233,3 @@ class AdminRoleUserController extends AdminController
         return $form;
     }
 }
-

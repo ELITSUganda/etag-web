@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\AdminRoleUser;
 use App\Models\Animal;
 use App\Models\District;
 use App\Models\Farm;
@@ -14,6 +15,7 @@ use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 
 class AnimalController extends AdminController
@@ -61,15 +63,56 @@ class AnimalController extends AdminController
         }*/
 
         $grid = new Grid(new Animal());
+        $grid->disableActions();
+        $grid->quickSearch('v_id')->placeholder('Search by E-ID');
         $grid->disableBatchActions();
         if (Admin::user()->isRole('farmer')) {
-
 
             //$grid->disableCreateButton();
 
             //$grid->disableActions();
             $grid->model()->where('administrator_id', '=', Admin::user()->id);
+        } else  if (Admin::user()->isRole('slaughter')) {
+
+            $u = Auth::user();
+            $recs = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 5])->get();
+            $ids = [];
+            foreach ($recs as $rec) {
+                $ids[] = $rec->type_id;
+            }
+
+            $grid->model()
+                ->where('slaughter_house_id', $ids)
+                ->orderBy('id', 'DESC');
+
+            $grid->disableActions();
+            $grid->actions(function ($actions) {
+                $actions->disableDelete();
+                $actions->disableEdit();
+            });
+        } else if (Admin::user()->isRole('slaughter')) {
+
+            $grid->disableActions();
+            $u = Auth::user();
+            $recs = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 5])->get();
+            $ids = [];
+            foreach ($recs as $rec) {
+                $ids[] = $rec->type_id;
+            }
+
+            $grid->model()
+                ->where('destination_slaughter_house', $ids)
+                ->where([
+                    'status' => 'Approved'
+                ])->orderBy('id', 'DESC');
+
+            $grid->actions(function ($actions) {
+                $actions->disableDelete();
+                $actions->disableEdit();
+            });
         }
+
+
 
 
         $grid->tools(function ($tools) {
@@ -189,6 +232,13 @@ class AnimalController extends AdminController
                 return Utils::get_object(Location::class, $id)->name_text;
             })->sortable();
 
+
+        if (Admin::user()->isRole('slaughter')) {
+            $grid->column('slaughter', __('Slaughter'))
+                ->display(function ($id) {
+                    return '<a class="btn btn-primary" href="' . admin_url('slaughter-records/create?id=' . $this->id) . '" >Create slaughter records</a>';
+                });
+        }
 
         return $grid;
     }
