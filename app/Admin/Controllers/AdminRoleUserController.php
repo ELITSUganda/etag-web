@@ -173,7 +173,7 @@ class AdminRoleUserController extends AdminController
                 $f->hidden('role_id', __('Role id'))->default(7);
                 $f->select('type_id_1', 'Select District')
                     ->options(function ($id) {
-                        $parent = Location::find($id);
+                        $parent = Location::find($this->type_id);
                         if ($parent != null) {
                             return [$parent->id =>  $parent->name];
                         }
@@ -223,3 +223,4 @@ class AdminRoleUserController extends AdminController
         return $form;
     }
 }
+

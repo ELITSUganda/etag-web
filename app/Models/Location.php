@@ -14,7 +14,7 @@ class Location extends Model
     {
         $subs = [];
         foreach (Location::get_sub_counties1() as $key => $value) {
-            $subs[$value->id] = ((string)($value->name)) .", " . ((string)($value->district_name));
+            $subs[$value->id] = ((string)($value->name)) . ", " . ((string)($value->district_name));
         }
         return $subs;
     }
@@ -52,8 +52,26 @@ class Location extends Model
         self::deleting(function ($m) {
             die("You can't delete this item.");
         });
+        self::updating(function ($m) {
+            Location::my_update($m);
+        });
+        self::creating(function ($m) {
+            Location::my_update($m);
+        });
     }
 
+    public static function my_update($m)
+    {
+        $dis = Location::find($m->parent);
+        if ($dis == null) {
+            $m->code = 'UG-001-1';
+            return;
+        }
+        $num = (int) (Location::where(['parent' => $dis->id])->count());
+        $num++;
+        $m->code = $dis->code . "-" . $num;
+        return $m;
+    }
     public function getNameTextAttribute()
     {
         if (((int)($this->parent)) > 0) {

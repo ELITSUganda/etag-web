@@ -4,7 +4,7 @@
     <section class="sidebar">
 
         <!-- Sidebar user panel (optional) -->
-        <div class="user-panel">
+        {{-- <div class="user-panel">
             <div class="pull-left image">
                 <img src="{{ Admin::user()->avatar }}" class="img-circle" alt="User Image">
             </div>
@@ -14,7 +14,7 @@
                 <a href="#"><i class="fa fa-circle text-success"></i> {{ trans('admin.online') }}</a>
             </div>
         </div>
-
+ --}}
         @if(config('admin.enable_menu_search'))
         <!-- search form (Optional) -->
         <form class="sidebar-form" style="overflow: initial;" onsubmit="return false;">

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -45,19 +46,20 @@ class Animal extends Model
 
             $f = Farm::find($model->farm_id);
             if ($f == null) {
-                die("Farm not found.");
+                throw new Exception("Farm not found.", 1);
                 return false;
             }
             if ($f->holding_code == null) {
-                die("holding_code  not found.");
+                throw new Exception("Holding code  not found.", 1);
                 return false;
             }
-
 
             $model->status = "Active";
             $model->administrator_id = $f->administrator_id;
             $model->district_id = $f->district_id;
             $model->sub_county_id = $f->sub_county_id;
+            $model->lhc = $f->holding_code;
+
             $num = (int) (Animal::where(['sub_county_id' => $model->sub_county_id])->count());
 
             $num = $num . "";
@@ -75,21 +77,30 @@ class Animal extends Model
                 $num = "" . $num;
             }
 
-            $model->lhc = $f->holding_code;
+
+
+
 
             return $model;
         });
 
         self::updating(function ($model) {
+
             $f = Farm::find($model->farm_id);
             if ($f == null) {
+                throw new Exception("Farm not found.", 1);
                 return false;
             }
+            if ($f->holding_code == null) {
+                throw new Exception("Holding code  not found.", 1);
+                return false;
+            }
+
+            $model->status = "Active";
             $model->administrator_id = $f->administrator_id;
             $model->district_id = $f->district_id;
             $model->sub_county_id = $f->sub_county_id;
-
-
+            $model->lhc = $f->holding_code;
             return $model;
         });
 
@@ -109,7 +120,7 @@ class Animal extends Model
             Event::where([
                 'animal_id' => $model->id
             ])->delete();
-        }); 
+        });
     }
 
 
@@ -120,7 +131,7 @@ class Animal extends Model
 
     public function events()
     {
-        return $this->hasMany(Event::class);
+        return $this->hasMany(Event::class,'animal_id');
     }
 
     public function district()
@@ -130,7 +141,7 @@ class Animal extends Model
 
     public function sub_county()
     {
-        return $this->belongsTo(Location::class);
+        return $this->belongsTo(Location::class, 'sub_county_id');
     }
     public function getLocationAttribute()
     {

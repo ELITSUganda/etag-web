@@ -19,21 +19,23 @@ class Event extends Model
 
         self::creating(function ($model) {
 
- 
+
             if ($model->is_batch_import) {
                 //$model->import_file = 'public/storage/files/1.xls';
                 //Event::process_btach_important($model);
                 //return false;
             }
 
-            $animal = Animal::where('id', $model->animal_id)->first();
+            $animal = Animal::find($model->animal_id);
             if ($animal == null) {
-                
                 throw new Exception("Animal ID {$model->animal_id} not system.");
                 return false;
                 return false;
             }
- 
+
+
+            $model->district_id = $animal->district_id;
+            $model->sub_county_id = $animal->sub_county_id;
 
             $model->e_id = $animal->e_id;
             $model->v_id = $animal->v_id;
@@ -44,8 +46,6 @@ class Event extends Model
 
             $model->farm_id = $animal->farm_id;
             $model->animal_type = $animal->type;
-            $model->district_id = $animal->farm->disease_id;
-            $model->sub_county_id = $animal->farm->sub_county_id;
             $model->administrator_id = $animal->farm->administrator_id;
             $model->type = trim($model->type);
 
@@ -130,7 +130,7 @@ class Event extends Model
                         }
                     }
                 }
-            } else if ($model->type == 'Milking') { 
+            } else if ($model->type == 'Milking') {
                 $ok = false;
                 if (isset($model->milk)) {
                     if ($animal->sex != 'Female') {
@@ -145,9 +145,9 @@ class Event extends Model
                 if (!$ok) {
                     throw new Exception("enter valid milking parametters");
                 }
-            } else if ($model->type == 'Weight check') { 
+            } else if ($model->type == 'Weight check') {
                 if (isset($model->weight)) {
-                    if ($model->weight != null) { 
+                    if ($model->weight != null) {
                         $ok = true;
                         $model->weight = (float)($model->weight);
                         $model->description = "{$animal->v_id} wighed {$model->weight} KGs.";
@@ -223,16 +223,6 @@ class Event extends Model
                 $model->description = "{$animal->v_id} {$model->type} event was recorded.";
             }
 
-            /* 
-
-
-
-                '' => 'Stolen',
-                '' => 'Home slaughter',
-                '' => 'Death',
-                '' => 'Other',
-
-             */
 
 
 
@@ -251,7 +241,7 @@ class Event extends Model
             if ($model->detail == null || (strlen($model->detail) < 2)) {
                 $model->detail = $model->description;
             }
- 
+
             return $model;
         });
 
@@ -291,6 +281,7 @@ class Event extends Model
 
         self::updating(function ($model) {
 
+
             if (isset($model->disease_id)) {
                 unset($model->disease_id);
             }
@@ -313,19 +304,17 @@ class Event extends Model
             }
 
 
-            $animal = Animal::find($model->animal_id)->first();
+            $animal = Animal::find($model->animal_id);
             if ($animal == null) {
-
+                throw new Exception("Animal not found.", 1);
                 return false;
             }
-
 
             $model->district_id = $animal->district_id;
             $model->sub_county_id = $animal->sub_county_id;
             $model->parish_id = $animal->parish_id;
             $model->farm_id = $animal->farm_id;
             $model->animal_type = $animal->type;
-
             return $model;
         });
 

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Encore\Admin\Auth\Database\Administrator;
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -11,73 +12,72 @@ class Movement extends Model
     use HasFactory;
 
 
+
+    public static function my_create($model)
+    {
+        $applicant = Administrator::find($model->administrator_id);
+        if ($applicant == null) {
+            throw new Exception("Permit applicant not found on database.", 1);
+        }
+
+        $sub_county_from = Location::find($model->sub_county_from);
+        if ($sub_county_from == null) {
+            throw new Exception("Subcounty from not found.", 1);
+        }
+        $model->district_from = $sub_county_from->parent;
+
+
+
+        if ($model->destination == "To farm") {
+            $farm = Farm::find($model->destination_farm);
+            if ($farm == null) {
+                throw new Exception("Destination farm not found.", 1);
+            }
+            $model->sub_county_to = $farm->sub_county->id;
+            $model->district_to = $farm->sub_county->parent;
+            $model->destination_slaughter_house = 0;
+        } else if ($model->destination == "To slaughter") {
+            $house  = SlaughterHouse::find($model->destination_slaughter_house);
+            if ($house == null) {
+                throw new Exception("Slaughter house not found.", 1);
+            }
+            if ($house->subcounty == null) {
+                throw new Exception("Slaughter house subcounty not found.", 1);
+            }
+
+            $model->sub_county_to = $house->subcounty->id;
+            $model->district_to = $house->subcounty->parent;
+            return $model;
+        } else {
+        }
+
+        return $model;
+
+        /*  
+  
+    "permit_Number" => null
+    "valid_from_Date" => null
+    "valid_to_Date" => null
+    "status_comment" => null
+    "destination" => "To farm"
+    "destination_slaughter_house" => "0"
+    "details" => "she deatils"
+    "destination_farm" => 180
+*/
+    }
     public static function boot()
     {
         parent::boot();
 
         self::creating(function ($model) {
-            $model->status = "0";
-            $applicant = Administrator::find($model->administrator_id);
-
-            if ($applicant == null) {
-                die(json_encode(Utils::response([
-                    'status' => 0,
-                    'message' => "Permit applicant not found on database."
-                ])));
-            }
-            $sub_county_from = Location::find($model->sub_county_from);
-            $model->district_from = $sub_county_from->parent;
-
-            /*             $model->trader_nin = $applicant->nin;
-            $model->trader_name = $applicant->name;
-            $model->trader_phone = $applicant->phone_number; */
-            if ($model->destination == "To farm") {
-                $farm = Farm::find($model->destination_farm);
-                if ($farm == null) {
-                    die(json_encode(Utils::response([
-                        'status' => 0,
-                        'message' => "Destination farm was not found on our database."
-                    ])));
-                }
-                $model->sub_county_to = $farm->sub_county->id;
-                $model->district_to = $farm->sub_county->district_id;
-                $model->destination_slaughter_house = 0;
-            } else if ($model->destination == "To slaughter") {
-                /* $destination_slaughter_house = (int)($model->destination_slaughter_house);
-                $dest = Administrator::find($destination_slaughter_house);
-                if($dest == null){
-                    die(json_encode(Utils::response([
-                        'status' => 0,
-                        'message' => "Slaughter house selected not found on our databse."
-                    ])));
-                }
-                $sub_county_id = (int)($dest->sub_county_id);
-                $sub = Location::find($sub_county_id);
-                if($sub == null){
-                    $sub = Location::all()->first();
-                    $dest->sub_county_id = $sub->id;
-                    $dest->save();
-                }
-                if($sub == null){
-                    die(json_encode(Utils::response([
-                        'status' => 0,
-                        'message' => "Destination Sub-county not found."
-                    ])));
-                }
-                
-                $model->sub_county_to = $sub->id;
-                $model->district_to = $sub->district->id;
-                $model->destination_farm = 0;
- */
-            } else {
-                /*     $model->destination_slaughter_house = 0;      
-                $model->destination_farm = 0; */
-            }
+            $model->status = "Pending";
+            $model = Movement::my_create($model);
             return $model;
         });
 
 
         self::created(function ($m) {
+
             $u = Administrator::find($m->administrator_id);
             $name = "";
             if ($u != null) {
@@ -100,7 +100,7 @@ class Movement extends Model
                     );
                 }
             }
- 
+
 
             //$items = Movement::where('sub_county_from', '=', $user->scvo)->where('status', '=', 'Approved')->get(); 
 
@@ -113,9 +113,11 @@ class Movement extends Model
 
 
         self::updating(function ($model) {
+            $model = Movement::my_create($model);
+
             $model->status = ((string)($model->status));
             $_s = 'Reviewed';
-            if ($model->status == "1") {
+            if ($model->status == "Approved") {
                 $_s = 'Approved';
                 $model->permit_Number = "00000" . $model->id;
                 if ($model->destination == "To farm") {
@@ -130,12 +132,11 @@ class Movement extends Model
                         $transfer['destination'] = $model->destination_farm;
                     }
                 }
-            }
-
-            if ($model->status  == '2') {
+            } else if ($model->status  == 'Rejected') {
                 $_s = 'Declined';
+            } else if ($model->status  == 'Halted') {
+                $_s = 'Halted';
             }
-
             Utils::sendNotification(
                 "Your Movement Permit #{$model->id} has been {$_s}. Open the App for more details.",
                 $model->administrator_id,
@@ -169,6 +170,17 @@ class Movement extends Model
         return $this->hasMany(MovementHasMovementAnimal::class);
     }
 
+    function animals()
+    {
+        return $this->belongsToMany(
+            Animal::class,
+            'movement_has_movement_animals',
+            'movement_id',
+            'movement_animal_id',
+        );
+    }
+
+
 
     public function getAnimalsAttribute()
     {
@@ -186,13 +198,21 @@ class Movement extends Model
         $farm = Farm::find($this->destination_farm);
         if ($farm == null) {
             return "-";
-        } 
+        }
         return  $farm->holding_code;
     }
 
     public function getSubcountyFromTextAttribute()
     {
         $sub = Location::find($this->sub_county_from);
+        if ($sub == null) {
+            return "-";
+        }
+        return  $sub->name_text;
+    }
+    public function getSubcountyToTextAttribute()
+    {
+        $sub = Location::find($this->sub_county_to);
         if ($sub == null) {
             return "-";
         }
@@ -205,10 +225,10 @@ class Movement extends Model
         if ($sub == null) {
             return "-";
         }
-        $dis = Location::find($sub->parent); 
+        $dis = Location::find($sub->parent);
         if ($dis == null) {
             return "-";
-        } 
+        }
         return  $dis->name;
     }
 
@@ -223,6 +243,11 @@ class Movement extends Model
         return $this->belongsTo(Farm::class, 'from');
     }
 
+    public function owner()
+    {
+        return $this->belongsTo(Administrator::class, 'administrator_id');
+    }
+
     public function to_farm()
     {
         return $this->belongsTo(Farm::class, 'to');
@@ -230,6 +255,7 @@ class Movement extends Model
     protected $appends = [
         'animals', 'destination_farm_text',
         'subcounty_from_text',
+        'subcounty_to_text',
         'district_from_text'
     ];
 }

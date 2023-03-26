@@ -274,8 +274,7 @@ class Utils extends Model
 
     public static function prepareAverageMilk()
     {
-
-
+  
         $animals = Animal::where([
             'sex' => 'Female',
             'average_milk' => NULL,
@@ -308,6 +307,20 @@ class Utils extends Model
             return $t;
         }
         return $c->format('d M');
+    }
+
+
+
+
+
+
+    public static function my_time_ago($t)
+    {
+        $c = Carbon::parse($t);
+        if ($t == null) {
+            return $t;
+        }
+        return $c->diffForHumans();
     }
 
 
@@ -676,8 +689,8 @@ class Utils extends Model
             $animal->delete();
             Event::where([
                 'animal_id' => $animal_id
-            ])->delete(); 
-            return true; 
+            ])->delete();
+            return true;
         }
         return true;
     }
@@ -791,7 +804,7 @@ class Utils extends Model
     }
 
 
-    
+
     public static function upload_images_2($files, $is_single_file = false)
     {
 
@@ -884,7 +897,7 @@ class Utils extends Model
         }
 
         $r = $r . "/public";
- 
+
         /* 
          "/home/ulitscom_html/public/storage/images/956000011639246-(m).JPG
         

@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\AdminRoleUser;
 use App\Models\District;
 use App\Models\Farm;
 use App\Models\Location;
@@ -16,6 +17,7 @@ use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use Illuminate\Support\Facades\Auth;
 
 class FarmController extends AdminController
 {
@@ -47,7 +49,6 @@ class FarmController extends AdminController
                 Admin::user()->isRole('administrator') ||
                 Admin::user()->isRole('scvo') ||
                 Admin::user()->isRole('clo') ||
-                Admin::user()->isRole('dvo') ||
                 Admin::user()->isRole('admin')
             ) {
 
@@ -107,11 +108,14 @@ class FarmController extends AdminController
         }
 
         $form->text('size', __('Size (in Ha)'))->attribute('type', 'number')->required();
-
-        $form->latlong('latitude', 'longitude', 'Location of the farm')->default(['lat' => 0.3130291, 'lng' => 32.5290854])->required();
+        $form->text('lat', __('Latitude'))->rules('required');
+        $form->text('lng', __('Longitude'))->rules('required');
 
         $form->textarea('dfm', __('Farm Details'));
         $form->text('holding_code', __('Holding code'))->readonly();
+
+        $form->disableCreatingCheck();
+        //$form->disableB
 
         return $form;
     }
@@ -121,16 +125,26 @@ class FarmController extends AdminController
     protected function grid()
     {
 
-        
+
 
 
         $grid = new Grid(new Farm());
+        $grid->disableActions();
         if (Admin::user()->isRole('farmer')) {
             $grid->model()->where('administrator_id', '=', Admin::user()->id);
             $grid->actions(function ($actions) {
                 $actions->disableDelete();
                 $actions->disableEdit();
             });
+        } else if (
+            Admin::user()->isRole('dvo')
+        ) {
+            $u = Auth::user();
+            $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
+            $dis = Location::find($r->type_id);
+            $grid->model()->where([
+                'district_id' => $dis->id
+            ])->orderBy('id', 'DESC');
         }
 
         $grid->filter(function ($filter) {
@@ -163,13 +177,8 @@ class FarmController extends AdminController
                 }
             })
                 ->ajax(
-                    url('/api/ajax?'
-                        . "&search_by_1=name"
-                        . "&search_by_2=id"
-                        . "&query_parent=0"
-                        . "&model=Location")
+                    url('/api/sub-counties?')
                 );
-
             $filter->equal('sub_county_id', 'Filter by sub-county')->select(function ($id) {
                 $a = Location::find($id);
                 if ($a) {
@@ -180,8 +189,9 @@ class FarmController extends AdminController
                     url('/api/sub-counties')
                 );
         });
-        $grid->model()->orderBy('id', 'DESC');
 
+        $grid->disableBatchActions();
+        $grid->model()->orderBy('id', 'DESC');
         $grid->column('id', __('Id'))->sortable();
 
 
@@ -191,8 +201,7 @@ class FarmController extends AdminController
             })->sortable();
 
 
-
-
+ 
         $grid->column('holding_code', __('Holding code'))->sortable();
         $grid->column('size', __('Size (Ha)'))->sortable();
         $grid->column('cattle_count', __('Cattle'))->sortable();

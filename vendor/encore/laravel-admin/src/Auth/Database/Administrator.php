@@ -60,7 +60,7 @@ class Administrator extends Model implements AuthenticatableContract
             $phone_number_is_valid = Utils::phone_number_is_valid($phone_number);
             if ($phone_number_is_valid) {
                 $m->phone_number = $phone_number;
-                $m->username = $phone_number;
+                /*   $m->username = $phone_number; */
                 $users = Administrator::where([
                     'username' => $phone_number
                 ])->orWhere([
@@ -133,8 +133,8 @@ class Administrator extends Model implements AuthenticatableContract
     }
 
     public function getVetProfileAttribute()
-    {  
-       return Vet::where('administrator_id',$this->id)->first(); 
+    {
+        return Vet::where('administrator_id', $this->id)->first();
     }
 
 
@@ -200,7 +200,7 @@ class Administrator extends Model implements AuthenticatableContract
         ])->first();
         if ($r != null) {
             $r->delete();
-        } 
+        }
         /* 
         $v  = Vet::where([
             'administrator_id' => $this->id

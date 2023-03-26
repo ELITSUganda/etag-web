@@ -101,6 +101,8 @@ php artisan make:model Vet
 php artisan make:model VetServiceCategory
 php artisan make:model VetHasService
 php artisan make:model DrugForSale
+php artisan make:model District
+php artisan make:model SubCounty
 
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs

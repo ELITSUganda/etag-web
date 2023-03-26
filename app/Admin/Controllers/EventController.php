@@ -299,28 +299,29 @@ class EventController extends AdminController
         die("sone"); */
 
 
-        /*
-        $ids = [];
-        foreach (Animal::where([
-            'sex' => 'Female',
-            'administrator_id' => $u->id
+     /*    $ids = [];
+        foreach (Animal::where([  
+            'administrator_id' => Auth::user()->id
         ])->get() as $k => $a) {
             $ids[] = $a->id;
         }
 
         $faker = Faker::create();
-        for ($x = 1; $x < 1000; $x++) {
-            shuffle($ids);
+        for ($x = 1; $x < 25; $x++) {
             $e = new Event();
-            $e->animal_id = $ids[2];
+            $e->animal_id = $ids[rand(1,3)];
             $e->created_at = $faker->dateTimeBetween('-1 year');
             $e->type = "Milking";
             $e->milk = rand(1, 15);
+           try {
             $e->save();
+           } catch (\Throwable $th) {
+            //throw $th;
+           }
             echo $x."<br>";
-        }
-        die();*/
-
+        }  
+        dd("done");
+ */
         Utils::display_alert_message();
         $form = new Form(new Event());
 

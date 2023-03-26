@@ -28,16 +28,13 @@ if ($sub != null) {
     }
 }
 
+$district_from = '-';
 
-$district_from = "-";
+$d = Location::find($m->district_to);
+$district_to = '-';
 
-
-$d =  Location::find($m->district_to);
-$district_to = "-";
-
-
-$sub =  Location::find($m->sub_county_from);
-$sub_county_from = "-";
+$sub = Location::find($m->sub_county_from);
+$sub_county_from = '-';
 if ($sub != null) {
     $sub_county_from = $sub->name . " ($sub->code)";
     if ($sub->district != null) {
@@ -61,22 +58,29 @@ if ($sub != null) {
 
 <body>
 
-    <table>
+    <table style="width: 100%">
         <tr>
-            <td style="width: 30%;">
-                <p class="mb-2">Permit status.: <b class="">APPROVED</b></p>
-                <p class="mb-2">Permit no.: <b class="">132322323</b></p>
+            <td colspan="3" class="text-center">
+                <p class="text-center" style="font-size: 18px"><b>MINISTRY OF AGRICULTURE, ANIMAL INDUSTRY AND
+                        FISHERIES.</b></p>
+                <p class="mb-1" class="text-center" style="font-size: 18px"><b>DEPARTMENT OF ANIMAL HEALTH</b></p>
+                <p class="mb-0" class="text-center" style="font-size: 12px"><b>P.O. Box 513, ENTEBBE, UGANDA</b></p>
+                <p class="mb-0" class="text-center" style="font-size: 12px"><b>E-MAIL:</b>
+                    animalhealth@agriculture.co.ug</p>
+                <p class="mb-0" class="text-center" style="font-size: 12px;"><b>TELEPHONE:</b> +256 0414 320 627,
+                    320166, 320376</p>
             </td>
-            <td class="text-center">
-                <img style="width: 75%;" src="{{ public_path('assets/images/coat_of_arms-min.png') }}">
+        </tr>
+        <tr>
+            <td style="width: 25%;" class="">
+
 
             </td>
-            <td style="width: 45%;" class="pl-3">
-                <p><b>MINISTRY OF AGRICULTURE, ANIMAL INDUSTRY AND FISHERIES.</b></p>
-                <p class="mb-2"><b>DEPARTMENT OF ANIMAL HEALTH</b></p>
-                <p>P.O. Box 513, ENTEBBE, UGANDA</p>
-                <p><b>E-MAIL:</b> animalhealth@agriculture.co.ug</p>
-                <p><b>TELEPHONE:</b> +256 0414 320 627, 320166, 320376</p>
+            <td class="text-center" style="width: 20%;">
+                <img style="width: 120px" src="{{ public_path('assets/images/coat_of_arms-min.png') }}">
+            </td>
+            <td style="width: 25%;" class="">
+
             </td>
         </tr>
     </table>
@@ -85,6 +89,9 @@ if ($sub != null) {
         <u>WITHIN UGANDA ONLY</u>
     </h2>
     <p class="text-center my-2 text-secondary"><i>(Issued under the animal disease Act Chapter 38)</i></p>
+
+    <p class="mb-2">Permit status.: <b class="">APPROVED</b></p>
+    <p class="mb-2 text-left">Permit no.: <b class="">MVP-UG-121-2-112</b></p>
 
     <h5 class="mb-1">i. Identification of animals</h5>
     <table class="table table-bordered">
@@ -121,7 +128,7 @@ if ($sub != null) {
     <p>Name of owner / farm / ranch /unit <u> {{ $m->trader_name }} </u> is permitted to move animals within <u>
             {{ $m->valid_from_Date }} </u> - <u> {{ $m->valid_to_Date }} </u> days From the Sub-county / Division Of
         <u>
-            {{ $m->village_from }}</u> in the District of <u>{{ $sub_county_from }}, {{$district_from}}</u>.
+            {{ $m->village_from }}</u> in the District of <u>{{ $sub_county_from }}, {{ $district_from }}</u>.
     </p>
     <h5 class="mb-1 mt-2">iii. Destination of animals</h5>
     <p>To the District Of <u>{{ $m->village_to }} </u> in the Sub-county / Division of <u>{{ $sub_county_to }},

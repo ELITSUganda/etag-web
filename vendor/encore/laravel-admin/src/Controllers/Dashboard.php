@@ -2,8 +2,12 @@
 
 namespace Encore\Admin\Controllers;
 
+use App\Models\AdminRoleUser;
 use App\Models\Animal;
 use App\Models\Event;
+use App\Models\Farm;
+use App\Models\Location;
+use App\Models\Movement;
 use App\Models\Transaction;
 use App\Models\Utils;
 use Carbon\Carbon;
@@ -13,6 +17,131 @@ use Illuminate\Support\Facades\Auth;
 
 class Dashboard
 {
+
+
+    public static function dvo_farms_widget()
+    {
+        $u = Auth::user();
+        $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
+
+        if ($r == null) {
+            return 'District role not found.';
+        }
+        $dis = Location::find($r->type_id);
+        if ($dis == null) {
+            return 'District not found.';
+        }
+
+        $sub_title =  "Farms in $dis->name district.";
+        return view('widgets.box-5', [
+            'is_dark' => false,
+            'title' => 'Farms',
+            'sub_title' => $sub_title,
+            'number' => number_format(Farm::where(['district_id' => $dis->id])->count()),
+            'link' => admin_url('farms')
+        ]);
+    }
+
+    public static function dvo_animals_widget()
+    {
+        $u = Auth::user();
+        $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
+
+        if ($r == null) {
+            return 'District role not found.';
+        }
+        $dis = Location::find($r->type_id);
+        if ($dis == null) {
+            return 'District not found.';
+        }
+
+        $sub_title =  "Animals in $dis->name district.";
+        return view('widgets.box-5', [
+            'is_dark' => false,
+            'title' => 'Livestock',
+            'sub_title' => $sub_title,
+            'number' => number_format(Animal::where(['district_id' => $dis->id])->count()),
+            'link' => admin_url('animals')
+        ]);
+    }
+
+    public static function dvo_events_widget()
+    {
+        $u = Auth::user();
+        $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
+
+        if ($r == null) {
+            return 'District role not found.';
+        }
+        $dis = Location::find($r->type_id);
+        if ($dis == null) {
+            return 'District not found.';
+        }
+
+        $sub_title =  "Events in $dis->name district.";
+        return view('widgets.box-5', [
+            'is_dark' => false,
+            'title' => 'Events',
+            'sub_title' => $sub_title,
+            'number' => number_format(Event::where(['district_id' => $dis->id])->count()),
+            'link' => admin_url('events')
+        ]);
+    }
+
+    public static function dvo_movements_widget()
+    {
+        $u = Auth::user();
+        $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
+
+        if ($r == null) {
+            return 'District role not found.';
+        }
+        $dis = Location::find($r->type_id);
+        if ($dis == null) {
+            return 'District not found.';
+        }
+
+        $sub_title =  "Events in $dis->name district.";
+        return view('widgets.box-5', [
+            'is_dark' => true,
+            'title' => 'Movements',
+            'sub_title' => $sub_title,
+            'number' => number_format(Movement::where(['district_from' => $dis->id])->count()),
+            'link' => admin_url('movements')
+        ]);
+    }
+
+    public static function dvo_recent_events()
+    {
+        $events = Event::where([])->orderBy('id', 'Desc')->limit(15)->get();
+        return view('dashboard.recent-events', [
+            'title' => 'Recent events',
+            'items' => $events
+        ]);
+    }
+
+    public static function dvo_recent_animals()
+    {
+        $u = Auth::user();
+        $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
+
+        if ($r == null) {
+            return 'District role not found.';
+        }
+        $dis = Location::find($r->type_id);
+        if ($dis == null) {
+            return 'District not found.';
+        }
+        $events = Movement::where(['district_from' => $dis->id])->orderBy('id', 'Desc')->limit(15)->get();
+        //dd($events->first());
+        return view('dashboard.recent-movements', [
+            'title' => 'Recent movement permits',
+            'items' => $events
+        ]);
+    }
+
+
+
 
     public static function milkCollection()
     {

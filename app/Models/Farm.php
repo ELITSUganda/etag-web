@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Facades\Admin;
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
@@ -89,47 +90,16 @@ class Farm extends Model
         parent::boot();
 
         self::creating(function ($model) {
-
-            $model->district_id = 1;
-            $sub = Location::find($model->sub_county_id);
-            if ($model->sub_county_id != null) {
-                if ($sub != null) {
-                    $model->district_id = $sub->parent;
-                }
-            }
-
-            $num = (int) (Farm::where(['sub_county_id' => $model->sub_county_id])->count());
-            $num++;
-            if ($sub != null) {
-                $model->holding_code = $sub->code . "-" . $num;
-            } else {
-                $model->holding_code = 'UG-000-00' . "-" . $num;
-            }
-
-            return $model; 
+            return Farm::my_update($model);
         });
 
 
         self::updating(function ($model) {
-
-            $model->district_id = 1;
-            $sub = Location::find($model->sub_county_id);
-            if ($model->sub_county_id != null) {
-                if ($sub != null) {
-                    $model->district_id = $sub->parent;
-                }
-            }
-
-            $num = (int) (Farm::where(['sub_county_id' => $model->sub_county_id])->count());
-            $num++;
-            if ($sub != null) {
-                $model->holding_code = $sub->code . "-" . $num;
-            } else {
-                //  $model->holding_code = 'UG-000-00' . "-" . $num;
-            }
-
-            return $model;
+            return Farm::my_update($model);
         });
+
+
+
 
         self::updated(function ($model) {
             if ($model->animals != null) {
@@ -141,6 +111,7 @@ class Farm extends Model
             // ... code here
         });
 
+
         self::deleting(function ($model) {
             // ... code here
         });
@@ -149,6 +120,24 @@ class Farm extends Model
             // ... code here
         });
     }
+
+
+    public static function my_update($m)
+    {
+        $sub = Location::find($m->sub_county_id);
+        if ($sub == null) {
+            $m->sub_county_id = 1002007;
+            $sub = Location::find($m->sub_county_id);
+        }
+        if ($sub == null) {
+            throw new Exception("Subcounty not found.", 1);
+        }
+        $num = (int) (Farm::where(['sub_county_id' => $m->sub_county_id])->count());
+        $num++;
+        $m->holding_code = $sub->code . "-" . $num;
+        return $m;
+    }
+
 
     public function parish()
     {
@@ -174,8 +163,11 @@ class Farm extends Model
     {
         $id = $this->administrator_id;
         $u = Administrator::find($id);
-        if (!$u) {
-            return Admin::user();
+        if ($u == null) {
+            $this->administrator_id = 1;
+            $this->save();
+            $id = $this->administrator_id;
+            $u = Administrator::find($id);
         }
         return $u;
 
