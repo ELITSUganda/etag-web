@@ -108,8 +108,8 @@ class FarmController extends AdminController
         }
 
         $form->text('size', __('Size (in Ha)'))->attribute('type', 'number')->required();
-        $form->text('lat', __('Latitude'))->rules('required');
-        $form->text('lng', __('Longitude'))->rules('required');
+        $form->text('latitude', __('Latitude'))->rules('required');
+        $form->text('longitude', __('Longitude'))->rules('required');
 
         $form->textarea('dfm', __('Farm Details'));
         $form->text('holding_code', __('Holding code'))->readonly();

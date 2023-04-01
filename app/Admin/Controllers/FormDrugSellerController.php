@@ -242,9 +242,8 @@ class FormDrugSellerController extends AdminController
                 ->required();
         } else {
 
-            $form->latlong('latitude', 'longitude', 'Location of the farm')
-                ->readonly()
-                ->default(['lat' => 0.3130291, 'lng' => 32.5290854])->required();
+            $form->textarea('latitube', __('latitube'))->required();
+            $form->textarea('longitude', __('longitude'))->required();
 
             $form->display('name', 'Enterprise name');
             $form->display('type', 'Nature of your enterprise');
