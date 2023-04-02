@@ -106,6 +106,7 @@ Route::post('login', [ApiLoginController::class, 'index']);
 Route::post('update-roles', [ApiLoginController::class, 'update_roles']);
 Route::post('remove-vet-role', [ApiLoginController::class, 'remove_vet_role']);
 Route::post('vet-profile', [ApiLoginController::class, 'vet_profile']);
+Route::post('update-profile', [ApiLoginController::class, 'update_profile']);
 Route::get('me', [ApiLoginController::class, 'me']);
 Route::post('login/create-account', [ApiLoginController::class, 'create_account']);
 // ========== lofin ends ============== //

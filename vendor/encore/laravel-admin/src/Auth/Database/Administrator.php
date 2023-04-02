@@ -5,6 +5,8 @@ namespace Encore\Admin\Auth\Database;
 use App\Models\AdminRole;
 use App\Models\AdminRoleUser;
 use App\Models\Farm;
+use App\Models\Location;
+use App\Models\SubCounty;
 use App\Models\Utils;
 use App\Models\Vet;
 use Encore\Admin\Traits\DefaultDatetimeFormat;
@@ -33,8 +35,6 @@ class Administrator extends Model implements AuthenticatableContract
         parent::boot();
 
         self::creating(function ($m) {
-
-
             $phone_number = Utils::prepare_phone_number($m->phone_number);
             $phone_number_is_valid = Utils::phone_number_is_valid($phone_number);
             if ($phone_number_is_valid) {
@@ -45,7 +45,6 @@ class Administrator extends Model implements AuthenticatableContract
                     $m->username = $m->email;
                 }
             }
-
             return $m;
         });
 
@@ -55,6 +54,11 @@ class Administrator extends Model implements AuthenticatableContract
         });
 
         self::updating(function ($m) {
+
+            if (isset($m->sub_county_id)) {
+                $sub = Location::find($m->sub_county_id);
+                $m->district_id = $sub->parent;
+            }
 
             $phone_number = Utils::prepare_phone_number($m->phone_number);
             $phone_number_is_valid = Utils::phone_number_is_valid($phone_number);
@@ -78,7 +82,8 @@ class Administrator extends Model implements AuthenticatableContract
                         ]);
                     }
                 }
-            }
+            }  
+
             return $m;
         });
     }

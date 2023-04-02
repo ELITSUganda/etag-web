@@ -113,9 +113,9 @@ class ApiLoginController extends Controller
         AdminRoleUser::where([
             'role_id' => 11,
             'user_id' => $u->id,
-        ])->delete(); 
-  
-      
+        ])->delete();
+
+
 
         return Utils::response([
             'status' => 1,
@@ -125,11 +125,67 @@ class ApiLoginController extends Controller
     }
 
 
-    public function vet_profile(Request $r)
+
+    public function update_profile(Request $r)
     {
 
+        if (
+            $r->first_name == null ||
+            $r->last_name == null ||
+            $r->sub_county_id == null
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Some information is missing."
+            ]);
+        }
 
 
+        /* 
+first_name	
+last_name	
+nin	
+address	
+sub_county_id
+        */
+
+
+        $administrator_id = ((int) (Utils::get_user_id($r)));
+        $u = Administrator::find($administrator_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found."
+            ]);
+        }
+
+        $u->first_name = $r->first_name;
+        $u->last_name = $r->last_name;
+        $u->nin = $r->nin;
+        $u->address = $r->address;
+        $u->sub_county_id = $r->sub_county_id;
+
+        if (strlen($u->first_name) > 1) {
+            $u->name = $u->first_name . " " . $u->last_name;
+        }
+        try {
+            $u->save();
+            return Utils::response([
+                'status' => 1,
+                'message' => "Profile updated successfully!",
+                'data' => null
+            ]);
+        } catch (\Throwable $th) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Failed user account."
+            ]);
+        }
+    }
+
+
+    public function vet_profile(Request $r)
+    {
 
         if (
             $r->business_subcounty_id == null ||
