@@ -30,6 +30,11 @@ class MainController extends Controller
             if ($dh = opendir($dir)) {
                 while (($file = readdir($dh)) !== false) {
                     if ($file != "." && $file != ".." && $file != '.DS_Store') {
+
+                        $temps = explode('_',$file);
+                        if(in_array('temp',$temps)){
+                            continue;
+                        }
                         $original_file = $dir . $file;
                         if (!file_exists($original_file)) {
                             continue;
