@@ -141,13 +141,6 @@ class ApiLoginController extends Controller
         }
 
 
-        /* 
-first_name	
-last_name	
-nin	
-address	
-sub_county_id
-        */
 
 
         $administrator_id = ((int) (Utils::get_user_id($r)));
@@ -165,6 +158,19 @@ sub_county_id
         $u->address = $r->address;
         $u->sub_county_id = $r->sub_county_id;
 
+        $image = "";
+        if (!empty($_FILES)) {
+            try {
+                $image = Utils::upload_images_2($_FILES, true);
+            } catch (Throwable $t) {
+                $image = "";
+            }
+        }
+
+        if ($image != null && strlen($image) > 4) {
+            $u->avatar = 'public/storage/images/' . $image;
+        }
+
         if (strlen($u->first_name) > 1) {
             $u->name = $u->first_name . " " . $u->last_name;
         }
@@ -173,7 +179,7 @@ sub_county_id
             return Utils::response([
                 'status' => 1,
                 'message' => "Profile updated successfully!",
-                'data' => null
+                'data' => $u
             ]);
         } catch (\Throwable $th) {
             return Utils::response([
