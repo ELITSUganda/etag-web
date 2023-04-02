@@ -21,6 +21,80 @@ class MainController extends Controller
     }
 
 
+    function process_photos()
+    {
+        set_time_limit(-1);
+        $i = 1;
+        $dir = public_path("storage/images/"); // replace with your directory path
+        if (is_dir($dir)) {
+            if ($dh = opendir($dir)) {
+                while (($file = readdir($dh)) !== false) {
+                    if ($file != "." && $file != ".." && $file != '.DS_Store') {
+                        $original_file = $dir . $file;
+                        if (!file_exists($original_file)) {
+                            continue;
+                        }
+                        $isImage = false;
+                        try {
+                            $image_data =  getimagesize($original_file);
+                            if ($image_data == null) {
+                                $isImage = false;
+                            }
+                            if (
+                                isset($image_data[0]) &&
+                                isset($image_data[1]) &&
+                                isset($image_data[2]) &&
+                                isset($image_data[3])
+                            ) {
+                                $isImage = true;
+                            }
+
+                            if (!$isImage) {
+                                continue;
+                            }
+
+                            $fileSizeInBytes = 0;
+                            try {
+                                $fileSizeInBytes = filesize($original_file);
+                                $fileSizeInBytes = $fileSizeInBytes / 1000000;
+                            } catch (\Throwable $th) {
+                            }
+                            if ($fileSizeInBytes < 0.8) {
+                                continue;
+                            }
+
+
+                            $thumb =  Utils::create_thumbnail($original_file);
+                            if ($thumb == null) {
+                                continue;
+                            } 
+
+                            if (!fileExists($thumb)) {
+                                echo "========THUMB DNE!============";
+                                continue;
+                            }
+
+
+
+                            echo  $i . '<=== <img src="' . url('storage/images/' . $file) . '" width="300" /><br>';
+                            $i++;
+                            rename($thumb, $original_file);
+
+                            // unlink($thumb);
+
+                        } catch (\Throwable $th) {
+                            //throw $th;
+                        }
+                    }
+                }
+                closedir($dh);
+            }
+        }
+
+        die("done");
+    }
+
+
 
 
     public function create_account_save(Request $request)
