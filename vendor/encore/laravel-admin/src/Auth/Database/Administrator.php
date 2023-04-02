@@ -28,7 +28,7 @@ class Administrator extends Model implements AuthenticatableContract
     use DefaultDatetimeFormat;
 
     protected $fillable = ['username', 'password', 'name', 'avatar'];
-    protected $appends = ['vet_profile'];
+    protected $appends = ['vet_profile','sub_county_text'];
 
     public static function boot()
     {
@@ -140,6 +140,14 @@ class Administrator extends Model implements AuthenticatableContract
     public function getVetProfileAttribute()
     {
         return Vet::where('administrator_id', $this->id)->first();
+    }
+    public function getSubCountyTextAttribute()
+    {
+        $sub =  Location::find($this->sub_county_id);
+        if($sub!=null){
+            return $sub->name_text;
+        }
+        return '-';
     }
 
 
