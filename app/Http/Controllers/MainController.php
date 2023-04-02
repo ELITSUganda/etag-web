@@ -59,7 +59,7 @@ class MainController extends Controller
                                 $fileSizeInBytes = $fileSizeInBytes / 1000000;
                             } catch (\Throwable $th) {
                             }
-                            if ($fileSizeInBytes < 0.8) {
+                            if ($fileSizeInBytes < 1) {
                                 continue;
                             }
 
