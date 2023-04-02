@@ -69,7 +69,7 @@ class MainController extends Controller
                                 continue;
                             } 
 
-                            if (!fileExists($thumb)) {
+                            if (!file_exists($thumb)) {
                                 echo "========THUMB DNE!============";
                                 continue;
                             }
@@ -80,7 +80,10 @@ class MainController extends Controller
                             $i++;
                             rename($thumb, $original_file);
 
-                            // unlink($thumb);
+                            if (file_exists($thumb)) {
+                                unlink($thumb); 
+                                continue;
+                            }
 
                         } catch (\Throwable $th) {
                             //throw $th;
