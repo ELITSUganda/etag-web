@@ -287,6 +287,7 @@ class HomeController extends Controller
 
         if (
             Admin::user()->isRole('administrator') ||
+            Admin::user()->isRole('maaif') ||
             Admin::user()->isRole('admin')
         ) {
             Admin::js('/vendor/laravel-admin-ext/chartjs/Chart.bundle.min.js');
@@ -324,7 +325,10 @@ class HomeController extends Controller
                     if ($_ad->isRole('trader')) {
                         $trader_count++;
                     }
-                    if ($_ad->isRole('administrator')) {
+                    if (
+                        $_ad->isRole('administrator') ||
+                        $_ad->isRole('maaif') 
+                    ) {
                         $administrator_count++;
                     }
                     if ($_ad->isRole('veterinary')) {
