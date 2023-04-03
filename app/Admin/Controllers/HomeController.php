@@ -299,14 +299,14 @@ class HomeController extends Controller
                 $box->collapsable();
                 $box->style('success');
                 $box->solid();
-                $row->column(6, $box);
+                $row->column(5, $box);
 
                 $box = new Box('Events', view('admin.dashboard.chart-animal-status'));
                 $box->removable();
                 $box->collapsable();
                 $box->style('success');
                 $box->solid();
-                $row->column(6, $box);
+                $row->column(5, $box);
             });
             $content->row(function ($row) {
                 $admins = Administrator::all();
