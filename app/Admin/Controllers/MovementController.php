@@ -91,6 +91,7 @@ class MovementController extends AdminController
             });
         } else if (
             Admin::user()->isRole('administrator') ||
+            Admin::user()->isRole('maaif') ||
             Admin::user()->isRole('admin')
         ) {
         } else if (
