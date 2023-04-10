@@ -165,7 +165,7 @@ Route::get('ajax', function (Request $r) {
         }
         $data[] = [
             'id' => $v->id,
-            'text' => "$v->phone_number" . $name
+            'text' =>  $name . " - $v->phone_number "
         ];
     }
     foreach ($res_2 as $key => $v) {
@@ -175,7 +175,7 @@ Route::get('ajax', function (Request $r) {
         }
         $data[] = [
             'id' => $v->id,
-            'text' => "$v->phone_number" . $name
+            'text' =>  $name . " -  $v->phone_number"
         ];
     }
 
@@ -218,7 +218,7 @@ Route::get('sub-counties', function (Request $r) {
         ->limit(20)->get();
     $data = [];
     foreach ($res_1 as $key => $v) {
-        if($v->parent == 0){
+        if ($v->parent == 0) {
             continue;
         }
         $data[] = [

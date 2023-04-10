@@ -13,6 +13,22 @@ php artisan make:migration create_finance_categories_table
 php artisan make:migration create_transactions_table
 
 
+ALTER TABLE `animals` ADD 
+`has_more_info` VARCHAR(250) NULL DEFAULT NULL,
+`was_purchases` VARCHAR(250) NULL DEFAULT NULL,
+`purchase_date` VARCHAR(250) NULL DEFAULT NULL,
+`purchase_from` VARCHAR(250) NULL DEFAULT NULL,
+`purchase_price` VARCHAR(250) NULL DEFAULT NULL,
+`current_price` VARCHAR(250) NULL DEFAULT NULL,
+`weight_at_birth` VARCHAR(250) NULL DEFAULT NULL,
+`conception` VARCHAR(250) NULL DEFAULT NULL,
+`genetic_donor` VARCHAR(250) NULL DEFAULT NULL,
+`group_id` VARCHAR(250) NULL DEFAULT NULL,
+`comments` VARCHAR(250) NULL DEFAULT NULL;
+
+
+
+
 php artisan make:migration create_import_export_permits_table
 php artisan make:migration create_tanks_table
 php artisan make:migration create_contracts_table
@@ -38,6 +54,7 @@ php artisan make:migration create_vets_table
 php artisan make:migration create_vet_has_services_table
 php artisan make:migration create_vet_service_categories_table
 php artisan make:migration create_drug_for_sales_table
+php artisan make:migration create_groups_table
 
 Encore\Admin\Auth\Database\Administrator::class,
 php artisan admin:make FormSr4Controller --model=App\FormSr4
@@ -72,6 +89,7 @@ php artisan admin:make SlaughterHouseController --model=App\Models\SlaughterHous
 php artisan admin:make AdminRoleUserController --model=App\Models\AdminRoleUser
 php artisan admin:make CheckpointSessionController --model=App\Models\CheckpointSession
 php artisan admin:make VetServiceCategoryController --model=App\Models\VetServiceCategory
+php artisan admin:make GroupController --model=App\Models\Group
 
 
 php artisan make:model CheckPoint
@@ -103,6 +121,7 @@ php artisan make:model VetHasService
 php artisan make:model DrugForSale
 php artisan make:model District
 php artisan make:model SubCounty
+php artisan make:model Group
 
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs

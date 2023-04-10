@@ -46,7 +46,8 @@ Route::group([
     $router->resource('milk', MilkController::class);
     $router->resource('slaughter-houses', SlaughterHouseController::class);
     $router->resource('admin-role-users', AdminRoleUserController::class);
-    $router->resource('checkpoint-sessions', CheckpointSessionController::class); 
+    $router->resource('checkpoint-sessions', CheckpointSessionController::class);
     $router->resource('vet-service-categories', VetServiceCategoryController::class);
-    $router->resource('locations', LocationController::class); 
+    $router->resource('locations', LocationController::class);
+    $router->resource('groups', GroupController::class);
 });

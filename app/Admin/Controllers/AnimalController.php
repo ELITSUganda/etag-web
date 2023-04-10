@@ -6,6 +6,7 @@ use App\Models\AdminRoleUser;
 use App\Models\Animal;
 use App\Models\District;
 use App\Models\Farm;
+use App\Models\Group;
 use App\Models\Location;
 use App\Models\Utils;
 use Carbon\Carbon;
@@ -366,8 +367,19 @@ class AnimalController extends AdminController
         $form->text('v_id', __('Visual ID (V-ID)'))->required();
 
         $form->divider();
-        $form->date('dob', __('Year of birth'))->attribute('autocomplete', 'false')->default(date('Y-m-d'))->required();
-        $form->radio('has_parent', __('Has a parent'))
+        $form->date('dob', __('Date of birth'))->attribute('autocomplete', 'false')->default(date('Y-m-d'))->required();
+
+        $groups = Group::where([
+            'administrator_id' => Auth::user()->id
+        ])
+            ->orderBy('name', 'desc')
+            ->get();
+
+        $form->select('group_id', __('Group'))
+            ->options($groups->pluck('name', 'id'));
+
+
+        $form->radio('has_parent', __('Has a mother'))
             ->options([
                 '0' => "No",
                 '1' => "Yes",
@@ -375,7 +387,7 @@ class AnimalController extends AdminController
             ->default(null)
             ->when(1, function ($f) {
                 $u = Admin::user();
-                $f->select('parent_id', 'Select parent')
+                $f->select('parent_id', 'Select Mother')
                     ->options(function ($id) {
                         $parent = Animal::find($id);
                         if ($parent != null) {
@@ -399,10 +411,87 @@ parent_id
  */
         $form->divider();
 
+        $form->radio('has_more_info', __('Add more information'))
+            ->options([
+                'Yes' => "Yes",
+                'No' => "No",
+            ])
+            ->when('Yes', function ($f) {
+                $u = Admin::user();
 
-        $form->date('fmd', __('Date last FMD vaccination'))->default(null);
-        $form->text('status', __('Status'))->readonly()->default("Active");
-        $form->text('lhc', __('LHC'))->readonly();
+                $f->decimal('weight_at_birth', __('Weight at birth'));
+                $f->decimal('weight', __('Current weight'));
+                $f->decimal('current_price', __('Current worth price'));
+
+                $f->date('fmd', __('Date last FMD vaccination'))->default(null);
+
+                $f->radio('conception', __('Conception method'))
+                    ->options([
+                        'Natural Fertilization' => "Natural Fertilization",
+                        'Artificial Insemination' => "Artificial Insemination (AI)",
+                    ]);
+
+                $f->select('genetic_donor', 'Genetic farther/Donor')
+                    ->options(function ($id) {
+                        $parent = Animal::find($id);
+                        if ($parent != null) {
+                            return [$parent->id =>  $parent->v_id . " - " . $parent->e_id];
+                        }
+                    })
+                    ->ajax(
+                        url('/api/ajax-animals?'
+                            . "&administrator_id={$u->id}")
+                    );
+
+
+                $f->radio('was_purchases', __('Was this animal purchased?'))
+                    ->options([
+                        'Yes' => "Yes",
+                        'No' => "No",
+                    ])
+                    ->when('Yes', function ($f) {
+                        $f->decimal('purchase_date', __('Purchase date'));
+                        $f->decimal('purchase_price', __('Purchase price'));
+
+                        $f->select('purchase_from', 'Purchase from')
+                            ->options(function ($id) {
+                                $parent = Animal::find($id);
+                                if ($parent != null) {
+                                    return [$parent->id =>  $parent->v_id . " - " . $parent->e_id];
+                                }
+                            })
+                            ->rules('required')
+                            ->ajax(
+                                url('/api/ajax?'
+                                    . "&search_by_1=name"
+                                    . "&search_by_2=phone_number"
+                                    . "&model=User")
+                            );
+                    });
+                $f->radio('conception', __('Conception method'))
+                    ->options([
+                        'Natural Fertilization' => "Natural Fertilization",
+                        'Artificial Insemination' => "Artificial Insemination (AI)",
+                    ]);
+
+                $f->textarea('comments', __('Comments'));
+
+
+
+
+
+
+                return $f;
+            });
+
+
+
+
+        $form->hidden('status', __('Status'))->readonly()->default("Active");
+        $form->hidden('lhc', __('LHC'))->readonly();
+        $form->disableViewCheck();
+        $form->disableReset();
+        $form->disableEditingCheck();
 
         return $form;
     }

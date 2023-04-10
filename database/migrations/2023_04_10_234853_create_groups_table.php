@@ -1,10 +1,11 @@
 <?php
 
+use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateVetServiceCategoriesTable extends Migration
+class CreateGroupsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +14,12 @@ class CreateVetServiceCategoriesTable extends Migration
      */
     public function up()
     {
-        Schema::create('vet_service_categories', function (Blueprint $table) {
+        Schema::create('groups', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->text('service_name')->nullable();
-            $table->text('service_description')->nullable();
-            $table->text('photo')->nullable();
+            $table->string('name')->nullable();
+            $table->text('description')->nullable();
+            $table->foreignIdFor(Administrator::class);
         });
     }
 
@@ -29,6 +30,6 @@ class CreateVetServiceCategoriesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('vet_service_categories');
+        Schema::dropIfExists('groups');
     }
 }
