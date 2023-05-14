@@ -50,4 +50,5 @@ Route::group([
     $router->resource('vet-service-categories', VetServiceCategoryController::class);
     $router->resource('locations', LocationController::class);
     $router->resource('groups', GroupController::class);
+    $router->resource('gens', GenController::class); 
 });

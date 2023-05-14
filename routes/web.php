@@ -7,6 +7,7 @@ use App\Http\Controllers\PrintController2;
 use App\Http\Controllers\WebController;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Models\Event;
+use App\Models\Gen;
 use App\Models\Utils;
 use Encore\Admin\Grid\Tools\Header;
 use Illuminate\Support\Facades\Route;
@@ -28,11 +29,15 @@ Route::get('/', function () {
     die();
 });
 
+Route::get('/gen', function () {
+    die(Gen::find($_GET['id'])->do_get());
+})->name("gen");
+
 Route::get('demo', function () {
     return '<h2>DVO Lyantonde: <code>+256775679511</code></h2>' .
         '<h2>DVO Checkpoint officer: <code>+256706638491</code></h2>';
 });
-Route::get('generate-variables', [MarketController::class, 'generate_variables']); 
+Route::get('generate-variables', [MarketController::class, 'generate_variables']);
 Route::get('market', [MarketController::class, 'index'])->name('market');
 Route::get('market/register', [MarketController::class, 'register'])->name('m-register');
 Route::get('market/account-orders', [MarketController::class, 'account_orders'])->name('account-orders');
@@ -50,7 +55,7 @@ Route::match(['get', 'post'], '/print', [PrintController::class, 'index']);
 
 
 Route::match(['get'], '/register', [MainController::class, 'create_account_page']);
-Route::get('process-photos', [MainController::class, 'process_photos']); 
+Route::get('process-photos', [MainController::class, 'process_photos']);
 Route::match(['post'], '/register', [MainController::class, 'create_account_save']);
 
 
