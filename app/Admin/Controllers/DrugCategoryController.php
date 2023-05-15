@@ -15,7 +15,7 @@ class DrugCategoryController extends AdminController
      *
      * @var string
      */
-    protected $title = 'DrugCategory';
+    protected $title = 'Drug Categories';
 
     /**
      * Make a grid builder.
@@ -25,11 +25,11 @@ class DrugCategoryController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new DrugCategory());
-
+        $grid->disableBatchActions();
         $grid->column('id', __('Id'));
-        $grid->column('created_at', __('Created'));
-        $grid->column('name', __('Name'));
-        $grid->column('unit', __('Unit'));
+        $grid->picture('photo', __('Photo'))->sortable();
+        $grid->column('name', __('Name'))->sortable();
+        $grid->column('unit', __('Unit'))->sortable();
         $grid->column('details', __('Details'));
 
         return $grid;
@@ -46,8 +46,6 @@ class DrugCategoryController extends AdminController
         $show = new Show(DrugCategory::findOrFail($id));
 
         $show->field('id', __('Id'));
-        $show->field('created_at', __('Created at'));
-        $show->field('updated_at', __('Updated at'));
         $show->field('name', __('Name'));
         $show->field('unit', __('Unit'));
         $show->field('details', __('Details'));
@@ -66,6 +64,7 @@ class DrugCategoryController extends AdminController
 
         $form->text('name', __('Name'))->required();
         $form->text('unit', __('Measuring Unit'))->required();
+        $form->image('photo', __('Drug Photo'))->required();
         $form->textarea('details', __('Details'));
 
         return $form;
