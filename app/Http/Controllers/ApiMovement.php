@@ -6,6 +6,8 @@ use App\Models\Animal;
 use App\Models\CheckPoint;
 use App\Models\CheckPointRecord;
 use App\Models\CheckpointSession;
+use App\Models\DrugCategory;
+use App\Models\DrugStockBatch;
 use App\Models\Event;
 use App\Models\Farm;
 use App\Models\Location;
@@ -20,13 +22,62 @@ use Illuminate\Http\Request;
 
 class ApiMovement extends Controller
 {
+    public function drug_categories(Request $r)
+    {
+        $user_id = ((int)(Utils::get_user_id($r)));
+        $user = Administrator::find($user_id);
+        if ($user == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Failed'
+            ]);
+        }
+
+        $cats = [];
+        foreach (DrugCategory::all() as $key => $cat) {
+            $cat->avg_purchase = DrugStockBatch::where([
+                'administrator_id' => $user_id,
+                'drug_category_id' => $cat->id,
+            ])->avg('original_quantity');
+            $cat->is_managed = 'No';
+            $cat->current_quantity = 0;
+            $cat->current_quantity_percentage = 0;
+            if ($cat->category != null) {
+                $cat->category_name = $cat->category->name;
+                $cat->category_unit = $cat->category->unit;
+                unset($cat->category);
+            }
+            if ($cat->avg_purchase < 1) {
+                $cats[] = $cat;
+                continue;
+            }
+            $cat->is_managed = 'Yes';
+            $cat->current_quantity = DrugStockBatch::where([
+                'administrator_id' => $user_id,
+                'drug_category_id' => $cat->id,
+            ])->sum('current_quantity');
+            $cat->current_quantity_percentage = ($cat->current_quantity / $cat->avg_purchase) * 100;
+            $cats[] = $cat;
+        }
+
+        return Utils::response([
+            'status' => 1,
+            'data' => $cats,
+            'message' => 'Success'
+        ]);
+    }
     public function index(Request $request)
     {
 
         $user_id = ((int)(Utils::get_user_id($request)));
         $user = Administrator::find($user_id);
         if ($user == null) {
-            return [];
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Failed'
+            ]);
         }
 
         $items = [];
@@ -370,10 +421,10 @@ class ApiMovement extends Controller
         }
 
         $mv->status = $request->status;
-        $mv->reason = $request->reason; 
-        $mv->valid_to_Date = $request->valid_to_Date; 
-        $mv->valid_from_Date = $request->valid_from_Date; 
-        $mv->save(); 
+        $mv->reason = $request->reason;
+        $mv->valid_to_Date = $request->valid_to_Date;
+        $mv->valid_from_Date = $request->valid_from_Date;
+        $mv->save();
 
         return Utils::response([
             'status' => 1,
