@@ -41,7 +41,7 @@ class EventController extends AdminController
     protected function grid()
     {
 
-        $data = Event::where([
+/*         $data = Event::where([
             'type' => 'Milking'
         ])->whereBetween('created_at',['2023-05-11','2023-05-12'])->get();
 
@@ -54,7 +54,7 @@ class EventController extends AdminController
             }
             $ans[] = $d->animal_id;
         }
-        dd($ans);
+        dd($ans); */
 
         
         //Utils::display_alert_message();
