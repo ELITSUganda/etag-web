@@ -41,6 +41,22 @@ class EventController extends AdminController
     protected function grid()
     {
 
+        $data = Event::where([
+            'type' => 'Milking'
+        ])->whereBetween('created_at',['2023-05-11','2023-05-12'])->get();
+
+
+        $ans = [];
+        foreach ($data as $key => $d) {
+            if(in_array($d->animal_id,$ans)){
+                $d->delete();
+                continue;
+            }
+            $ans[] = $d->animal_id;
+        }
+        dd($ans);
+
+        
         //Utils::display_alert_message();
         $grid = new Grid(new Event());
 
@@ -93,7 +109,7 @@ class EventController extends AdminController
         $grid->filter(function ($filter) {
 
 
-
+ 
             $admins = [];
             foreach (Administrator::all() as $key => $v) {
                 if (!$v->isRole('farmer')) {
@@ -160,6 +176,8 @@ class EventController extends AdminController
             $filter->equal('vaccine_id', "Vaccine")->select(
                 Vaccine::all()->pluck('name', 'name')
             );
+
+            $filter->between('created_at', 'Created between')->date(); 
         });
 
 
@@ -191,6 +209,7 @@ class EventController extends AdminController
                 return Carbon::parse($f)->toFormattedDateString();
             })->sortable();
         $grid->column('type', __('Event Type'))->sortable();
+        $grid->column('milk', __('Milk (Ltrs)'))->sortable();
         $grid->column('vaccine_id', __('Vaccine'))
             ->display(function ($id) {
                 $u = Vaccine::find($id);
