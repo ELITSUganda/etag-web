@@ -657,12 +657,13 @@ class ApiAnimalController extends Controller
             $type = 'Roll call';
         } else if ($r->type == 'Treatment') {
             $type = 'Treatment';
-        } else if ($r->type == 'Treatment') {
+        } else if ($r->type == 'Milking') {
             $type = 'Milking';
         }
 
+        
 
-        if ($r->type == 'Treatment') {
+        if ($r->type == 'Milking') {
 
         
             $session = new BatchSession();
