@@ -657,18 +657,18 @@ class ApiAnimalController extends Controller
             $type = 'Roll call';
         } else if ($r->type == 'Treatment') {
             $type = 'Treatment';
-        } else if ($r->type == 'Milk') {
+        } else if ($r->type == 'Treatment') {
             $type = 'Milking';
         }
 
 
-        if ($r->type == 'Milk') {
+        if ($r->type == 'Treatment') {
 
-
+        
             $session = new BatchSession();
             $session->administrator_id = $user_id;
             $session->name = $r->name;
-            $session->session_date = $r->session_date;
+            $session->session_date = $r->date_time;
             $session->type = 'Milking';
             $session->description = "Milked animals";
             $session->save();
@@ -677,8 +677,9 @@ class ApiAnimalController extends Controller
 
 
             foreach ($items as $v) {
+           
                 $an = Animal::where([
-                    'id' => ((int)($v->animal_id)),
+                    'id' => ((int)($v->id)),
                 ])->first();
                 if ($an == null) {
                     continue;
