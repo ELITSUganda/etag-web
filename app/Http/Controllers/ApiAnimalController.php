@@ -1027,10 +1027,7 @@ class ApiAnimalController extends Controller
             ->get() as $animal) {
 
             foreach ($animal->photos as $key => $pic) {
-                if(
-                    $pic->src!=null &&
-                    strlen($pic->src) > 2 
-                )
+                 
                 $path = $_SERVER['DOCUMENT_ROOT']."/public/storage/images/".$pic->src;
                 if(file_exists($path)){
                     $data[] = ("YES EXITS => ".$path);
