@@ -1026,6 +1026,14 @@ class ApiAnimalController extends Controller
             ->limit(1000)
             ->get() as $animal) {
 
+            foreach ($animal->photos as $key => $pic) {
+                if(file_exists($pic->src)){
+                    die("YES EXITS");
+                }else{
+                    die("DNE");
+                }
+                # code...
+            }
 
             $data[] = $animal->photos;
         }
