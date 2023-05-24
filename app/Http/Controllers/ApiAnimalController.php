@@ -1029,7 +1029,7 @@ class ApiAnimalController extends Controller
             foreach ($animal->photos as $key => $pic) {
                 $path = $_SERVER['DOCUMENT_ROOT']."/public/storage/images/".$pic->src;
                 if(!file_exists($path)){
-                    //$pic->delete();
+                    $pic->delete();
                     continue;
                 } 
 
