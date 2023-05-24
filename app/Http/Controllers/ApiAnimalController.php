@@ -1027,10 +1027,15 @@ class ApiAnimalController extends Controller
             ->get() as $animal) {
 
             foreach ($animal->photos as $key => $pic) {
-                if(file_exists($pic->src)){
-                    die("YES EXITS");
+                if(
+                    $pic->src!=null &&
+                    strlen($pic->src) > 2 
+                )
+                $path = $_SERVER['DOCUMENT_ROOT']."/".$pic->src;
+                if(file_exists($path)){
+                    die("YES EXITS => ".$path);
                 }else{
-                    die("DNE");
+                    die("DNE => ".$path);
                 }
                 # code...
             }
