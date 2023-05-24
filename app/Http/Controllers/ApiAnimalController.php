@@ -1031,7 +1031,7 @@ class ApiAnimalController extends Controller
                     $pic->src!=null &&
                     strlen($pic->src) > 2 
                 )
-                $path = $_SERVER['DOCUMENT_ROOT']."/storage/images/".$pic->src;
+                $path = "storage/images/".$pic->src;
                 if(file_exists($path)){
                     $data[] = ("YES EXITS => ".$path);
                 }else{
