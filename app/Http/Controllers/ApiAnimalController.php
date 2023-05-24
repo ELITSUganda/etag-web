@@ -1032,10 +1032,19 @@ class ApiAnimalController extends Controller
                     //$pic->delete();
                     continue;
                 } 
-                return $pic;
+
+                unset($pic->updated_at);
+                unset($pic->administrator_id);
+                unset($pic->thumbnail);
+                unset($pic->size);
+                unset($pic->deleted_at);
+                unset($pic->type);
+                unset($pic->product_id);
+                unset($pic->parent_endpoint);
+                $data[] = $pic;
             }
-
-
+ 
+         
 
           //  $data[] = $animal->photos;
         }
