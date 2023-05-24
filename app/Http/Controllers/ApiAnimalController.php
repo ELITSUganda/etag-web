@@ -1013,6 +1013,32 @@ class ApiAnimalController extends Controller
 
 
 
+    public function photo_downloads(Request $request)
+    {
+
+        $user_id = Utils::get_user_id($request);
+        $data = [];
+
+        foreach (Animal::where([
+            'administrator_id' => $user_id
+        ])
+            ->orderBy('id', 'desc')
+            ->limit(1000)
+            ->get() as $animal) {
+
+
+            $data[] = $animal->photos;
+        }
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success.",
+            'data' => $data
+        ]);
+
+    
+    }
+
     public function index(Request $request)
     {
 

@@ -67,7 +67,8 @@ Route::get('sub_counties', [UtilsController::class, 'sub_counties']);
 Route::post('animals', [ApiAnimalController::class, 'create']);
 Route::post('create-sale', [ApiAnimalController::class, 'create_sale']);
 Route::get('slaughters', [ApiAnimalController::class, 'slaughters']);
-Route::get('animals', [ApiAnimalController::class, 'index']);
+Route::get('animals', [ApiAnimalController::class, 'index']); 
+Route::get('photos-downloads', [ApiAnimalController::class, 'photo_downloads']); 
 Route::post('create-slaughter', [ApiAnimalController::class, 'create_slaughter']);
 Route::get('animals/{id}', [ApiAnimalController::class, 'show']);
 
