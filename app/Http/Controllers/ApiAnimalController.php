@@ -1033,9 +1033,9 @@ class ApiAnimalController extends Controller
                 )
                 $path = $_SERVER['DOCUMENT_ROOT']."/".$pic->src;
                 if(file_exists($path)){
-                    die("YES EXITS => ".$path);
+                    $data[] = ("YES EXITS => ".$path);
                 }else{
-                    die("DNE => ".$path);
+                    $data[] = ("DNE => ".$path);
                 }
                 # code...
             }
