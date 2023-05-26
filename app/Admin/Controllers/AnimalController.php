@@ -84,7 +84,7 @@ class AnimalController extends AdminController
 
             $grid->model()
                 ->where('slaughter_house_id', $ids)
-                ->orderBy('id', 'DESC');
+                ->orderBy('updated_at', 'DESC');
 
             $grid->disableActions();
             $grid->actions(function ($actions) {
@@ -105,7 +105,7 @@ class AnimalController extends AdminController
                 ->where('destination_slaughter_house', $ids)
                 ->where([
                     'status' => 'Approved'
-                ])->orderBy('id', 'DESC');
+                ])->orderBy('updated_at', 'DESC');
 
             $grid->actions(function ($actions) {
                 $actions->disableDelete();
@@ -192,7 +192,7 @@ class AnimalController extends AdminController
         $grid->column('updated_at', __('Last seen'))->sortable();
         $grid->column('id', __('ID'))->sortable();
 
-        $grid->model()->orderBy('id', 'DESC');
+        $grid->model()->orderBy('updated_at', 'DESC');
         $grid->column('photo', __('Photo'))
             ->image(url(""), 60, 60)
             //->lightbox(['width' => 60, 'height' => 60])
