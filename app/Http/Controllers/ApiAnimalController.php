@@ -1226,11 +1226,12 @@ class ApiAnimalController extends Controller
             ->limit(1000);
 
         if ($request->updated_at != null) {
-            $query->where('updated_at', '>', $request->updated_at);
+            $query->where('updated_at', '>=', $request->updated_at);
         }
 
-        return $query->count();
         foreach ($query->get() as $animal) {
+            $t = $animal->updated_at_text; 
+            return $t;
             $animal->district_text = "-";
             if ($animal->district != null) {
                 $animal->district_text = $animal->district->name_text;

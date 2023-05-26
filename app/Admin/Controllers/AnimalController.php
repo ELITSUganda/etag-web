@@ -190,6 +190,7 @@ class AnimalController extends AdminController
 
 
         $grid->column('updated_at', __('Last seen'))->sortable();
+        $grid->column('updated_at_text', __('Last Update'));
         $grid->column('id', __('ID'))->sortable();
 
         $grid->model()->orderBy('updated_at', 'DESC');

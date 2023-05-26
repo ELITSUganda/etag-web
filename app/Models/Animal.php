@@ -131,7 +131,7 @@ class Animal extends Model
 
     public function events()
     {
-        return $this->hasMany(Event::class,'animal_id');
+        return $this->hasMany(Event::class, 'animal_id');
     }
 
     public function district()
@@ -250,6 +250,9 @@ class Animal extends Model
         $this->save();
     }
 
+    public function getUpdatedAtTextAttribute(){
+        return Carbon::parse($this->updated_at)->timestamp;
+    }
     public function getLastSeenAttribute()
     {
         $e = Event::where(['animal_id' => $this->id])->orderBy('id', 'Desc')->first();
@@ -263,5 +266,8 @@ class Animal extends Model
         return $format;
     }
 
-    protected $appends = ['images', 'photos', 'last_seen', 'phone_number', 'whatsapp', 'price_text', 'posted', 'age', 'location'];
+    protected $appends = ['images', 'photos', 'last_seen', 'phone_number', 'whatsapp', 'price_text', 'posted', 'age', 
+    'location',
+    'updated_at_text'
+];
 }
