@@ -1229,10 +1229,18 @@ class ApiAnimalController extends Controller
             $query->whereDate('updated_at', '>', Carbon::parse($request->updated_at));
         } 
         $ans = $query->get();   
+        $data = [];
+        foreach ($ans as $key => $v) {
+            unset($v->images);
+            unset($v->photos);
+            unset($v->district);
+            unset($v->sub_county);
+            $data[] = $v;
+        }
         return Utils::response([
             'status' => 1,
             'message' => "Success.",
-            'data' => $ans
+            'data' => $data
         ]); 
     }
 
