@@ -1230,7 +1230,7 @@ class ApiAnimalController extends Controller
         }
 
         $ans = $query->get();
-        return $ans->count();
+        return $ans->count()."<==>".$request->updated_at;
         foreach ($ans as $animal) {
             $t = $animal->updated_at_text; 
             return $t;
