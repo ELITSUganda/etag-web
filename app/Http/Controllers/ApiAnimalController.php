@@ -1231,10 +1231,10 @@ class ApiAnimalController extends Controller
         $ans = $query->get();   
         $data = [];
         foreach ($ans as $key => $v) {
-            unset($v->images);
-            unset($v->photos);
-            unset($v->district);
-            unset($v->sub_county);
+            $v->images = null;
+            $v->photos = null;
+            $v->district = null;
+            $v->sub_county = null;
             $data[] = $v; 
         }
         return Utils::response([
