@@ -1217,7 +1217,7 @@ class ApiAnimalController extends Controller
     {
 
         $user_id = Utils::get_user_id($request);
-        
+
 
         $query = Animal::where([
             'administrator_id' => $user_id
@@ -1227,21 +1227,21 @@ class ApiAnimalController extends Controller
 
         if ($request->updated_at != null) {
             $query->whereDate('updated_at', '>', Carbon::parse($request->updated_at));
-        } 
-        $ans = $query->get();   
+        }
+        $ans = $query->get();
         $data = [];
         foreach ($ans as $key => $v) {
             $v->images = null;
             $v->photos = null;
             $v->district = null;
             $v->sub_county = null;
-            $data[] = $v; 
+            $data[] = $v;
         }
         return Utils::response([
             'status' => 1,
             'message' => "Success.",
             'data' => $data
-        ]); 
+        ]);
     }
 
 
@@ -1460,7 +1460,7 @@ class ApiAnimalController extends Controller
         ]);
     }
 
-    public function  cevents(Request $request)
+    public function events(Request $request)
     {
 
         $user_id = Utils::get_user_id($request);
@@ -1468,6 +1468,101 @@ class ApiAnimalController extends Controller
         $data = Event::where([
             'administrator_id' => $user_id
         ])->get();
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success.",
+            'data' => $data
+        ]);
+
+
+        $per_page = 10000000;
+        if (isset($request->per_page)) {
+            $per_page = $request->per_page;
+        }
+
+        $administrator_id = Utils::get_user_id($request);
+        $user_id = Utils::get_user_id($request);
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return [];
+        }
+        $role = Utils::get_role($u);
+
+        $is_search = false;
+        $items = [];
+        $s = $request->s;
+        if ($s != null) {
+            if (strlen($s) > 0) {
+                $is_search = true;
+
+                $an = Animal::where("e_id", $s)->first();
+                if ($an == null) {
+                    $an = Animal::where("v_id", $s)->first();
+                }
+                if ($an == null) {
+                    return [];
+                }
+                if (!isset($an->id)) {
+                    return [];
+                }
+
+                $items = Event::where("animal_id", $an->id)->get();
+                if (empty($items)) {
+                    return [];
+                }
+            }
+        }
+
+        if (!$is_search) {
+            $items = Event::paginate($per_page)->withQueryString()->items();
+        }
+
+
+        $_items = [];
+        foreach ($items as $key => $value) {
+
+            if ($role == 'farmer') {
+                if ($value->administrator_id != $administrator_id) {
+                    continue;
+                }
+            } else if ($role == 'scvo') {
+                if ($u->scvo != $value->sub_county_id) {
+                    continue;
+                }
+            }
+
+            $items[$key]->e_id  = "";
+            $items[$key]->v_id  = "";
+            $items[$key]->lhc  = "";
+            if ($items[$key]->animal != null) {
+                if ($items[$key]->animal->e_id != null) {
+                    $items[$key]->e_id  = $items[$key]->animal->e_id;
+                    $items[$key]->v_id  = $items[$key]->animal->v_id;
+                    $items[$key]->lhc  = $items[$key]->animal->lhc;
+                }
+                unset($items[$key]->animal);
+            }
+            $items[$key]->created = Carbon::parse($value->created)->toFormattedDateString();
+            $_items[] = $items[$key];
+        }
+        return $_items;
+    }
+
+    public function events_v2(Request $request)
+    {
+
+        $user_id = Utils::get_user_id($request);
+
+        $query = Event::where([
+            'administrator_id' => $user_id
+        ])->get();
+
+        if ($request->updated_at != null) {
+            $query->whereDate('updated_at', '>', Carbon::parse($request->updated_at));
+        }
+
+        $data = $query->get();
 
         return Utils::response([
             'status' => 1,
