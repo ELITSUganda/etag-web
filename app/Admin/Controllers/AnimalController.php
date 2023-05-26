@@ -193,10 +193,10 @@ class AnimalController extends AdminController
         $grid->column('id', __('ID'))->sortable();
 
         $grid->model()->orderBy('updated_at', 'DESC');
-        $grid->column('photo', __('Photo'))
+        /* $grid->column('photo', __('Photo'))
             ->image(url(""), 60, 60)
             //->lightbox(['width' => 60, 'height' => 60])
-            ->sortable();
+            ->sortable(); */
         $grid->column('e_id', __('E-ID'))->sortable();
         $grid->column('v_id', __('V-ID'))->sortable()->hide();
         $grid->column('lhc', __('LHC'))->sortable()->hide();
