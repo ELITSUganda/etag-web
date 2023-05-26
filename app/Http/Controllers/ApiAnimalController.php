@@ -1556,10 +1556,12 @@ class ApiAnimalController extends Controller
 
         $query = Event::where([
             'administrator_id' => $user_id
-        ])->get();
+        ]);
 
         if ($request->updated_at != null) {
-            $query->whereDate('updated_at', '>', Carbon::parse($request->updated_at));
+            if (strlen($request->updated_at) > 2) {
+                $query->whereDate('updated_at', '>', Carbon::parse($request->updated_at));
+            }
         }
 
         $data = $query->get();
