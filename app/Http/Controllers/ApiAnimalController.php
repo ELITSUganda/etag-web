@@ -1229,7 +1229,9 @@ class ApiAnimalController extends Controller
             $query->where('updated_at', '>=', $request->updated_at);
         }
 
-        foreach ($query->get() as $animal) {
+        $ans = $query->get();
+        return $ans->count();
+        foreach ($ans as $animal) {
             $t = $animal->updated_at_text; 
             return $t;
             $animal->district_text = "-";
