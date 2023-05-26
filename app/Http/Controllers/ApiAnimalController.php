@@ -661,11 +661,11 @@ class ApiAnimalController extends Controller
             $type = 'Milking';
         }
 
-        
+
 
         if ($r->type == 'Milking') {
 
-        
+
             $session = new BatchSession();
             $session->administrator_id = $user_id;
             $session->name = $r->name;
@@ -678,7 +678,7 @@ class ApiAnimalController extends Controller
 
 
             foreach ($items as $v) {
-           
+
                 $an = Animal::where([
                     'id' => ((int)($v->id)),
                 ])->first();
@@ -751,7 +751,7 @@ class ApiAnimalController extends Controller
             $session->administrator_id = $user_id;
             $session->name = $r->name;
             $session->type = $r->type;
-            $session->session_date = $r->date_time; 
+            $session->session_date = $r->date_time;
             $session->description = "Treated animals with  $meds_text.";
             $session->save();
             $animal_ids_found = [];
@@ -1027,11 +1027,11 @@ class ApiAnimalController extends Controller
             ->get() as $animal) {
 
             foreach ($animal->photos as $key => $pic) {
-                $path = $_SERVER['DOCUMENT_ROOT']."/public/storage/images/".$pic->src;
-                if(!file_exists($path)){
-                  //  $pic->delete();
+                $path = $_SERVER['DOCUMENT_ROOT'] . "/public/storage/images/" . $pic->src;
+                if (!file_exists($path)) {
+                    //  $pic->delete();
                     continue;
-                } 
+                }
 
                 unset($pic->updated_at);
                 unset($pic->administrator_id);
@@ -1043,10 +1043,10 @@ class ApiAnimalController extends Controller
                 unset($pic->parent_endpoint);
                 $data[] = $pic;
             }
- 
-         
 
-          //  $data[] = $animal->photos;
+
+
+            //  $data[] = $animal->photos;
         }
 
         return Utils::response([
@@ -1054,8 +1054,6 @@ class ApiAnimalController extends Controller
             'message' => "Success.",
             'data' => $data
         ]);
-
-    
     }
 
     public function index(Request $request)
@@ -1070,6 +1068,169 @@ class ApiAnimalController extends Controller
             ->orderBy('id', 'desc')
             ->limit(1000)
             ->get() as $animal) {
+            $animal->district_text = "-";
+            if ($animal->district != null) {
+                $animal->district_text = $animal->district->name_text;
+            }
+            if ($animal->sub_county != null) {
+                $animal->sub_county_text = $animal->sub_county->name_text;
+            }
+
+            $x = $animal;
+
+
+            $data[] = $x;
+        }
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success.",
+            'data' => $data
+        ]);
+
+
+        $user_role = Utils::is_admin($request);
+
+
+        //$user_id = Utils::get_user_id($request);
+        $user_id = $administrator_id;
+        $u = Administrator::find($administrator_id);
+        $role = Utils::get_role($u);
+
+        $s = $request->s;
+        $items = [];
+        $_items = [];
+
+        if ($s != null) {
+            if (strlen($s) > 0) {
+
+                $f = Farm::where("holding_code", $s)->first();
+                if ($f != null) {
+                    $items = $f->animals;
+                }
+
+                $_items = Animal::where(
+                    'e_id',
+                    'like',
+                    '%' . trim($request->s) . '%',
+                )->paginate(100000000)->withQueryString()->items();
+
+                $__items = Animal::where(
+                    'v_id',
+                    'like',
+                    '%' . trim($request->s) . '%',
+                )->paginate(100000000)->withQueryString()->items();
+
+                $items_ids = [];
+                $___items = [];
+
+                foreach ($items as $key => $v) {
+                    if (!in_array($v->id, $items_ids)) {
+                        $items_ids[] = $v->id;
+                        $___items[] = $v;
+                    }
+                }
+
+                foreach ($_items as $key => $v) {
+                    if (!in_array($v->id, $items_ids)) {
+                        $items_ids[] = $v->id;
+                        $___items[] = $v;
+                    }
+                }
+
+                foreach ($__items as $key => $v) {
+                    if (!in_array($v->id, $items_ids)) {
+                        $items_ids[] = $v->id;
+                        $___items[] = $v;
+                    }
+                }
+
+
+                return $___items;
+            }
+        }
+
+        if (empty($items)) {
+            $per_page = 100000000;
+            if (isset($request->per_page)) {
+                $per_page = $request->per_page;
+            }
+            if ($role == 'slaughter') {
+                $moves = Movement::where('destination_slaughter_house', '=', $user_id)->where('status', '=', 'Approved')->get();
+                foreach ($moves as $key => $value) {
+                    if ($value->movement_has_movement_animals != null) {
+                        foreach ($value->movement_has_movement_animals as $_value) {
+                            if ($_value->movement_animal_id != null) {
+                                $__an = Animal::find($_value->movement_animal_id);
+                                if ($__an != null) {
+                                    $items[] = $__an;
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                $items = Animal::paginate($per_page)->withQueryString()->items();
+            }
+        }
+
+        foreach ($items as $key => $value) {
+            if ($role == 'farmer') {
+                if ($value->administrator_id != $administrator_id) {
+                    continue;
+                }
+            } else if ($role == 'trader') {
+                if ($u->id != $value->trader) {
+                    continue;
+                }
+            } else if ($role == 'dvo') {
+                if ($u->dvo != $value->district_id) {
+                    continue;
+                }
+            }
+
+            $items[$key]->owner_name  = "";
+            if ($items[$key]->farm != null) {
+                if ($items[$key]->farm->user != null) {
+                    $items[$key]->owner_name = $items[$key]->farm->user->name;
+                }
+            }
+
+            $items[$key]->owner_name = "";
+            $items[$key]->district_name = "";
+            $items[$key]->created = Carbon::parse($value->created)->toFormattedDateString();
+            if ($value->district != null) {
+                $items[$key]->district_name = $value->district->name;
+            }
+            if ($value->sub_county != null) {
+                $items[$key]->sub_county_name = $value->sub_county->name;
+            }
+            unset($items[$key]->farm);
+            unset($items[$key]->district);
+            unset($items[$key]->sub_county);
+            $_items[] = $items[$key];
+        }
+        return $_items;
+    }
+
+    public function index_v2(Request $request)
+    {
+
+        $user_id = Utils::get_user_id($request);
+        $data = [];
+
+        $query = Animal::where([
+            'administrator_id' => $user_id
+        ])
+            ->orderBy('id', 'desc')
+            ->limit(1000);
+
+        if ($request->updated_at != null) {
+            $query->where('updated_at', '>', $request->updated_at);
+        }
+
+        return $query->count();
+        foreach ($query->get() as $animal) {
             $animal->district_text = "-";
             if ($animal->district != null) {
                 $animal->district_text = $animal->district->name_text;

@@ -188,6 +188,10 @@ class AnimalController extends AdminController
             $filter->equal('v_id', "V-ID");
         });
 
+
+        $grid->column('updated_at', __('Last seen'))->sortable();
+        $grid->column('id', __('ID'))->sortable();
+
         $grid->model()->orderBy('id', 'DESC');
         $grid->column('photo', __('Photo'))
             ->image(url(""), 60, 60)
