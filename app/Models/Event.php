@@ -470,4 +470,10 @@ class Event extends Model
     {
         return $this->belongsTo(Animal::class);
     }
+
+
+    public function getUpdatedAtTextAttribute(){
+        return Carbon::parse($this->updated_at)->timestamp;
+    } 
+    protected $appends = ['updated_at_text']; 
 }
