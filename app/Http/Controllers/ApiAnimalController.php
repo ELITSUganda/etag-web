@@ -1460,7 +1460,7 @@ class ApiAnimalController extends Controller
         ]);
     }
 
-    public function events(Request $request)
+    public function  cevents(Request $request)
     {
 
         $user_id = Utils::get_user_id($request);

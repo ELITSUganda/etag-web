@@ -76,6 +76,7 @@ Route::post('create-slaughter', [ApiAnimalController::class, 'create_slaughter']
 Route::get('animals/{id}', [ApiAnimalController::class, 'show']);
 
 Route::get('events', [ApiAnimalController::class, 'events']);
+Route::get('events-v2', [ApiAnimalController::class, 'events_v2']);
 Route::post('events', [ApiAnimalController::class, 'store_event']);
 Route::post('batch-events', [ApiAnimalController::class, 'store_batch_event']);
 Route::post('batch-events-create', [ApiAnimalController::class, 'batch_events_create']);
