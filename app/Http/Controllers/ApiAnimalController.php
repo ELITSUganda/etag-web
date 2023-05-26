@@ -1235,7 +1235,7 @@ class ApiAnimalController extends Controller
             unset($v->photos);
             unset($v->district);
             unset($v->sub_county);
-            $data[] = $v;
+            $data[] = $v; 
         }
         return Utils::response([
             'status' => 1,
