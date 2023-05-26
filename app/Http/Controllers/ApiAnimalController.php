@@ -1217,7 +1217,7 @@ class ApiAnimalController extends Controller
     {
 
         $user_id = Utils::get_user_id($request);
-        $data = [];
+        
 
         $query = Animal::where([
             'administrator_id' => $user_id
@@ -1232,7 +1232,7 @@ class ApiAnimalController extends Controller
         return Utils::response([
             'status' => 1,
             'message' => "Success.",
-            'data' => $data
+            'data' => $ans
         ]); 
     }
 
