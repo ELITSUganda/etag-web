@@ -1229,8 +1229,7 @@ class ApiAnimalController extends Controller
             $query->whereDate('updated_at', '>', Carbon::parse($request->updated_at));
         }
  
-        $ans = $query->get();
-        return $ans->count()."<==>".$request->updated_at; 
+        $ans = $query->get(); 
         foreach ($ans as $animal) {
             $t = $animal->updated_at_text; 
             return $t;
