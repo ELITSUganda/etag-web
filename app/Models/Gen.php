@@ -22,6 +22,10 @@ class Gen extends Model
         continue;
       }
       $_data .= "'$key' : $key,<br>";
+      if (str_contains($key, '_id')) {
+        $_key = str_replace('_id', '_text', $key);
+        $_data .= "'$_key' : $_key,<br>";
+      }
     }
 
     return $_data;
@@ -39,6 +43,10 @@ class Gen extends Model
         $_data .= "obj.{$key} = Utils.int_parse(m['{$key}']);<br>";
       } else {
         $_data .= "obj.{$key} = Utils.to_str(m['{$key}'],'');<br>";
+        if (str_contains($key, '_id')) {
+          $_key = str_replace('_id', '_text', $key);
+          $_data .= "obj.{$_key} = Utils.to_str(m['{$_key}'],'');<br>";
+        }
       }
     }
     return $_data;
@@ -60,17 +68,45 @@ class Gen extends Model
         continue;
       }
       $done[] = $key;
-      $i++;
-      $_data .= "<br>@HiveField({$i})<br>";
       if ($key == 'id') {
         $_data .= "int {$key} = 0;<br>";
       } else {
         $_data .= "String {$key} = \"\";<br>";
         if (str_contains($key, '_id')) {
-          $i++;
-          $_data .= "<br>@HiveField({$i})<br>";
           $_key = str_replace('_id', '_text', $key);
           $_data .= "String {$_key} = \"\";<br>";
+        }
+      }
+    }
+
+    return $_data;
+  }
+
+
+  public  function sqlTableVars($tables)
+  {
+
+
+    $_data = "";
+    $i = 0;
+    $isFirst = true;
+    $done = [];
+    foreach ($tables as $v) {
+      $key = trim($v);
+      if (strlen($key) < 1) {
+        continue;
+      }
+      if (in_array($key, $done)) {
+        continue;
+      }
+      $done[] = $key;
+      if ($key == 'id') {
+        $_data .= "\"{$key} INTEGER PRIMARY KEY\"<br>";
+      } else {
+        $_data .= "\",{$key} TEXT\"<br>";
+        if (str_contains($key, '_id')) {
+          $_key = str_replace('_id', '_text', $key);
+          $_data .= "\",{$_key} TEXT\"<br>";
         }
       }
     }
@@ -85,19 +121,27 @@ class Gen extends Model
     $generate_vars = $this->makeVars($tables);
     $fromJson = Gen::fromJsons($tables);
     $toJson = Gen::to_json($tables);
+    $sqlTableVars = Gen::sqlTableVars($tables);
     $x = <<<EOT
-  <pre>   
-  import 'RespondModel.dart';
-  import '../utils/Utils.dart';
+  <pre>import 'dart:convert';
+
+  import 'package:ULITS/model/treament/CachedPhoto.dart';
   import 'package:hive_flutter/adapters.dart';
+  import 'package:sqflite/sqflite.dart';
+  
+  import '../utils/AppConfig.dart';
+  import '../utils/Utils.dart';
+  import 'ImageModel.dart';
+  import 'ImageModelLocal.dart';
+  import 'RespondModel.dart';
 
-  part '{$this->class_name}.g.dart';
-
-  @HiveType(typeId: $this->file_id)  
+   
+  import 'RespondModel.dart';
+ 
   class $this->class_name {
-    
-    static int file_id = $this->file_id;
+     
     static String endPoint = "{$this->end_point}";
+    static String tableName = "{$this->end_point}";
     $generate_vars
   
     static fromJson(dynamic m) {
@@ -114,18 +158,34 @@ class Gen extends Model
   
   
     static Future&lt;List&lt;$this->class_name&gt;&gt; getLocalData({String where: "1"}) async {
-        await Hive.initFlutter();
-        if (!Hive.isAdapterRegistered(file_id)) {
-          Hive.registerAdapter({$this->class_name}Adapter());
-        }
-    
-        var box  =await Hive.openBox&lt;{$this->class_name}&gt;('{$this->class_name}');
 
-        return box.values.toList().cast&lt;{$this->class_name}&gt;(); 
+      List&lt$this->class_name&gt data = [];
+      if (!(await $this->class_name.initTable())) {
+        Utils.toast("Failed to init dynamic store.");
+        return data;
+      }
+  
+      Database db = await Utils.getDb();
+      if (!db.isOpen) {
+        return data;
+      }
+  
+  
+      List&ltMap&gt maps = await db.query(tableName, where: where);
+  
+      if (maps.isEmpty) {
+        return data;
+      }
+      List.generate(maps.length, (i) {
+        data.add($this->class_name.fromJson(maps[i]));
+      });
+  
+      return data;
+      
     }
   
   
-    static Future&lt;List&lt;$this->class_name&gt;&gt; get_items({String where = '1'}) async {
+    static Future&lt;List&lt;$this->class_name&gt;&gt; getItems({String where = '1'}) async {
       List&lt;$this->class_name&gt; data = await getLocalData(where: where);
       if (data.isEmpty) {
         await $this->class_name.getOnlineItems();
@@ -140,32 +200,68 @@ class Gen extends Model
   
     static Future&lt;List&lt;$this->class_name&gt;&gt; getOnlineItems() async {
       List&lt;$this->class_name&gt; data = [];
-  
+
       RespondModel resp =
-          RespondModel(await Utils.http_get({$this->class_name}.endPoint, {}));
+          RespondModel(await Utils.http_get('\${{$this->class_name}.endPoint}', {}));
+   
+      if (resp.code != 1) {
+        return [];
+      }
   
-          if (resp.code != 1) {
-            return [];
+      Database db = await Utils.getDb();
+      if (!db.isOpen) {
+        Utils.toast("Failed to init local store.");
+        return [];
+      }
+  
+      if (resp.data.runtimeType.toString().contains('List')) {
+        if (await Utils.is_connected()) {
+          await {$this->class_name}.deleteAll();
+        }
+  
+        await db.transaction((txn) async {
+          var batch = txn.batch();
+  
+          for (var x in resp.data) {
+            {$this->class_name} sub = {$this->class_name}.fromJson(x);
+            try {
+              batch.insert(tableName, sub.toJson(),
+                  conflictAlgorithm: ConflictAlgorithm.replace);
+            } catch (e) {
+              print("faied to save becaus \${e.toString()}");
+            }
           }
-          List&lt;{$this->class_name}&gt; items = [];
-          for (var x in resp.data){ 
-          $this->class_name m = $this->class_name.fromJson(x);
-            await m.save();
-            items.add(m);
+  
+          try {
+            await batch.commit(continueOnError: true);
+          } catch (e) {
+            print("faied to save to commit BRECASE ==> \${e.toString()}");
           }
-          return items;
+        });
+      }
+   
+  
+      return data; 
     }
-  
-    var box;
+   
     save() async {
-      await Hive.initFlutter();
-      if (!Hive.isAdapterRegistered(file_id)) {
-        Hive.registerAdapter({$this->class_name}Adapter());
+      Database db = await Utils.getDb();
+      if (!db.isOpen) {
+        Utils.toast("Failed to init local store.");
+        return;
       }
-      if(box == null){
-        box = await Hive.openBox&lt;{$this->class_name}&gt;('{$this->class_name}');
+  
+      await initTable();
+  
+      try {
+        await db.insert(
+          tableName,
+          toJson(),
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      } catch (e) {
+        Utils.toast("Failed to save student because \${e.toString()}");
       }
-      await box.put(id, this);
     }
   
     toJson() {
@@ -174,8 +270,45 @@ class Gen extends Model
       };
     }
   
+
+    
+
+    
+  static Future<bool> initTable() async {
+    Database db = await Utils.getDb();
+    if (!db.isOpen) {
+      return false;
+    }
+
+    String sql = " CREATE TABLE IF NOT EXISTS "
+        "{$this->table_name} ("
+        $sqlTableVars
+        ")";
+
+    try {
+      //await db.execute("DROP TABLE \${tableName}");
+      await db.execute(sql);
+    } catch (e) {
+      Utils.log('Failed to create table because \${e . toString()}');
+
+      return false;
+    }
+
+    return true;
+  }
+
  
- 
+  static deleteAll() async {
+    if (!(await {$this->class_name}.initTable())) {
+      return;
+    }
+    Database db = await Utils.getDb();
+    if (!db.isOpen) {
+      return false;
+    }
+    await db.delete({$this->class_name}.tableName);
+  }
+
   }
   </pre>
   EOT;
