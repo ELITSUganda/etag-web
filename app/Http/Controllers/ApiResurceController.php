@@ -122,9 +122,9 @@ class ApiResurceController extends Controller
                 $event['e_id'] = $eve->e_id;
                 $event['v_id'] = $eve->v_id;
                 $event['is_present'] = $eve->is_present;
-                if($eve->animal!=null){
+                if ($eve->animal != null) {
                     $event['animal_photo'] = url($eve->animal->photo);
-                }else{
+                } else {
                     $event['animal_photo'] = "";
                 }
 
@@ -227,6 +227,7 @@ class ApiResurceController extends Controller
 
         $manifest['average_production'] = round(($tot_milk / $tot_pros), 2);
         $manifest['last_update'] = Utils::my_date_time(Carbon::now());
+        $manifest['app_vision'] = 2;
 
         $data[] = $manifest;
         return Utils::response([
