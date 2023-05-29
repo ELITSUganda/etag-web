@@ -114,7 +114,7 @@ class Gen extends Model
       }
     }
 
-    $_data .= '",INTEGER updated_at_text"';
+    $_data .= '",updated_at_text INTEGER"';
     return $_data;
   }
 
