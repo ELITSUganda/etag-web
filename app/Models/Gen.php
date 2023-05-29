@@ -49,6 +49,8 @@ class Gen extends Model
         }
       }
     }
+    $_data .= "obj.updated_at_text = Utils.int_parse(m['updated_at_text']);<br>";
+    
     return $_data;
   }
 
@@ -78,7 +80,8 @@ class Gen extends Model
         }
       }
     }
-
+    $_data .= "int updated_at_text = 0;<br>";
+    
     return $_data;
   }
 
@@ -111,6 +114,7 @@ class Gen extends Model
       }
     }
 
+    $_data .= '",INTEGER updated_at_text"';
     return $_data;
   }
 
@@ -171,7 +175,7 @@ class Gen extends Model
       }
   
   
-      List&ltMap&gt maps = await db.query(tableName, where: where);
+      List&ltMap&gt maps = await db.query(tableName, where: where, orderBy: ' updated_at_text DESC ');
   
       if (maps.isEmpty) {
         return data;
@@ -187,14 +191,10 @@ class Gen extends Model
   
     static Future&lt;List&lt;$this->class_name&gt;&gt; getItems({String where = '1'}) async {
       List&lt;$this->class_name&gt; data = await getLocalData(where: where);
-      if (data.isEmpty) {
+      if (data.isEmpty && where.length < 3 ) {
         await $this->class_name.getOnlineItems();
         data = await getLocalData(where: where);
-      } else {
-        data = await getLocalData(where: where);
-        $this->class_name.getOnlineItems();
-      }
-      data.sort((a, b) => b.id.compareTo(a.id));
+      } 
       return data;
     }
   
@@ -216,7 +216,7 @@ class Gen extends Model
   
       if (resp.data.runtimeType.toString().contains('List')) {
         if (await Utils.is_connected()) {
-          await {$this->class_name}.deleteAll();
+          //await {$this->class_name}.deleteAll();
         }
   
         await db.transaction((txn) async {

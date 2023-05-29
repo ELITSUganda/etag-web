@@ -70,6 +70,7 @@ Route::get('slaughters', [ApiAnimalController::class, 'slaughters']);
 
 Route::get('animals', [ApiAnimalController::class, 'index']); 
 Route::get('animals-v2', [ApiAnimalController::class, 'index_v2']); 
+Route::get('images-v2', [ApiAnimalController::class, 'images_v2']); 
 
 Route::get('photos-downloads', [ApiAnimalController::class, 'photo_downloads']); 
 Route::post('create-slaughter', [ApiAnimalController::class, 'create_slaughter']);

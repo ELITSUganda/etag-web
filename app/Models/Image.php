@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Dflydev\DotAccessData\Util;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -93,4 +94,10 @@ class Image extends Model
             $this->save();
         }
     }
+
+    
+    public function getUpdatedAtTextAttribute(){
+        return Carbon::parse($this->updated_at)->timestamp;
+    } 
+    protected $appends = ['updated_at_text']; 
 }

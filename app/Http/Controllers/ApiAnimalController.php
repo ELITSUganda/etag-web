@@ -1245,6 +1245,29 @@ class ApiAnimalController extends Controller
     }
 
 
+    public function images_v2(Request $request)
+    {
+
+        $user_id = Utils::get_user_id($request);
+ 
+        $query = Image::where([
+            'administrator_id' => $user_id
+        ])
+            ->orderBy('id', 'desc')
+            ->limit(1000);
+
+        if ($request->updated_at != null) {
+            $query->whereDate('updated_at', '>', Carbon::parse($request->updated_at));
+        }
+        
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success.",
+            'data' => $query->get()
+        ]);
+    }
+
+
 
     public function slaughters(Request $request)
     {
