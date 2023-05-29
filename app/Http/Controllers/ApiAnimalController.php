@@ -74,6 +74,26 @@ class ApiAnimalController extends Controller
 
         $msg = "";
         foreach ($images as $src) {
+
+            if ($request->parent_endpoint == 'edit') {
+                $img = Image::find($request->local_parent_id);
+                if ($img) {
+                    return Utils::response([
+                        'status' => 0,
+                        'message' => "Original photo not found",
+                    ]);
+                }
+                $img->src =  $src;
+                $img->thumbnail =  null;
+                $img->save();
+                return Utils::response([
+                    'status' => 1,
+                    'data' => json_encode($_POST),
+                    'message' => "File updated.",
+                ]);
+            }
+
+
             $img = new Image();
             $img->administrator_id =  $administrator_id;
             $img->src =  $src;
@@ -99,7 +119,7 @@ class ApiAnimalController extends Controller
                     $img->parent_id =  $animal->id;
                 } else {
                     $msg .= "parent_id NOT not found => {$request->online_parent_id}.";
-                } 
+                }
             } else {
                 $msg .= "Online_parent_id NOT set. => {$online_parent_id} ";
             }
@@ -1245,7 +1265,7 @@ class ApiAnimalController extends Controller
     {
 
         $user_id = Utils::get_user_id($request);
- 
+
         $query = Image::where([
             'administrator_id' => $user_id
         ])
@@ -1255,7 +1275,7 @@ class ApiAnimalController extends Controller
         if ($request->updated_at != null) {
             $query->whereDate('updated_at', '>', Carbon::parse($request->updated_at));
         }
-        
+
         return Utils::response([
             'status' => 1,
             'message' => "Success.",
