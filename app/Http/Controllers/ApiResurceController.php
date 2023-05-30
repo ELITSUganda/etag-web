@@ -227,7 +227,7 @@ class ApiResurceController extends Controller
 
         $manifest['average_production'] = round(($tot_milk / $tot_pros), 2);
         $manifest['last_update'] = Utils::my_date_time(Carbon::now());
-        $manifest['app_vision'] = 2;
+        $manifest['app_vision'] = 3;
 
         $data[] = $manifest;
         return Utils::response([
