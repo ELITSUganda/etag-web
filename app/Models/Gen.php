@@ -50,7 +50,7 @@ class Gen extends Model
       }
     }
     $_data .= "obj.updated_at_text = Utils.int_parse(m['updated_at_text']);<br>";
-    
+
     return $_data;
   }
 
@@ -81,7 +81,7 @@ class Gen extends Model
       }
     }
     $_data .= "int updated_at_text = 0;<br>";
-    
+
     return $_data;
   }
 
@@ -127,14 +127,13 @@ class Gen extends Model
     $toJson = Gen::to_json($tables);
     $sqlTableVars = Gen::sqlTableVars($tables);
     $x = <<<EOT
-  <pre>import 'dart:convert';
+  <pre>import 'package:sqflite/sqflite.dart';
 
-  import 'package:ULITS/model/treament/CachedPhoto.dart';
-  import 'package:hive_flutter/adapters.dart';
-  import 'package:sqflite/sqflite.dart';
-  
-  import '../utils/AppConfig.dart';
   import '../utils/Utils.dart';
+  import 'RespondModel.dart';
+
+  
+  
   import 'ImageModel.dart';
   import 'ImageModelLocal.dart';
   import 'RespondModel.dart';
@@ -281,7 +280,7 @@ class Gen extends Model
     }
 
     String sql = " CREATE TABLE IF NOT EXISTS "
-        "{$this->table_name} ("
+        "\$tableName ("
         $sqlTableVars
         ")";
 
@@ -308,6 +307,30 @@ class Gen extends Model
     }
     await db.delete({$this->class_name}.tableName);
   }
+
+
+
+
+  
+  delete() async {
+    Database db = await Utils.getDb();
+    if (!db.isOpen) {
+      Utils.toast("Failed to init local store.");
+      return;
+    }
+
+    await initTable();
+
+    try {
+      await db.delete(
+        tableName,
+        where: 'id = \$id'
+      );
+    } catch (e) {
+      Utils.toast("Failed to save student because \${e.toString()}");
+    }
+  }
+  
 
   }
   </pre>
