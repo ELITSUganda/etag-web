@@ -26,9 +26,8 @@ class GenController extends AdminController
     {
         $grid = new Grid(new Gen());
 
-        $grid->column('id', __('Id'));
-        $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('Updated at'));
+        $grid->model()->orderBy('id', 'desc');
+        $grid->column('id', __('Id'))->sortable(); 
         $grid->column('class_name', __('Class name'));
         $grid->column('use_db_table', __('Use db table'));
         $grid->column('table_name', __('Table name'));

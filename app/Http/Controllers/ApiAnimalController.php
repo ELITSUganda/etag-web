@@ -491,7 +491,7 @@ class ApiAnimalController extends Controller
                 if ($d == null) {
                     continue;
                 }
-                $d->current_quantity = $d->current_quantity - ((int)($m->quantity));
+                $d->current_quantity = $d->current_quantity - ((float)($m->quantity));
                 $d->save();
             }
             $session = new BatchSession();
@@ -758,7 +758,7 @@ class ApiAnimalController extends Controller
                 if ($d == null) {
                     continue;
                 }
-                $d->current_quantity = $d->current_quantity - ((int)($m->quantity));
+                $d->current_quantity = $d->current_quantity - ((float)($m->quantity));
                 $d->save();
             }
 

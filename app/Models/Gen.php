@@ -142,9 +142,9 @@ class Gen extends Model
   import 'RespondModel.dart';
  
   class $this->class_name {
-     
-    static String endPoint = "{$this->end_point}";
-    static String tableName = "{$this->end_point}";
+      
+    static String end_point = "{$this->end_point}";
+    static String tableName = "{$this->table_name}";
     $generate_vars
   
     static fromJson(dynamic m) {
@@ -188,7 +188,7 @@ class Gen extends Model
     }
   
   
-    static Future&lt;List&lt;$this->class_name&gt;&gt; getItems({String where = '1'}) async {
+    static Future&lt;List&lt;$this->class_name&gt;&gt; get_items({String where = '1'}) async {
       List&lt;$this->class_name&gt; data = await getLocalData(where: where);
       if (data.isEmpty && where.length < 3 ) {
         await $this->class_name.getOnlineItems();
@@ -201,7 +201,7 @@ class Gen extends Model
       List&lt;$this->class_name&gt; data = [];
 
       RespondModel resp =
-          RespondModel(await Utils.http_get('\${{$this->class_name}.endPoint}', {}));
+          RespondModel(await Utils.http_get('\${{$this->class_name}.end_point}', {}));
    
       if (resp.code != 1) {
         return [];
