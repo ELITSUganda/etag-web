@@ -675,13 +675,13 @@ class ApiAnimalController extends Controller
             $type = 'Treatment';
         } else if ($r->type == 'Milking') {
             $type = 'Milking';
+        } else if ($r->type == 'Milking') {
+            $type = 'Weight';
         }
 
 
 
         if ($r->type == 'Milking') {
-
-
             $session = new BatchSession();
             $session->administrator_id = $user_id;
             $session->name = $r->name;
@@ -884,6 +884,54 @@ class ApiAnimalController extends Controller
                 "{$session->name}. Animals present: {$session->present}, Animals absent: {$session->absent}. Open the App to see full list.",
                 $session->administrator_id,
                 $headings = $r->session_category . ' Roll-call'
+            );
+        } else if ($r->type == 'Weight') {
+            $session = new BatchSession();
+            $session->administrator_id = $user_id;
+            $session->name = $r->name;
+            $session->session_date = $r->date_time;
+            $session->type = 'Weight';
+            $session->description = "Weighed animals";
+            $session->save();
+            $animal_ids_found = [];
+            $litters = 0;
+
+
+            foreach ($items as $v) {
+
+                $an = Animal::where([
+                    'id' => ((int)($v->id)),
+                ])->first();
+                if ($an == null) {
+                    continue;
+                }
+                $animal_ids_found[] = $an->id;
+                $ev = new Event();
+                $ev->created_at =  $date;
+                $ev->updated_at =  $date;
+                $ev->time_stamp =  $date;
+                $ev->administrator_id =  $an->administrator_id;
+                $ev->animal_id =  $an->id;
+                $ev->e_id =  $an->e_id;
+                $ev->v_id =  $an->v_id;
+                $ev->weight =  $v->milk;
+                $ev->type = 'Weight check';
+                $ev->is_batch_import =  0;
+                $ev->detail =  "$ev->v_id weighed $ev->milk KGs on date " . Utils::my_date(Carbon::now());
+                $ev->description =  $ev->detail;
+                $ev->short_description =  $ev->detail;
+                $ev->session_id =  $session->id;
+                $ev->is_present =  1;
+                $ev->save();
+            }
+
+            $num = count($animal_ids_found);
+            $session->description =    "{$num} animals Weighed in a {$session->name} session. Open the App to see details.";
+            $session->save();
+            Utils::sendNotification(
+                $session->description,
+                $session->administrator_id,
+                $headings = "{$num} animals Weighed in a {$session->name}"
             );
         }
 
