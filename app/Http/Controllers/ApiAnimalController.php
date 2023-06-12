@@ -917,7 +917,7 @@ class ApiAnimalController extends Controller
                 $ev->weight =  $v->milk;
                 $ev->type = 'Weight check';
                 $ev->is_batch_import =  0;
-                $ev->detail =  "$ev->v_id weighed $ev->milk KGs on date " . Utils::my_date(Carbon::now());
+                $ev->detail =  "$ev->v_id weighed $v->milk KGs on date " . Utils::my_date(Carbon::now());
                 $ev->description =  $ev->detail;
                 $ev->short_description =  $ev->detail;
                 $ev->session_id =  $session->id;
@@ -931,7 +931,7 @@ class ApiAnimalController extends Controller
             Utils::sendNotification(
                 $session->description,
                 $session->administrator_id,
-                $headings = "{$num} animals Weighed in a {$session->name}"
+                $headings = "Milked {$num} animals."
             );
         }
 
