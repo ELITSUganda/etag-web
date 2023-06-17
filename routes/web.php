@@ -6,9 +6,11 @@ use App\Http\Controllers\PrintController;
 use App\Http\Controllers\PrintController2;
 use App\Http\Controllers\WebController;
 use App\Http\Middleware\RedirectIfAuthenticated;
+use App\Models\Animal;
 use App\Models\Event;
 use App\Models\Gen;
 use App\Models\Utils;
+use Carbon\Carbon;
 use Encore\Admin\Grid\Tools\Header;
 use Illuminate\Support\Facades\Route;
 
@@ -33,7 +35,60 @@ Route::get('/gen', function () {
     die(Gen::find($_GET['id'])->do_get());
 })->name("gen");
 
+
 Route::get('demo', function () {
+    $not_found = [];
+    $ans = Animal::where([
+        'administrator_id' => 777,
+        'type' => 'Cattle'
+    ])
+        ->orderBy('updated_at', 'desc')
+        ->get();
+    foreach ($ans as $key => $v) {
+        $event = Event::where([
+            'animal_id' => $v->id,
+        ])
+            ->orderBy('id', 'desc')
+            ->first();
+        if ($event == null) {
+            $not_found[] = $v;
+            continue;
+        }
+
+        $d1 = Carbon::now();
+        $d2 = Carbon::parse($event->created_at);
+        $dif = $d1->diffInDays($d2);
+        if ($dif > 100) {
+            $not_found[] = $v;
+            continue;
+        }
+
+        $event = Event::where([
+            'animal_id' => $v->id,
+            'type' => 'Weight check',
+        ])
+            ->orderBy('id', 'desc')
+            ->first();
+        if ($event == null) {
+            $not_found[] = $v;
+            continue;
+        }
+
+
+        $d1 = Carbon::now();
+        $d2 = Carbon::parse($event->created_at);
+        $dif = $d1->diffInDays($d2);
+        if ($dif > 10) {
+            $not_found[] = $v;
+            continue;
+        }
+    }
+    $i = 0;
+    foreach ($not_found as $key => $an) {
+        $i++;
+        echo $i . ".<br><b>VID</b>: {$an->v_id} <br> <b>WEI:</b> {$an->weight_text}<br><br>";
+    }
+    die("romina");
     return '<h2>DVO Lyantonde: <code>+256775679511</code></h2>' .
         '<h2>DVO Checkpoint officer: <code>+256706638491</code></h2>';
 });
