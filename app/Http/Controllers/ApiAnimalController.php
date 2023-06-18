@@ -813,7 +813,7 @@ class ApiAnimalController extends Controller
             $session->name = $r->name;
             $session->type = $r->type;
             $session->session_date = $r->session_date;
-            $session->session_category = $r->session_category;
+            $session->session_category = $r->roll_call_type;
             $session->description = $r->description;
             $session->save();
             $animal_ids_found = [];
@@ -822,7 +822,7 @@ class ApiAnimalController extends Controller
             foreach ($items as $v) {
                 $an = Animal::where([
                     'id' => ((int)($v->animal_id)),
-                    'type' => $r->session_category,
+                    'type' => $r->roll_call_type,
                 ])->first();
                 if ($an == null) {
                     continue;

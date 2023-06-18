@@ -348,17 +348,17 @@ Expand/CollapseStructurevaccines
 
             if ($m == null) {
                 $id = $uri_segments[2];
-                $m = Movement::find($id); 
+                $m = Movement::find($id);
             }
 
             if ($m == null) {
                 $id = $uri_segments[1];
-                $m = Movement::find($id); 
+                $m = Movement::find($id);
             }
 
             if ($m == null) {
                 $id = $uri_segments[4];
-                $m = Movement::find($id); 
+                $m = Movement::find($id);
             }
 
             if ($m == null) {
