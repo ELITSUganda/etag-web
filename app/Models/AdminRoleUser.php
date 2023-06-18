@@ -42,6 +42,10 @@ class AdminRoleUser extends Model
                 }
                 unset($model->type_id_4);
             }
+            AdminRoleUser::where([
+                'user_id' => $model->user_id,
+                'role_id' => $model->role_id
+            ])->delete();
         });
     }
 

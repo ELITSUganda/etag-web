@@ -97,7 +97,6 @@ class MovementController extends AdminController
         } else if (
             Admin::user()->isRole('dvo')
         ) {
-
             $u = Auth::user();
             $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
             $dis = Location::find($r->type_id);
@@ -165,6 +164,8 @@ class MovementController extends AdminController
                     });
                 }
             }
+        } else {
+            $grid->model()->orderBy('id', 'DESC');
         }
 
         $grid->column('id', __('ID'))->sortable();
@@ -192,7 +193,6 @@ class MovementController extends AdminController
         $grid->column('vehicle', __('Vehicle Reg. No.'));
 
         $grid->column('sub_county_to', __('To subcounty'))->display(function ($user) {
-
             return $this->subcounty_to_text;
         })->sortable();
         $grid->column('animals', __('Animals'))->display(function ($user) {
@@ -333,8 +333,101 @@ Expand/CollapseStructurevaccines
         $form = new Form(new Movement());
         $u =   Admin::user();
 
-
         if (
+            Admin::user()->isRole('dvo') ||
+            Admin::user()->isRole('svo')
+        ) {
+
+            if (!$form->isEditing()) {
+                return $form;
+            }
+            $uri_path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+            $uri_segments = explode('/', $uri_path);
+            $id = $uri_segments[3];
+            $m = Movement::find($id);
+
+            if ($m == null) {
+                $id = $uri_segments[2];
+                $m = Movement::find($id); 
+            }
+
+            if ($m == null) {
+                $id = $uri_segments[1];
+                $m = Movement::find($id); 
+            }
+
+            if ($m == null) {
+                $id = $uri_segments[4];
+                $m = Movement::find($id); 
+            }
+
+            if ($m == null) {
+                admin_error('Form not found.');
+                return $form;
+            }
+
+            $form->divider('Applicant\'s information');
+            $form->setTitle("Reviewing Livestock Movement Permit [LMP]");
+            $form->hidden('administrator_id')->default(Admin::user()->id);
+            $form->display('trader_name', __('Applicant \'s name'))->default($u->name);
+            $form->display('trader_nin', __('Applicant\'s NIN'))->default($u->nin);
+            $form->display('trader_phone', __('Applicant\'s Phone number'))->default($u->phone_number);
+
+
+            $form->divider('Animals\' departure info. <b>(FROM)</b>');
+            $form->display('subcounty_from_text', __('From Sub-county'))->default('$u->nin');
+            $form->display('village_from', __('from Village'));
+
+
+            $form->divider('Animals\' Destination Info. <b>(TO)</b>');
+
+            $form->display('destination', __('Destination of movement'));
+            $form->display('subcounty_to_text', __('Destination Sub-County'));
+
+            $form->divider('Transpotation info.');
+            $form->display('transportation_route', __('Transportation route'));
+            $form->display('vehicle', __('Vehicle\'s reg\' no.'));
+            $form->display('transporter_name', __('Transporter\'s name'));
+            $form->display('transporter_nin', __('Transporter\'s NIN'));
+            $form->display('transporter_Phone', __('Transporter\'s Phone number'));
+
+            $form->divider('Animals\' to be moved');
+
+            $_d = "<ol>";
+            $_i = 0;
+            foreach ($m->animals as $an) {
+                $_i++;
+                $_d .= "<li>  <b>V-ID:</b> $an->v_id, <b>E-ID:</b> $an->e_id, <b>SPECIES:</b> $an->type, - SEX: $an->sex  - <a 
+                target=\"_blank\"
+                href=\"" .
+                    admin_url('animals/' . $an->id)
+                    . "\">veiw details</a></li>";
+            }
+            $_d .= "</ol>";
+            $form->html($_d);
+
+            $form->divider('Review movement permit');
+
+            $form->radio('status', __('Review permit'))
+                ->options(array(
+                    'Approved' => 'Approve',
+                    'Halted' => 'Halt',
+                    'Rejected' => 'Reject',
+
+                ))
+                ->required()
+                ->when('Halted', function (Form $form) {
+                    $form->textarea('details', __('Reason for halt'));
+                })
+                ->when('Rejected', function (Form $form) {
+                    $form->textarea('details', __('Reason for rejection'));
+                })
+                ->when('Approved', function (Form $form) {
+
+                    $form->date('valid_from_Date', __('Valid from Date'))->rules('required');
+                    $form->date('valid_to_Date', __('Valid until'))->rules('required');
+                });
+        } else if (
             Admin::user()->isRole('trader') ||
             Admin::user()->isRole('farmer')
         ) {
@@ -428,7 +521,6 @@ Expand/CollapseStructurevaccines
             }
 
             $form->listbox('animals', 'Animals to be moved')->options($_items)
-                ->help("Select offences involded in this case")
                 ->rules('required');
 
 
@@ -438,85 +530,7 @@ Expand/CollapseStructurevaccines
             $form->disableEditingCheck();
             $form->disableViewCheck();
             $form->disableCreatingCheck();
-        } else if (
-            Admin::user()->isRole('dvo') ||
-            Admin::user()->isRole('svo')
-        ) {
-            if (!$form->isEditing()) {
-                return $form;
-            }
-            $uri_path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-            $uri_segments = explode('/', $uri_path);
-            $id = $uri_segments[3];
-            $m = Movement::find($id);
-            if ($m == null) {
-                admin_error('Form not found.');
-                return $form;
-            }
-
-            $form->divider('Applicant\'s information');
-            $form->setTitle("Reviewing Livestock Movement Permit [LMP]");
-            $form->hidden('administrator_id')->default(Admin::user()->id);
-            $form->display('trader_name', __('Applicant \'s name'))->default($u->name);
-            $form->display('trader_nin', __('Applicant\'s NIN'))->default($u->nin);
-            $form->display('trader_phone', __('Applicant\'s Phone number'))->default($u->phone_number);
-
-
-            $form->divider('Animals\' departure info. <b>(FROM)</b>');
-            $form->display('subcounty_from_text', __('From Sub-county'))->default('$u->nin');
-            $form->display('village_from', __('from Village'));
-
-
-            $form->divider('Animals\' Destination Info. <b>(TO)</b>');
-
-            $form->display('destination', __('Destination of movement'));
-            $form->display('subcounty_to_text', __('Destination Sub-County'));
-
-            $form->divider('Transpotation info.');
-            $form->display('transportation_route', __('Transportation route'));
-            $form->display('vehicle', __('Vehicle\'s reg\' no.'));
-            $form->display('transporter_name', __('Transporter\'s name'));
-            $form->display('transporter_nin', __('Transporter\'s NIN'));
-            $form->display('transporter_Phone', __('Transporter\'s Phone number'));
-
-            $form->divider('Animals\' to be moved');
-
-            $_d = "<ol>";
-            $_i = 0;
-            foreach ($m->animals as $an) {
-                $_i++;
-                $_d .= "<li>  <b>V-ID:</b> $an->v_id, <b>E-ID:</b> $an->e_id, <b>SPECIES:</b> $an->type, - SEX: $an->sex  - <a 
-                target=\"_blank\"
-                href=\"" .
-                    admin_url('animals/' . $an->id)
-                    . "\">veiw details</a></li>";
-            }
-            $_d .= "</ol>";
-            $form->html($_d);
-
-            $form->divider('Review movement permit');
-
-            $form->radio('status', __('Review permit'))
-                ->options(array(
-                    'Approved' => 'Approve',
-                    'Halted' => 'Halt',
-                    'Rejected' => 'Reject',
-
-                ))
-                ->required()
-                ->when('Halted', function (Form $form) {
-                    $form->textarea('details', __('Reason for halt'));
-                })
-                ->when('Rejected', function (Form $form) {
-                    $form->textarea('details', __('Reason for rejection'));
-                })
-                ->when('Approved', function (Form $form) {
-
-                    $form->date('valid_from_Date', __('Valid from Date'))->rules('required');
-                    $form->date('valid_to_Date', __('Valid until'))->rules('required');
-                });
         }
-
 
 
         if (
