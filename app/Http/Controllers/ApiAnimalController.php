@@ -820,11 +820,11 @@ class ApiAnimalController extends Controller
             $session->description = $r->description;
             $session->save();
             $animal_ids_found = [];
- 
+  
 
             foreach ($items as $v) {
                 $an = Animal::where([
-                    'id' => ((int)($v->id)),
+                    'id' => ((int)($v->id)), 
                 ])->first();
                 if ($an == null) {
                     continue;
