@@ -806,7 +806,10 @@ class ApiAnimalController extends Controller
                 $session->administrator_id,
                 $headings = $session->name . ' - Batch treatment'
             );
-        } else if ($r->type == 'Roll call') {
+        } else if (
+            $r->type == 'Roll call' ||
+            $r->type == 'RollCall' 
+        ) {
 
             $session = new BatchSession();
             $session->administrator_id = $user_id;
