@@ -855,7 +855,7 @@ class ApiAnimalController extends Controller
             $absent = 0;
             foreach (Animal::where([
                 'administrator_id' => $user_id,
-                'type' => $r->session_category,
+                'type' => $r->roll_call_type,
             ])->get() as $an) {
                 if (in_array($an->id, $animal_ids_found)) {
                     continue;
