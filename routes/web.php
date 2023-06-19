@@ -125,7 +125,7 @@ Route::get('/compress', function () {
     ])->get() as $key => $img) {
         $img->create_thumbail();
         echo ($img->thumbnail . "<br>");
-        die("done");
+        //die("done");
     }
 
     dd('dine');
