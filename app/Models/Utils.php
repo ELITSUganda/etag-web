@@ -142,7 +142,7 @@ class Utils extends Model
         }
         return $file_path_2;
     }
-    
+
 
     public static function makeSlug($s)
     {
@@ -319,7 +319,7 @@ class Utils extends Model
 
     public static function prepareAverageMilk()
     {
-  
+
         $animals = Animal::where([
             'sex' => 'Female',
             'average_milk' => NULL,
@@ -763,7 +763,7 @@ class Utils extends Model
 
         $image = new Zebra_Image();
 
-        $image->auto_handle_exif_orientation = false;
+        $image->auto_handle_exif_orientation = true;
         $image->source_path = "" . $params['source'];
         $image->target_path = "" . $params['target'];
 
@@ -784,7 +784,11 @@ class Utils extends Model
 
 
         $image->jpeg_quality = 50;
-        $image->jpeg_quality = Utils::get_jpeg_quality(filesize($image->source_path));
+        if (isset($params['quality'])) {
+            $image->jpeg_quality = $params['quality'];
+        } else {
+            $image->jpeg_quality = Utils::get_jpeg_quality(filesize($image->source_path));
+        }
         if (!$image->resize(0, 0, ZEBRA_IMAGE_CROP_CENTER)) {
             return $image->source_path;
         } else {
