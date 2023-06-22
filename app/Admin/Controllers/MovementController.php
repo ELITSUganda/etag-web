@@ -100,8 +100,7 @@ class MovementController extends AdminController
             $u = Auth::user();
             $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
             $dis = Location::find($r->type_id);
-            $grid->model()->where([
-                'district_from' => $dis->id
+            $grid->model()->where([ 
             ])->orderBy('id', 'DESC');
         } else {
             $grid->model()->where('administrator_id', '=', Admin::user()->id);
