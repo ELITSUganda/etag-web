@@ -122,7 +122,7 @@ class MovementController extends AdminController
 
 
         if (Admin::user()->isRole('trader') || Admin::user()->isRole('farmer')) {
-        } else {
+        } else { 
             $grid->disableCreateButton();
         }
         //admin_toastr('Message...', 'success');

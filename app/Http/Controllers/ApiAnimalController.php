@@ -808,7 +808,7 @@ class ApiAnimalController extends Controller
             );
         } else if (
             $r->type == 'Roll call' ||
-            $r->type == 'RollCall' 
+            $r->type == 'RollCall'
         ) {
 
             $session = new BatchSession();
@@ -820,11 +820,11 @@ class ApiAnimalController extends Controller
             $session->description = $r->description;
             $session->save();
             $animal_ids_found = [];
-  
+
 
             foreach ($items as $v) {
                 $an = Animal::where([
-                    'id' => ((int)($v->id)), 
+                    'id' => ((int)($v->id)),
                 ])->first();
                 if ($an == null) {
                     continue;
@@ -1411,6 +1411,7 @@ class ApiAnimalController extends Controller
 
     public function create(Request $request)
     {
+
         $administrator_id = Utils::get_user_id($request);
         $u = Administrator::find($administrator_id);
 
@@ -1419,6 +1420,19 @@ class ApiAnimalController extends Controller
                 'status' => 0,
                 'message' => "User not found.",
             ]);
+        }
+
+        if ($request->id != null && strlen($request->id) > 2) {
+            $an = Animal::where([
+                'local_id' => $request->id,
+                'administrator_id' => $u->id
+            ])->first();
+            if ($an != null) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Animal already registered.",
+                ]);
+            }
         }
 
         if (
@@ -1431,8 +1445,17 @@ class ApiAnimalController extends Controller
         }
 
         if (isset($request->has_no_tag)) {
-            $has_no_tag = ((int)($request->has_no_tag));
-            if ($has_no_tag == 1) {
+            $has_no_tag = false;
+            if ($request->has_no_tag == 'Yes') {
+                $has_no_tag = true;
+            }
+            if (!$has_no_tag) {
+                if (((int)($request->has_no_tag)) == 1) {
+                    $has_no_tag = true;
+                }
+            }
+
+            if ($has_no_tag) {
                 $p = Animal::find($request->parent_id);
                 if ($p == null) {
                     return Utils::response([
@@ -1445,8 +1468,10 @@ class ApiAnimalController extends Controller
                     'parent_id' => $p->id
                 ])->count();
                 $count++;
-                $request->e_id = "temp-{$p->e_id}-{$count}";
-                $request->v_id = "temp-{$p->v_id}-{$count}";
+                if ($request->has_more_info != 'Yes') {
+                    $request->e_id = "temp-{$p->e_id}-{$count}";
+                    $request->v_id = "temp-{$p->v_id}-{$count}";
+                }
             }
         }
 
@@ -1476,18 +1501,7 @@ class ApiAnimalController extends Controller
                 'message' => "You must provide e_id."
             ]);
         }
-
-        if (
-            !isset($request->breed)
-        ) {
-            $request->breed = 'Other';
-            /* return Utils::response([
-                'status' => 0,
-                'message' => "You must provide breed."
-            ]); */
-        }
-
-
+ 
         $animal = Animal::where('e_id', $request->e_id)->first();
         if ($animal != null) {
             return Utils::response([
@@ -1501,13 +1515,12 @@ class ApiAnimalController extends Controller
         ) {
             return Utils::response([
                 'status' => 0,
-                'message' => "You must provide sex."
+                'message' => "You must provide animal's sex."
             ]);
         }
 
-
-
         $f = new Animal();
+        $f->local_id = $request->id;
         $f->e_id = $request->e_id;
         $f->farm_id = $request->farm_id;
         $f->type = $request->type;
@@ -1516,16 +1529,19 @@ class ApiAnimalController extends Controller
         $f->breed = $request->breed;
         $f->sex = $request->sex;
         $f->dob = $request->dob;
-        $f->fmd = $request->fmd;
+        if ($request->dob != null & strlen($request->dob) > 3) {
+            $f->dob = Carbon::parse($request->dob);
+        }
+        if ($request->fmd != null && strlen($request->fmd) > 3) {
+            $f->fmd = Carbon::parse($request->fmd);
+        }
         $f->stage = $request->stage;
-        $f->parent_id = $request->parent_id;
+        $f->parent_id = $request->parent_id; 
         $f->status = 'Active';
         $f->save();
 
-
-
-        if (isset($request->local_id)) {
-            $local_id = (int)($request->local_id);
+        if (isset($f->local_id)) {
+            $local_id = (int)($f->local_id);
 
             $imgs = Image::where([
                 'administrator_id' => $administrator_id,
@@ -1539,7 +1555,6 @@ class ApiAnimalController extends Controller
                 $img->save();
             }
         }
-
 
 
         return Utils::response([
