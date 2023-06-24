@@ -1428,7 +1428,7 @@ class ApiAnimalController extends Controller
             ])->first();
             if ($an != null) {
                 return Utils::response([
-                    'status' => 0,
+                    'status' => 2,
                     'message' => "Animal already registered.",
                 ]);
             }
