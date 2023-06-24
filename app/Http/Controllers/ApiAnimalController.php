@@ -1397,7 +1397,6 @@ class ApiAnimalController extends Controller
     {
         $Administrator = Administrator::findOrFail($id);
         $Administrator->update($request->all());
-
         return $Administrator;
     }
 
@@ -1501,7 +1500,7 @@ class ApiAnimalController extends Controller
                 'message' => "You must provide e_id."
             ]);
         }
- 
+
         $animal = Animal::where('e_id', $request->e_id)->first();
         if ($animal != null) {
             return Utils::response([
@@ -1536,7 +1535,7 @@ class ApiAnimalController extends Controller
             $f->fmd = Carbon::parse($request->fmd);
         }
         $f->stage = $request->stage;
-        $f->parent_id = $request->parent_id; 
+        $f->parent_id = $request->parent_id;
         $f->status = 'Active';
         $f->save();
 
