@@ -182,6 +182,18 @@ class Animal extends Model
         return str_replace("storage/", "", $photo);
     }
 
+    public function getParentTextAttribute()
+    {
+        if ($this->parent_id == null) {
+            return null;
+        }
+        $p = Animal::find($this->parent_id);
+        if ($p == null) {
+            return null;
+        }
+        return $p->v_id;
+    }
+
     public function getPhoneNumberAttribute()
     {
         return "+256706638494";
@@ -266,6 +278,7 @@ class Animal extends Model
     protected $appends = [
         'images', 'photos', 'last_seen', 'phone_number', 'whatsapp', 'price_text', 'posted', 'age',
         'location',
+        'parent_text',
         'updated_at_text'
     ];
 }

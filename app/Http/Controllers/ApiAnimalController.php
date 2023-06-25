@@ -1577,7 +1577,9 @@ class ApiAnimalController extends Controller
 
         $an->v_id = $request->v_id;
         $an->e_id = $request->e_id;
-        $an->parent_id = $request->parent_id;
+        if ($request->parent_id != null && strlen($request->parent_id) > 0) {
+            $an->parent_id = $request->parent_id;
+        }
         $an->breed = $request->breed;
         $an->dob = Carbon::parse($request->dob);
         try {
