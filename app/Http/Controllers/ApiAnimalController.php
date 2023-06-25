@@ -1575,8 +1575,16 @@ class ApiAnimalController extends Controller
             ]);
         }
 
-        $an->v_id = $request->v_id;
-        $an->e_id = $request->e_id;
+        if ($request->e_id != null && strlen($request->e_id) > 2) {
+            $an->e_id = $request->e_id;
+        }
+        if (
+            $request->v_id != null &&
+            strlen($request->v_id) > 2
+
+        ) {
+            $an->v_id = $request->v_id;
+        }
         if ($request->parent_id != null && strlen($request->parent_id) > 0) {
             $an->parent_id = $request->parent_id;
         }
