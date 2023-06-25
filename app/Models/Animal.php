@@ -213,11 +213,7 @@ class Animal extends Model
 
     public function getAgeAttribute()
     {
-        return Carbon::parse($this->dob)->diffForHumans();
-    }
-    public function getDobAttribute($dob)
-    {
-        return Utils::my_date($dob);
+        return Utils::my_date($this->dob) . " - " . Carbon::parse($this->dob)->diffForHumans();
     }
 
     public function getWeightTextAttribute($x)
@@ -250,7 +246,8 @@ class Animal extends Model
         $this->save();
     }
 
-    public function getUpdatedAtTextAttribute(){
+    public function getUpdatedAtTextAttribute()
+    {
         return Carbon::parse($this->updated_at)->timestamp;
     }
     public function getLastSeenAttribute()
@@ -266,8 +263,9 @@ class Animal extends Model
         return $format;
     }
 
-    protected $appends = ['images', 'photos', 'last_seen', 'phone_number', 'whatsapp', 'price_text', 'posted', 'age', 
-    'location',
-    'updated_at_text'
-];
+    protected $appends = [
+        'images', 'photos', 'last_seen', 'phone_number', 'whatsapp', 'price_text', 'posted', 'age',
+        'location',
+        'updated_at_text'
+    ];
 }

@@ -1563,6 +1563,39 @@ class ApiAnimalController extends Controller
         ]);
     }
 
+
+    public function create_update(Request $request)
+    {
+
+        $an = Animal::find($request->id);
+        if ($an == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Animal not found.",
+            ]);
+        }
+
+        $an->v_id = $request->v_id;
+        $an->e_id = $request->e_id;
+        $an->parent_id = $request->parent_id;
+        $an->breed = $request->breed;
+        $an->dob = Carbon::parse($request->dob);
+        try {
+            $an->save();
+            return Utils::response([
+                'status' => 1,
+                'message' => "Success",
+                'data' => null
+            ]);
+        } catch (\Throwable $th) {
+            return Utils::response([
+                'status' => 0,
+                'message' => $th,
+                'data' => null
+            ]);
+        }
+    }
+
     public function events(Request $request)
     {
 

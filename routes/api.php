@@ -65,6 +65,7 @@ Route::get('sub_counties', [UtilsController::class, 'sub_counties']);
 
 // animal //
 Route::post('animals', [ApiAnimalController::class, 'create']);
+Route::post('animals-update', [ApiAnimalController::class, 'create_update']);
 Route::post('create-sale', [ApiAnimalController::class, 'create_sale']);
 Route::get('slaughters', [ApiAnimalController::class, 'slaughters']);
 
