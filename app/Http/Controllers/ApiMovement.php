@@ -423,8 +423,13 @@ class ApiMovement extends Controller
 
         $mv->status = $request->status;
         $mv->reason = $request->reason;
-        $mv->valid_to_Date = $request->valid_to_Date;
-        $mv->valid_from_Date = $request->valid_from_Date;
+        try {
+            $mv->valid_from_Date = Carbon::parse($request->valid_from_Date)->toDateString();
+            $mv->valid_to_Date = Carbon::parse($mv->valid_from_Date)->addDays(5)->toDateString();
+        } catch (\Throwable $th) {
+            $mv->valid_from_Date = Carbon::now()->toDateString();
+            $mv->valid_to_Date = Carbon::parse($mv->valid_from_Date)->addDays(5)->toDateString();
+        }
         $mv->save();
 
         return Utils::response([
