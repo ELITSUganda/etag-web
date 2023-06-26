@@ -89,7 +89,7 @@ class ApiMovement extends Controller
         foreach ($user->user_roles as $_role) {
             if ($_role->role_id == 3) {
                 //farmer---
-                $_permits = Movement::where(['administrator_id' => $user_id])->orderBy('id','desc')->get();
+                $_permits = Movement::where(['administrator_id' => $user_id])->orderBy('id', 'desc')->get();
                 foreach ($_permits as $_permit) {
                     if (in_array($_permit->id, $done_ids)) {
                         continue;
@@ -100,7 +100,7 @@ class ApiMovement extends Controller
             }
             if ($_role->role_id == 9) {
                 //checkpoint officer---
-                $_permits = Movement::where(['status' => '1'])->orderBy('id','desc')->get();
+                $_permits = Movement::where(['status' => '1'])->orderBy('id', 'desc')->get();
                 foreach ($_permits as $_permit) {
                     if (in_array($_permit->id, $done_ids)) {
                         continue;
@@ -110,9 +110,10 @@ class ApiMovement extends Controller
                 }
             }
 
-            if ($_role->role_id == 7) {
+            if ($user->isRole('dvo') || $user->isRole('sclo') || $user->isRole('scvo')) {
                 //dvo 
-                $_permits = Movement::where(['district_from' => $_role->type_id])->orderBy('id','desc')->get();
+                //$_permits = Movement::where(['district_from' => $_role->type_id])->orderBy('id','desc')->get();
+                $_permits = Movement::where([])->orderBy('id', 'desc')->get();
                 foreach ($_permits as $_permit) {
                     if (in_array($_permit->id, $done_ids)) {
                         continue;
@@ -147,12 +148,12 @@ class ApiMovement extends Controller
         ) {
             $items = Movement::paginate(1000)->withQueryString()->items();
         } else if ($role == 'slaughter') {
-            $items = Movement::where('destination_slaughter_house', '=', $user_id)->where('status', '=', 'Approved')->orderBy('id','desc')->get();
+            $items = Movement::where('destination_slaughter_house', '=', $user_id)->where('status', '=', 'Approved')->orderBy('id', 'desc')->get();
         } else if ($role == 'scvo') {
             //if sclo
-            $items = Movement::where('sub_county_from', '=', $user->scvo)->where('status', '=', 'Approved')->orderBy('id','desc')->get();
+            $items = Movement::where('sub_county_from', '=', $user->scvo)->where('status', '=', 'Approved')->orderBy('id', 'desc')->get();
         } else {
-            $items = Movement::where(['administrator_id' => $user_id])->orderBy('id','desc')->get();
+            $items = Movement::where(['administrator_id' => $user_id])->orderBy('id', 'desc')->get();
         }
 
 
@@ -326,7 +327,7 @@ class ApiMovement extends Controller
 
         $records = CheckPointRecord::where([
             'movement_id' => $request->permit,
-        ])->orderBy('id','desc')->get();
+        ])->orderBy('id', 'desc')->get();
 
         $items = [];
         foreach ($records as $key => $value) {
