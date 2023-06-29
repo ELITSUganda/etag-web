@@ -29,7 +29,6 @@ class SlaughterHouseController extends AdminController
 
         $grid = new Grid(new SlaughterHouse());
         $grid->disableBatchActions();
-
         $grid->model()->orderBy('id', 'desc');
         $grid->column('name', __('Name'))->sortable();
         $grid->column('district_id', __('District'))->display(function () {
@@ -85,11 +84,9 @@ class SlaughterHouseController extends AdminController
 
         $form->text('name', __('Name'))->rules('required');
 
-
-        $subs = Location::get_sub_counties();
-        $form->select('subcounty_id', 'Subcounty')->options(
-            $subs->pluck('name_text', 'id')
-        )->rules('required');
+        $form->select('sub_county_id', __('Subcounty'))
+        ->options(\App\Models\Location::get_sub_counties_array())
+        ->required();
 
         $houses = [];
         foreach (AdminRoleUser::where([

@@ -1,11 +1,10 @@
 <?php
 
-use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateGroupsTable extends Migration
+class CreateMovementRoutesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,13 +13,13 @@ class CreateGroupsTable extends Migration
      */
     public function up()
     {
-        return;
-        Schema::create('groups', function (Blueprint $table) {
+        Schema::create('movement_routes', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
             $table->string('name')->nullable();
             $table->text('description')->nullable();
-            $table->foreignIdFor(Administrator::class);
+            $table->foreignIdFor(\App\Models\Location::class, 'start_location_id')->nullable();
+            $table->foreignIdFor(\App\Models\Location::class, 'end_location_id')->nullable();
         });
     }
 
@@ -31,6 +30,6 @@ class CreateGroupsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('groups');
+        Schema::dropIfExists('movement_routes');
     }
 }

@@ -27,6 +27,7 @@ Route::group([
     $router->resource('archived-animals', ArchivedAnimalController::class);
     $router->resource('sales', AnimalSalesController::class);
     $router->resource('check-points', CheckPointController::class);
+    $router->resource('movement-routes', MovementRouteController::class);
     $router->resource('check-point-records', CheckPointRecordController::class);
     $router->resource('product-categories', ProductCategoryController::class);
     $router->resource('products', ProductController::class);
@@ -50,5 +51,5 @@ Route::group([
     $router->resource('vet-service-categories', VetServiceCategoryController::class);
     $router->resource('locations', LocationController::class);
     $router->resource('groups', GroupController::class);
-    $router->resource('gens', GenController::class); 
+    $router->resource('gens', GenController::class);
 });

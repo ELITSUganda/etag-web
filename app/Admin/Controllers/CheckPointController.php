@@ -19,7 +19,7 @@ class CheckPointController extends AdminController
      *
      * @var string
      */
-    protected $title = 'Check Points';
+    protected $title = 'CheckPoints';
 
     /**
      * Make a grid builder.
@@ -30,20 +30,23 @@ class CheckPointController extends AdminController
     {
         $grid = new Grid(new CheckPoint());
 
-        $grid->column('id', __('Id'));
-        $grid->column('created_at', __('Created '))
-            ->display(function ($f) {
-                return Carbon::parse($f)->toFormattedDateString();
-            })->sortable();
-        $grid->column('name', __('Name'));
-        $grid->column('details', __('Details'));
-        $grid->column('gps', __('GPS'))
-            ->display(function () {
-                return $this->longitude . "," . $this->longitude;
-            });
+        $grid->model()->orderBy('id', 'desc');
+        $grid->quickSearch('name')->placeholder('Search by name...');
+        $grid->column('id', __('Id'))->sortable();
+        $grid->disableBatchActions();
+        $grid->column('name', __('Name'))->sortable();
+
         $grid->column('administrator_id', __('Checkpoint officer'))
             ->display(function ($id) {
                 $u = Administrator::find($id);
+                if (!$u) {
+                    return $id;
+                }
+                return $u->name;
+            })->sortable();
+        $grid->column('movement_route_id', 'Movement Route')
+            ->display(function ($id) {
+                $u = \App\Models\MovementRoute::find($id);
                 if (!$u) {
                     return $id;
                 }
@@ -55,9 +58,14 @@ class CheckPointController extends AdminController
                 if (!$u) {
                     return $id;
                 }
-                return $u->name;
+                return $u->name_text;
             })->sortable();
 
+        $grid->column('details', __('Details'))->hide();
+        $grid->column('gps', __('GPS'))
+            ->display(function () {
+                return $this->longitude . "," . $this->longitude;
+            });
         return $grid;
     }
 
@@ -93,27 +101,25 @@ class CheckPointController extends AdminController
     {
         $form = new Form(new CheckPoint());
 
-        $sub_counties =  Location::get_sub_counties();
-        $admins = [];
-        foreach (Administrator::all() as $key => $v) {
-           
-            $admins[$v->id] = $v->name . " - " . $v->id . " - ({$v->username})";
-        }
-
-
-        $form->text('name', __('Checkpoinnt Name/Route'))->required();
-
-        $form->select('sub_county_id', 'Subcounty')->options(
-            $sub_counties->pluck('name_text', 'id')
-        )->rules('required');
-
-        $form->select('administrator_id', __('Chech-point officer'))
-            ->options($admins)
+        $form->select('movement_route_id', __('Movement Route'))
+            ->options(\App\Models\MovementRoute::pluck('name', 'id'))
+            ->rules('required')
             ->required();
 
- 
-        $form->textarea('latitube', __('latitube'))->required();
-        $form->textarea('longitude', __('longitude'))->required();
+        $form->text('name', __('Checkpoinnt Name'))->required();
+
+
+        $form->select('administrator_id', __('Checkpoint officer'))
+            ->options(\App\Models\User::pluck('name', 'id'))
+            ->required();
+
+        $form->select('sub_county_id', __('Subcounty'))
+            ->options(\App\Models\Location::get_sub_counties_array())
+            ->required();
+
+
+        $form->text('latitube', __('GPS latitube'))->required();
+        $form->text('longitude', __('GPS longitude'))->required();
         $form->textarea('details', __('Details'))->required();
 
         return $form;

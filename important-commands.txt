@@ -11,6 +11,7 @@ php artisan make:migration create_sick_animals_table
 php artisan make:migration create_pregnant_animals_table
 php artisan make:migration create_finance_categories_table
 php artisan make:migration create_transactions_table
+php artisan make:migration create_movement_routes_table
 
 
 ALTER TABLE `animals` ADD 
@@ -63,7 +64,9 @@ php artisan admin:make Animal1Controller --model=App\Animal
 php artisan admin:controller --model=App\FormSr4
 php artisan admin:controller --model=App\SlaughterRecord
 php artisan admin:make FormSr4Controller --model=App\FormSr4
-php artisan admin:make DrugStockBatchController --model=App\DrugStockBatch
+php artisan admin:make MovementRouteController --model=App\MovementRoute
+php artisan admin:make MovementRouteController --model=App\Models\MovementRoute
+
 
 php artisan admin:make ContractController --model=App\\Models\\ContractRecords
 php artisan admin:make StockRecordController --model=App\\Models\\StockRecord
@@ -76,8 +79,8 @@ php artisan admin:make ProductController --model=App\\Models\\Product
 php artisan admin:make FormDrugSellerController --model=App\\Models\\FormDrugSeller
 php artisan admin:make DrugCategoryController --model=App\\Models\\DrugCategory
 php artisan admin:make FormDrugStockApprovalController --model=App\\Models\\FormDrugStockApproval
-php artisan admin:make DrugStockBatchController --model=App\\Models\\DrugStockBatch
-php artisan admin:make DrugStockBatchRecordController --model=App\\Models\\DrugStockBatchRecord
+php artisan admin:make MovementRouteController --model=App\\Models\\MovementRoute
+php artisan admin:make MovementRouteRecordController --model=App\\Models\\MovementRouteRecord
 php artisan admin:make Animal1Controller --model=App\\Models\\Animal
 php artisan admin:make SickAnimalController --model=App\\Models\\SickAnimal
 php artisan admin:make EventController --model=App\\Models\\Event
@@ -92,6 +95,7 @@ php artisan admin:make VetServiceCategoryController --model=App\Models\VetServic
 php artisan admin:make GroupController --model=App\Models\Group
 
 
+php artisan make:model MovementRoute
 php artisan make:model CheckPoint
 php artisan make:model ArchivedAnimal
 php artisan make:model CheckPointRecord
@@ -101,8 +105,8 @@ php artisan make:model AdminRoleUser
 php artisan make:model DrugCategory
 php artisan make:model FormDrugStockApproval 
 php artisan make:model FormDrugStockApprovalItem
-php artisan make:model DrugStockBatch
-php artisan make:model DrugStockBatchRecord 
+php artisan make:model MovementRoute
+php artisan make:model MovementRouteRecord 
 php artisan make:model Image
 php artisan make:model ProductOrder
 php artisan make:model SickAnimal

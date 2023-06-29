@@ -13,6 +13,7 @@ use App\Models\Farm;
 use App\Models\Location;
 use App\Models\Movement;
 use App\Models\MovementHasMovementAnimal;
+use App\Models\MovementRoute;
 use App\Models\SlaughterHouse;
 use App\Models\Utils;
 use Carbon\Carbon;
@@ -67,6 +68,23 @@ class ApiMovement extends Controller
             'message' => 'Success'
         ]);
     }
+
+    public function routes(Request $request)
+    {
+        $data = [];
+        foreach (MovementRoute::all() as $key => $val) {
+            $val->check_points = json_encode($val->checkpoints);
+            $val->checkpoints = null;
+            unset($val->checkpoints);
+            $data[] = $val;
+        }
+        return Utils::response([
+            'status' => 1,
+            'data' => $data,
+            'message' => 'Success'
+        ]);
+    }
+
     public function index(Request $request)
     {
 
