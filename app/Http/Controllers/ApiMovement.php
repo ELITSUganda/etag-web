@@ -457,6 +457,7 @@ class ApiMovement extends Controller
                     foreach ($checkPoints as $key => $checkPointId) {
                         $checkPoint = CheckPoint::find($checkPointId);
                         if ($checkPoint == null) {
+                            $mv->status .=  "$checkPointId not found";
                             continue;
                         }
                         $s = new CheckpointSession();
@@ -471,15 +472,18 @@ class ApiMovement extends Controller
                         $s->details = '';
                         $s->save();
                     }
+                } else {
+                    $mv->status .=  " NOT ARRAY";
                 }
             } catch (\Throwable $th) {
+                $mv->status .=  $th . " - Failed to create check points sessions.";
             }
         }
 
         return Utils::response([
             'status' => 1,
             'message' => "Movement permit $mv->status successfully.",
-            'data' => $mv
+            'data' => null
         ]);
     }
     public function create(Request $request)
