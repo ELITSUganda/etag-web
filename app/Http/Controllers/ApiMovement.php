@@ -476,10 +476,8 @@ class ApiMovement extends Controller
                         $s->save();
                     }
                 } else {
-                    $mv->status .=  " NOT ARRAY " . $request->check_points_to_pass_list_ids;
                 }
             } catch (\Throwable $th) {
-                $mv->status .=  $th . " - Failed to create check points sessions.";
             }
         }
 
