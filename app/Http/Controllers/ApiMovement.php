@@ -465,7 +465,7 @@ class ApiMovement extends Controller
                         $s->checked_by = $checkPoint->administrator_id;
                         $s->check_point_id = $checkPoint->id;
                         $s->movement_id = $mv->id;
-                        $s->animals_expected = $mv->animals->count();
+                        $s->animals_expected = (count($mv->animals));
                         $s->animals_checked = 0;
                         $s->animals_found = 0;
                         $s->animals_missed = 0;
