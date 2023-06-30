@@ -56,6 +56,7 @@ php artisan make:migration create_vet_has_services_table
 php artisan make:migration create_vet_service_categories_table
 php artisan make:migration create_drug_for_sales_table
 php artisan make:migration create_groups_table
+php artisan make:migration create_check_expectations_table
 
 Encore\Admin\Auth\Database\Administrator::class,
 php artisan admin:make FormSr4Controller --model=App\FormSr4

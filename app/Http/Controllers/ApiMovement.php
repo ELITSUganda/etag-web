@@ -450,9 +450,35 @@ class ApiMovement extends Controller
         }
         $mv->save();
 
+        if ($mv->status == 'Approved') {
+            try {
+                $checkPoints = json_decode($request->check_points_to_pass_list);
+                if (is_array($checkPoints)) {
+                    foreach ($checkPoints as $key => $checkPointId) {
+                        $checkPoint = CheckPoint::find($checkPointId);
+                        if ($checkPoint == null) {
+                            continue;
+                        }
+                        $s = new CheckpointSession();
+                        $s->session_status = 'Pending';
+                        $s->checked_by = $checkPoint->administrator_id;
+                        $s->check_point_id = $checkPoint->id;
+                        $s->movement_id = $mv->id;
+                        $s->animals_expected = $mv->animals->count();
+                        $s->animals_checked = 0;
+                        $s->animals_found = 0;
+                        $s->animals_missed = 0;
+                        $s->details = '';
+                        $s->save();
+                    }
+                }
+            } catch (\Throwable $th) {
+            }
+        }
+
         return Utils::response([
             'status' => 1,
-            'message' => "Movement permit checked successfully.",
+            'message' => "Movement permit $mv->status successfully.",
             'data' => $mv
         ]);
     }
