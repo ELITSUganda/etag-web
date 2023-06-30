@@ -465,7 +465,10 @@ class ApiMovement extends Controller
                         $s->checked_by = $checkPoint->administrator_id;
                         $s->check_point_id = $checkPoint->id;
                         $s->movement_id = $mv->id;
-                        $s->animals_expected = (count($mv->animals));
+                        $s->animals_expected = 0;
+                        if ($mv->animals != null) {
+                            $s->animals_expected = (count($mv->animals));
+                        }
                         $s->animals_checked = 0;
                         $s->animals_found = 0;
                         $s->animals_missed = 0;
@@ -473,7 +476,7 @@ class ApiMovement extends Controller
                         $s->save();
                     }
                 } else {
-                    $mv->status .=  " NOT ARRAY ".$request->check_points_to_pass_list_ids;
+                    $mv->status .=  " NOT ARRAY " . $request->check_points_to_pass_list_ids;
                 }
             } catch (\Throwable $th) {
                 $mv->status .=  $th . " - Failed to create check points sessions.";
