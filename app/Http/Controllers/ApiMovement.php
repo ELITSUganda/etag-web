@@ -375,6 +375,40 @@ class ApiMovement extends Controller
         return $items;
     }
 
+    public function transfer_animal(Request $r, $id)
+    {
+        $an = Animal::find($id);
+        if ($an == null) {
+            return Utils::response(['status' => 0, 'message' => "Animal not found.",]);
+        }
+        $sender = Administrator::find($an->administrator_id);
+        if ($sender == null) {
+            return Utils::response(['status' => 0, 'message' => "Sender not found.",]);
+        }
+        $receiver = Administrator::find($r->receiver);
+        if ($receiver == null) {
+            return Utils::response(['status' => 0, 'message' => "Receiver not found.",]);
+        }
+
+        $an->administrator_id = $receiver->id;
+        $an->save();
+        Event::where('animal_id', $an->v_id)->update(['administrator_id' => $receiver->id]);
+
+        Utils::sendNotification(
+            "Your animal {$an->v_id} ownership has been transfered to {$receiver->name} - {$receiver->phone_number}.",
+            $sender->user_id,
+            $headings = 'Animal ownership transfered'
+        );
+
+        Utils::sendNotification(
+            "Animal {$an->v_id} has been transfered to you by {$sender->name} - {$sender->phone_number}.",
+            $receiver->user_id,
+            $headings = 'Animal ownership received'
+        );
+
+        return Utils::response(['status' => 1, 'message' => "Animal ownership transfered successfully.",]);
+    }
+
     public function checkpoint_session(Request $request, $id)
     {
 

@@ -99,6 +99,7 @@ Route::get('movement-routes', [ApiMovement::class, 'routes']);
 Route::get('system-users', [ApiMovement::class, 'system_users']);
 
 
+Route::post('transfer-animal/{id}', [ApiMovement::class, 'transfer_animal']);
 Route::post('checkpoint-session/{id}', [ApiMovement::class, 'checkpoint_session']);
 Route::post('movements-review/{id}', [ApiMovement::class, 'review']);
 Route::post('change-tag/{id}', [ApiAnimalController::class, 'change_tag']);
