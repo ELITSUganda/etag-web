@@ -394,6 +394,49 @@ class ApiMovement extends Controller
         $an->save();
         Event::where('animal_id', $an->v_id)->update(['administrator_id' => $receiver->id]);
 
+        $ev = new Event();
+        $ev->animal_id = $an->id;
+        $ev->administrator_id = $receiver->administrator_id;
+        $ev->administrator_id = $an->farm_id;
+        $ev->type = 'Ownership Transfer';
+        $ev->short_description = 'Ownership Transfer';
+        $ev->detail = "Anima's ownership transfered from {$sender->name} to  {$receiver->name}.";
+        $ev->description = "Anima's ownership transfered from {$sender->name} to  {$receiver->name}.";
+        $ev->save();
+        /* 	
+		
+	animal_type	
+disease_id	
+vaccine_id	
+medicine_id	
+is_batch_import	
+time_stamp	
+import_file	
+	
+temperature	
+e_id	
+v_id	
+status	
+disease_text	
+	
+medicine_text	
+medicine_quantity	
+medicine_name	
+medicine_batch_number	
+medicine_supplier	
+medicine_manufacturer	
+medicine_expiry_date	
+medicine_image	
+vaccination	
+weight	
+milk	
+photo	
+session_id	
+is_present	
+	
+
+
+*/
         Utils::sendNotification(
             "Your animal {$an->v_id} ownership has been transfered to {$receiver->name} - {$receiver->phone_number}.",
             $sender->id,
