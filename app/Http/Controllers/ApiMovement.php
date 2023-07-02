@@ -396,13 +396,13 @@ class ApiMovement extends Controller
 
         Utils::sendNotification(
             "Your animal {$an->v_id} ownership has been transfered to {$receiver->name} - {$receiver->phone_number}.",
-            $sender->user_id,
+            $sender->id,
             $headings = 'Animal ownership transfered'
         );
 
         Utils::sendNotification(
             "Animal {$an->v_id} has been transfered to you by {$sender->name} - {$sender->phone_number}.",
-            $receiver->user_id,
+            $receiver->id,
             $headings = 'Animal ownership received'
         );
 
