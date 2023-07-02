@@ -97,7 +97,7 @@ class Animal extends Model
             }
 
             $model->status = "Active";
-            $model->administrator_id = $f->administrator_id;
+            //$model->administrator_id = $f->administrator_id;
             $model->district_id = $f->district_id;
             $model->sub_county_id = $f->sub_county_id;
             $model->lhc = $f->holding_code;
