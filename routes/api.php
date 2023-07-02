@@ -96,6 +96,7 @@ Route::get('locations', [ApiFarmController::class, 'locations']);
 Route::get('users', [ApiUserController::class, 'index']);
 Route::get('movements', [ApiMovement::class, 'index']);
 Route::get('movement-routes', [ApiMovement::class, 'routes']);
+Route::get('system-users', [ApiMovement::class, 'system_users']);
 
 
 Route::post('checkpoint-session/{id}', [ApiMovement::class, 'checkpoint_session']);

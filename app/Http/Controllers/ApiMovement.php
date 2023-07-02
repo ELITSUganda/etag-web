@@ -69,6 +69,16 @@ class ApiMovement extends Controller
         ]);
     }
 
+    public function system_users(Request $request)
+    {
+        $data = Administrator::all();
+        return Utils::response([
+            'status' => 1,
+            'data' => $data,
+            'message' => 'Success'
+        ]);
+    }
+
     public function routes(Request $request)
     {
         $data = [];
