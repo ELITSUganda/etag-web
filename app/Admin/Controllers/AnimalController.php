@@ -233,10 +233,10 @@ class AnimalController extends AdminController
                 return $u->name;
             })->sortable();
 
-        $grid->column('district_id', __('District'))
+ /*        $grid->column('district_id', __('District'))
             ->display(function ($id) {
                 return Utils::get_object(Location::class, $id)->name_text;
-            })->sortable();
+            })->sortable(); */
         $grid->column('sub_county_id', __('Sub county'))
             ->display(function ($id) {
                 return Utils::get_object(Location::class, $id)->name_text;
