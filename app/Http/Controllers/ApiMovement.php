@@ -152,7 +152,7 @@ class ApiMovement extends Controller
             }
         }
 
-        $new_permits = []; 
+        $new_permits = [];
         foreach ($permits as $key => $p) {
             $p->animal_ids = "";
             $p->v_ids = "";
@@ -161,7 +161,7 @@ class ApiMovement extends Controller
             $v_ids = [];
             $e_ids = [];
             foreach ($p->animals as $an) {
-                if($an == null){
+                if ($an == null) {
                     continue;
                 }
                 $animal_ids[] = $an->id;
@@ -171,9 +171,9 @@ class ApiMovement extends Controller
             $p->animal_ids = json_encode($animal_ids);
             $p->v_ids = json_encode($v_ids);
             $p->e_ids = json_encode($e_ids);
-            
+
             $new_permits[] = $p;
-        } 
+        }
         return Utils::response([
             'status' => 1,
             'data' => $new_permits,
@@ -543,6 +543,132 @@ is_present
             'message' => "Session saved successfully.",
             'data' => $session
         ]);
+    }
+
+    public function checkpoint_verification(Request $r)
+    {
+
+        $movement = Movement::find($r->movement_id);
+        if ($movement == null) {
+            return Utils::response(['status' => 0, 'message' => "Movement permit not found.",]);
+        }
+        $checkPoint = CheckPoint::find($r->checkpoint_id);
+        if ($checkPoint == null) {
+            return Utils::response(['status' => 0, 'message' => "Checkpoint not found.",]);
+        }
+        $checkPoint = CheckPoint::find($r->checkpoint_id);
+        if ($checkPoint == null) {
+            return Utils::response(['status' => 0, 'message' => "Checkpoint not found.",]);
+        }
+
+        $user_id = ((int)(Utils::get_user_id($r)));
+        $user = Administrator::find($user_id);
+
+        if ($user == null) {
+            return Utils::response(['status' => 0, 'message' => "User not found.",]);
+        }
+
+
+        $session  = CheckpointSession::where([
+            'movement_id' => $movement->id,
+            'check_point_id' => $checkPoint->id,
+        ])->first();
+        if ($session == null) {
+            $session = new CheckpointSession();
+            $session->movement_id = $movement->id;
+            $session->check_point_id = $checkPoint->id;
+            $session->checked_by = $user->id;
+            $session->session_status = 'Pending';
+            if ($movement->animals != null) {
+                $session->animals_expected = count($movement->animals);
+            }
+            try {
+                $session->save();
+            } catch (\Throwable $th) {
+                return Utils::response(['status' => 0, 'message' => "Session failed to save because " . $th,]);
+            }
+        }
+
+        $done = [];
+        $valid = [];
+        try {
+            $done = json_decode($r->done);
+        } catch (\Throwable $th) {
+            $done = [];
+        }
+
+        if ($done == null) {
+            return Utils::response(['status' => 0, 'message' => "No animal found.",]);
+        }
+
+        try {
+            $valid = json_decode($r->valid);
+        } catch (\Throwable $th) {
+            $valid = [];
+        }
+
+        $_done = [];
+
+        if (is_array($done)) {
+            foreach ($done as $key => $id) {
+                $an = Animal::where('v_id', $id)
+                    ->orWhere('e_id', $id)
+                    ->first();
+                if ($an == null) {
+                    continue;
+                }
+                $e = new Event();
+                $e->administrator_id = $an->administrator_id;
+                $e->approved_by = $user->id;
+                $e->district_id = $user->district_id;
+                $e->sub_county_id  = $user->sub_county_id;
+                $e->animal_id = $an->id;
+                $e->type = "Check point";
+                $e->detail = "Animal seen  at checkpoint {$checkPoint->name} on movement permit #{$movement->permit_Number}.";
+                $e->description = "Animal seen  at checkpoint {$checkPoint->name}.";
+                $e->save();
+                $_done[] = ((int)($an->id));
+            }
+        }
+
+        $_found = [];
+        $_missed = [];
+        foreach ($movement->animals as $an) {
+            if (in_array($an->id, $_done)) {
+                $_found[] = $an->id;
+            } else {
+                $_missed[] = $an->id;
+            }
+        }
+
+        $session->session_status = 'Conducted';
+        $session->animals_checked = count($_done);
+        $session->animals_found = count($_found);
+        $session->animals_missed = count($_missed);
+        $session->details = "Movement permit checked at {$checkPoint->name} checkpoint, $session->animals_found animals found, $session->animals_missed missed.";
+        $session->save();
+
+        Utils::sendNotification(
+            $session->details,
+            $movement->administrator_id,
+            $headings = 'Checkpoint session conducted'
+        );
+        Utils::sendNotification(
+            $session->details,
+            $user->id,
+            $headings = 'Checkpoint session conducted'
+        );
+
+
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "Submitted successfully.",
+            'data' => $movement->animals
+        ]);
+
+
+          
     }
 
     public function review(Request $request, $id)
