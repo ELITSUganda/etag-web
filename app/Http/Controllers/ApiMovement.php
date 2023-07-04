@@ -152,7 +152,33 @@ class ApiMovement extends Controller
             }
         }
 
-
+        $new_permits = []; 
+        foreach ($permits as $key => $p) {
+            $p->animal_ids = "";
+            $p->v_ids = "";
+            $p->e_ids = "";
+            $animal_ids = [];
+            $v_ids = [];
+            $e_ids = [];
+            foreach ($p->animals as $an) {
+                if($an == null){
+                    continue;
+                }
+                $animal_ids[] = $an->id;
+                $v_ids[] = $an->v_id;
+                $e_ids[] = $an->e_id;
+            }
+            $p->animal_ids = json_encode($animal_ids);
+            $p->v_ids = json_encode($v_ids);
+            $p->e_ids = json_encode($e_ids);
+            
+            $new_permits[] = $p;
+        } 
+        return Utils::response([
+            'status' => 1,
+            'data' => $new_permits,
+            'message' => 'Success'
+        ]);
 
         return Utils::response([
             'status' => 1,
