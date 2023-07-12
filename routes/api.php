@@ -68,6 +68,7 @@ Route::post('animals', [ApiAnimalController::class, 'create']);
 Route::post('animals-update', [ApiAnimalController::class, 'create_update']);
 Route::post('create-sale', [ApiAnimalController::class, 'create_sale']);
 Route::get('slaughters', [ApiAnimalController::class, 'slaughters']);
+Route::get('slaughter-houses', [ApiAnimalController::class, 'slaughter_houses']);
 
 Route::get('animals', [ApiAnimalController::class, 'index']);
 Route::get('animals-v2', [ApiAnimalController::class, 'index_v2']);

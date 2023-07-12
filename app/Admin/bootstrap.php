@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 //Admin::disablePjax();
+
 Admin::css('css.css');
 Encore\Admin\Form::forget(['map', 'editor']);
 
@@ -120,5 +121,6 @@ Admin::js('assets/js/charts.js');
 
 
 /* Admin::css('/assets/css/market-place.css'); */
+#Admin::css(url('/assets/css/bootstrap.min.css')); 
 Admin::css(url('/assets/bootstrap.css'));
 Admin::css('/assets/styles.css');

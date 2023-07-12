@@ -9,6 +9,7 @@ use App\Models\Event;
 use App\Models\Farm;
 use App\Models\Image;
 use App\Models\Movement;
+use App\Models\SlaughterHouse;
 use App\Models\SlaughterRecord;
 use App\Models\Utils;
 use Carbon\Carbon;
@@ -1333,6 +1334,16 @@ class ApiAnimalController extends Controller
         ]);
     }
 
+
+
+    public function slaughter_houses(Request $request)
+    {
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success.",
+            'data' => SlaughterHouse::all()
+        ]);
+    }
 
 
     public function slaughters(Request $request)
