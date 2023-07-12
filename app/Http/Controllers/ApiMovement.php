@@ -666,9 +666,6 @@ is_present
             'message' => "Submitted successfully.",
             'data' => $movement->animals
         ]);
-
-
-          
     }
 
     public function review(Request $request, $id)
@@ -726,6 +723,7 @@ is_present
             'data' => null
         ]);
     }
+
     public function create(Request $request)
     {
 
@@ -895,6 +893,191 @@ is_present
             'message' => "Movement permit application submited successfully.",
             'data' => $movement
         ]);
+    }
+
+    public function create_v2(Request $request)
+    {
+
+        $user_id = ((int)(Utils::get_user_id($request)));
+        $user = Administrator::find($user_id);
+        if ($user == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Failed'
+            ]);
+        }
+
+
+        $sub_county_from = Location::find($request->sub_county_from);
+        if ($sub_county_from == null) {
+            return Utils::response(['status' => 0, 'message' => "Subcount from was not found.",]);
+        }
+
+
+        $has_animals = false;
+        $animal_ids = [];
+        if ($request->animals_text != null) {
+            if (strlen($request->animals_text) > 2) {
+                $animal_ids = json_decode($request->animals_text);
+                if ($animal_ids == null || empty($animal_ids)) {
+                    $has_animals = false;
+                } else {
+                    $has_animals = true;
+                }
+            }
+        }
+
+        if (!$has_animals) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "There must be at least one animal in your movement permit.",
+            ]);
+        }
+
+        $requirements = [
+            'transporter_nin',
+            'transporter_name',
+            'vehicle',
+            'destination',
+        ];
+        $valids = [
+            'id',
+            'administrator_id',
+            'vehicle',
+            'reason',
+            'status',
+            'trader_nin',
+            'trader_name',
+            'trader_phone',
+            'transporter_name',
+            'transporter_nin',
+            'transporter_Phone',
+            'district_from',
+            'sub_county_from',
+            'village_from',
+            'district_to',
+            'sub_county_to',
+            'village_to',
+            'transportation_route',
+            'permit_Number',
+            'valid_from_Date',
+            'valid_to_Date',
+            'status_comment',
+            'destination',
+            'destination_slaughter_house',
+            'details',
+            'destination_farm',
+            'is_paid',
+            'paid_id',
+            'paid_method',
+        ];
+        $avaiable = [];
+        foreach ($_POST as $key => $value) {
+            $avaiable[] = $key;
+        }
+
+        foreach ($requirements as $key => $value) {
+            if (isset($request->$value)) {
+                continue;
+            }
+            return Utils::response([
+                'status' => 0,
+                'message' => "You must provide {$value}.",
+                $request
+            ]);
+        }
+
+        $movement = new Movement();
+ 
+        $movement->administrator_id = $user->id;
+        $movement->vehicle = $request->vehicle;
+        $movement->reason = $request->reason;
+        $movement->status = $request->status;
+        $movement->trader_nin = $request->trader_nin;
+        $movement->trader_name = $request->trader_name;
+        $movement->trader_phone = $request->trader_phone;
+        $movement->transporter_name = $request->transporter_name;
+        $movement->transporter_nin = $request->transporter_nin;
+        $movement->transporter_Phone = $request->transporter_Phone;
+        $movement->district_from = $request->district_from;
+        $movement->sub_county_from = $request->sub_county_from;
+        $movement->village_from = $request->village_from;
+        $movement->district_to = $request->district_to;
+        $movement->sub_county_to = $request->sub_county_to;
+        $movement->village_to = $request->village_to;
+        $movement->transportation_route = $request->transportation_route;
+        $movement->permit_Number = $request->permit_Number;
+        $movement->valid_from_Date = $request->valid_from_Date;
+        $movement->valid_to_Date = $request->valid_to_Date;
+        $movement->status_comment = $request->status_comment;
+        $movement->destination = trim($request->destination);
+        $movement->destination_slaughter_house = $request->destination_slaughter_house;
+        $movement->details = $request->details;
+        $movement->destination_farm = $request->destination_farm;
+        $movement->is_paid = $request->is_paid;
+        $movement->paid_id = $request->paid_id;
+        $movement->paid_method = $request->paid_method;
+        $movement->paid_amount = $request->paid_amount;
+
+        $sub_county_from = Location::find($movement->sub_county_from);
+        if ($sub_county_from == null) {
+            return Utils::response(['status' => 0, 'message' => "Subcount from was not found.",]);
+        }
+
+        if ($movement->destination != 'To farm' && $movement->destination != 'To slaughter' &&   $movement->destination != 'Other') {
+            return Utils::response(['status' => 0, 'message' => "Destination $movement->destination type was not found.",]);
+        }
+
+        if ($movement->destination == 'To farm') {
+            $destination_farm = Farm::find($movement->destination_farm);
+            if ($destination_farm == null) {
+                return Utils::response(['status' => 0, 'message' => "Destination $movement->destination_farm farm was not found.",]);
+            }
+        }
+        if ($movement->destination == 'To slaughter') {
+            $destination_slaughter_house = SlaughterHouse::find($movement->destination_slaughter_house);
+            if ($destination_slaughter_house == null) {
+                return Utils::response(['status' => 0, 'message' => "Slaughter $movement->destination_slaughter_house house was not found.",]);
+            }
+        }
+        if ($movement->destination == 'Other') {
+            $sub_county_to = Location::find($movement->sub_county_to);
+            if ($sub_county_to == null) {
+                return Utils::response(['status' => 0, 'message' => "Subcounty $movement->sub_county_to   was not found.",]);
+            }
+        }
+
+
+
+
+        try {
+            //code...
+            if ($movement->save()) {
+                $movement_animal_id = $movement->id;
+                foreach ($animal_ids as $key => $value) {
+                    $animal = Animal::find(((int)($value->id)));
+                    if ($animal == null) {
+                        continue;
+                    }
+                    $move_item = new MovementHasMovementAnimal();
+                    $move_item->movement_id = $movement_animal_id;
+                    $move_item->movement_animal_id = $animal->id;
+                    $move_item->save();
+                }
+            }
+            return Utils::response([
+                'status' => 1,
+                'message' => "Movement permit application submited successfully.",
+                'data' => $movement
+            ]);
+        } catch (\Throwable $th) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Failed to permit application. " . $th->getMessage(),
+                'data' => null
+            ]);
+        }
     }
 
     public function review_movement(Request $request)
