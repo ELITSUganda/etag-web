@@ -85,8 +85,8 @@ class SlaughterHouseController extends AdminController
         $form->text('name', __('Name'))->rules('required');
 
         $form->select('sub_county_id', __('Subcounty'))
-        ->options(\App\Models\Location::get_sub_counties_array())
-        ->required();
+            ->options(\App\Models\Location::get_sub_counties_array())
+            ->required();
 
         $houses = [];
         foreach (AdminRoleUser::where([
@@ -102,9 +102,9 @@ class SlaughterHouseController extends AdminController
             $houses
         )->rules('required');
 
-        $form->textarea('details', __('Details about Abattoir'));
-
-        $form->latlong('gps_lati', 'gps_long', 'Abattoir Location on map')->height(300);
+        $form->text('gps_lati', __('GPS Latitude'));
+        $form->text('gps_long', __('GPS Longitude'));
+        $form->text('details', __('Details about Abattoir'));
 
 
 
