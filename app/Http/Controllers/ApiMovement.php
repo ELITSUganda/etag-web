@@ -138,7 +138,11 @@ class ApiMovement extends Controller
                 }
             }
 
-            if ($user->isRole('dvo') || $user->isRole('sclo') || $user->isRole('scvo')) {
+            if (
+                $user->isRole('dvo') || $user->isRole('sclo')
+                || $user->isRole('scvo')
+                || $user->isRole('slaughter')
+            ) {
                 //dvo 
                 //$_permits = Movement::where(['district_from' => $_role->type_id])->orderBy('id','desc')->get();
                 $_permits = Movement::where([])->orderBy('id', 'desc')->get();
@@ -989,7 +993,7 @@ is_present
         }
 
         $movement = new Movement();
- 
+
         $movement->administrator_id = $user->id;
         $movement->vehicle = $request->vehicle;
         $movement->reason = $request->reason;
