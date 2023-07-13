@@ -671,6 +671,95 @@ is_present
             'data' => $movement->animals
         ]);
     }
+    public function slaughter_session(Request $r)
+    {
+
+        $movement = Movement::find($r->movement_id);
+        if ($movement == null) {
+            return Utils::response(['status' => 0, 'message' => "Movement permit not found.",]);
+        }
+
+        $user_id = ((int)(Utils::get_user_id($r)));
+        $user = Administrator::find($user_id);
+
+        if ($user == null) {
+            return Utils::response(['status' => 0, 'message' => "User not found.",]);
+        }
+
+
+        $done = [];
+        $valid = [];
+        try {
+            $done = json_decode($r->done);
+        } catch (\Throwable $th) {
+            $done = [];
+        }
+
+        if ($done == null) {
+            return Utils::response(['status' => 0, 'message' => "No animal found.",]);
+        }
+
+        try {
+            $valid = json_decode($r->valid);
+        } catch (\Throwable $th) {
+            $valid = [];
+        }
+
+        $_done = [];
+
+        if (is_array($done)) {
+            foreach ($done as $key => $id) {
+                $an = Animal::where('v_id', $id)
+                    ->orWhere('e_id', $id)
+                    ->first();
+                if ($an == null) {
+                    continue;
+                }
+                $e = new Event();
+                $e->administrator_id = $an->administrator_id;
+                $e->approved_by = $user->id;
+                $e->district_id = $user->district_id;
+                $e->sub_county_id  = $user->sub_county_id;
+                $e->animal_id = $an->id;
+                $e->type = "Slaughter";
+                $e->detail = "Animal on movement permit #{$movement->permit_Number} has been Slaughterd.";
+                $e->description = "Animal Slaughterd.";
+                $e->save();
+                $_done[] = ((int)($an->id));
+            }
+        }
+
+        $_found = [];
+        $_missed = [];
+        foreach ($movement->animals as $an) {
+            if (in_array($an->id, $_done)) {
+                $_found[] = $an->id;
+            } else {
+                $_missed[] = $an->id;
+            }
+        }
+
+        $msg = count($_found) . " Animals slaughterd records on Movement Permit {$movement->permit_Number}.";
+
+        Utils::sendNotification(
+            $msg,
+            $movement->administrator_id,
+            $headings = 'Checkpoint session conducted'
+        );
+        Utils::sendNotification(
+            $msg,
+            $user->id,
+            $headings = 'Checkpoint session conducted'
+        );
+
+
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "Slaughter records submitted successfully.",
+            'data' => null
+        ]);
+    }
 
     public function review(Request $request, $id)
     {
