@@ -225,7 +225,13 @@ class ApiResurceController extends Controller
             ->count('id');
 
 
-        $manifest['average_production'] = round(($tot_milk / $tot_pros), 2);
+        try {
+            if ($tot_pros > 0) {
+                $manifest['average_production'] = round(($tot_milk / $tot_pros), 2);
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
         $manifest['last_update'] = Utils::my_date_time(Carbon::now());
         $manifest['app_vision'] = 15;
 
