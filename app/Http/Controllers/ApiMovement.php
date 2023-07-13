@@ -739,7 +739,7 @@ is_present
             }
         }
 
-        $msg = count($_found) . " Animals slaughterd records on Movement Permit {$movement->permit_Number}.";
+        $msg = count($_found) . " Animals slaughterd record on Movement Permit {$movement->permit_Number}.";
 
         Utils::sendNotification(
             $msg,
