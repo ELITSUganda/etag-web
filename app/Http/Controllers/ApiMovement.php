@@ -744,14 +744,13 @@ is_present
         Utils::sendNotification(
             $msg,
             $movement->administrator_id,
-            $headings = 'Checkpoint session conducted'
+            $headings = 'Slaughter House Records'
         );
         Utils::sendNotification(
             $msg,
             $user->id,
-            $headings = 'Checkpoint session conducted'
+            $headings = 'Slaughter House Records'
         );
-
 
 
         return Utils::response([
