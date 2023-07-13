@@ -84,7 +84,7 @@ class SlaughterHouseController extends AdminController
 
         $form->text('name', __('Name'))->rules('required');
 
-        $form->select('sub_county_id', __('Subcounty'))
+        $form->select('subcounty_id', __('Subcounty'))
             ->options(\App\Models\Location::get_sub_counties_array())
             ->required();
 
