@@ -13,6 +13,7 @@ class CreateMovementRoutesTable extends Migration
      */
     public function up()
     {
+        return;
         Schema::create('movement_routes', function (Blueprint $table) {
             $table->id();
             $table->timestamps();

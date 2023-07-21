@@ -113,6 +113,7 @@ Route::post('check-point-records', [ApiMovement::class, 'create_check_record']);
 Route::get('check-point-records', [ApiMovement::class, 'get_check_record']);
 Route::post('movements', [ApiMovement::class, 'create']);
 Route::post('movements-v2', [ApiMovement::class, 'create_v2']);
+Route::post('trips-v2', [ApiMovement::class, 'trip_create_v2']);
 Route::get('movements/{id}', [ApiMovement::class, 'show']);
 Route::post('users', [ApiLoginController::class, 'create_account']);
 // ========== users ends ============== //

@@ -52,4 +52,5 @@ Route::group([
     $router->resource('locations', LocationController::class);
     $router->resource('groups', GroupController::class);
     $router->resource('gens', GenController::class);
+    $router->resource('trips', TripController::class);
 });

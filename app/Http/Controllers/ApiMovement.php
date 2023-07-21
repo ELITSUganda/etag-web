@@ -15,6 +15,7 @@ use App\Models\Movement;
 use App\Models\MovementHasMovementAnimal;
 use App\Models\MovementRoute;
 use App\Models\SlaughterHouse;
+use App\Models\Trip;
 use App\Models\Utils;
 use Carbon\Carbon;
 use COM;
@@ -139,7 +140,7 @@ class ApiMovement extends Controller
             }
 
             if (
-                $user->isRole('dvo') 
+                $user->isRole('dvo')
                 || $user->isRole('sclo')
                 || $user->isRole('scvo')
                 || $user->isRole('slaughter')
@@ -159,21 +160,21 @@ class ApiMovement extends Controller
 
         $new_permits = [];
         foreach ($permits as $key => $p) {
-            $p->animal_ids = "";
+            $p->movement_ids = "";
             $p->v_ids = "";
             $p->e_ids = "";
-            $animal_ids = [];
+            $movement_ids = [];
             $v_ids = [];
             $e_ids = [];
             foreach ($p->animals as $an) {
                 if ($an == null) {
                     continue;
                 }
-                $animal_ids[] = $an->id;
+                $movement_ids[] = $an->id;
                 $v_ids[] = $an->v_id;
                 $e_ids[] = $an->e_id;
             }
-            $p->animal_ids = json_encode($animal_ids);
+            $p->movement_ids = json_encode($movement_ids);
             $p->v_ids = json_encode($v_ids);
             $p->e_ids = json_encode($e_ids);
 
@@ -826,19 +827,19 @@ is_present
         }
 
 
-        $has_animals = false;
-        $animal_ids = [];
-        if ($request->animal_ids != null) {
-            if (strlen($request->animal_ids) > 2) {
-                $animal_ids = json_decode($request->animal_ids);
-                if ($animal_ids == null || empty($animal_ids)) {
+        $has_movements = false;
+        $movement_ids = [];
+        if ($request->movement_ids != null) {
+            if (strlen($request->movement_ids) > 2) {
+                $movement_ids = json_decode($request->movement_ids);
+                if ($movement_ids == null || empty($movement_ids)) {
                 } else {
-                    $has_animals = true;
+                    $has_movements = true;
                 }
             }
         }
 
-        if (!$has_animals) {
+        if (!$has_movements) {
             return Utils::response([
                 'status' => 0,
                 'message' => "There must be at least one animal in your movement permit.",
@@ -969,7 +970,7 @@ is_present
 
         if ($movement->save()) {
             $movement_animal_id = $movement->id;
-            foreach ($animal_ids as $key => $value) {
+            foreach ($movement_ids as $key => $value) {
                 $animal = Animal::find(((int)($value)));
                 if ($animal == null) {
                     continue;
@@ -1008,20 +1009,20 @@ is_present
         }
 
 
-        $has_animals = false;
-        $animal_ids = [];
-        if ($request->animals_text != null) {
-            if (strlen($request->animals_text) > 2) {
-                $animal_ids = json_decode($request->animals_text);
-                if ($animal_ids == null || empty($animal_ids)) {
-                    $has_animals = false;
+        $has_movements = false;
+        $movement_ids = [];
+        if ($request->movements_text != null) {
+            if (strlen($request->movements_text) > 2) {
+                $movement_ids = json_decode($request->movements_text);
+                if ($movement_ids == null || empty($movement_ids)) {
+                    $has_movements = false;
                 } else {
-                    $has_animals = true;
+                    $has_movements = true;
                 }
             }
         }
 
-        if (!$has_animals) {
+        if (!$has_movements) {
             return Utils::response([
                 'status' => 0,
                 'message' => "There must be at least one animal in your movement permit.",
@@ -1148,7 +1149,7 @@ is_present
             //code...
             if ($movement->save()) {
                 $movement_animal_id = $movement->id;
-                foreach ($animal_ids as $key => $value) {
+                foreach ($movement_ids as $key => $value) {
                     $animal = Animal::find(((int)($value->id)));
                     if ($animal == null) {
                         continue;
@@ -1171,6 +1172,89 @@ is_present
                 'data' => null
             ]);
         }
+    }
+
+    public function trip_create_v2(Request $request)
+    {
+
+        $user_id = ((int)(Utils::get_user_id($request)));
+        $user = Administrator::find($user_id);
+        if ($user == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Failed'
+            ]);
+        }
+
+        $has_movements = false;
+        $movement_ids = [];
+        if ($request->movements_text != null) {
+            if (strlen($request->movements_text) > 2) {
+                $movement_ids = json_decode($request->movements_text);
+                if ($movement_ids == null || empty($movement_ids)) {
+                    $has_movements = false;
+                } else {
+                    $has_movements = true;
+                }
+            }
+        }
+
+        if (!$has_movements) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "There must be at least one movement permit on a trip.",
+            ]);
+        }
+
+        $trip = new Trip();
+        $trip->transporter_id = $user->id;
+        $trip->transporter_name = $user->name;
+        $trip->transporter_nin = $user->nin;
+        $trip->transporter_phone_number_1 = $user->phone_number;
+        $trip->transporter_phone_number_2 = $user->phone_number_2;
+        $trip->transporter_photo = $user->avatar;
+        $trip->vehicle_type = $user->vehicle_registration_number;
+        $trip->has_trip_started = 'Yes';
+        $trip->has_trip_ended = 'No';
+        $trip->trip_start_time = Carbon::now()->toDateTimeString();
+        $trip->trip_end_time = null;
+        $trip->start_latitude = $request->start_latitude;
+        $trip->current_latitude = $request->current_latitude;
+        $trip->current_longitude = $request->current_longitude;
+        $trip->start_longitude = $request->start_longitude;
+        $trip->trip_destination_type = $request->trip_destination_type;
+        $trip->trip_destination_id = $request->trip_destination_id;
+        $trip->trip_destination_latitude = $request->trip_destination_latitude;
+        $trip->trip_destination_longitude = $request->trip_destination_longitude;
+        $trip->trip_destination_address = $request->trip_destination_address;
+        $trip->trip_destination_phone_number = $request->trip_destination_phone_number;
+        $trip->trip_destination_contact_person = $request->trip_destination_contact_person;
+        $trip->trip_details = $request->trip_details;
+
+        try {
+            $trip->save();
+            foreach ($movement_ids as $key => $id) {
+                $mv = Movement::find($id);
+                if ($mv == null) {
+                    continue;
+                }
+                $mv->trip_id = $trip->id;
+                $mv->save();
+            }
+        } catch (\Throwable $th) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Failed to create trip. " . $th->getMessage(),
+                'data' => null
+            ]);
+        }
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "Trip created successfully.",
+            'data' => $trip
+        ]);
     }
 
     public function review_movement(Request $request)
