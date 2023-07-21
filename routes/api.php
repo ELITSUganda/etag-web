@@ -71,6 +71,7 @@ Route::get('slaughters', [ApiAnimalController::class, 'slaughters']);
 Route::get('slaughter-houses', [ApiAnimalController::class, 'slaughter_houses']);
 
 Route::get('animals', [ApiAnimalController::class, 'index']);
+Route::get('transporters-v2', [ApiAnimalController::class, 'transporters']);
 Route::get('animals-v2', [ApiAnimalController::class, 'index_v2']);
 Route::get('images-v2', [ApiAnimalController::class, 'images_v2']);
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdminRoleUser;
 use App\Models\Animal;
 use App\Models\BatchSession;
 use App\Models\DrugStockBatch;
@@ -1308,6 +1309,18 @@ class ApiAnimalController extends Controller
             'status' => 1,
             'message' => "Success.",
             'data' => $data
+        ]);
+    }
+    public function transporters(Request $request)
+    {
+        $transposers = [];
+        foreach (AdminRoleUser::where('role_id', 18)->get() as $key => $value) {
+            $transposers[] = $value->owner;
+        }
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success.",
+            'data' => $transposers
         ]);
     }
 
