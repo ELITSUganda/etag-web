@@ -139,7 +139,8 @@ class ApiMovement extends Controller
             }
 
             if (
-                $user->isRole('dvo') || $user->isRole('sclo')
+                $user->isRole('dvo') 
+                || $user->isRole('sclo')
                 || $user->isRole('scvo')
                 || $user->isRole('slaughter')
             ) {
