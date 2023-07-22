@@ -1174,6 +1174,26 @@ is_present
         }
     }
 
+
+    public function trips_v2(Request $request)
+    {
+        $user_id = ((int)(Utils::get_user_id($request)));
+        $user = Administrator::find($user_id);
+        if ($user == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Failed'
+            ]);
+        }
+        $permits = Trip::where('transporter_id', $user->id)->get();
+        return Utils::response([
+            'status' => 1,
+            'message' => "Trips found.",
+            'data' => $permits
+        ]);
+    }
+
     public function trip_create_v2(Request $request)
     {
 
