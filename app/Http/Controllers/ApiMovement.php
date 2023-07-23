@@ -1021,6 +1021,16 @@ is_present
                 }
             }
         }
+        if ($request->animals_text != null) {
+            if (strlen($request->animals_text) > 2) {
+                $movement_ids = json_decode($request->animals_text);
+                if ($movement_ids == null || empty($movement_ids)) {
+                    $has_movements = false;
+                } else {
+                    $has_movements = true;
+                }
+            }
+        }
 
         if (!$has_movements) {
             return Utils::response([

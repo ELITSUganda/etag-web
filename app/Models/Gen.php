@@ -188,7 +188,7 @@ class Gen extends Model
   
     static Future&lt;List&lt;$this->class_name&gt;&gt; get_items({String where = '1'}) async {
       List&lt;$this->class_name&gt; data = await getLocalData(where: where);
-      if (data.isEmpty && where.length < 2 ) {
+      if (data.isEmpty ) {
         await $this->class_name.getOnlineItems();
         data = await getLocalData(where: where);
       }else{
