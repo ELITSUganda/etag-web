@@ -1125,15 +1125,17 @@ is_present
             ]);
         }
 
+        $movement = new Movement();
         if ($request->transporter_id != null) {
             $transporter = User::find($request->transporter_id);
             if ($transporter != null) {
                 $request->transporter_name = $transporter->name;
                 $request->transporter_nin = $transporter->nin;
                 $request->transporter_Phone = $transporter->phone_number;
+                $movement->transporter_id = $transporter->id;
             }
         }
-        $movement = new Movement();
+
         $movement->administrator_id = $user->id;
         $movement->vehicle = $request->vehicle;
         $movement->reason = $request->reason;
