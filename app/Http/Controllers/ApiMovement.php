@@ -16,6 +16,7 @@ use App\Models\MovementHasMovementAnimal;
 use App\Models\MovementRoute;
 use App\Models\SlaughterHouse;
 use App\Models\Trip;
+use App\Models\User;
 use App\Models\Utils;
 use Carbon\Carbon;
 use COM;
@@ -1092,8 +1093,15 @@ is_present
             ]);
         }
 
+        if ($request->transporter_id != null) {
+            $transporter = User::find($request->transporter_id);
+            if ($transporter != null) {
+                $request->transporter_name = $transporter->name;
+                $request->transporter_nin = $transporter->nin;
+                $request->transporter_Phone = $transporter->phone_number;
+            }
+        }
         $movement = new Movement();
-
         $movement->administrator_id = $user->id;
         $movement->vehicle = $request->vehicle;
         $movement->reason = $request->reason;
@@ -1172,7 +1180,7 @@ is_present
             }
             return Utils::response([
                 'status' => 1,
-                'message' => "Movement permit application submited successfully.",
+                'message' => "{$request->transporter_name} - Movement permit application submited successfully.",
                 'data' => $movement
             ]);
         } catch (\Throwable $th) {

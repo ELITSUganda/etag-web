@@ -121,7 +121,7 @@ Route::match(['post'], '/register', [MainController::class, 'create_account_save
 Route::get('/compress', function () {
 
     foreach (Image::where([
-        'administrator_id' => 873, 
+        'administrator_id' => 873,
     ])->get() as $key => $img) {
         $img->create_thumbail();
         echo ($img->thumbnail . "<br>");
