@@ -913,7 +913,7 @@ is_present
                 'message' => 'Trip not found.'
             ]);
         }
-        
+
         $trip->has_trip_ended = 'Yes';
         $trip->save();
 
@@ -1010,8 +1010,6 @@ is_present
 
         $movement = new Movement();
 
-
-
         $movement->administrator_id = $request->administrator_id;
         $movement->vehicle = $request->vehicle;
         $movement->reason = $request->reason;
@@ -1069,8 +1067,6 @@ is_present
                 return Utils::response(['status' => 0, 'message' => "Subcounty $movement->sub_county_to   was not found.",]);
             }
         }
-
-
 
 
         if ($movement->save()) {
@@ -1310,11 +1306,32 @@ is_present
                 'message' => 'Failed'
             ]);
         }
-        $permits = Trip::where('transporter_id', $user->id)->get();
+        $trips = Trip::where('transporter_id', $user->id)->get();
+
+        $_permits = Movement::where(['administrator_id' => $user_id])->orderBy('id', 'desc')->get();
+        foreach ($_permits as $key => $value) {
+            $trip = Trip::find($value->trip_id);
+            if ($trip == null) {
+                continue;
+            }
+            $trips[] = $trip;
+        }
+
+        if (
+            $user->isRole('dvo')
+            || $user->isRole('sclo')
+            || $user->isRole('admin')
+            || $user->isRole('check-point-officer')
+            || $user->isRole('scvo')
+            || $user->isRole('slaughter')
+        ) {
+            $trips = Trip::where([])->get();
+        }
+
         return Utils::response([
             'status' => 1,
             'message' => "Trips found.",
-            'data' => $permits
+            'data' => $trips
         ]);
     }
 
