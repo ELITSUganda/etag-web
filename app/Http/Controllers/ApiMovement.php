@@ -880,6 +880,7 @@ is_present
 
         $record = new TripRecord();
         $record->trip_id = $trip->id;
+        $record->transporter_id = $user->id;
         $record->latitude = $request->latitude;
         $record->longitude = $request->longitude;
         $record->address = $request->address;
@@ -889,6 +890,37 @@ is_present
             'status' => 1,
             'data' => null,
             'message' => 'Success'
+        ]);
+    }
+
+    public function trip_end(Request $request)
+    {
+
+        $user_id = ((int)(Utils::get_user_id($request)));
+        $user = Administrator::find($user_id);
+        if ($user == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'User account not found.'
+            ]);
+        }
+        $trip = Trip::find($request->trip_id);
+        if ($trip == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Trip not found.'
+            ]);
+        }
+        
+        $trip->has_trip_ended = 'Yes';
+        $trip->save();
+
+        return Utils::response([
+            'status' => 1,
+            'data' => null,
+            'message' => 'Trip ended successfully.'
         ]);
     }
     public function create(Request $request)
