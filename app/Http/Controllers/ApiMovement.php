@@ -97,6 +97,25 @@ class ApiMovement extends Controller
         ]);
     }
 
+    public function user_roles(Request $request)
+    {
+
+        $user_id = ((int)(Utils::get_user_id($request)));
+        $user = Administrator::find($user_id);
+        if ($user == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Failed'
+            ]);
+        }
+
+        return Utils::response([
+            'status' => 1,
+            'data' => $user->roles,
+            'message' => 'Success'
+        ]);
+    }
     public function index(Request $request)
     {
 
@@ -1180,7 +1199,7 @@ is_present
             }
             return Utils::response([
                 'status' => 1,
-                'message' => "{$request->transporter_name} - Movement permit application submited successfully.",
+                'message' => "Movement permit application submited successfully.",
                 'data' => $movement
             ]);
         } catch (\Throwable $th) {

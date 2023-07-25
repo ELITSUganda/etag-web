@@ -97,6 +97,7 @@ Route::get('locations', [ApiFarmController::class, 'locations']);
 
 Route::get('users', [ApiUserController::class, 'index']);
 Route::get('movements', [ApiMovement::class, 'index']);
+Route::get('user-roles', [ApiMovement::class, 'user_roles']);
 Route::get('movement-routes', [ApiMovement::class, 'routes']);
 Route::get('system-users', [ApiMovement::class, 'system_users']);
 
