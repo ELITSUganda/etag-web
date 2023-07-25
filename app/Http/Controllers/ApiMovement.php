@@ -176,6 +176,19 @@ class ApiMovement extends Controller
                     $permits[] = $_permit;
                 }
             }
+
+            if (
+                $user->isRole('transporter')
+            ) {
+                $_permits = Movement::where(['transporter_id' => $user->id])->orderBy('id', 'desc')->get();
+                foreach ($_permits as $_permit) {
+                    if (in_array($_permit->id, $done_ids)) {
+                        continue;
+                    }
+                    $done_ids[] = $_permit->id;
+                    $permits[] = $_permit;
+                }
+            }
         }
 
         $new_permits = [];
