@@ -16,6 +16,7 @@ use App\Models\MovementHasMovementAnimal;
 use App\Models\MovementRoute;
 use App\Models\SlaughterHouse;
 use App\Models\Trip;
+use App\Models\TripRecord;
 use App\Models\User;
 use App\Models\Utils;
 use Carbon\Carbon;
@@ -851,6 +852,45 @@ is_present
         ]);
     }
 
+    public function create_trip_record(Request $request)
+    {
+
+        $user_id = ((int)(Utils::get_user_id($request)));
+        $user = Administrator::find($user_id);
+        if ($user == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'User account not found.'
+            ]);
+        }
+        $trip = Trip::find($request->trip_id);
+        if ($trip == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Trip not found.'
+            ]);
+        }
+
+        $trip->current_latitude = $request->latitude;
+        $trip->current_longitude = $request->longitude;
+        $trip->current_address = $request->address;
+        $trip->save();
+
+        $record = new TripRecord();
+        $record->trip_id = $trip->id;
+        $record->latitude = $request->latitude;
+        $record->longitude = $request->longitude;
+        $record->address = $request->address;
+        $record->save();
+
+        return Utils::response([
+            'status' => 1,
+            'data' => null,
+            'message' => 'Success'
+        ]);
+    }
     public function create(Request $request)
     {
 
