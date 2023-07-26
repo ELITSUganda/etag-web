@@ -6,6 +6,7 @@ use Encore\Admin\Auth\Database\Administrator;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Movement extends Model
 {
@@ -15,6 +16,9 @@ class Movement extends Model
 
     public static function my_create($model)
     {
+        if ($model->permit_Number == null || strlen($model->permit_Number) < 3) {
+            $model->permit_Number = $model->generate_permit_number();
+        }
         $applicant = Administrator::find($model->administrator_id);
         if ($applicant == null) {
             throw new Exception("Permit applicant not found on database.", 1);
@@ -122,9 +126,13 @@ class Movement extends Model
 
             $model->status = ((string)($model->status));
             $_s = 'Reviewed';
+
+            
             if ($model->status == "Approved") {
                 $_s = 'Approved';
-                $model->permit_Number = "00000" . $model->id;
+
+              
+
                 if ($model->destination == "To farm") {
                     if ($model->destination_farm != null) {
                         foreach ($model->movement_has_movement_animals as $key => $value) {
@@ -167,6 +175,7 @@ class Movement extends Model
             } else if ($model->status  == 'Halted') {
                 $_s = 'Halted';
             }
+            return $model;
             Utils::sendNotification(
                 "Your Movement Permit #{$model->id} has been {$_s}. Open the App for more details.",
                 $model->administrator_id,
@@ -212,7 +221,23 @@ class Movement extends Model
 
 
 
-    public function countAniamals(){
+    public function generate_permit_number()
+    {
+        $sub_county_from = Location::find($this->sub_county_from);
+        $permit_number = "";
+        if ($sub_county_from != null) {
+            if ($sub_county_from->code != null && strlen($sub_county_from->code) > 2) {
+                $count = DB::table('movements')->where('sub_county_from', $this->sub_county_from)->count();
+                $permit_number = 'MVP-' . $sub_county_from->code . "-" . ($count + 1);
+            }
+        }
+        if (strlen($permit_number) < 5) {
+            $permit_number = "MVP-UG-0000" . $this->id;
+        }
+        return $permit_number;
+    }
+    public function countAniamals()
+    {
         return $this->movement_has_movement_animals()->count();
     }
     public function getAnimalsAttribute()

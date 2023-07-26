@@ -1,4 +1,4 @@
-<?php
+<?php 
 use App\Models\Location;
 
 $sub = Location::find($m->sub_county_from);
@@ -90,7 +90,7 @@ if ($sub != null) {
     <p class="text-center my-2 text-secondary"><i>(Issued under the animal disease Act Chapter 38)</i></p>
 
     <p class="mb-2">Permit status.: <b class="">APPROVED</b></p>
-    <p class="mb-2 text-left">Permit no.: <b class="">MVP-UG-121-2-112</b></p>
+    <p class="mb-2 text-left">Permit no.: <b class="">{{ $m->permit_Number }}</b></p>
 
     <h5 class="mb-1">i. Identification of animals</h5>
     <table class="table table-bordered">
