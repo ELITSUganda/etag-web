@@ -37,15 +37,7 @@ class PrintController extends Controller
             dd("Movement not found.");
         }
 
-        dd($m->subcounty_from_text);
-
-        /* 
-            0 => "animals"
-    1 => "destination_farm_text"
-    2 => "subcounty_from_text"
-    3 => "subcounty_to_text"
-    4 => "district_from_text"
-        */
+       // dd($m->village_to);
 
         $pdf = App::make('dompdf.wrapper');
         $pdf->loadHTML(view('print', [

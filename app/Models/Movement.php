@@ -219,6 +219,24 @@ class Movement extends Model
     }
 
 
+    public function getVillageToAttribute($value)
+    {
+        $data = $this->destination;
+        if ($this->destination == 'To slaughter') {
+            $house  = SlaughterHouse::find($this->destination_slaughter_house);
+            if ($house != null) {
+                $data .= ', ' . $house->name;
+            }
+        } else if ($this->destination == 'To farm') {
+            $farm  = Farm::find($this->destination_farm);
+            if ($farm != null) {
+                $data .= ', ' . $farm->holding_name;
+            }
+        } else {
+            $data .= ', ' . $value;
+        }
+        return $data;
+    }
 
     public function generate_permit_number()
     {
