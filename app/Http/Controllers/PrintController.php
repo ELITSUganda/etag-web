@@ -33,9 +33,19 @@ class PrintController extends Controller
 
         $id = (int)(trim($_GET['id']));
         $m =  Movement::find($id);
-        if ($m == null) { 
+        if ($m == null) {
             dd("Movement not found.");
         }
+
+        dd($m->subcounty_from_text);
+
+        /* 
+            0 => "animals"
+    1 => "destination_farm_text"
+    2 => "subcounty_from_text"
+    3 => "subcounty_to_text"
+    4 => "district_from_text"
+        */
 
         $pdf = App::make('dompdf.wrapper');
         $pdf->loadHTML(view('print', [
