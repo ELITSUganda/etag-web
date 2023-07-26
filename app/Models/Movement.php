@@ -127,11 +127,11 @@ class Movement extends Model
             $model->status = ((string)($model->status));
             $_s = 'Reviewed';
 
-            
+
             if ($model->status == "Approved") {
                 $_s = 'Approved';
 
-              
+
 
                 if ($model->destination == "To farm") {
                     if ($model->destination_farm != null) {
@@ -175,7 +175,6 @@ class Movement extends Model
             } else if ($model->status  == 'Halted') {
                 $_s = 'Halted';
             }
-            return $model;
             Utils::sendNotification(
                 "Your Movement Permit #{$model->id} has been {$_s}. Open the App for more details.",
                 $model->administrator_id,

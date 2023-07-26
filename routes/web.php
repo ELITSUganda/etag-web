@@ -10,7 +10,6 @@ use App\Models\Animal;
 use App\Models\Event;
 use App\Models\Gen;
 use App\Models\Image;
-use App\Models\Movement;
 use App\Models\Utils;
 use Carbon\Carbon;
 use Encore\Admin\Grid\Tools\Header;
@@ -36,20 +35,6 @@ Route::get('/', function () {
 });
 
 Route::get('/gen', function () {
-    foreach (Movement::all() as $key => $mvt) {
-        $mvt->permit_Number =  $mvt->generate_permit_number();
-        echo $mvt->permit_Number . "<hr>";
-        try {
-            $mvt->save();
-        } catch (\Throwable $th) {
-            //throw $th;
-        }
-        
-    }
-    die(); 
-    header('Location: ' . admin_url());
-    die();
-
     die(Gen::find($_GET['id'])->do_get());
 })->name("gen");
 
