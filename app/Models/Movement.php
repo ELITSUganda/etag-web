@@ -307,8 +307,7 @@ class Movement extends Model
         }
         return $value;
     }
-
-    }
+ 
     public function getDistrictFromTextAttribute()
     {
         $sub = Location::find($this->sub_county_from);
