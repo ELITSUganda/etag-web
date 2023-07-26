@@ -916,6 +916,17 @@ is_present
 
         $trip->has_trip_ended = 'Yes';
         $trip->save();
+        try {
+
+            $movements = Movement::where(['trip_id' => $trip->id])->get();
+            foreach ($movements as $key => $mv) {
+                $mv->status = 'Arrived';
+                $mv->save();
+            }
+        } catch (\Throwable $th) {
+
+        }
+
 
         return Utils::response([
             'status' => 1,
@@ -1400,6 +1411,7 @@ is_present
                 if ($mv == null) {
                     continue;
                 }
+                $mv->status = 'On Trip';
                 $mv->trip_id = $trip->id;
                 $mv->save();
             }
