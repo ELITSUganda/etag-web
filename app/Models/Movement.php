@@ -230,7 +230,7 @@ class Movement extends Model
         } else if ($this->destination == 'To farm') {
             $farm  = Farm::find($this->destination_farm);
             if ($farm != null) {
-                $data .= ', ' . $farm->holding_name;
+                $data .= ', ' . $farm->holding_code;
             }
         } else {
             $data .= ', ' . $value;
