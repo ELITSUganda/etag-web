@@ -294,6 +294,21 @@ class Movement extends Model
         return  $sub->name_text;
     }
 
+    public function getTransportationRouteAttribute($value)
+    {
+        $CheckpointSession = CheckpointSession::where(['movement_id' => $this->id])->first();
+        if($CheckpointSession != null){
+            if($CheckpointSession->check_point != null){
+                return $CheckpointSession->check_point->name;
+            }
+        }
+        if ($value == null) {
+            return "-";
+        }
+        return $value;
+    }
+
+    }
     public function getDistrictFromTextAttribute()
     {
         $sub = Location::find($this->sub_county_from);

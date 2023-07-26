@@ -106,7 +106,7 @@ Route::post('transfer-animal/{id}', [ApiMovement::class, 'transfer_animal']);
 Route::post('checkpoint-session/{id}', [ApiMovement::class, 'checkpoint_session']);
 Route::post('checkpoint-verification', [ApiMovement::class, 'checkpoint_verification']);
 Route::post('slaughter-session', [ApiMovement::class, 'slaughter_session']);
-Route::post('movements-review/{id}', [ApiMovement::class, 'review']);
+Route::post('movements-review/{id}', [ApiMovement::class, 'review']); 
 Route::post('change-tag/{id}', [ApiAnimalController::class, 'change_tag']);
 Route::post('archive-animal/{id}', [ApiAnimalController::class, 'archive_animal']);
 
