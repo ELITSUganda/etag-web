@@ -299,7 +299,9 @@ class Movement extends Model
         $CheckpointSession = CheckpointSession::where(['movement_id' => $this->id])->first();
         if($CheckpointSession != null){
             if($CheckpointSession->check_point != null){
-                return $CheckpointSession->check_point->name;
+                if($CheckpointSession->check_point->movement_route != null){
+                    return $CheckpointSession->check_point->movement_route->name;   
+                }
             }
         }
         if ($value == null) {
