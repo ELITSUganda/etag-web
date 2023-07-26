@@ -297,10 +297,10 @@ class Movement extends Model
     public function getTransportationRouteAttribute($value)
     {
         $CheckpointSession = CheckpointSession::where(['movement_id' => $this->id])->first();
-        if($CheckpointSession != null){
-            if($CheckpointSession->check_point != null){
-                if($CheckpointSession->check_point->movement_route != null){
-                    return $CheckpointSession->check_point->movement_route->name;   
+        if ($CheckpointSession != null) {
+            if ($CheckpointSession->check_point != null) {
+                if ($CheckpointSession->check_point->movement_route != null) {
+                    return $CheckpointSession->check_point->movement_route->name;
                 }
             }
         }
@@ -309,7 +309,7 @@ class Movement extends Model
         }
         return $value;
     }
- 
+
     public function getDistrictFromTextAttribute()
     {
         $sub = Location::find($this->sub_county_from);
@@ -321,6 +321,17 @@ class Movement extends Model
             return "-";
         }
         return  $dis->name;
+    }
+    public function getEndpointsTextAttribute()
+    {
+        $list = [];
+        $CheckpointSession = CheckpointSession::where(['movement_id' => $this->id])->first();
+        if ($CheckpointSession != null) {
+            if ($CheckpointSession->check_point != null) {
+                $list[] = $CheckpointSession->check_point->name;
+            }
+        }
+        return json_encode($list);
     }
 
     public function movement_animals()
@@ -347,6 +358,7 @@ class Movement extends Model
         'animals', 'destination_farm_text',
         'subcounty_from_text',
         'subcounty_to_text',
+        'endpoints_text',
         'district_from_text'
     ];
 }
