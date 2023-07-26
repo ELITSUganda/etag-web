@@ -41,7 +41,7 @@ class PrintController extends Controller
         $pdf->loadHTML(view('print', [
             'm' => $m
         ]));
-        return $pdf->stream();
+        return $pdf->stream($m->permit_Number . ".pdf");
 
         return view('print');
         return view('print');
