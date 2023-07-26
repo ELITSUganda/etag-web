@@ -233,7 +233,7 @@ class ApiResurceController extends Controller
             //throw $th;
         }
         $manifest['last_update'] = Utils::my_date_time(Carbon::now());
-        $manifest['app_vision'] = 16;
+        $manifest['app_vision'] = 17;
 
         $data[] = $manifest;
         return Utils::response([
