@@ -43,23 +43,7 @@ class MovementController extends AdminController
     protected function grid()
     {
 
-        /*     $move = Movement::find(17);
-        $move->vehicle .= rand(100, 1000);
-        $move->save();
 
-        dd("done"); */
-
-        /*
-         $move = Movement::find(1);
-         $move->vehicle .= rand(100,1000);
-         $move->save();
-         die($move->vehicle);
-         $move->die();*/
-
-        /* $d =  Movement::find(16);
-        $d->status = "Approveds";
-        $d->save();  
-        dd("time => "$d->status);*/
 
 
         $grid = new Grid(new Movement());
@@ -100,8 +84,7 @@ class MovementController extends AdminController
             $u = Auth::user();
             $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
             $dis = Location::find($r->type_id);
-            $grid->model()->where([ 
-            ])->orderBy('id', 'DESC');
+            $grid->model()->where([])->orderBy('id', 'DESC');
         } else {
             $grid->model()->where('administrator_id', '=', Admin::user()->id);
             $grid->actions(function ($actions) {
@@ -118,15 +101,10 @@ class MovementController extends AdminController
         }
 
 
-
-
-
         if (Admin::user()->isRole('trader') || Admin::user()->isRole('farmer')) {
-        } else { 
+        } else {
             $grid->disableCreateButton();
         }
-        //admin_toastr('Message...', 'success');
-
 
 
         if (
@@ -181,21 +159,22 @@ class MovementController extends AdminController
             ->sortable();
 
         $grid->column('destination_slaughter_house', __('Slaughter house'))->display(function ($id) {
-            $s = SlaughterHouse::find($id);
+            $s = DB::table('slaughter_houses')->where('id', '=', $id)->first();
             if ($s == null) {
                 return '-';
             }
-            return $s->name_text;
+            return $s->name;
         })->sortable();
         $grid->column('trader_name', __('Applicant'))->sortable();
         $grid->column('transporter_name', __('Transporter'))->sortable();
         $grid->column('vehicle', __('Vehicle Reg. No.'));
 
-        $grid->column('sub_county_to', __('To subcounty'))->display(function ($user) {
+        /*  $grid->column('sub_county_to', __('To subcounty'))->display(function ($user) {
             return $this->subcounty_to_text;
-        })->sortable();
+        })->sortable(); */
         $grid->column('animals', __('Animals'))->display(function ($user) {
-            return count($this->animals);
+            $c = DB::table('movement_has_movement_animals')->where('movement_id', '=', $this->id)->count();
+            return $c;
         });
 
         $grid->column('status', __('Permit status'))->label([

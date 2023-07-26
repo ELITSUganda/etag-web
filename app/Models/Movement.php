@@ -212,6 +212,9 @@ class Movement extends Model
 
 
 
+    public function countAniamals(){
+        return $this->movement_has_movement_animals()->count();
+    }
     public function getAnimalsAttribute()
     {
         $has_animals = MovementHasMovementAnimal::where(['movement_id' => $this->id])->get();
