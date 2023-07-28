@@ -1438,6 +1438,27 @@ class ApiAnimalController extends Controller
         $administrator_id = Utils::get_user_id($request);
         $u = Administrator::find($administrator_id);
 
+
+        $an  =Animal::where([
+            'e_id' => $request->e_id
+        ])->first();
+        if($an != null){
+            return Utils::response([
+                'status' => 1,
+                'message' => "Animal with same E-ID already exist in the system."
+            ]);
+        }
+        
+        $an  =Animal::where([
+            'v_id' => $request->v_id
+        ])->first();
+        if($an != null){
+            return Utils::response([
+                'status' => 1,
+                'message' => "Animal with same V-ID already exist in the system."
+            ]);
+        }
+
         if ($u == null) {
             return Utils::response([
                 'status' => 0,
