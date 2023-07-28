@@ -34,11 +34,16 @@ class Animal extends Model
 
             $animal = Animal::where('e_id', $model->e_id)->first();
             if ($animal != null) {
-                die("Animal with same elecetronic ID aready exist in the system.");
+                throw new Exception("Animal with same elecetronic ID aready exist in the system.", 1);
+                return false;
+            }
+            $animal = Animal::where('v_id', $model->v_id)->first();
+            if ($animal != null) {
+                throw new Exception("Animal with same elecetronic ID aready exist in the system.");
                 return false;
             }
 
-            $animal = Animal::where('v_id', $model->v_id)->first();
+            //$animal = Animal::where('v_id', $model->v_id)->first();
             /*  if ($animal != null) {
                 die("Animal with same Tag ID aready exist in the system.");
                 return false;

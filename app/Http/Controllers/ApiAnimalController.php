@@ -1582,7 +1582,15 @@ class ApiAnimalController extends Controller
         $f->stage = $request->stage;
         $f->parent_id = $request->parent_id;
         $f->status = 'Active';
-        $f->save();
+        try {
+            $f->save(); 
+        } catch (\Throwable $th) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Failed to save animal on database. $th",
+            ]);
+            //throw $th;
+        }
 
         if (isset($f->local_id)) {
             $local_id = (int)($f->local_id);
@@ -1596,7 +1604,15 @@ class ApiAnimalController extends Controller
             foreach ($imgs as  $img) {
                 $img->parent_id = $f->id;
                 $img->parent_endpoint = 'Animal';
-                $img->save();
+                try {
+                    $img->save();
+                } catch (\Throwable $th) {
+                    return Utils::response([
+                        'status' => 0,
+                        'message' => "Failed to save image on database. $th",
+                    ]);
+                    //throw $th;
+                }
             }
         }
 
