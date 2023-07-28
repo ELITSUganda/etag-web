@@ -459,7 +459,7 @@ parent_id
                         'No' => "No",
                     ])
                     ->when('Yes', function ($f) {
-                        $f->dat('purchase_date', __('Purchase date'));
+                        $f->date('purchase_date', __('Purchase date'));
                         $f->decimal('purchase_price', __('Purchase price'));
 
                         $f->select('purchase_from', 'Purchase from')
