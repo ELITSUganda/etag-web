@@ -106,7 +106,7 @@ Route::post('transfer-animal/{id}', [ApiMovement::class, 'transfer_animal']);
 Route::post('checkpoint-session/{id}', [ApiMovement::class, 'checkpoint_session']);
 Route::post('checkpoint-verification', [ApiMovement::class, 'checkpoint_verification']);
 Route::post('slaughter-session', [ApiMovement::class, 'slaughter_session']);
-Route::post('movements-review/{id}', [ApiMovement::class, 'review']); 
+Route::post('movements-review/{id}', [ApiMovement::class, 'review']);
 Route::post('change-tag/{id}', [ApiAnimalController::class, 'change_tag']);
 Route::post('archive-animal/{id}', [ApiAnimalController::class, 'archive_animal']);
 
@@ -351,9 +351,6 @@ Route::get('ajax-animals', function (Request $r) {
 
 
 Route::get('ajax-users', function (Request $r) {
-
-
-
     $q = trim($r->get('q'));
     if (strlen($q) < 1) {
         return [
@@ -377,6 +374,41 @@ Route::get('ajax-users', function (Request $r) {
         $data[] = [
             'id' => $v->id,
             'text' => "{$v->name} - #{$v->id}"
+        ];
+        $done_ids[] = $v->id;
+    }
+
+    return [
+        'data' => $data
+    ];
+});
+Route::get('wholesellers', function (Request $r) {
+    $q = trim($r->get('q'));
+    if (strlen($q) < 1) {
+        return [
+            'data' => []
+        ];
+    }
+    $res_1 = Administrator::where(
+        'name',
+        'like',
+        "%$q%"
+    )
+        ->limit(20)->get();
+
+    $data = [];
+    $done_ids = [];
+
+    foreach ($res_1 as $key => $v) {
+        if (in_array($v->id, $done_ids)) {
+            continue;
+        }
+        if (!$v->isRole('drugs-wholesaler')) {
+            continue;
+        }
+        $data[] = [
+            'id' => $v->id,
+            'text' => "{$v->name} - #{$v->id} "
         ];
         $done_ids[] = $v->id;
     }

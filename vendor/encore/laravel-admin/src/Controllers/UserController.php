@@ -12,7 +12,7 @@ class UserController extends AdminController
     /**
      * {@inheritdoc}
      */
-    protected function title() 
+    protected function title()
     {
         return 'Users';
     }
@@ -26,22 +26,23 @@ class UserController extends AdminController
     {
         $userModel = config('admin.database.users_model');
 
-        
+
 
 
         $grid = new Grid(new $userModel());
 
         $grid->filter(function ($filter) {
-            $filter->disableIdFilter(); 
-            $filter->like('username','By username');
+            $filter->disableIdFilter();
+            $filter->like('username', 'By username');
         });
-        $grid->quickSearch('name')->placeholder('Search by name');
+        $grid->quickSearch('name', 'username', 'phone_number')->placeholder('Search by name');
         $grid->disableBatchActions();
+        $grid->model()->orderBy('id', 'Desc');
         $grid->column('id', 'ID')->sortable();
         $grid->column('username', trans('admin.username'))->sortable();
         $grid->column('name', trans('admin.name'))->sortable();
         $grid->column('roles', trans('admin.roles'))->pluck('name')->label();
-        $grid->column('created_at', 'Joined'); 
+        $grid->column('created_at', 'Joined');
 
         $grid->actions(function (Grid\Displayers\Actions $actions) {
             if ($actions->getKey() == 1) {
@@ -109,6 +110,7 @@ class UserController extends AdminController
 
         $form->text('name', trans('admin.name'))->rules('required');
         $form->image('avatar', trans('admin.avatar'));
+        $form->multipleSelect('roles', trans('admin.roles'))->options($roleModel::all()->pluck('name', 'id'));
         $form->password('password', trans('admin.password'))->rules('required|confirmed');
         $form->password('password_confirmation', trans('admin.password_confirmation'))->rules('required')
             ->default(function ($form) {
@@ -116,9 +118,8 @@ class UserController extends AdminController
             });
 
         $form->ignore(['password_confirmation']);
-/* 
-        $form->multipleSelect('roles', trans('admin.roles'))->options($roleModel::all()->pluck('name', 'id'));
-        $form->multipleSelect('permissions', trans('admin.permissions'))->options($permissionModel::all()->pluck('name', 'id'));
+
+        /*  $form->multipleSelect('permissions', trans('admin.permissions'))->options($permissionModel::all()->pluck('name', 'id'));
 
         $form->display('created_at', trans('admin.created_at'));
         $form->display('updated_at', trans('admin.updated_at'));

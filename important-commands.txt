@@ -12,6 +12,8 @@ php artisan make:migration create_pregnant_animals_table
 php artisan make:migration create_finance_categories_table
 php artisan make:migration create_transactions_table
 php artisan make:migration create_movement_routes_table
+php artisan make:migration create_wholesale_orders_table
+php artisan make:migration create_wholesale_order_items_table
 
 
 ALTER TABLE `animals` ADD 
@@ -69,6 +71,7 @@ php artisan admin:controller --model=App\SlaughterRecord
 php artisan admin:make FormSr4Controller --model=App\FormSr4
 php artisan admin:make MovementRouteController --model=App\MovementRoute
 php artisan admin:make MovementRouteController --model=App\Models\MovementRoute
+php artisan admin:make WholesaleOrderController --model=App\Models\WholesaleOrder
 
 
 php artisan admin:make ContractController --model=App\\Models\\ContractRecords
@@ -100,6 +103,7 @@ php artisan admin:make TripController --model=App\Models\Trip
 
 
 php artisan make:model MovementRoute
+php artisan make:model WholesaleOrder
 php artisan make:model CheckPoint
 php artisan make:model ArchivedAnimal
 php artisan make:model CheckPointRecord
@@ -131,7 +135,8 @@ php artisan make:model District
 php artisan make:model SubCounty
 php artisan make:model Group
 php artisan make:model Trip
-php artisan make:model TripRecord
+php artisan make:model WholesaleDrugStock
+php artisan make:model WholesaleOrderItem
 
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs

@@ -16,6 +16,27 @@ class Utils extends Model
 {
 
 
+    public static function quantity_convertor($qty, $type)
+    {
+        if ($type == 'Solid') {
+            $val = $qty;
+            if ($qty > 1000000) {
+                $val = $qty / 1000000;
+                return number_format($val) . "kg";
+            } else if ($qty > 1000) {
+                $val = $qty / 1000;
+                return number_format($val) . "g";
+            }
+            return number_format($val) . "mg";
+        } else  if ($type == 'Liquid') {
+            $val = $qty;
+            if ($qty > 1000) {
+                $val = $qty / 1000;
+                return number_format($val) . "L";
+            }
+            return number_format($val) . "ml";
+        }
+    }
 
     public static function systemBoot($u)
     {

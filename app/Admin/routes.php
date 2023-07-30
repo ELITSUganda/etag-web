@@ -53,4 +53,6 @@ Route::group([
     $router->resource('groups', GroupController::class);
     $router->resource('gens', GenController::class);
     $router->resource('trips', TripController::class);
+    $router->resource('wholesale-drug-stocks', WholesaleDrugStockController::class);
+    $router->resource('wholesale-orders', WholesaleOrderController::class);
 });

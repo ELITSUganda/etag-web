@@ -5,6 +5,7 @@ namespace App\Models;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class DrugCategory extends Model
 {
@@ -19,6 +20,13 @@ class DrugCategory extends Model
     public static function boot()
     {
         parent::boot();
+        self::deleting(function ($m) {
+            if ($m->id == 1) {
+                throw new Exception('You cannot delete this item.');
+            }
+            DB::update("update wholesale_drug_stocks set drug_category_id = 1 where drug_category_id = ?", [$this->id]);
+        });
+        
         self::creating(function ($m) {
             $name = trim($m->name);
             $resp = DrugCategory::where([

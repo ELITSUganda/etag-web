@@ -29,8 +29,7 @@ class DrugCategoryController extends AdminController
         $grid->column('id', __('Id'));
         $grid->picture('photo', __('Photo'))->sortable();
         $grid->column('name', __('Name'))->sortable();
-        $grid->column('unit', __('Unit'))->sortable();
-        $grid->column('details', __('Details'));
+        $grid->column('unit', __('Unit'))->sortable(); 
 
         return $grid;
     }
