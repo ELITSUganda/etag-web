@@ -2,12 +2,15 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\WholesaleDrugStock;
 use App\Models\WholesaleOrder;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use Illuminate\Support\Facades\Request;
+
 use Illuminate\Support\Facades\Auth;
 
 class WholesaleOrderController extends AdminController
@@ -29,19 +32,53 @@ class WholesaleOrderController extends AdminController
         $grid = new Grid(new WholesaleOrder());
 
         $grid->column('id', __('Id'));
-        $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('Updated at'));
-        $grid->column('customer_id', __('Customer id'));
-        $grid->column('supplier_id', __('Supplier id'));
-        $grid->column('status', __('Status'));
-        $grid->column('delivery_type', __('Delivery type'));
-        $grid->column('customer_name', __('Customer name'));
+        $grid->model()->orderBy('id', 'Desc');
+        $grid->column('created_at', __('Created'))
+            ->display(function ($date) {
+                return date('d M Y H:i:s', strtotime($date));
+            })
+            ->sortable();
+        $grid->column('customer_id', __('Customer'))
+            ->display(function ($id) {
+                $parent = Administrator::find($id);
+                if ($parent != null) {
+                    return $parent->name;
+                }
+            })
+            ->sortable();
+        $grid->column('supplier_id', __('Supplier'))
+            ->display(function ($id) {
+                $parent = Administrator::find($id);
+                if ($parent != null) {
+                    return $parent->name;
+                }
+            })
+            ->sortable();
+
+        $grid->column('delivery_type', __('Delivery Methord'));
+        $grid->column('customer_name', __('Customer name'))->hide();
         $grid->column('customer_contact', __('Customer contact'));
         $grid->column('customer_address', __('Customer address'));
-        $grid->column('customer_gps_patitude', __('Customer gps patitude'));
-        $grid->column('customer_gps_longitude', __('Customer gps longitude'));
+        $grid->column('customer_gps_patitude', __('Customer gps patitude'))->hide();
+        $grid->column('customer_gps_longitude', __('Customer gps longitude'))->hide();
         $grid->column('customer_note', __('Customer note'));
         $grid->column('details', __('Details'));
+
+        $grid->column('status', __('Status'))
+            ->label([
+                'Pending' => 'default',
+                'Processing' => 'warning',
+                'Shipping' => 'info',
+                'Delivered' => 'primary',
+                'Completed' => 'success',
+                'Canceled' => 'danger',
+            ])
+            ->sortable();
+        $grid->column('processed', __('Processed'))
+            ->label([
+                'No' => 'default',
+                'Yes' => 'success',
+            ]);
 
         return $grid;
     }
@@ -81,7 +118,14 @@ class WholesaleOrderController extends AdminController
      */
     protected function form()
     {
+
+        /*         $o = WholesaleOrder::find(1);
+        $o->customer_name .= ".";
+        $o->save(); 
+        die("done");
+ */
         $form = new Form(new WholesaleOrder());
+
 
         if ($form->isCreating()) {
             $form->select('customer_id', 'Select user')
@@ -105,21 +149,25 @@ class WholesaleOrderController extends AdminController
                 })->readOnly();
         }
         $form->hidden('supplier_id', __('Supplier id'))->default(1);
-        $form->radioCard('status', __('Status'))
-            ->options([
-                'Pending' => 'Pending',
-                'Processing' => 'Processing',
-                'Shipping' => 'Shipping',
-                'Delivered' => 'Delivered',
-                'Completed' => 'Completed',
-                'Canceled' => 'Canceled',
-            ])
-            ->default('Pending');
+        if ($form->isCreating()) {
+            $form->hidden('status', __('Status'))->default('Pending');
+        } else {
+            $form->radioCard('status', __('Status'))
+                ->options([
+                    'Pending' => 'Pending',
+                    'Processing' => 'Processing',
+                    'Shipping' => 'Shipping',
+                    'Delivered' => 'Delivered',
+                    'Completed' => 'Completed',
+                    'Canceled' => 'Canceled',
+                ])
+                ->default('Pending');
+        }
 
         $form->radio('delivery_type', __('Delivery Methord'))
             ->options([
-                'By Customer' => 'By Customer',
-                'By Supplier' => 'By Supplier',
+                'By Customer' => 'Collected By Customer',
+                'By Supplier' => 'Delivered By Supplier',
             ])->rules('required');
 
         $form->text('customer_name', __('Customer Name'))
@@ -134,19 +182,52 @@ class WholesaleOrderController extends AdminController
         $form->divider('ORDER ITEMS');
 
         //$form->textarea('details', __('Details'));
+        $isProcessed = false;
+        if ($form->isEditing()) {
+            $currentUrl = $_SERVER['REQUEST_URI'];
+            $currentUrl = trim($currentUrl, '/');
+            $urlSegments = explode('/', $currentUrl);
 
-        $form->hasMany('order_items', function ($form) {
+            $thismodel = null;
+            foreach ($urlSegments as $key => $seg) {
+                $thismodel = WholesaleOrder::find(((int) $seg));
+                if ($thismodel != null) {
+                    break;
+                }
+            }
 
-            $form->select('wholesale_drug_stock_id', 'Select stock');
-            /* 
-            '',
-            'quantity',
-        'description',
-        'wholesale_order_id',
-            
-            */
-        });
+            if ($thismodel->processed == 'Yes') {
+                $isProcessed = true;
+            } else {
+                $isProcessed = false;
+            }
+        }
 
+        if ($isProcessed) {
+            $form->hasMany('order_items', function ($form) {
+                $form->select('wholesale_drug_stock_id', 'Select stock')
+                    ->readOnly()
+                    ->options(WholesaleDrugStock::get_items())->rules('required');
+                $form->decimal('quantity', 'Drug quantity (in Killograms for solids, in Litters for Liquids)')
+                    ->readOnly()
+                    ->rules('required');
+                $form->text('description', 'Description');
+            })
+                ->disableDelete()
+                ->disableCreate();
+        } else {
+            $form->hasMany('order_items', function ($form) {
+                $form->select('wholesale_drug_stock_id', 'Select stock')
+                    ->options(WholesaleDrugStock::get_items())->rules('required');
+                $form->decimal('quantity', 'Drug quantity (in Killograms for solids, in Litters for Liquids)')
+                    ->rules('required');
+                $form->text('description', 'Description');
+            });
+        }
+        $form->disableCreatingCheck();
+        $form->disableReset();
+        $form->disableEditingCheck();
+        $form->disableViewCheck();
         return $form;
     }
 }

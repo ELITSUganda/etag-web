@@ -41,81 +41,13 @@ class Utils extends Model
     public static function systemBoot($u)
     {
 
-        /*
-        $prices = [2000000, 1200000, 1300000, 9000000, 800000, 700000, 6500000];
-        $types = ['Goat', 'Sheep', 'Cattle'];
-        $sex = ['Male', 'Female'];
-        $breed = ['Ankole', 'Friesian', 'Jersey', 'Angus'];
-        $best_for = ['Rearing', 'Slaughtering'];
-        $pics = [
-            '956000011635442-(4).JPG',
-            '956000011635483-(1).JPG',
-            '956000011635523-(1).JPG',
-            '956000011635537-(3).JPG',
-            '956000011635537-(2).JPG',
-            '956000011635549-(1).JPG',
-            '956000011635569-(1).JPG',
-            '956000011635691-(2).JPG',
-            '956000011635714-(3).JPG',
-            '956000011635801-(2).JPG',
-            '956000011635832-(2).JPG',
-            '956000011635872-(3).JPG',
-            '956000011635915-(3).JPG',
-            '956000011635920-(2).JPG',
-            '956000011635981-(1).JPG',
-            '956000011635997-(1).JPG',
-            '956000011636138-(2).JPG',
-            '956000011636346-(4).JPG',
-            '956000011636346-(4).JPG',
-            '956000011636675-(1).JPG',
-            '956000011636945-(3).JPG',
-            '956000011638780-(m).JPG',
-            '956000011637862-(2).JPG',
-            '956000011637562-(2).JPG',
-        ];
-        for ($i = 0; $i < 100; $i++) {
-            $p =  new Product();
-            $p->administrator_id = 777;
-            shuffle($prices);
-            shuffle($types);
-            shuffle($sex);
-            shuffle($pics);
-            shuffle($breed);
-            shuffle($best_for);
-            $p->thumbnail = $pics[1];
-            $e_id = explode('-', $p->thumbnail)[0];
-            $animal = Animal::where(['e_id' => $e_id])->first();
-            if ($animal == null) {
-                die("Animal not found.");
-            }
-            $p->price = $prices[1];
-            $p->type = $types[1];
-            $p->sex = $sex[1];
-            $p->breed = $breed[1];
-            $p->best_for = $best_for[1];
-            $p->animal_id =  $animal->id;
-            $p->views = 0;
-            $p->stage = $animal->stage;
-            $p->status = 1;
-            $p->weight = rand(300, 900);
-            $p->weight_text = $p->weight . "KGs - 12th Dec 2022";
-            $p->name ="$p->weight KGs $p->breed $p->type for sell 2023 - best for $p->best_for @ UGX $p->price";
-            $p->details = '365 KG Ankole bull best for rearing - 2023';
-            $p->save();  
-        }*/
-
-        /* 
--- product_category_id 
- 
-	 
-
-        */
         if ($u == null) {
             return;
         }
         //Utils::make_profile_pics($u);
         //Utils::transferPhotos($u);
         //Utils::prepareThumbnails();
+        Utils::prepareOrders();
         Utils::prepareAverageMilk();
     }
 
@@ -338,6 +270,26 @@ class Utils extends Model
         die("Romina");
     }
 
+    public static function prepareOrders()
+    {
+        foreach (WholesaleOrder::where([
+            'status' => 'Processing',
+            'processed' => 'No',
+        ])->get() as $key => $order) {
+         
+            $status = $order->validate_order();
+            if ($status != null) {
+                continue;
+            }
+            try {
+                WholesaleOrder::do_process_order($order);
+                $order->processed = 'Yes';
+                $order->save(); 
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
+        }
+    }
     public static function prepareAverageMilk()
     {
 

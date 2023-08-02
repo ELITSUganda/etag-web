@@ -6,6 +6,8 @@ use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use SebastianBergmann\CodeCoverage\Report\Xml\Unit;
 
 class WholesaleDrugStock extends Model
 {
@@ -29,6 +31,14 @@ class WholesaleDrugStock extends Model
         });
     }
 
+    public static function get_items()
+    {
+        $drugs = [];
+        foreach (WholesaleDrugStock::where('current_quantity', '>', 0)->get() as $key => $value) {
+            $drugs[$value->id] = $value->drug_category->name . " - " . $value->drug_packaging_type_text;
+        }
+        return $drugs;
+    }
     public static function my_update($m)
     {
         if ($m->status == 'Approved') {
@@ -61,7 +71,16 @@ class WholesaleDrugStock extends Model
 
         $val = $val / $this->drug_packaging_type_pieces;
 
-        return number_format($val) . " " . $this->drug_packaging_type;
+        $units = 'KGs';
+        $divider = 1000000;
+        if ($this->drug_state != 'Solid') {
+            $units = 'Litres';
+            $divider = 1000;
+        }
+
+
+
+        return  number_format($this->current_quantity/$divider) . " " . $units .", ".number_format($val). " - " . Str::plural($this->drug_packaging_type, $val) . " of " . $this->drug_packaging_unit_quantity . " " .   $units;
     }
 
     public function getDrugPackagingUnitQuantityTextAttribute()

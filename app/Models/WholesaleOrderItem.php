@@ -15,4 +15,10 @@ class WholesaleOrderItem extends Model
         'description',
         'wholesale_order_id',
     ];
+
+    public function wholesale_drug_stock()
+    {
+        return $this->belongsTo(WholesaleDrugStock::class);
+    }
+    
 }

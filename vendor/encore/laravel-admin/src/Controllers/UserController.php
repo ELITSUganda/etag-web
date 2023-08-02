@@ -25,9 +25,7 @@ class UserController extends AdminController
     protected function grid()
     {
         $userModel = config('admin.database.users_model');
-
-
-
+ 
 
         $grid = new Grid(new $userModel());
 
