@@ -27,34 +27,34 @@ Route::get('roll-calls', [ApiResurceController::class, 'roll_call']);
 Route::get('manifest', [ApiResurceController::class, 'manifest']);
 Route::get('daily-milk-records', [ApiResurceController::class, 'dialy_milk_records']);
 Route::get('api/{model}', [ApiResurceController::class, 'index']);
-Route::post('drug-dosages', [ApiResurceController::class, 'save_new_drug_dosage']);
-Route::post('api/{model}', [ApiResurceController::class, 'store']);
+Route::POST('drug-dosages', [ApiResurceController::class, 'save_new_drug_dosage']);
+Route::POST('api/{model}', [ApiResurceController::class, 'store']);
 Route::put('api/{model}', [ApiResurceController::class, 'update']);
 Route::delete('api/{model}', [ApiResurceController::class, 'delete']);
 
 //Route::resource('api', [ApiResurceController::class, 'product_image_upload']);
 
-Route::post('product-image-upload', [ApiProductController::class, 'product_image_upload']);
+Route::POST('product-image-upload', [ApiProductController::class, 'product_image_upload']);
 
-Route::post('product-upload', [ApiProductController::class, 'product_upload']);
-Route::post('product-drugs-upload', [ApiProductController::class, 'product_drugs_upload']);
+Route::POST('product-upload', [ApiProductController::class, 'product_upload']);
+Route::POST('product-drugs-upload', [ApiProductController::class, 'product_drugs_upload']);
 Route::get('product-drugs', [ApiProductController::class, 'product_drugs_list']);
-Route::post('product-order', [ApiProductController::class, 'product_order_create']);
-Route::post('drugs-order', [ApiProductController::class, 'drugs_order_create']);
+Route::POST('product-order', [ApiProductController::class, 'product_order_create']);
+Route::POST('drugs-order', [ApiProductController::class, 'drugs_order_create']);
 Route::get('order', [ApiProductController::class, 'orders']);
 
 Route::get('process-pending-images', [ApiProductController::class, 'process_pending_images']);
 Route::get('products', [ApiProductController::class, 'products']);
 Route::get('milk', [ApiProductController::class, 'milk']);
-Route::post('products-decline-request', [ApiProductController::class, 'products_decline_request']);
-Route::post('products-create-request', [ApiProductController::class, 'products_create_request']);
+Route::POST('products-decline-request', [ApiProductController::class, 'products_decline_request']);
+Route::POST('products-create-request', [ApiProductController::class, 'products_create_request']);
 //Route::get('products-pending-for-verification', [ApiProductController::class, 'products_pending_for_verification']);
 
 
 
 Route::get('districts', [DistrictController::class, 'index']);
 Route::get('districts/{id}', [DistrictController::class, 'show']);
-Route::post('districts', [DistrictController::class, 'store']);
+Route::POST('districts', [DistrictController::class, 'store']);
 Route::put('districts/{id}', [DistrictController::class, 'update']);
 Route::delete('districts/{id}', [DistrictController::class, 'delete']);
 
@@ -64,9 +64,9 @@ Route::get('sub_counties', [UtilsController::class, 'sub_counties']);
 
 
 // animal //
-Route::post('animals', [ApiAnimalController::class, 'create']);
-Route::post('animals-update', [ApiAnimalController::class, 'create_update']);
-Route::post('create-sale', [ApiAnimalController::class, 'create_sale']);
+Route::POST('animals', [ApiAnimalController::class, 'create']);
+Route::POST('animals-update', [ApiAnimalController::class, 'create_update']);
+Route::POST('create-sale', [ApiAnimalController::class, 'create_sale']);
 Route::get('slaughters', [ApiAnimalController::class, 'slaughters']);
 Route::get('slaughter-houses', [ApiAnimalController::class, 'slaughter_houses']);
 
@@ -76,19 +76,19 @@ Route::get('animals-v2', [ApiAnimalController::class, 'index_v2']);
 Route::get('images-v2', [ApiAnimalController::class, 'images_v2']);
 
 Route::get('photos-downloads', [ApiAnimalController::class, 'photo_downloads']);
-Route::post('create-slaughter', [ApiAnimalController::class, 'create_slaughter']);
+Route::POST('create-slaughter', [ApiAnimalController::class, 'create_slaughter']);
 Route::get('animals/{id}', [ApiAnimalController::class, 'show']);
 
 Route::get('events', [ApiAnimalController::class, 'events']);
 Route::get('events-v2', [ApiAnimalController::class, 'events_v2']);
-Route::post('events', [ApiAnimalController::class, 'store_event']);
-Route::post('batch-events', [ApiAnimalController::class, 'store_batch_event']);
-Route::post('batch-events-create', [ApiAnimalController::class, 'batch_events_create']);
+Route::POST('events', [ApiAnimalController::class, 'store_event']);
+Route::POST('batch-events', [ApiAnimalController::class, 'store_batch_event']);
+Route::POST('batch-events-create', [ApiAnimalController::class, 'batch_events_create']);
 Route::get('events/{id}', [ApiAnimalController::class, 'show']);
 // Animal controler //
 
 // ========== users starts ============== //
-Route::post('farms', [ApiFarmController::class, 'create']);
+Route::POST('farms', [ApiFarmController::class, 'create']);
 Route::get('farms/{id}', [ApiFarmController::class, 'show']);
 Route::get('farms', [ApiFarmController::class, 'index']);
 Route::get('my-drugs', [ApiFarmController::class, 'my_drugs']);
@@ -102,35 +102,35 @@ Route::get('movement-routes', [ApiMovement::class, 'routes']);
 Route::get('system-users', [ApiMovement::class, 'system_users']);
 
 
-Route::post('transfer-animal/{id}', [ApiMovement::class, 'transfer_animal']);
-Route::post('checkpoint-session/{id}', [ApiMovement::class, 'checkpoint_session']);
-Route::post('checkpoint-verification', [ApiMovement::class, 'checkpoint_verification']);
-Route::post('slaughter-session', [ApiMovement::class, 'slaughter_session']);
-Route::post('movements-review/{id}', [ApiMovement::class, 'review']);
-Route::post('change-tag/{id}', [ApiAnimalController::class, 'change_tag']);
-Route::post('archive-animal/{id}', [ApiAnimalController::class, 'archive_animal']);
+Route::POST('transfer-animal/{id}', [ApiMovement::class, 'transfer_animal']);
+Route::POST('checkpoint-session/{id}', [ApiMovement::class, 'checkpoint_session']);
+Route::POST('checkpoint-verification', [ApiMovement::class, 'checkpoint_verification']);
+Route::POST('slaughter-session', [ApiMovement::class, 'slaughter_session']);
+Route::POST('movements-review/{id}', [ApiMovement::class, 'review']);
+Route::POST('change-tag/{id}', [ApiAnimalController::class, 'change_tag']);
+Route::POST('archive-animal/{id}', [ApiAnimalController::class, 'archive_animal']);
 
-Route::post('check-point-records', [ApiMovement::class, 'create_check_record']);
+Route::POST('check-point-records', [ApiMovement::class, 'create_check_record']);
 Route::get('check-point-records', [ApiMovement::class, 'get_check_record']);
-Route::post('movements', [ApiMovement::class, 'create']);
-Route::post('movements-v2', [ApiMovement::class, 'create_v2']);
-Route::post('trips-v2', [ApiMovement::class, 'trip_create_v2']);
+Route::POST('movements', [ApiMovement::class, 'create']);
+Route::POST('movements-v2', [ApiMovement::class, 'create_v2']);
+Route::POST('trips-v2', [ApiMovement::class, 'trip_create_v2']);
 Route::get('trips-v2', [ApiMovement::class, 'trips_v2']);
 Route::get('movements/{id}', [ApiMovement::class, 'show']);
-Route::post('trip-records', [ApiMovement::class, 'create_trip_record']);
-Route::post('trip-end', [ApiMovement::class, 'trip_end']);
-Route::post('users', [ApiLoginController::class, 'create_account']);
+Route::POST('trip-records', [ApiMovement::class, 'create_trip_record']);
+Route::POST('trip-end', [ApiMovement::class, 'trip_end']);
+Route::POST('users', [ApiLoginController::class, 'create_account']);
 // ========== users ends ============== //
 
 
 // ========== lofin starts ============== //
-Route::post('login', [ApiLoginController::class, 'index']);
-Route::post('update-roles', [ApiLoginController::class, 'update_roles']);
-Route::post('remove-vet-role', [ApiLoginController::class, 'remove_vet_role']);
-Route::post('vet-profile', [ApiLoginController::class, 'vet_profile']);
-Route::post('update-profile', [ApiLoginController::class, 'update_profile']);
+Route::POST('login', [ApiLoginController::class, 'index']);
+Route::POST('update-roles', [ApiLoginController::class, 'update_roles']);
+Route::POST('remove-vet-role', [ApiLoginController::class, 'remove_vet_role']);
+Route::POST('vet-profile', [ApiLoginController::class, 'vet_profile']);
+Route::POST('update-profile', [ApiLoginController::class, 'update_profile']);
 Route::get('me', [ApiLoginController::class, 'me']);
-Route::post('login/create-account', [ApiLoginController::class, 'create_account']);
+Route::POST('login/create-account', [ApiLoginController::class, 'create_account']);
 // ========== lofin ends ============== //
 
 
@@ -139,7 +139,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::POST("post-media-upload", [ApiAnimalController::class, 'upload_media']);
+Route::POST("POST-media-upload", [ApiAnimalController::class, 'upload_media']);
  
 Route::get('ajax', function (Request $r) {
 
