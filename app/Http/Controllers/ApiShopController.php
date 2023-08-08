@@ -31,7 +31,7 @@ class ApiShopController extends Controller
         $u = Administrator::find($user_id);
         
         if ($u == null) {
-            return $this->error('User not found.');
+            return $this->error('User not found. '.$user_id);
         }
 
         if (
