@@ -14,12 +14,15 @@ use App\Models\Product;
 use App\Models\SlaughterHouse;
 use App\Models\SlaughterRecord;
 use App\Models\Utils;
+use App\Traits\ApiResponser;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Http\Request;
 
 class ApiShopController extends Controller
 {
+
+    use ApiResponser; 
 
     public function product_create(Request $r)
     {
