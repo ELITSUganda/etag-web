@@ -71,7 +71,11 @@ class ApiAnimalController extends Controller
         $_images = [];
 
         if (empty($images)) {
-            return $this->error('Failed to upload files.');
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Failed to upload files.',
+                'data' => null
+            ]); 
         }
 
         $msg = "";
@@ -90,7 +94,7 @@ class ApiAnimalController extends Controller
                 $img->save();
                 return Utils::response([
                     'status' => 1,
-                    'data' => json_encode($_POST),
+                    'data' => json_encode($img),
                     'message' => "File updated.",
                 ]);
             }

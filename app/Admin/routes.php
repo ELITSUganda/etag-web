@@ -11,6 +11,11 @@ Route::group([
     'as'            => config('admin.route.prefix') . '.',
 ], function (Router $router) {
 
+    /* START OF SHOP ENDPOINTS */
+    $router->resource('product-categories', ProductCategoryController::class);
+
+    /* END OF SHOP ENDPOINTS */
+
     $router->get('/', 'HomeController@index')->name('home');
     $router->get('/become-farmer', 'HomeController@become_farmer');
     $router->resource('districts', DistrictController::class);
