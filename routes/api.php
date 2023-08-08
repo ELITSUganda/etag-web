@@ -140,8 +140,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::POST("post-media-upload", [ApiAnimalController::class, 'upload_media']);
-
-
+ 
 Route::get('ajax', function (Request $r) {
 
     $_model = trim($r->get('model'));
