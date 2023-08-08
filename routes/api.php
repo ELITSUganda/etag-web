@@ -139,7 +139,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::POST("POST-media-upload", [ApiAnimalController::class, 'upload_media']);
+Route::POST("post-media-upload", [ApiAnimalController::class, 'upload_media']);
  
 Route::get('ajax', function (Request $r) {
 
