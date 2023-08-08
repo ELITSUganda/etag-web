@@ -20,7 +20,7 @@ class WholesaleOrderController extends AdminController
      *
      * @var string
      */
-    protected $title = 'Wholesale Orders';
+    protected $title = 'Orders';
 
     /**
      * Make a grid builder.
@@ -31,8 +31,17 @@ class WholesaleOrderController extends AdminController
     {
         $grid = new Grid(new WholesaleOrder());
 
-        $grid->column('id', __('Id'));
-        $grid->model()->orderBy('id', 'Desc');
+        $grid->column('id', __('ID'))->sortable();
+
+        $grid->disableBatchActions();
+
+        if (!Auth::user()->isRole('nda')) {
+            $grid->model()->where(
+                'customer_id',
+                Auth::user()->id
+            )->orWhere(['supplier_id' => Auth::user()->id]);
+        }
+
         $grid->column('created_at', __('Created'))
             ->display(function ($date) {
                 return date('d M Y H:i:s', strtotime($date));
@@ -62,7 +71,8 @@ class WholesaleOrderController extends AdminController
         $grid->column('customer_gps_patitude', __('Customer gps patitude'))->hide();
         $grid->column('customer_gps_longitude', __('Customer gps longitude'))->hide();
         $grid->column('customer_note', __('Customer note'));
-        $grid->column('details', __('Details'));
+        $grid->column('details', __('Details'))
+            ->hide();
 
         $grid->column('status', __('Status'))
             ->label([
@@ -128,7 +138,7 @@ class WholesaleOrderController extends AdminController
 
 
         if ($form->isCreating()) {
-            $form->select('customer_id', 'Select user')
+            $form->select('customer_id', 'Select Customer')
                 ->options(function ($id) {
                     $parent = Administrator::find($id);
                     if ($parent != null) {
@@ -140,7 +150,7 @@ class WholesaleOrderController extends AdminController
                     url('/api/wholesellers')
                 );
         } else {
-            $form->select('customer_id', 'Select user')
+            $form->select('customer_id', 'Select Customer')
                 ->options(function ($id) {
                     $parent = Administrator::find($id);
                     if ($parent != null) {
@@ -148,7 +158,28 @@ class WholesaleOrderController extends AdminController
                     }
                 })->readOnly();
         }
-        $form->hidden('supplier_id', __('Supplier id'))->default(1);
+
+        if (
+            Auth::user()->isRole('nda') ||
+            Auth::user()->isRole('admin') ||
+            Auth::user()->isRole('administrator')
+        ) {
+            $form->select('supplier_id', 'Select Supplier')
+                ->options(function ($id) {
+                    $parent = Administrator::find($id);
+                    if ($parent != null) {
+                        return [$parent->id =>  $parent->name];
+                    }
+                })
+                ->rules('required')
+                ->ajax(
+                    url('/api/wholesellers')
+                );
+        } else {
+            $form->hidden('supplier_id', __('Supplier id'))->default(Auth::user()->id);
+        }
+
+
         if ($form->isCreating()) {
             $form->hidden('status', __('Status'))->default('Pending');
         } else {
@@ -205,20 +236,26 @@ class WholesaleOrderController extends AdminController
 
         if ($isProcessed) {
             $form->hasMany('order_items', function ($form) {
+                $u = Auth::user();
                 $form->select('wholesale_drug_stock_id', 'Select stock')
                     ->readOnly()
-                    ->options(WholesaleDrugStock::get_items())->rules('required');
+                    ->options(function ($id) {
+                        $parent = WholesaleDrugStock::find($id);
+                        if ($parent != null) {
+                            return [$parent->id =>  $parent->drug_category->name . " - " . $parent->drug_packaging_type_text];
+                        }
+                    });
                 $form->decimal('quantity', 'Drug quantity (in Killograms for solids, in Litters for Liquids)')
-                    ->readOnly()
-                    ->rules('required');
+                    ->readOnly();
                 $form->text('description', 'Description');
             })
                 ->disableDelete()
                 ->disableCreate();
         } else {
             $form->hasMany('order_items', function ($form) {
+                $u = Auth::user();
                 $form->select('wholesale_drug_stock_id', 'Select stock')
-                    ->options(WholesaleDrugStock::get_items())->rules('required');
+                    ->options(WholesaleDrugStock::get_items($u))->rules('required');
                 $form->decimal('quantity', 'Drug quantity (in Killograms for solids, in Litters for Liquids)')
                     ->rules('required');
                 $form->text('description', 'Description');

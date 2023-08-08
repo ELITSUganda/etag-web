@@ -25,6 +25,8 @@ use App\Models\SlaughterRecord;
 use App\Models\SubCounty;
 use App\Models\Utils;
 use App\Models\VetServiceCategory;
+use App\Models\WholesaleDrugStock;
+use App\Models\WholesaleOrder;
 use Carbon\Carbon;
 use Dflydev\DotAccessData\Util;
 use Encore\Admin\Auth\Database\Administrator;
@@ -91,6 +93,87 @@ class HomeController extends Controller
         $content
             ->title('U-LITS - Dashboard')
             ->description('Hello ' . $u->name . "!");
+
+        if ($u->isRole('drugs-wholesaler')) {
+            $content->row(function (Row $row) {
+
+                $row->column(3, function (Column $column) {
+                    $counts = WholesaleOrder::where(
+                        'status',
+                        '!=',
+                        'Completed'
+                    )->where(
+                        'status',
+                        '!=',
+                        'Canceled'
+                    )
+                        ->where('supplier_id', Auth::user()->id)
+                        ->count();
+                    $column->append(view('widgets.box-5', [
+                        'is_dark' => false,
+                        'title' => 'New Orders',
+                        'sub_title' => 'Recently placed orders',
+                        'number' => number_format($counts),
+                        'link' => admin_url('wholesale-orders')
+                    ]));
+                });
+                $row->column(3, function (Column $column) {
+                    $counts = WholesaleOrder::where(
+                        'status',
+                        'Completed'
+                    )
+                        ->where('supplier_id', Auth::user()->id)
+                        ->count();
+                    $column->append(view('widgets.box-5', [
+                        'is_dark' => false,
+                        'title' => 'My Sales',
+                        'sub_title' => 'Orders completed successfully.',
+                        'number' => number_format($counts),
+                        'link' => admin_url('wholesale-orders')
+                    ]));
+                });
+                $row->column(3, function (Column $column) {
+
+                    $counts = WholesaleDrugStock::where('status', 'Pending')
+                        ->where('administrator_id', Auth::user()->id)
+                        ->count();
+                    $column->append(view('widgets.box-5', [
+                        'is_dark' => false,
+                        'title' => 'Stock under review',
+                        'sub_title' => 'Drugs under review by NDA',
+                        'number' => number_format($counts),
+                        'link' => admin_url('wholesale-drug-stocks')
+                    ]));
+                });
+                $row->column(3, function (Column $column) {
+
+                    $counts = WholesaleDrugStock::where('status', 'Pending')
+                        ->where('current_quantity', '>', 0)
+                        ->where('status', 'Approved')
+                        ->where('administrator_id', Auth::user()->id)
+                        ->count();
+                    $column->append(view('widgets.box-5', [
+                        'is_dark' => false,
+                        'title' => 'My Stock',
+                        'sub_title' => 'Drugs in stock',
+                        'number' => number_format($counts),
+                        'link' => admin_url('wholesale-drug-stocks')
+                    ]));
+                });
+
+
+                /*  $row->column(3, function (Column $column) {
+                    $counts = SlaughterRecord::where([])->count();
+                    $column->append(view('widgets.box-5', [
+                        'is_dark' => true,
+                        'title' => 'Slaughter Records',
+                        'sub_title' => 'Create & manage Slaughter records',
+                        'number' => number_format($counts),
+                        'link' => admin_url('slaughter-records')
+                    ]));
+                }); */
+            });
+        }
 
         if ($u->isRole('slaughter')) {
 
@@ -311,7 +394,7 @@ class HomeController extends Controller
                     }
                     if (
                         $_ad->isRole('administrator') ||
-                        $_ad->isRole('maaif') 
+                        $_ad->isRole('maaif')
                     ) {
                         $administrator_count++;
                     }
@@ -377,7 +460,6 @@ class HomeController extends Controller
                 $box->solid();
                 $row->column(5, $box);
             });
-        
         }
 
 

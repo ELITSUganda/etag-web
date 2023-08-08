@@ -20,7 +20,7 @@ class WholesaleDrugStockController extends AdminController
      *
      * @var string
      */
-    protected $title = 'Main drug stock';
+    protected $title = 'Drugs stock';
 
     /**
      * Make a grid builder.
@@ -44,15 +44,20 @@ class WholesaleDrugStockController extends AdminController
                 Auth::user()->id
             );
         }
+        $grid->model()->orderBy('id', 'desc');
 
-        $grid->column('created_at', __('Added'))->display(function ($t) {
+        $grid->column('id', __('ID'))->sortable();
+        $grid->column('created_at', __('DATE'))->display(function ($t) {
             return Utils::my_date($t);
-        })->sortable();
+        })->sortable()
+            ->hide();
+
         $grid->column('drug_category_id', __('Drug'))
             ->display(function ($t) {
-                return $this->drug_category->name_of_drug;
+                return $this->drug_category->name;
             })->sortable();
-        $grid->column('manufacturer', __('Manufacturer'));
+
+        $grid->column('manufacturer', __('Manufacturer'))->hide();
         $grid->column('batch_number', __('Batch number'))->sortable();
         $grid->column('expiry_date', __('Expiry date'))->sortable();
         $grid->column('original_quantity', __('Original quantity'))
@@ -77,12 +82,8 @@ class WholesaleDrugStockController extends AdminController
         $u = Auth::user();
         if (!$u->isRole('drugs-wholesaler')) {
             $grid->disableCreateButton();
-        } else {
-            $grid->column('packaging', __('Action'))
-                ->display(function () {
-                    return '<a href="' . admin_url('district-drug-stocks/create?drug_id=' . $this->id) . '" >SUPPLY TO DISTRICT</a>';
-                });
         }
+
 
         $grid->column('description', __('Description'))->hide();
         $grid->column('status', __('Status'))

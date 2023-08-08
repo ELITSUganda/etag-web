@@ -393,6 +393,10 @@ Route::get('wholesellers', function (Request $r) {
         'name',
         'like',
         "%$q%"
+    )->orwhere(
+        'phone_number',
+        'like',
+        "%$q%"
     )
         ->limit(20)->get();
 
@@ -404,11 +408,11 @@ Route::get('wholesellers', function (Request $r) {
             continue;
         }
         if (!$v->isRole('drugs-wholesaler')) {
-            continue;
+            //continue;
         }
         $data[] = [
             'id' => $v->id,
-            'text' => "{$v->name} - #{$v->id} "
+            'text' => "{$v->name} - {$v->phone_number} "
         ];
         $done_ids[] = $v->id;
     }

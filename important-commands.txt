@@ -65,6 +65,7 @@ php artisan make:migration create_trip_records_table
 Encore\Admin\Auth\Database\Administrator::class,
 php artisan admin:make FormSr4Controller --model=App\FormSr4
 php artisan admin:make Animal1Controller --model=App\Animal
+php artisan admin:make WholesaleOrderItemController --model=App\WholesaleOrderItem
 
 php artisan admin:controller --model=App\FormSr4
 php artisan admin:controller --model=App\SlaughterRecord
@@ -100,6 +101,7 @@ php artisan admin:make CheckpointSessionController --model=App\Models\Checkpoint
 php artisan admin:make VetServiceCategoryController --model=App\Models\VetServiceCategory
 php artisan admin:make GroupController --model=App\Models\Group
 php artisan admin:make TripController --model=App\Models\Trip
+php artisan admin:make WholesaleOrderItemController --model=App\Models\WholesaleOrderItem
 
 
 php artisan make:model MovementRoute

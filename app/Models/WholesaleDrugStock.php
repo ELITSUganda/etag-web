@@ -31,10 +31,25 @@ class WholesaleDrugStock extends Model
         });
     }
 
-    public static function get_items()
+    public static function get_items($u)
     {
         $drugs = [];
-        foreach (WholesaleDrugStock::where('current_quantity', '>', 0)->get() as $key => $value) {
+        $data = [];
+        if (
+            $u->isRole('nda') ||
+            $u->isRole('admin') ||
+            $u->isRole('administrator') 
+        ) {
+            $data = WholesaleDrugStock::where('current_quantity', '>', 0)
+                ->where('status', 'Approved')
+                ->get();
+        }else{
+            $data = WholesaleDrugStock::where('current_quantity', '>', 0)
+                ->where('status', 'Approved')
+                ->where('administrator_id', $u->id)
+                ->get();
+        }
+        foreach ($data as $key => $value) {
             $drugs[$value->id] = $value->drug_category->name . " - " . $value->drug_packaging_type_text;
         }
         return $drugs;
@@ -80,7 +95,7 @@ class WholesaleDrugStock extends Model
 
 
 
-        return  number_format($this->current_quantity/$divider) . " " . $units .", ".number_format($val). " - " . Str::plural($this->drug_packaging_type, $val) . " of " . $this->drug_packaging_unit_quantity . " " .   $units;
+        return  number_format($this->current_quantity / $divider) . " " . $units . ", " . number_format($val) . " - " . Str::plural($this->drug_packaging_type, $val) . " of " . $this->drug_packaging_unit_quantity . " " .   $units;
     }
 
     public function getDrugPackagingUnitQuantityTextAttribute()

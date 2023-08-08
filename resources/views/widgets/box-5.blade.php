@@ -18,9 +18,11 @@ if ($is_dark) {
     $text = 'text-white';
     $text2 = 'text-white';
 }
-?><a href="{{ $link }}" class="card {{ $bg }} border-primary mb-4 mb-md-5 " style="border-radius: 0px;">
-    <div class="card-body py-0">
-        <p class="h3  text-bold mb-2 mb-md-3 {{ $text }} ">{{ $title }}</p>
+?><a href="{{ $link }}" class="card {{ $bg }} border-primary mb-4 mb-md-5 "
+    style="border-radius: 10px; border: 5px red solid; box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;">
+    <div class="card-body py-2 px-2">
+        <p class="text-bold mb-2 mb-md-3 {{ $text }} " style="font-weight: 700; font-size: 2.5rem;">
+            {{ $title }}</p>
         <p class="display-3  m-0 text-right {{ $text2 }}" style="line-height: 3.2rem">{{ $number }}</p>
         <p class="mt-4 {{ $text2 }}">{{ $sub_title }}</p>
     </div>
