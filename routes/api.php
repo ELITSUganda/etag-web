@@ -8,6 +8,7 @@ use App\Http\Controllers\ApiLoginController;
 use App\Http\Controllers\ApiMovement;
 use App\Http\Controllers\ApiProductController;
 use App\Http\Controllers\ApiResurceController;
+use App\Http\Controllers\ApiShopController;
 use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\UtilsController;
 use App\Http\Controllers\ApiUserController;
@@ -140,6 +141,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::POST("post-media-upload", [ApiAnimalController::class, 'upload_media']);
+Route::POST("product-create", [ApiShopController::class, "product_create"]); 
  
 Route::get('ajax', function (Request $r) {
 

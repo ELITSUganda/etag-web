@@ -10,6 +10,7 @@ use App\Models\Event;
 use App\Models\Farm;
 use App\Models\Image;
 use App\Models\Movement;
+use App\Models\Product;
 use App\Models\SlaughterHouse;
 use App\Models\SlaughterRecord;
 use App\Models\Utils;
@@ -19,6 +20,62 @@ use Illuminate\Http\Request;
 
 class ApiAnimalController extends Controller
 {
+
+    public function product_create(Request $r)
+    {
+
+        $u = $r->user;
+        if ($u == null) {
+            return $this->error('User not found.');
+        }
+
+        if (
+            !isset($r->id) ||
+            $r->name == null ||
+            ((int)($r->id)) < 1
+        ) {
+            return $this->error('Local parent ID is missing.');
+        }
+
+
+        $pro = new Product();
+        $pro->name = $r->name;
+        $pro->feature_photo = 'no_image.jpg';
+        $pro->description = $r->description;
+        $pro->price_1 = $r->price_1;
+        $pro->price_2 = $r->price_2;
+        $pro->local_id = $r->id;
+        $pro->summary = $r->data;
+        $pro->category = $r->category_id;
+        $pro->sub_category = $r->category_id;
+        $pro->p_type = $r->p_type;
+        $pro->keywords = $r->keywords;
+        $pro->metric = 1;
+        $pro->status = 0;
+        $pro->currency = 1;
+        $pro->url = $u->url;
+        $pro->user = $u->id;
+        $pro->supplier = $u->id;
+        $pro->in_stock = 1;
+        $pro->rates = 1;
+        $pro->date_added = Carbon::now();
+        $pro->date_updated = Carbon::now();
+        $imgs = Image::where([
+            'parent_id' => $pro->local_id
+        ])->get();
+        if ($imgs->count() > 0) {
+            $pro->feature_photo = $imgs[0]->src;
+        }
+        if ($pro->save()) {
+            foreach ($imgs as $key => $img) {
+                $img->product_id = $pro->id;
+                $img->save();
+            }
+            return $this->success(null, $message = "Submitted successfully!", 200);
+        } else {
+            return $this->error('Failed to upload product.');
+        }
+    }
 
 
     public function upload_media(Request $request)
