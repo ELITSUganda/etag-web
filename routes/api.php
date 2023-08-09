@@ -140,10 +140,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::POST("post-media-upload", [ApiAnimalController::class, 'upload_media']);
-Route::POST("product-create", [ApiShopController::class, "product_create"]); 
+Route::POST("product-create", [ApiShopController::class, "product_create"]);
 Route::get('products', [ApiShopController::class, 'products']);
 Route::post('products-delete', [ApiShopController::class, 'products_delete']);
 Route::post('chat-send', [ApiShopController::class, 'chat_send']);
+Route::post('chat-mark-as-read', [ApiShopController::class, 'chat_mark_as_read']);
+Route::get('chat-heads', [ApiShopController::class, 'chat_heads']);
+Route::get('chat-messages', [ApiShopController::class, 'chat_messages']);
 
 Route::get('ajax', function (Request $r) {
 

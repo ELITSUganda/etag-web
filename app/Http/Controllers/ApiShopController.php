@@ -27,6 +27,76 @@ class ApiShopController extends Controller
 
     use ApiResponser;
 
+    
+    public function chat_messages(Request $r)
+    {
+        $u = auth('api')->user();
+        if ($u == null) {
+            $administrator_id = Utils::get_user_id($r);
+            $u = Administrator::find($administrator_id);
+        }
+        if ($u == null) {
+            return $this->error('User not found.');
+        }
+
+        if (isset($r->chat_head_id) && $r->chat_head_id != null) {
+            $messages = ChatMessage::where([
+                'chat_head_id' => $r->chat_head_id
+            ])->get();
+            return $this->success($messages, 'Success');
+        }
+        $messages = ChatMessage::where([
+            'sender_id' => $u->id
+        ])->orWhere([
+            'receiver_id' => $u->id
+        ])->get();
+        return $this->success($messages, 'Success');
+    }
+
+    
+
+    public function chat_heads(Request $r)
+    {
+        $u = auth('api')->user();
+        if ($u == null) {
+            $administrator_id = Utils::get_user_id($r);
+            $u = Administrator::find($administrator_id);
+        }
+        if ($u == null) {
+            return $this->error('User not found.');
+        }
+        $chat_heads = ChatHead::where([
+            'product_owner_id' => $u->id
+        ])->orWhere([
+            'customer_id' => $u->id
+        ])->get();
+        $chat_heads->append('customer_unread_messages_count');
+        $chat_heads->append('product_owner_unread_messages_count');
+        return $this->success($chat_heads, 'Success');
+    }
+ 
+
+    public function chat_mark_as_read(Request $r){
+        $receiver = Administrator::find($r->receiver_id);
+        if ($receiver == null) {
+            return $this->error('Receiver not found.');
+        }
+        $chat_head = ChatHead::find($r->chat_head_id);
+        if ($chat_head == null) {
+            return $this->error('Chat head not found.');
+        }
+        $messages = ChatMessage::where([
+            'chat_head_id' => $chat_head->id,
+            'receiver_id' => $receiver->id,
+            'status' => 'sent'
+        ])->get();
+        foreach ($messages as $key => $message) {
+            $message->status = 'read';
+            $message->save();
+        }
+        return $this->success($messages, 'Success');
+    }
+
     public function chat_send(Request $r)
     { 
         
