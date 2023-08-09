@@ -34,7 +34,7 @@ use Encore\Admin\Facades\Admin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-$checkpoints = CheckPoint::where([])->get();
+/* $checkpoints = CheckPoint::where([])->get();
 $i = 0;
 foreach ($checkpoints as $key => $v) {
     echo "*CHEKCPOINT:* ".$v->name."<br>";
@@ -47,7 +47,7 @@ foreach ($checkpoints as $key => $v) {
     echo "*TOTAL EXPECTED ANIMALS:* ".$exp."<br>";
     echo "*TOTAL ANIMALS CHECKED:* ".$found."<br><br>";
 }
-die();
+die(); */
 // $chpts = CheckPointRecord::where([])->get();
 // foreach ($chpts as $key => $v) {
 //     $v->checkpoint_id = $v->checkpoint->id;
