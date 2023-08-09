@@ -36,4 +36,7 @@ class CheckPoint extends Model
     {
         return $this->hasMany(CheckPointRecord::class);
     }
+    public function sessions(){
+        return $this->hasMany(CheckpointSession::class);
+    }
 }

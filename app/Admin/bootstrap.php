@@ -34,7 +34,20 @@ use Encore\Admin\Facades\Admin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-// asas
+$checkpoints = CheckPoint::where([])->get();
+$i = 0;
+foreach ($checkpoints as $key => $v) {
+    echo "*CHEKCPOINT:* ".$v->name."<br>";
+    $exp = 0;
+    $found = 0;
+    foreach ($v->sessions as $ses) {
+        $exp += $ses->animals_expected;
+        $found += $ses->animals_checked;
+    }
+    echo "*TOTAL EXPECTED ANIMALS:* ".$exp."<br>";
+    echo "*TOTAL ANIMALS CHECKED:* ".$found."<br><br>";
+}
+die();
 // $chpts = CheckPointRecord::where([])->get();
 // foreach ($chpts as $key => $v) {
 //     $v->checkpoint_id = $v->checkpoint->id;
