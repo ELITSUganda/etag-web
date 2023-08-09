@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\AdminRoleUser;
 use App\Models\Animal;
 use App\Models\BatchSession;
+use App\Models\ChatHead;
+use App\Models\ChatMessage;
 use App\Models\DrugStockBatch;
 use App\Models\Event;
 use App\Models\Farm;
@@ -13,6 +15,7 @@ use App\Models\Movement;
 use App\Models\Product;
 use App\Models\SlaughterHouse;
 use App\Models\SlaughterRecord;
+use App\Models\User;
 use App\Models\Utils;
 use App\Traits\ApiResponser;
 use Carbon\Carbon;
@@ -23,6 +26,87 @@ class ApiShopController extends Controller
 {
 
     use ApiResponser;
+
+    public function chat_send(Request $r)
+    {
+        $sender = auth('api')->user();
+
+        if ($sender == null) {
+            $administrator_id = Utils::get_user_id($r);
+            $sender = Administrator::find($administrator_id);
+        }
+        if ($sender == null) {
+            return $this->error('User not found.');
+        }
+        $receiver = User::find($r->receiver_id);
+        if ($receiver == null) {
+            return $this->error('Receiver not found.');
+        }
+        $pro = Product::find($r->product_id);
+        if ($pro == null) {
+            return $this->error('Product not found.');
+        }
+        $product_owner = null;
+        $customer = null;
+
+        if ($pro->user == $sender->id) {
+            $product_owner = $sender;
+            $customer = $receiver;
+        } else {
+            $product_owner = $receiver;
+            $customer = $sender;
+        }
+
+        $chat_head = ChatHead::where([
+            'product_id' => $pro->id,
+            'product_owner_id' => $product_owner->id,
+            'customer_id' => $customer->id
+        ])->first();
+        if ($chat_head == null) {
+            $chat_head = ChatHead::where([
+                'product_id' => $pro->id,
+                'customer_id' => $product_owner->id,
+                'product_owner_id' => $customer->id
+            ])->first();
+        }
+
+        if ($chat_head == null) {
+            $chat_head = new ChatHead();
+            $chat_head->product_id = $pro->id;
+            $chat_head->product_owner_id = $product_owner->id;
+            $chat_head->customer_id = $customer->id;
+            $chat_head->product_name = $pro->name;
+            $chat_head->product_photo = $pro->feature_photo;
+            $chat_head->product_owner_name = $product_owner->name;
+            $chat_head->product_owner_photo = $product_owner->photo;
+            $chat_head->customer_name = $customer->name;
+            $chat_head->customer_photo = $customer->photo;
+            $chat_head->last_message_body = $r->body;
+            $chat_head->last_message_time = Carbon::now();
+            $chat_head->last_message_status = 'sent';
+            $chat_head->save();
+        }
+        $chat_message = new ChatMessage();
+        $chat_message->chat_head_id = $chat_head->id;
+        $chat_message->sender_id = $sender->id;
+        $chat_message->receiver_id = $receiver->id;
+        $chat_message->sender_name = $sender->name;
+        $chat_message->sender_photo = $sender->photo;
+        $chat_message->receiver_name = $receiver->name;
+        $chat_message->receiver_photo = $receiver->photo;
+        $chat_message->body = $r->body;
+        $chat_message->type = 'text';
+        $chat_message->status = 'sent';
+        $chat_message->save();
+        $chat_head->last_message_body = $r->body;
+        $chat_head->last_message_time = Carbon::now();
+        $chat_head->last_message_status = 'sent';
+        $chat_head->save();
+        return $this->success($chat_message, 'Success');
+    }
+
+
+
 
     public function products()
     {

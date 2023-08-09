@@ -143,7 +143,8 @@ Route::POST("post-media-upload", [ApiAnimalController::class, 'upload_media']);
 Route::POST("product-create", [ApiShopController::class, "product_create"]); 
 Route::get('products', [ApiShopController::class, 'products']);
 Route::post('products-delete', [ApiShopController::class, 'products_delete']);
- 
+Route::post('chat-send', [ApiResurceController::class, 'chat_send']);
+
 Route::get('ajax', function (Request $r) {
 
     $_model = trim($r->get('model'));
