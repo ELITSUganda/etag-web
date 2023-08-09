@@ -19,6 +19,8 @@
  */
 
 use App\Models\Animal;
+use App\Models\CheckPoint;
+use App\Models\CheckPointRecord;
 use App\Models\DrugStockBatchRecord;
 use App\Models\Farm;
 use App\Models\Location;
@@ -32,8 +34,21 @@ use Encore\Admin\Facades\Admin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+$checkpoints = CheckPoint::where([])->get();
+$i = 0;
+foreach ($checkpoints as $key => $v) {
+    $i++;
+    echo "*CHEKCPOINT:* ".$v->name."<br>";
+    echo "*RECORDS:* ".count($v->records)."<br><br>";
+}
+die();
+// $chpts = CheckPointRecord::where([])->get();
+// foreach ($chpts as $key => $v) {
+//     $v->checkpoint_id = $v->checkpoint->id;
+//     $v->save();
+// }
 //Admin::disablePjax();
-
+/* 
 $mvs = Movement::where([])->orderBy('id', 'desc')->get();
 
 $ans = 0;
@@ -102,7 +117,7 @@ foreach ($mvs as $key => $v) {
     echo "<br>----------------------<br><br>";
 }
 
-die('');
+die(''); */
 
 Admin::css('css.css');
 Encore\Admin\Form::forget(['map', 'editor']);

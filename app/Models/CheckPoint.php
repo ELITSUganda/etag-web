@@ -28,4 +28,12 @@ class CheckPoint extends Model
     {
         return $this->belongsTo(MovementRoute::class);
     }
+    public function administrator()
+    {
+        return $this->belongsTo(Administrator::class);
+    }
+    public function records()
+    {
+        return $this->hasMany(CheckPointRecord::class);
+    }
 }
