@@ -29,6 +29,20 @@ class ApiShopController extends Controller
         return $this->success(Product::where([])->orderby('id', 'desc')->get(), 'Success');
     }
 
+    public function products_delete(Request $r)
+    {
+        $pro = Product::find($r->id);
+        if ($pro == null) {
+            return $this->error('Product not found.');
+        }
+        try {
+            $pro->delete();
+            return $this->success(null, $message = "Sussesfully deleted!", 200);
+        } catch (\Throwable $th) {
+            return $this->error('Failed to delete product.');
+        }
+    }
+
     public function product_create(Request $r)
     {
 
