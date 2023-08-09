@@ -22,14 +22,19 @@ use Illuminate\Http\Request;
 class ApiShopController extends Controller
 {
 
-    use ApiResponser; 
+    use ApiResponser;
+
+    public function products()
+    {
+        return $this->success(Product::where([])->orderby('id', 'desc')->get(), 'Success');
+    }
 
     public function product_create(Request $r)
     {
 
         $user_id = $r->user;
         $u = Administrator::find($user_id);
-        
+
         if ($u == null) {
             return $this->error('User not found.');
         }

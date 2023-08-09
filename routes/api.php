@@ -45,7 +45,6 @@ Route::POST('drugs-order', [ApiProductController::class, 'drugs_order_create']);
 Route::get('order', [ApiProductController::class, 'orders']);
 
 Route::get('process-pending-images', [ApiProductController::class, 'process_pending_images']);
-Route::get('products', [ApiProductController::class, 'products']);
 Route::get('milk', [ApiProductController::class, 'milk']);
 Route::POST('products-decline-request', [ApiProductController::class, 'products_decline_request']);
 Route::POST('products-create-request', [ApiProductController::class, 'products_create_request']);
@@ -142,6 +141,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::POST("post-media-upload", [ApiAnimalController::class, 'upload_media']);
 Route::POST("product-create", [ApiShopController::class, "product_create"]); 
+Route::get('products', [ApiShopController::class, 'products']); 
  
 Route::get('ajax', function (Request $r) {
 
