@@ -34,7 +34,7 @@ Route::group([
     $router->resource('check-points', CheckPointController::class);
     $router->resource('movement-routes', MovementRouteController::class);
     $router->resource('check-point-records', CheckPointRecordController::class);
-    $router->resource('product-categories', ProductCategoryController::class);
+    //$router->resource('product-categories', ProductCategoryController::class);
     $router->resource('products', ProductController::class);
     $router->resource('my-products', MyProductController::class);
     $router->resource('drugs', DrugBatchController::class);

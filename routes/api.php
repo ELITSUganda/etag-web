@@ -33,6 +33,7 @@ Route::POST('api/{model}', [ApiResurceController::class, 'store']);
 Route::put('api/{model}', [ApiResurceController::class, 'update']);
 Route::delete('api/{model}', [ApiResurceController::class, 'delete']);
 
+
 //Route::resource('api', [ApiResurceController::class, 'product_image_upload']);
 
 Route::POST('product-image-upload', [ApiProductController::class, 'product_image_upload']);
@@ -147,6 +148,7 @@ Route::post('chat-send', [ApiShopController::class, 'chat_send']);
 Route::post('chat-mark-as-read', [ApiShopController::class, 'chat_mark_as_read']);
 Route::get('chat-heads', [ApiShopController::class, 'chat_heads']);
 Route::get('chat-messages', [ApiShopController::class, 'chat_messages']);
+
 
 Route::get('ajax', function (Request $r) {
 
