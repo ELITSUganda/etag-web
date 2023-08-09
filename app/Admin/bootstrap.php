@@ -63,10 +63,10 @@ foreach ($mvs as $key => $v) {
 }
 
 $i = 0;
-echo "_*U-LITS MOVEMENT PERMITS - Records*_<br><br>";
+echo "_*U-LITS MOVEMENT PERMITS - Records as on ".Utils::my_date_2(now())."*_<br><br>";
 echo "<b>summary</b><br>";
 echo "*Total Permits:* " . count($mvs) . "<br>";
-echo "*Total animals:* " . $ans . "<br>";
+echo "*Total Animals:* " . $ans . "<br>";
 
 echo "<br><br><b>Details</b><br>";
 
