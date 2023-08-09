@@ -22,6 +22,8 @@ use App\Models\Animal;
 use App\Models\DrugStockBatchRecord;
 use App\Models\Farm;
 use App\Models\Location;
+use App\Models\Movement;
+use App\Models\SlaughterHouse;
 use App\Models\SubCounty;
 use App\Models\User;
 use App\Models\Utils;
@@ -31,6 +33,76 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 //Admin::disablePjax();
+
+$mvs = Movement::where([])->orderBy('id', 'desc')->get();
+
+$ans = 0;
+foreach ($mvs as $key => $v) {
+    if ($v->destination != 'To slaughter') {
+        continue;
+    }
+    $s = SlaughterHouse::where([
+        'id' => $v->destination_slaughter_house
+    ])->first();
+    if ($s == null) {
+        continue;
+    }
+    if ($v->animals == null) {
+        continue;
+    }
+    if (count($v->animals) < 1) {
+        continue;
+    }
+
+    foreach ($v->animals as $key => $a) {
+        if ($a == null) {
+            continue;
+        }
+        $ans++;
+    }
+}
+
+$i = 0;
+echo "_*U-LITS MOVEMENT PERMITS - Records*_<br><br>";
+echo "<b>summary</b><br>";
+echo "*Total Permits:* " . count($mvs) . "<br>";
+echo "*Total animals:* " . $ans . "<br>";
+
+echo "<br><br><b>Details</b><br>";
+
+foreach ($mvs as $key => $v) {
+    if ($v->destination != 'To slaughter') {
+        continue;
+    }
+    $s = SlaughterHouse::where([
+        'id' => $v->destination_slaughter_house
+    ])->first();
+    if ($s == null) {
+        continue;
+    }
+    if ($v->animals == null) {
+        continue;
+    }
+    if (count($v->animals) < 1) {
+        continue;
+    }
+    $i++;
+    echo "*{$i}* DATE: " . Utils::my_date_2($v->created_at) . "<br>";
+    echo "*PERMIT NO.* {$v->permit_Number}<br>";
+    echo "*APPLICANT:* {$v->trader_name} - {$v->trader_phone}<br>";
+    echo "*DESTINATION:* {$s->name} - Slaugter House<br>";
+    echo "*No. of animals:* " . count($v->animals) . "<br>";
+    echo "<br>*ANIMALS:*<br>";
+    foreach ($v->animals as $key => $a) {
+        if ($a == null) {
+            continue;
+        }
+        echo ($key + 1) . ". - *{$a->e_id}* - {$a->v_id}<br>";
+    }
+    echo "<br>----------------------<br><br>";
+}
+
+die('');
 
 Admin::css('css.css');
 Encore\Admin\Form::forget(['map', 'editor']);
