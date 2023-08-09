@@ -8,7 +8,6 @@ use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
 
-
 class ProductCategoryController extends AdminController
 {
     /**
@@ -16,7 +15,7 @@ class ProductCategoryController extends AdminController
      *
      * @var string
      */
-    protected $title = 'Product categories';
+    protected $title = 'Product Categories';
 
     /**
      * Make a grid builder.
@@ -26,13 +25,16 @@ class ProductCategoryController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new ProductCategory());
+        $grid->disableBatchActions();
 
-        $grid->column('id', __('Id'));
-        $grid->column('name', __('Name'));
-        $grid->column('type', __('Type'));
-        $grid->column('details', __('Details'));
-
-        
+        $grid->column('id', __('#ID'))->sortable();
+        $grid->column('category', __('Category'))->sortable();
+        $grid->column('show_in_banner', __('Show in Banner'))
+            ->editable('select', ['Yes' => 'Yes', 'No' => 'No'])
+            ->sortable();
+        $grid->column('show_in_categories', __('Show in Categories'))
+            ->editable('select', ['Yes' => 'Yes', 'No' => 'No'])
+            ->sortable();
 
         return $grid;
     }
@@ -50,10 +52,18 @@ class ProductCategoryController extends AdminController
         $show->field('id', __('Id'));
         $show->field('created_at', __('Created at'));
         $show->field('updated_at', __('Updated at'));
-        $show->field('name', __('Name'));
-        $show->field('type', __('Type'));
-        $show->field('details', __('Details'));
-        $show->field('parent', __('Parent'));
+        $show->field('category', __('Category'));
+        $show->field('status', __('Status'));
+        $show->field('user', __('User'));
+        $show->field('date_created', __('Date created'));
+        $show->field('date_updated', __('Date updated'));
+        $show->field('url', __('Url'));
+        $show->field('default_amount', __('Default amount'));
+        $show->field('image', __('Image'));
+        $show->field('image_origin', __('Image origin'));
+        $show->field('banner_image', __('Banner image'));
+        $show->field('show_in_banner', __('Show in banner'));
+        $show->field('show_in_categories', __('Show in categories'));
 
         return $show;
     }
@@ -67,16 +77,17 @@ class ProductCategoryController extends AdminController
     {
         $form = new Form(new ProductCategory());
 
-        $form->text('name', __('Name'))->required();
-        $form->radio('type', __('Category Type'))
-            ->options([
-                'Drugs' => 'Drugs',
-                'Livestock' => 'Livestock',
-            ])
-            ->required();
 
-        $form->textarea('details', __('Details'));
-        $form->hidden('parent', __('Parent'))->default(0)->value(0);
+
+        $form->text('category', __('Category Name'))->required();
+        $form->list('attributes', __('Category Attributes'))->required();
+        $form->image('image', __('Main Photo'))->required();
+        $form->image('banner_image', __('Banner image'));
+
+ 
+        $form->radio('show_in_banner', __('Show in banner'))->options(['Yes' => 'Yes', 'No' => 'No'])->required();
+        $form->radio('show_in_categories', __('Show in categories'))->options(['Yes' => 'Yes', 'No' => 'No'])->required();
+
         return $form;
     }
 }
