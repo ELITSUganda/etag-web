@@ -34,14 +34,7 @@ use Encore\Admin\Facades\Admin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-$checkpoints = CheckPoint::where([])->get();
-$i = 0;
-foreach ($checkpoints as $key => $v) {
-    $i++;
-    echo "*CHEKCPOINT:* ".$v->name."<br>";
-    echo "*RECORDS:* ".count($v->records)."<br><br>";
-}
-die();
+// asas
 // $chpts = CheckPointRecord::where([])->get();
 // foreach ($chpts as $key => $v) {
 //     $v->checkpoint_id = $v->checkpoint->id;
