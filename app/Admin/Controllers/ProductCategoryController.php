@@ -83,7 +83,7 @@ class ProductCategoryController extends AdminController
 
         $form->radio('is_parent', __('Is Parent'))
             ->options(['Yes' => 'Yes', 'No' => 'No'])
-            ->when('Yes', function (Form $form) {
+            ->when('No', function (Form $form) {
                 $parentCategories = ProductCategory::where('is_parent', 'Yes')->pluck('category', 'id');
                 $form->select('parent_id', __('Parent Category'))
                     ->options($parentCategories)
