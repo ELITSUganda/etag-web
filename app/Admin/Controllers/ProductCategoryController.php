@@ -28,7 +28,9 @@ class ProductCategoryController extends AdminController
         $grid->disableBatchActions();
 
         $grid->column('id', __('#ID'))->sortable();
-        $grid->column('category', __('Category'))->sortable();
+        $grid->column('category', __('Category'))
+            ->editable()
+            ->sortable();
         $grid->column('show_in_banner', __('Show in Banner'))
             ->editable('select', ['Yes' => 'Yes', 'No' => 'No'])
             ->sortable();
