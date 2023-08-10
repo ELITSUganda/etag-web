@@ -80,11 +80,22 @@ class ProductCategoryController extends AdminController
 
 
         $form->text('category', __('Category Name'))->required();
+
+        $form->radio('is_parent', __('Is Parent'))
+            ->options(['Yes' => 'Yes', 'No' => 'No'])
+            ->when('Yes', function (Form $form) {
+                $parentCategories = ProductCategory::where('is_parent', 'Yes')->pluck('category', 'id');
+                $form->select('parent_id', __('Parent Category'))
+                    ->options($parentCategories)
+                    ->rules('required');
+            })->rules('required');
+
+
         $form->list('attributes', __('Category Attributes'))->required();
         $form->image('image', __('Main Photo'))->required();
         $form->image('banner_image', __('Banner image'));
 
- 
+
         $form->radio('show_in_banner', __('Show in banner'))->options(['Yes' => 'Yes', 'No' => 'No'])->required();
         $form->radio('show_in_categories', __('Show in categories'))->options(['Yes' => 'Yes', 'No' => 'No'])->required();
 
