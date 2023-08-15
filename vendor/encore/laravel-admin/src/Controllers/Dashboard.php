@@ -9,6 +9,7 @@ use App\Models\Farm;
 use App\Models\Location;
 use App\Models\Movement;
 use App\Models\Transaction;
+use App\Models\User;
 use App\Models\Utils;
 use Carbon\Carbon;
 use Encore\Admin\Admin;
@@ -17,6 +18,50 @@ use Illuminate\Support\Facades\Auth;
 
 class Dashboard
 {
+
+    public static function maaif_fams_permits_widget()
+    {
+        return view('widgets.box-5', [
+            'is_dark' => false,
+            'title' => 'Holdings',
+            'sub_title' => 'All registered farms.',
+            'number' => number_format(Farm::where([])->count()),
+            'link' => admin_url('animals')
+        ]);
+    }
+    public static function maaif_users_widget()
+    {
+        return view('widgets.box-5', [
+            'is_dark' => true,
+            'title' => 'Users',
+            'sub_title' => 'All registered users.',
+            'number' => number_format(User::where([])->count()),
+            'link' => admin_url('auth/users')
+        ]);
+    }
+
+    public static function maaif_livestock_permits_widget()
+    {
+        $sub_title =  "All registered animals.";
+        return view('widgets.box-5', [
+            'is_dark' => false,
+            'title' => 'Livestock',
+            'sub_title' => $sub_title,
+            'number' => number_format(Animal::where([])->count()),
+            'link' => admin_url('animals')
+        ]);
+    }
+    public static function maaif_permits_widget()
+    {
+        $sub_title =  "All Issued Movement Permits";
+        return view('widgets.box-5', [
+            'is_dark' => false,
+            'title' => 'Movement Permits',
+            'sub_title' => $sub_title,
+            'number' => number_format(Movement::where([])->count()),
+            'link' => admin_url('movements')
+        ]);
+    }
 
 
     public static function dvo_farms_widget()
@@ -132,7 +177,7 @@ class Dashboard
         if ($dis == null) {
             return 'District not found.';
         }
-        $events = Movement::where(['district_from' => $dis->id])->orderBy('id', 'Desc')->limit(15)->get();
+        $events = Movement::where([])->orderBy('id', 'Desc')->limit(11)->get();
         //dd($events->first());
         return view('dashboard.recent-movements', [
             'title' => 'Recent movement permits',

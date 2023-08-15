@@ -3,7 +3,7 @@
         'name' => 'laravel/laravel',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => 'adfd3142426c13d5365fd0562aa616bfacf84593',
+        'reference' => '36151c51a22b5f467323322e5d46da3bd90c99db',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -586,7 +586,7 @@
         'laravel/laravel' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => 'adfd3142426c13d5365fd0562aa616bfacf84593',
+            'reference' => '36151c51a22b5f467323322e5d46da3bd90c99db',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -1413,14 +1413,12 @@
             'dev_requirement' => false,
         ),
         'stefangabos/zebra_image' => array(
-            'pretty_version' => 'dev-master',
-            'version' => 'dev-master',
-            'reference' => 'da8390a0485c2215e3bece97c18bbdc27e56b804',
+            'pretty_version' => '2.8.2',
+            'version' => '2.8.2.0',
+            'reference' => '11c343fa312d8cc3ffc70231f027af6bdd01f42b',
             'type' => 'library',
             'install_path' => __DIR__ . '/../stefangabos/zebra_image',
-            'aliases' => array(
-                0 => '9999999-dev',
-            ),
+            'aliases' => array(),
             'dev_requirement' => false,
         ),
         'stella-maris/clock' => array(

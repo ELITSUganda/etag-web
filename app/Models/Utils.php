@@ -276,7 +276,7 @@ class Utils extends Model
             'status' => 'Processing',
             'processed' => 'No',
         ])->get() as $key => $order) {
-         
+
             $status = $order->validate_order();
             if ($status != null) {
                 continue;
@@ -284,7 +284,7 @@ class Utils extends Model
             try {
                 WholesaleOrder::do_process_order($order);
                 $order->processed = 'Yes';
-                $order->save(); 
+                $order->save();
             } catch (\Throwable $th) {
                 //throw $th;
             }

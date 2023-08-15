@@ -25,7 +25,7 @@
         "maatwebsite/excel": "^3.1",
         "simplesoftwareio/simple-qrcode": "~4",
         "spatie/laravel-image-optimizer": "^1.6",
-        "stefangabos/zebra_image": "dev-master",
+        "stefangabos/zebra_image": "^2.8",
         "tymon/jwt-auth": "^1.0"
     },
     "require-dev": {

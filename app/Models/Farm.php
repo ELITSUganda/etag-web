@@ -132,9 +132,24 @@ class Farm extends Model
         if ($sub == null) {
             throw new Exception("Subcounty not found.", 1);
         }
-        $num = (int) (Farm::where(['sub_county_id' => $m->sub_county_id])->count());
-        $num++;
-        $m->holding_code = $sub->code . "-" . $num;
+
+        if ($m->holding_code == null || strlen($m->holding_code) < 3) {
+            $num = (int) (Farm::where(['sub_county_id' => $m->sub_county_id])->count());
+            $num++;
+            $m->holding_code = $sub->code . "-" . $num;
+        }
+
+        if ($sub->parent != null) {
+            $m->district_id = $sub->parent;
+        }
+
+
+        $sub = Location::find($m->sub_county_id);
+        $dis = Location::find($sub->parent);
+
+        echo $m->owner()->name.". <b>District:</b>" . $dis->name . " <b>Subcounty: </b>" . $sub->name . " Holding: " . $m->holding_code . "<br>";
+        
+
         return $m;
     }
 

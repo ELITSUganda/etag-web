@@ -46,7 +46,7 @@ use App\Models\Utils;
                 </div>
                 <a href="{{ admin_url('/movements/' . $i->id . '/edit') }}"
                     class="text-white py-1 px-1 rounded text-center"
-                    style="background-color: #6b3b00; line-height: 1.3rem; font-weight: 800;" title="View all animal">
+                    style="background-color: #6b3b00; line-height: 1.6rem; font-weight: 600;" title="View all animal">
                     Review Permit </a>
             </div>
         @endforeach

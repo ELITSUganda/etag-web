@@ -373,93 +373,39 @@ class HomeController extends Controller
             Admin::user()->isRole('maaif') ||
             Admin::user()->isRole('admin')
         ) {
+            $content->row(function ($row) {
+                $row->column(3, function (Column $column) {
+                    $column->append(Dashboard::maaif_permits_widget());
+                });
+                $row->column(3, function (Column $column) {
+                    $column->append(Dashboard::maaif_livestock_permits_widget());
+                });
+                $row->column(3, function (Column $column) {
+                    $column->append(Dashboard::maaif_fams_permits_widget());
+                });
+                $row->column(3, function (Column $column) {
+                    $column->append(Dashboard::maaif_users_widget());
+                });
+            });
             Admin::js('/vendor/laravel-admin-ext/chartjs/Chart.bundle.min.js');
             $content->title('Main Dashboard');
-            $content->row(function ($row) {
-                $admins = Administrator::all();
 
-                $farmers_count = 0;
-                $trader_count = 0;
-                $administrator_count = 0;
-                $veterinary_count = 0;
-                $trader_count = 0;
-                $slaughter_count = 0;
-                $livestock_count = 0;
-                foreach ($admins as $key => $_ad) {
-                    if ($_ad->isRole('farmer')) {
-                        $farmers_count++;
-                    }
-                    if ($_ad->isRole('trader')) {
-                        $trader_count++;
-                    }
-                    if (
-                        $_ad->isRole('administrator') ||
-                        $_ad->isRole('maaif')
-                    ) {
-                        $administrator_count++;
-                    }
-                    if ($_ad->isRole('veterinary')) {
-                        $veterinary_count++;
-                    }
-                    if ($_ad->isRole('trader')) {
-                        $trader_count++;
-                    }
-                    if ($_ad->isRole('slaughter')) {
-                        $slaughter_count++;
-                    }
-                    if ($_ad->isRole('livestock-officer	')) {
-                        $livestock_count++;
-                    }
-                }
-                $row->column(4, new InfoBox(
-                    ''
-                        . "{$administrator_count} Admins, "
-                        . "{$trader_count} veterinarians, "
-                        . "{$trader_count} traders, "
-                        . "{$slaughter_count} Slaughter houses, "
-                        . "{$livestock_count} Livestock officers, "
-                        . "{$farmers_count} Farmers.",
-                    'All users',
-                    'green',
-                    admin_url('/auth/users'),
-                    Administrator::count() . " - Users"
-                ));
-                $row->column(4, new InfoBox(
-                    ''
-                        . number_format(Farm::where('farm_type', 'Dairy')->count()) . "Dairy,"
-                        . number_format(Farm::where('farm_type', 'Beef')->count()) . " Beef,"
-                        . number_format(Farm::where('farm_type', 'Mixed')->count()) . " Mixed, ",
-                    'All farms',
-                    'green',
-                    admin_url('/farms'),
-                    Farm::count() . " - Holdings"
-                ));
-                $row->column(4, new InfoBox(
-                    ''
-                        . number_format(Farm::where('farm_type', 'Dairy')->count()) . " Dairy, "
-                        . number_format(Farm::where('farm_type', 'Beef')->count()) . " Beef, "
-                        . number_format(Farm::where('farm_type', 'Mixed')->count()) . " Mixed, ",
-                    'All Livestock',
-                    'green',
-                    admin_url('/animals'),
-                    number_format(Animal::count()) . " - Livestock"
-                ));
-            });
             $content->row(function ($row) {
                 $box = new Box('Livestock Species', view('admin.dashboard.chart-animal-types'));
                 $box->removable();
                 $box->collapsable();
                 $box->style('success');
                 $box->solid();
-                $row->column(5, $box);
+                $row->column(6, $box);
 
                 $box = new Box('Events', view('admin.dashboard.chart-animal-status'));
                 $box->removable();
                 $box->collapsable();
                 $box->style('success');
                 $box->solid();
-                $row->column(5, $box);
+                $row->column(6, $box);
             });
+
         }
 
 

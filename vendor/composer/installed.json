@@ -8888,17 +8888,17 @@
         },
         {
             "name": "stefangabos/zebra_image",
-            "version": "dev-master",
-            "version_normalized": "dev-master",
+            "version": "2.8.2",
+            "version_normalized": "2.8.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/stefangabos/Zebra_Image.git",
-                "reference": "da8390a0485c2215e3bece97c18bbdc27e56b804"
+                "reference": "11c343fa312d8cc3ffc70231f027af6bdd01f42b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/stefangabos/Zebra_Image/zipball/da8390a0485c2215e3bece97c18bbdc27e56b804",
-                "reference": "da8390a0485c2215e3bece97c18bbdc27e56b804",
+                "url": "https://api.github.com/repos/stefangabos/Zebra_Image/zipball/11c343fa312d8cc3ffc70231f027af6bdd01f42b",
+                "reference": "11c343fa312d8cc3ffc70231f027af6bdd01f42b",
                 "shasum": ""
             },
             "require": {
@@ -8908,8 +8908,7 @@
                 "phpstan/phpstan": "^1.8",
                 "squizlabs/php_codesniffer": "*"
             },
-            "time": "2022-10-11T07:47:00+00:00",
-            "default-branch": true,
+            "time": "2023-01-25T14:53:20+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -8929,7 +8928,7 @@
                     "role": "Developer"
                 }
             ],
-            "description": "A compact (one-file only), lightweight, image manipulation PHP library",
+            "description": "A single-file, lightweight PHP library designed for efficient image manipulation featuring methods for modifying images and applying filters",
             "homepage": "https://github.com/stefangabos/Zebra_Image/",
             "keywords": [
                 "crop",
@@ -8942,7 +8941,7 @@
             ],
             "support": {
                 "issues": "https://github.com/stefangabos/Zebra_Image/issues",
-                "source": "https://github.com/stefangabos/Zebra_Image/tree/master"
+                "source": "https://github.com/stefangabos/Zebra_Image/tree/2.8.2"
             },
             "funding": [
                 {

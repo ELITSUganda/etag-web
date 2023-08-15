@@ -41,7 +41,7 @@ class EventController extends AdminController
     protected function grid()
     {
 
-/*         $data = Event::where([
+        /*         $data = Event::where([
             'type' => 'Milking'
         ])->whereBetween('created_at',['2023-05-11','2023-05-12'])->get();
 
@@ -56,7 +56,7 @@ class EventController extends AdminController
         }
         dd($ans); */
 
-        
+
         //Utils::display_alert_message();
         $grid = new Grid(new Event());
 
@@ -87,14 +87,14 @@ class EventController extends AdminController
             $e->save();
         }
         dd("Done");*/
-       /*  $e = new Event();
+        /*  $e = new Event();
         $e->weight = 130;
         $e->type = 'Weight check';
         $e->animal_id = 16186;
 
         $e->save(); */
 
- 
+
         if (Admin::user()->isRole('farmer')) {
             $grid->model()->where('administrator_id', '=', Admin::user()->id);
             $grid->actions(function ($actions) {
@@ -109,7 +109,7 @@ class EventController extends AdminController
         $grid->filter(function ($filter) {
 
 
- 
+
             $admins = [];
             foreach (Administrator::all() as $key => $v) {
                 if (!$v->isRole('farmer')) {
@@ -177,21 +177,21 @@ class EventController extends AdminController
                 Vaccine::all()->pluck('name', 'name')
             );
 
-            $filter->between('created_at', 'Created between')->date(); 
+            $filter->between('created_at', 'Created between')->date();
         });
 
 
         $grid->column('id', __('ID'))->sortable();
 
 
-        $grid->column('animal_id', __('E-ID'))
+        /*         $grid->column('animal_id', __('E-ID'))
             ->display(function ($id) {
                 $u = Animal::find($id);
                 if (!$u) {
                     return $id;
                 }
                 return $u->e_id;
-            })->sortable();
+            })->sortable(); */
 
 
         $grid->column('animal_id', __('V-ID'))
@@ -211,6 +211,7 @@ class EventController extends AdminController
         $grid->column('type', __('Event Type'))->sortable();
         $grid->column('milk', __('Milk (Ltrs)'))->sortable();
         $grid->column('vaccine_id', __('Vaccine'))
+            ->hide()
             ->display(function ($id) {
                 $u = Vaccine::find($id);
                 if (!$u) {
@@ -226,9 +227,12 @@ class EventController extends AdminController
                     return $id;
                 }
                 return $u->name;
-            })->sortable();
+            })
+            ->hide()
+            ->sortable();
 
         $grid->column('medicine_id', __('Drug'))
+            ->hide()
             ->display(function ($id) {
                 $u = Medicine::find($id);
                 if (!$u) {
@@ -313,12 +317,12 @@ class EventController extends AdminController
     protected function form()
     {
 
-      
+
         /*
         die("sone"); */
 
 
-     /*    $ids = [];
+        /*    $ids = [];
         foreach (Animal::where([  
             'administrator_id' => Auth::user()->id
         ])->get() as $k => $a) {
@@ -366,7 +370,7 @@ class EventController extends AdminController
                 url('/api/ajax-animals?'
                     . "&administrator_id={$u->id}")
             )->rules('required');
-    
+
         $form->divider();
         $form->radio('type', __('Event type'))
             ->options(array(
