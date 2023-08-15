@@ -147,7 +147,7 @@ class Farm extends Model
         $sub = Location::find($m->sub_county_id);
         $dis = Location::find($sub->parent);
 
-        echo $m->owner()->name.". <b>District:</b>" . $dis->name . " <b>Subcounty: </b>" . $sub->name . " Holding: " . $m->holding_code . "<br>";
+        //echo $m->owner()->name.". <b>District:</b>" . $dis->name . " <b>Subcounty: </b>" . $sub->name . " Holding: " . $m->holding_code . "<br>";
         
 
         return $m;

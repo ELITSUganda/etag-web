@@ -35,11 +35,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 
-foreach (Farm::where([])->orderBy('id','desc')->get() as $key => $f) {
+/* foreach (Farm::where([])->orderBy('id','desc')->get() as $key => $f) {
     $f->updated_at  = now();
     $f->save();
 }
-die("romina");
+die("romina"); */
 
 /* $checkpoints = CheckPoint::where([])->get();
 $i = 0;
