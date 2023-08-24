@@ -223,9 +223,7 @@ class Event extends Model
                 $model->description = "{$animal->v_id} {$model->type} event was recorded.";
             }
 
-
-
-
+ 
 
             unset($model->disease_id);
             unset($model->disease_test_results);

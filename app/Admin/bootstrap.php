@@ -22,6 +22,7 @@ use App\Models\Animal;
 use App\Models\CheckPoint;
 use App\Models\CheckPointRecord;
 use App\Models\DrugStockBatchRecord;
+use App\Models\Event;
 use App\Models\Farm;
 use App\Models\Location;
 use App\Models\Movement;
@@ -35,12 +36,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 
-/* foreach (Farm::where([])->orderBy('id','desc')->get() as $key => $f) {
+/* foreach (Event::where([])->orderBy('id','desc')->get() as $key => $f) { 
     $f->updated_at  = now();
     $f->save();
+    dd($f);  
 }
-die("romina"); */
-
+die("romina");
+ */
 /* $checkpoints = CheckPoint::where([])->get();
 $i = 0;
 foreach ($checkpoints as $key => $v) {
