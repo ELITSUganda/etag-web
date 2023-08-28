@@ -227,6 +227,7 @@ class ApiShopController extends Controller
         $pro->feature_photo = 'no_image.jpg';
         $pro->description = $r->description;
         $pro->price_1 = $r->price_1;
+        $pro->animal_id = $r->animal_id;
         $pro->price_2 = $r->price_2;
         $pro->local_id = $r->id;
         $pro->summary = $r->data;
