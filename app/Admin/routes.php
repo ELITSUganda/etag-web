@@ -55,9 +55,11 @@ Route::group([
     $router->resource('checkpoint-sessions', CheckpointSessionController::class);
     $router->resource('vet-service-categories', VetServiceCategoryController::class);
     $router->resource('locations', LocationController::class);
+    
     $router->resource('groups', GroupController::class);
     $router->resource('gens', GenController::class);
     $router->resource('trips', TripController::class);
+    
     $router->resource('wholesale-drug-stocks', WholesaleDrugStockController::class);
     $router->resource('wholesale-orders', WholesaleOrderController::class);
     $router->resource('wholesale-order-items', WholesaleOrderItemController::class);

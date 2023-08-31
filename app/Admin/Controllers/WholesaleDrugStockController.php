@@ -54,6 +54,9 @@ class WholesaleDrugStockController extends AdminController
 
         $grid->column('drug_category_id', __('Drug'))
             ->display(function ($t) {
+                if($this->drug_category == null){
+                    return "N/A";
+                }
                 return $this->drug_category->name;
             })->sortable();
 
