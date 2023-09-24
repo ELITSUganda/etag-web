@@ -97,7 +97,7 @@ class ApiShopController extends Controller
         return $this->success($messages, 'Success');
     }
 
-    public function chat_send(Request $r)
+    public function                                                         chat_send(Request $r)
     { 
         
         $user_id = $r->user;

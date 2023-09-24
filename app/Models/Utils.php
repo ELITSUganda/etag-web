@@ -635,15 +635,6 @@ class Utils extends Model
         if ($request == null) {
             return 0;
         }
-        $u_id = (int)($request->user);
-        if ($u_id > 0) {
-            return $u_id;
-        }
-        $u_id = (int)($request->user_id);
-        if ($u_id > 0) {
-            return $u_id;
-        }
-
         $header = (int)($request->header('user'));
         if ($header < 1) {
             $header = (int)($request->user);
