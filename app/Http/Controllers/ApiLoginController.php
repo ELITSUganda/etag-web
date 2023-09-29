@@ -354,6 +354,14 @@ class ApiLoginController extends Controller
 
         $u = Administrator::where('username', $phone_number)->first();
         if ($u != null) {
+
+            if ($u->status == 5) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Account is disabled. Please contact us on +256783204665 to re-activate your account."
+                ]);
+            }
+
             return Utils::response([
                 'status' => 0,
                 'message' => "User with same username already exist."
@@ -361,6 +369,14 @@ class ApiLoginController extends Controller
         }
         $u = Administrator::where('email', $phone_number)->first();
         if ($u != null) {
+
+            if ($u->status == 5) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Account is disabled. Please contact us on +256783204665 to re-activate your account."
+                ]);
+            }
+            
             return Utils::response([
                 'status' => 0,
                 'message' => "User with same email address already exist."
