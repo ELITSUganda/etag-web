@@ -177,7 +177,7 @@ address
 */
     public function drugs_order_create(Request $r)
     {
-  
+
         if (
             (!isset($r->product_id)) ||
             (!isset($r->name)) ||
@@ -209,7 +209,7 @@ address
             ]);
         }
 
- 
+
         $p = new ProductOrder();
         $p->status = 1;
         $p->customer_id = $u->id;
@@ -231,7 +231,7 @@ address
             ]);
         } else {
             return Utils::response([
-                'status' => 0, 
+                'status' => 0,
                 'data' => null,
                 'message' => "Failed to submit order. Please try gain."
             ]);
@@ -357,10 +357,11 @@ address
     }
 
 
-    public function product_drugs_list(Request $r){
+    public function product_drugs_list(Request $r)
+    {
         return Utils::response([
             'status' => 1,
-            'data' => DrugForSale::where([])->get(), 
+            'data' => DrugForSale::where([])->get(),
             'message' => "Item uploaded successfully."
         ]);
     }
@@ -546,6 +547,27 @@ address
             'status' => 0,
             'data' => $_data,
             'message' => "User not found."
+        ]);
+    }
+
+    public function delete_account(Request $r)
+    {
+        $administrator_id = ((int) (Utils::get_user_id($r)));
+        $u = Administrator::find($administrator_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User account not found."
+            ]);
+        }
+
+        $u->status  = 5;
+        $u->details  = $r->reason;
+        $u->save();
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "User account deleted successfully."
         ]);
     }
     public function products(Request $r)
