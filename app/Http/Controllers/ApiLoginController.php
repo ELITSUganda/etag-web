@@ -332,11 +332,20 @@ class ApiLoginController extends Controller
         if ($u->status == 5) {
             return Utils::response([
                 'status' => 0,
-                'message' => "Account is disabled. Please contact us to re-activate your account."
+                'message' => "Account is disabled. Please contact us on +256783204665 to re-activate your account."
             ]);
         }
 
         if ($u != null) {
+
+            if ($u->status == 5) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Account is disabled. Please contact us on +256783204665 to re-activate your account."
+                ]);
+            }
+
+
             return Utils::response([
                 'status' => 0,
                 'message' => "User with same phone number already exist."
@@ -417,7 +426,7 @@ class ApiLoginController extends Controller
             $request->username != null
         ) {
 
-          
+
             $user = Administrator::where("username", trim($request->username))->first();
             if ($user == null) {
                 $user = Administrator::where("email", trim($request->username))->first();
@@ -429,7 +438,7 @@ class ApiLoginController extends Controller
 
         if ($user == null) {
 
-         
+
 
 
             if (
@@ -449,17 +458,17 @@ class ApiLoginController extends Controller
         if ($user == null) {
             return Utils::response([
                 'status' => 0,
-                'message' => "You provided wrong credentials. Please contact us to re-set your password."
+                'message' => "You provided wrong credentials. Please contact us on +256783204665 to re-set your password."
             ]);
         }
 
         if ($user->status == 5) {
             return Utils::response([
                 'status' => 0,
-                'message' => "Account is disabled. Please contact us to re-activate your account."
+                'message' => "Account is disabled. Please contact us on +256783204665 to re-activate your account."
             ]);
         }
-        
+
         if (password_verify(trim($request->password), $user->password)) {
             unset($user->password);
             $user->role =  Utils::get_role($user);
