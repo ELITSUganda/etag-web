@@ -328,6 +328,14 @@ class ApiLoginController extends Controller
         $phone_number =  Utils::prepare_phone_number($request->phone_number);
 
         $u = Administrator::where('phone_number', $phone_number)->first();
+
+        if ($u->status == 5) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Account is disabled. Please contact us to re-activate your account."
+            ]);
+        }
+
         if ($u != null) {
             return Utils::response([
                 'status' => 0,
@@ -398,7 +406,7 @@ class ApiLoginController extends Controller
         ) {
             return Utils::response([
                 'status' => 0,
-                'message' => "You must provide password. anjane",
+                'message' => "You must provide password.",
                 'data' => $_POST
             ]);
         }
@@ -409,6 +417,7 @@ class ApiLoginController extends Controller
             $request->username != null
         ) {
 
+          
             $user = Administrator::where("username", trim($request->username))->first();
             if ($user == null) {
                 $user = Administrator::where("email", trim($request->username))->first();
@@ -419,6 +428,10 @@ class ApiLoginController extends Controller
         }
 
         if ($user == null) {
+
+         
+
+
             if (
                 $request->phone_number != null
             ) {
@@ -440,6 +453,13 @@ class ApiLoginController extends Controller
             ]);
         }
 
+        if ($user->status == 5) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Account is disabled. Please contact us to re-activate your account."
+            ]);
+        }
+        
         if (password_verify(trim($request->password), $user->password)) {
             unset($user->password);
             $user->role =  Utils::get_role($user);
