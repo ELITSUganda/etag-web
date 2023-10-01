@@ -54,6 +54,21 @@ class Utils extends Model
             $group->is_main_group = 'Yes';
             $group->save();
         }
+        //get all animals whose group_id is null
+        $animals = Animal::whereNull('group_id')->get();
+        //loop and create a group for each animal, make is_main_group = No
+        foreach ($animals as $key => $animal) {
+            //get main group of this animal administrator_id
+            $group = Group::where([
+                'administrator_id' => $animal->administrator_id,
+                'is_main_group' => 'Yes',
+            ])->first();
+            if($group == null){
+                continue;
+            }
+            $animal->group_id = $group->id;
+            $animal->save();
+        }
 
         if ($u == null) {
             return;
