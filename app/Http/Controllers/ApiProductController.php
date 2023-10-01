@@ -580,14 +580,24 @@ address
             $action = "updated";
         }
 
+        if ($group->is_main_group != 'Yes') {
+            $group->is_main_group = 'No';
+        }
+        $group->administrator_id = $u->id;
         $group->name = $r->name;
         $group->description = $r->description;
-        $u->save();
-
-        return Utils::response([
-            'status' => 1,
-            'message' => "Group $action successfully."
-        ]);
+        try {
+            $u->save();
+            return Utils::response([
+                'status' => 1,
+                'message' => "Group $action successfully."
+            ]);
+        } catch (\Throwable $th) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Failed to $action group. Please try again."
+            ]);
+        }
     }
 
     public function delete_account(Request $r)
