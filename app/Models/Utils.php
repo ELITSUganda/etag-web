@@ -40,6 +40,20 @@ class Utils extends Model
 
     public static function systemBoot($u)
     {
+        //get administartors who don't have any group
+        $admins = Administrator::whereNotIn('id', function ($query) {
+            $query->select('administrator_id')
+                ->from('groups');
+        })->get();
+
+        //loop and create a group for each admin, make is_main_group = Yes
+        foreach ($admins as $key => $admin) {
+            $group = new Group();
+            $group->administrator_id = $admin->id;
+            $group->name = "Main Group";
+            $group->is_main_group = 'Yes';
+            $group->save();
+        }
 
         if ($u == null) {
             return;
