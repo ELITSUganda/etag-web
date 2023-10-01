@@ -6,6 +6,7 @@ use App\Models\Animal;
 use App\Models\District;
 use App\Models\DrugForSale;
 use App\Models\Event;
+use App\Models\Group;
 use App\Models\Utils;
 use App\Models\Image;
 use App\Models\Product;
@@ -547,6 +548,45 @@ address
             'status' => 0,
             'data' => $_data,
             'message' => "User not found."
+        ]);
+    }
+
+    public function group_create(Request $r)
+    {
+        $administrator_id = ((int) (Utils::get_user_id($r)));
+        $u = Administrator::find($administrator_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User account not found."
+            ]);
+        }
+        //check if name,description are submited
+        if (
+            (!isset($r->name)) ||
+            (!isset($r->description))
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "You must submit all required information."
+            ]);
+        }
+
+        $group = Group::find($r->id);
+        $action = "created";
+        if ($group == null) {
+            $group = new Group();
+        } else {
+            $action = "updated";
+        }
+
+        $group->name = $r->name;
+        $group->description = $r->description;
+        $u->save();
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "Group $action successfully."
         ]);
     }
 
