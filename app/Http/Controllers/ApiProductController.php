@@ -587,7 +587,7 @@ address
         $group->name = $r->name;
         $group->description = $r->description;
         try {
-            $u->save();
+            $group->save();
             return Utils::response([
                 'status' => 1,
                 'message' => "Group $action successfully."
