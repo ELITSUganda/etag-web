@@ -280,10 +280,20 @@ class Animal extends Model
         return $format;
     }
 
+    public function getGroupTextAttribute()
+    {
+        $g = Group::find($this->group_id);
+        if ($g == null) {
+            return null;
+        }
+        return $g->name;
+    }
+
     protected $appends = [
         'images', 'photos', 'last_seen', 'phone_number', 'whatsapp', 'price_text', 'posted', 'age',
         'location',
         'parent_text',
-        'updated_at_text'
+        'updated_at_text',
+        'group_text',
     ];
 }
