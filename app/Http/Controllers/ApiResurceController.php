@@ -8,6 +8,7 @@ use App\Models\District;
 use App\Models\DrugDosage;
 use App\Models\DrugDosageItem;
 use App\Models\Event;
+use App\Models\Group;
 use App\Models\Utils;
 use App\Models\Image;
 use App\Models\Product;
@@ -136,6 +137,28 @@ class ApiResurceController extends Controller
 
 
 
+        return Utils::response([
+            'status' => 1,
+            'data' => $data,
+            'message' => 'Success'
+        ]);
+    }
+
+    public function groups(Request $r)
+    {
+        $administrator_id = Utils::get_user_id($r);
+        $u = Administrator::find($administrator_id);
+
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
+        }
+        //get groups for this user using the group in models
+        $data = Group::where([
+            'administrator_id' => $administrator_id,
+        ])->get();
         return Utils::response([
             'status' => 1,
             'data' => $data,
