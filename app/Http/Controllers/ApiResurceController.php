@@ -148,13 +148,13 @@ class ApiResurceController extends Controller
     {
         $administrator_id = Utils::get_user_id($r);
         $u = Administrator::find($administrator_id);
-
         if ($u == null) {
             return Utils::response([
                 'status' => 0,
                 'message' => "User not found.",
             ]);
         }
+        Utils::systemBoot($u);
         //get groups for this user using the group in models
         $data = Group::where([
             'administrator_id' => $administrator_id,
