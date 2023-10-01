@@ -8,6 +8,7 @@ use App\Models\BatchSession;
 use App\Models\DrugStockBatch;
 use App\Models\Event;
 use App\Models\Farm;
+use App\Models\Group;
 use App\Models\Image;
 use App\Models\Movement;
 use App\Models\SlaughterHouse;
@@ -20,7 +21,7 @@ use Illuminate\Http\Request;
 class ApiAnimalController extends Controller
 {
 
-    
+
 
     public function upload_media(Request $request)
     {
@@ -76,7 +77,7 @@ class ApiAnimalController extends Controller
                 'status' => 0,
                 'message' => 'Failed to upload files.',
                 'data' => null
-            ]); 
+            ]);
         }
 
         $msg = "";
@@ -1444,20 +1445,20 @@ class ApiAnimalController extends Controller
         $u = Administrator::find($administrator_id);
 
 
-        $an  =Animal::where([
+        $an  = Animal::where([
             'e_id' => $request->e_id
         ])->first();
-        if($an != null){
+        if ($an != null) {
             return Utils::response([
                 'status' => 1,
                 'message' => "Animal with same E-ID already exist in the system."
             ]);
         }
-        
-        $an  =Animal::where([
+
+        $an  = Animal::where([
             'v_id' => $request->v_id
         ])->first();
-        if($an != null){
+        if ($an != null) {
             return Utils::response([
                 'status' => 1,
                 'message' => "Animal with same V-ID already exist in the system."
@@ -1588,7 +1589,7 @@ class ApiAnimalController extends Controller
         $f->parent_id = $request->parent_id;
         $f->status = 'Active';
         try {
-            $f->save(); 
+            $f->save();
         } catch (\Throwable $th) {
             return Utils::response([
                 'status' => 0,
@@ -1653,6 +1654,10 @@ class ApiAnimalController extends Controller
         }
         if ($request->parent_id != null && strlen($request->parent_id) > 0) {
             $an->parent_id = $request->parent_id;
+        }
+        $group = Group::find($request->group_id);
+        if ($group != null) {
+            $an->group_id = $request->group_id;
         }
         $an->breed = $request->breed;
         $an->dob = Carbon::parse($request->dob);
