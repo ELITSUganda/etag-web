@@ -50,5 +50,10 @@ class Group extends Model
         return Animal::where('group_id', $this->id)->count();
     }
 
-    protected $appends = ['animal_count'];
+    public function getGroupTextAttribute()
+    {
+        return $this->name . ' (' . $this->animal_count . ')';
+    }
+
+    protected $appends = ['animal_count', 'group_text'];
 }
