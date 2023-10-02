@@ -819,6 +819,20 @@ class ApiAnimalController extends Controller
             $r->type == 'RollCall'
         ) {
 
+            $group_id = ((int)($r->group_id));
+            $group = Group::find($group_id);
+            if ($group == null) {
+                return Utils::response([
+                    'status' => 2,
+                    'message' => "Group not found.",
+                ]);
+            }
+
+            return Utils::response([
+                'status' => 1,
+                'message' => "Good to go with group {$group->name}.",
+            ]);
+
             $session = new BatchSession();
             $session->administrator_id = $user_id;
             $session->name = $r->name;
