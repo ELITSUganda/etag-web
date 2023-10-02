@@ -830,7 +830,7 @@ class ApiAnimalController extends Controller
 
             return Utils::response([
                 'status' => 1,
-                'message' => "Good to go with group {$group->name}.",
+                'message' => "Good to go with group {$group->name}. found => " . count($items),
             ]);
 
             $session = new BatchSession();
