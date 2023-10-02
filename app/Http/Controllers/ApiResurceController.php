@@ -17,6 +17,7 @@ use App\Models\ProductOrder;
 use App\Models\Transaction;
 use App\Models\Vaccine;
 use Carbon\Carbon;
+use Dflydev\DotAccessData\Util;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Middleware\Session;
 use Exception;
@@ -156,7 +157,7 @@ class ApiResurceController extends Controller
                 'message' => "User not found.",
             ]);
         }
-
+        Utils::systemBoot($u);
         $data = ArchivedAnimal::where([
             'administrator_id' => $administrator_id,
         ])->get();

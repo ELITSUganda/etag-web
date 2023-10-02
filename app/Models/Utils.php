@@ -63,12 +63,25 @@ class Utils extends Model
                 'administrator_id' => $animal->administrator_id,
                 'is_main_group' => 'Yes',
             ])->first();
-            if($group == null){
+            if ($group == null) {
                 continue;
             }
             $animal->group_id = $group->id;
             $animal->save();
         }
+
+        $arcs = ArchivedAnimal::whereNull('administrator_id')->get();
+        foreach ($arcs as $key => $val) {
+            $farm = Farm::where([
+                'holding_code' => $val->lhc
+            ])->first();
+            if ($farm == null) {
+                continue;
+            }
+            $val->administrator_id = $farm->administrator_id;
+            $val->save();
+        }
+
 
         if ($u == null) {
             return;
