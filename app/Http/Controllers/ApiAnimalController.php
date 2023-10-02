@@ -876,7 +876,6 @@ class ApiAnimalController extends Controller
             $session->animal_text_found = json_encode($animal_text_found);
             $session->animal_ids_found = json_encode($animal_ids_found);
 
-
             $animal_ids_not_found = [];
             $animal_text_not_found = [];
             $absent = 0;
