@@ -36,16 +36,29 @@ class ApiAnimalController extends Controller
         }
 
 
+        $parent_id = 0;
+
         if (
             !isset($request->parent_id) ||
             $request->parent_id == null ||
             ((int)($request->parent_id)) < 1
         ) {
 
-            return Utils::response([
-                'status' => 0,
-                'message' => "Local parent ID is missing.",
-            ]);
+
+            if (
+                !isset($request->online_parent_id) ||
+                $request->online_parent_id == null ||
+                ((int)($request->online_parent_id)) < 1
+            ) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Local parent ID is missing.",
+                ]);
+            } else {
+                $parent_id = ((int)($request->online_parent_id));
+            }
+        } else {
+            $parent_id = ((int)($request->parent_id));
         }
 
 
@@ -107,7 +120,7 @@ class ApiAnimalController extends Controller
             $img->src =  $src;
             $img->thumbnail =  null;
             $img->parent_endpoint =  $request->parent_endpoint;
-            $img->parent_id =  (int)($request->parent_id);
+            $img->parent_id =  (int)($parent_id);
             $img->size = 0;
             $img->note = '';
             if (
