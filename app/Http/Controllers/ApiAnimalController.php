@@ -780,7 +780,6 @@ class ApiAnimalController extends Controller
             $session->save();
             $animal_ids_found = [];
 
-
             foreach ($items as $v) {
                 $an = Animal::where([
                     'id' => ((int)($v->id)),
@@ -852,31 +851,28 @@ class ApiAnimalController extends Controller
                     continue;
                 }
                 $animal_ids_found[] = $an->id;
-                if ($r->type == 'Roll call') {
-                    $ev = new Event();
-                    $ev->created_at =  $date;
-                    $ev->updated_at =  $date;
-                    $ev->time_stamp =  $date;
-                    $ev->administrator_id =  $an->administrator_id;
-                    $ev->animal_id =  $an->id;
-                    $ev->e_id =  $an->e_id;
-                    $ev->v_id =  $an->v_id;
-                    $ev->type =  $type;
-                    $ev->is_batch_import =  0;
-                    $ev->detail =  "Present in Roll-call - {$r->name}.";
-                    $ev->description =  "Present in Roll-call - {$r->name}.";
-                    $ev->short_description =  "Roll-call - {$r->name}.";
-                    $ev->session_id =  $session->id;
-                    $ev->is_present =  1;
-                    $ev->save();
-                }
+                $ev = new Event();
+                $ev->created_at =  $date;
+                $ev->updated_at =  $date;
+                $ev->time_stamp =  $date;
+                $ev->administrator_id =  $an->administrator_id;
+                $ev->animal_id =  $an->id;
+                $ev->e_id =  $an->e_id;
+                $ev->v_id =  $an->v_id;
+                $ev->type =  $type;
+                $ev->is_batch_import =  0;
+                $ev->detail =  "Present in Roll-call - {$r->name}.";
+                $ev->description =  "Present in Roll-call - {$r->name}.";
+                $ev->short_description =  "Roll-call - {$r->name}.";
+                $ev->session_id =  $session->id;
+                $ev->is_present =  1;
+                $ev->save();
             }
 
 
             $absent = 0;
             foreach (Animal::where([
-                'administrator_id' => $user_id,
-                'type' => $r->roll_call_type,
+                'group_id' => $group_id,
             ])->get() as $an) {
                 if (in_array($an->id, $animal_ids_found)) {
                     continue;
