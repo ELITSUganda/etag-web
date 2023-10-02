@@ -826,12 +826,7 @@ class ApiAnimalController extends Controller
                     'message' => "Group not found.",
                 ]);
             }
-
-            return Utils::response([
-                'status' => 1,
-                'message' => "Good to go with group {$group->name}. found => " . count($items),
-            ]);
-
+            
             $session = new BatchSession();
             $session->administrator_id = $user_id;
             $session->name = $r->name;
