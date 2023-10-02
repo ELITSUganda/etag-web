@@ -55,5 +55,5 @@ class Group extends Model
         return $this->name . ' (' . $this->animal_count . ')';
     }
 
-    protected $appends = ['animal_count', 'group_text'];
+    protected $appends = ['animal_count','group_text'];
 }
