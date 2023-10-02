@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Animal;
+use App\Models\ArchivedAnimal;
 use App\Models\BatchSession;
 use App\Models\District;
 use App\Models\DrugDosage;
@@ -136,6 +137,29 @@ class ApiResurceController extends Controller
         }
 
 
+
+        return Utils::response([
+            'status' => 1,
+            'data' => $data,
+            'message' => 'Success'
+        ]);
+    }
+
+    public function archived_animals(Request $r)
+    {
+        $administrator_id = Utils::get_user_id($r);
+        $u = Administrator::find($administrator_id);
+
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
+        }
+
+        $data = ArchivedAnimal::where([
+            'administrator_id' => $administrator_id,
+        ])->get();
 
         return Utils::response([
             'status' => 1,

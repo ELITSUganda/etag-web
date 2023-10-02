@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('drug-categories', [ApiMovement::class, 'drug_categories']);
 Route::get('api/Movement', [ApiMovement::class, 'index']);
 Route::get('roll-calls', [ApiResurceController::class, 'roll_call']);
+Route::get('archived-animals', [ApiResurceController::class, 'archived_animals']);
 Route::get('groups', [ApiResurceController::class, 'groups']);
 Route::get('manifest', [ApiResurceController::class, 'manifest']);
 Route::get('daily-milk-records', [ApiResurceController::class, 'dialy_milk_records']);
