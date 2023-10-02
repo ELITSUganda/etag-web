@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Animal;
+use App\Models\BatchSession;
 use App\Models\CheckPoint;
 use App\Models\CheckPointRecord;
 use App\Models\CheckpointSession;
@@ -26,6 +27,19 @@ use Illuminate\Http\Request;
 
 class ApiMovement extends Controller
 {
+    public function roll_call_sessions(){
+        $administrator_id = Utils::get_user_id($request);
+        $u = Administrator::find($administrator_id); 
+        if($u == null){
+            return Utils::response([
+                'status' => 0,
+                'message' => 'User not found',
+                'data' => null
+            ]);
+        }
+        $batch_sessions = BatchSession::where('administrator_id',$administrator_id)->get();
+        
+    }
     public function drug_categories(Request $r)
     {
         $user_id = ((int)(Utils::get_user_id($r)));

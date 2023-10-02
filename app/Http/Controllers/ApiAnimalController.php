@@ -779,6 +779,7 @@ class ApiAnimalController extends Controller
             $session->description = "Treated animals with  $meds_text.";
             $session->save();
             $animal_ids_found = [];
+            $animal_text_found = [];
 
             foreach ($items as $v) {
                 $an = Animal::where([
@@ -826,7 +827,7 @@ class ApiAnimalController extends Controller
                     'message' => "Group not found.",
                 ]);
             }
-            
+
             $session = new BatchSession();
             $session->administrator_id = $user_id;
             $session->name = $r->name;
@@ -834,6 +835,7 @@ class ApiAnimalController extends Controller
             $session->session_date = $r->session_date;
             $session->session_category = $r->roll_call_type;
             $session->description = $r->description;
+            $session->group_id = $group_id;
             $session->save();
             $animal_ids_found = [];
 
@@ -846,6 +848,13 @@ class ApiAnimalController extends Controller
                     continue;
                 }
                 $animal_ids_found[] = $an->id;
+
+                $animal_text['id'] = $an->id;
+                $animal_text['v_id'] = $an->v_id;
+                $animal_text['e_id'] = $an->e_id;
+                $animal_text['photo'] = $an->photo;
+                $animal_text_found[] = $animal_text;
+
                 $ev = new Event();
                 $ev->created_at =  $date;
                 $ev->updated_at =  $date;
@@ -864,7 +873,12 @@ class ApiAnimalController extends Controller
                 $ev->save();
             }
 
+            $session->animal_text_found = json_encode($animal_text_found);
+            $session->animal_ids_found = json_encode($animal_ids_found);
 
+
+            $animal_ids_not_found = [];
+            $animal_text_not_found = [];
             $absent = 0;
             foreach (Animal::where([
                 'group_id' => $group_id,
@@ -872,6 +886,14 @@ class ApiAnimalController extends Controller
                 if (in_array($an->id, $animal_ids_found)) {
                     continue;
                 }
+
+                $animal_text['id'] = $an->id;
+                $animal_text['v_id'] = $an->v_id;
+                $animal_text['e_id'] = $an->e_id;
+                $animal_text['photo'] = $an->photo;
+                $animal_text_not_found[] = $animal_text;
+                $animal_ids_not_found[] = $an->id;
+
                 $absent++;
                 $ev = new Event();
                 $ev->created_at =  $date;
@@ -890,6 +912,9 @@ class ApiAnimalController extends Controller
                 $ev->is_present =  0;
                 $ev->save();
             }
+
+            $session->animal_text_not_found = json_encode($animal_text_not_found);
+            $session->animal_ids_not_found = json_encode($animal_ids_not_found);
 
             $session->present = count($animal_ids_found);
             $session->absent =  $absent;
