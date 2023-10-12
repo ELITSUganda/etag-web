@@ -27,18 +27,71 @@ use Illuminate\Http\Request;
 
 class ApiMovement extends Controller
 {
-    public function roll_call_sessions(){
+    public function roll_call_sessions()
+    {
         $administrator_id = Utils::get_user_id($request);
-        $u = Administrator::find($administrator_id); 
-        if($u == null){
+        $u = Administrator::find($administrator_id);
+        if ($u == null) {
             return Utils::response([
                 'status' => 0,
                 'message' => 'User not found',
                 'data' => null
             ]);
         }
-        $batch_sessions = BatchSession::where('administrator_id',$administrator_id)->get();
-        
+        $batch_sessions = BatchSession::where('administrator_id', $administrator_id)->get();
+    }
+    public function drug_categories_create(Request $r)
+    {
+        if ($r->name == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Name is required',
+                'data' => null
+            ]);
+        }
+        //unit
+        if ($r->unit == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Unit is required',
+                'data' => null
+            ]);
+        }
+        //details
+        if ($r->details == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Details is required',
+                'data' => null
+            ]);
+        }
+        $same_cat_name = DrugCategory::where('name', $r->name)->first();
+        if ($same_cat_name != null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Drug category with same name already exists',
+                'data' => null
+            ]);
+        }
+        $cat = new DrugCategory();
+        $cat->name = $r->name;
+        $cat->unit = $r->unit;
+        $cat->details = $r->details;
+
+        try {
+            $cat->save();
+            return Utils::response([
+                'status' => 1,
+                'message' => 'Drug category created successfully.',
+                'data' => $cat
+            ]);
+        } catch (\Throwable $th) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Failed to create drug category because ' . $th->getMessage(),
+                'data' => null
+            ]);
+        }
     }
     public function drug_categories(Request $r)
     {
@@ -938,7 +991,6 @@ is_present
                 $mv->save();
             }
         } catch (\Throwable $th) {
-
         }
 
 
