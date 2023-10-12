@@ -92,7 +92,7 @@ class HomeController extends Controller
         $u = Admin::user();
         $content
             ->title('U-LITS - Dashboard')
-            ->description('Hello ' . $u->name . "!");
+            ->description('Hello ' . $u->name . "!" . " - " . Carbon::now()->format('l jS \\of F Y h:i:s A'));
 
         if ($u->isRole('drugs-wholesaler')) {
             $content->row(function (Row $row) {
@@ -318,7 +318,7 @@ class HomeController extends Controller
 
             $content
                 ->title('U-LITS - Dashboard')
-                ->description('Hello ' . $u->name . "!");
+                ->description('Hello ' . $u->name . "!" . " - " . Carbon::now()->format('l jS \\of F Y h:i:s A')); 
 
             $content->row(function (Row $row) {
                 $row->column(4, function (Column $column) {
@@ -405,7 +405,6 @@ class HomeController extends Controller
                 $box->solid();
                 $row->column(6, $box);
             });
-
         }
 
 
