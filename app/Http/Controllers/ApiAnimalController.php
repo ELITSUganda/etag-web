@@ -753,8 +753,8 @@ class ApiAnimalController extends Controller
             );
         } else if ($r->type == 'Treatment') {
 
-            $meds =   [];
 
+            $meds =   [];
             if (
                 $r->drugs == null
             ) {
@@ -771,17 +771,45 @@ class ApiAnimalController extends Controller
             }
 
             $meds_text = "";
-
+            $total_worth = 0;
             foreach ($meds as $m) {
-                $meds_text .= "$m->drug_text: $m->quantity units, ";
 
                 $d = DrugStockBatch::find(((int)($m->drug_id)));
                 if ($d == null) {
+                    $meds_text .= "$m->drug_text: $m->quantity units, ";
                     continue;
                 }
+
+                if ($d->category != null) {
+                    $meds_text .= "$m->drug_text: $m->quantity {$d->category->unit}, ";
+                } else {
+                    $meds_text .= "$m->drug_text: $m->quantity units, ";
+                }
+
+                $worth = 0;
+                try {
+                    if ($d->original_quantity > 0) {
+                        if ($m->quantity > 0) {
+                            $worth = ($m->quantity / $d->original_quantity) * $d->selling_price;
+                        }
+                    }
+                } catch (\Throwable $th) {
+                    $worth = 0;
+                }
+                $total_worth += $worth;
+
                 $d->current_quantity = $d->current_quantity - ((float)($m->quantity));
+
+                if ($d->current_quantity < 0) {
+                    $d->current_quantity = 0;
+                }
+                $meds_text .= "Worth: UGX " . number_format($worth) . ", ";
                 $d->save();
             }
+
+            $meds_text = substr($meds_text, 0, -2) . ".";
+            $meds_text .= " Total worth: UGX " . number_format($total_worth) . ".";
+
 
 
             $session = new BatchSession();
@@ -793,6 +821,14 @@ class ApiAnimalController extends Controller
             $session->save();
             $animal_ids_found = [];
             $animal_text_found = [];
+
+            $worth_per_animal = 0;
+            //try and catch
+            try {
+                $worth_per_animal = $total_worth / count($items);
+            } catch (\Throwable $th) {
+                $worth_per_animal = 0;
+            }
 
             foreach ($items as $v) {
                 $an = Animal::where([
@@ -808,13 +844,14 @@ class ApiAnimalController extends Controller
                 $ev->time_stamp =  $date;
                 $ev->administrator_id =  $an->administrator_id;
                 $ev->animal_id =  $an->id;
+                $ev->drug_worth =  $worth_per_animal;
                 $ev->e_id =  $an->e_id;
                 $ev->v_id =  $an->v_id;
                 $ev->type = 'Batch Treatment';
                 $ev->is_batch_import =  0;
                 $ev->detail =  "$meds_text was applied to this animal.";
                 $ev->description =  "$meds_text was applied to this animal.";
-                $ev->short_description =  "Treatment - {$meds_text}.";
+                $ev->short_description =  "Treatment - {$meds_text} Average worth per animal: UGX " . number_format($worth_per_animal) . ".";
                 $ev->session_id =  $session->id;
                 $ev->is_present =  1;
                 $ev->save();
