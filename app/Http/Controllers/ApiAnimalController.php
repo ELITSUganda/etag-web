@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AdminRoleUser;
 use App\Models\Animal;
+use App\Models\ArchivedAnimal;
 use App\Models\BatchSession;
 use App\Models\DrugStockBatch;
 use App\Models\Event;
@@ -257,7 +258,6 @@ class ApiAnimalController extends Controller
         $mgs = "{$animal->type} - {$animal->v_id} has been archived. Reason: {$r->reason}, {$r->details}. Open the App to see more details.";
         $title = "DELETED ANIMAL - {$animal->v_id}";
 
-
         if ($r->reason == null) {
             return Utils::response(['status' => 0, 'message' => "Reason is required.",]);
         }
@@ -267,11 +267,34 @@ class ApiAnimalController extends Controller
         }
 
 
-        Utils::archive_animal([
-            'animal_id' => $animal->id,
-            'reason' => $r->reason,
-            'details' => $r->details,
-        ]);
+
+
+        try {
+            Utils::archive_animal([
+                'animal_id' => $animal->id,
+                'reason' => $r->reason,
+                'details' => $r->details,
+            ]);
+        } catch (\Throwable $e) {
+            try {
+                $ArchivedAnimal = new ArchivedAnimal();
+                $ArchivedAnimal->administrator_id = $u->id;
+                $ArchivedAnimal->type = $animal->type;
+                $ArchivedAnimal->e_id = $animal->e_id;
+                $ArchivedAnimal->v_id = $animal->v_id;
+                $ArchivedAnimal->lhc = $animal->lhc;
+                $ArchivedAnimal->breed = $animal->breed;
+                $ArchivedAnimal->sex = $animal->sex;
+                $ArchivedAnimal->dob = $animal->dob;
+                $ArchivedAnimal->last_event = $r->reason;
+                $ArchivedAnimal->save();
+            } catch (\Throwable $e) {
+            }
+            Event::where([
+                'animal_id' => $animal->id
+            ])->delete();
+            $animal->delete();
+        }
 
         Utils::sendNotification(
             $mgs,
