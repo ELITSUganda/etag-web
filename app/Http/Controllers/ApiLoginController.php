@@ -325,16 +325,21 @@ class ApiLoginController extends Controller
             ]);
         }
 
+
         $phone_number =  Utils::prepare_phone_number($request->phone_number);
 
         $u = Administrator::where('phone_number', $phone_number)->first();
 
-        if ($u->status == 5) {
-            return Utils::response([
-                'status' => 0,
-                'message' => "Account is disabled. Please contact us on +256783204665 to re-activate your account."
-            ]);
+
+        if ($u != null) {
+            if ($u->status == 5) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Account is disabled. Please contact us on +256783204665 to re-activate your account."
+                ]);
+            }
         }
+
 
         if ($u != null) {
 
@@ -344,7 +349,7 @@ class ApiLoginController extends Controller
                     'message' => "Account is disabled. Please contact us on +256783204665 to re-activate your account."
                 ]);
             }
- 
+
             return Utils::response([
                 'status' => 0,
                 'message' => "User with same phone number already exist."

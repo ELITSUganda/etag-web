@@ -1,4 +1,4 @@
-<?php 
+<?php
 use App\Models\Location;
 
 $sub = Location::find($m->sub_county_from);
@@ -83,10 +83,7 @@ if ($sub != null) {
         </tr>
 
     </table>
-    <h2 class="text-center mt-3">INTER-DISTRICT VETERINARY HEALTH CERTIFICATE PERMITTING THE MOVEMENT OF SLAUGHTER
-        ANIMALS (ALL SPECIES)
-        <u>WITHIN UGANDA ONLY</u>
-    </h2>
+
     <p class="text-center my-2 text-secondary"><i>(Issued under the animal disease Act Chapter 38)</i></p>
 
     <p class="mb-2">Permit status.: <b class="">APPROVED</b></p>
