@@ -617,6 +617,9 @@ class ApiResurceController extends Controller
         if (isset($_POST['online_id'])) {
             unset($_POST['online_id']);
         }
+        if (isset($_POST['user_id'])) {
+            unset($_POST['user_id']);
+        }
 
         foreach ($_POST as $key => $value) {
             $obj->$key = $value;
