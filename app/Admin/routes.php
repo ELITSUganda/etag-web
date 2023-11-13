@@ -18,6 +18,7 @@ Route::group([
 
     $router->get('/', 'HomeController@index')->name('home');
     $router->get('/become-farmer', 'HomeController@become_farmer');
+    $router->resource('requests', VendorController::class);
     $router->resource('districts', DistrictController::class);
     $router->resource('sub-counties', SubCountyController::class);
     $router->resource('farms', FarmController::class);
