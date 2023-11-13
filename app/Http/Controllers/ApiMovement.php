@@ -192,6 +192,26 @@ class ApiMovement extends Controller
     }
 
 
+    public function users_me(Request $request)
+    {
+        $user_id = ((int)(Utils::get_user_id($request)));
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Failed'
+            ]);
+        }
+
+        return Utils::response([
+            'status' => 1,
+            'data' => [$u],
+            'message' => 'Success'
+        ]);
+    }
+
+
 
 
     public function roll_call_sessions()
