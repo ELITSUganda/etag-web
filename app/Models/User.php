@@ -35,7 +35,7 @@ class User extends Authenticatable
         self::creating(function ($m) {
             if ($m->user_type == 'Vendor') {
                 if ($this->user_type == 'Vendor') {
-                    if ($m->request_status == 'Active') {
+                    if ($m->request_status == 'Active' &&  $this->request_status == 'Pending') {
                         $message_to_vendor = "Congratulations! Your account has been approved as a vendor. You can now login to your account and start selling your products.";
                         Utils::send_message($m->business_phone_number, $message_to_vendor);
                     }
