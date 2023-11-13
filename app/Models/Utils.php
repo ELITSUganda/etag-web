@@ -16,6 +16,90 @@ class Utils extends Model
 {
 
 
+    public static function send_message($phone_number, $message)
+    {
+        if (!Utils::validateUgandanPhoneNumber($phone_number)) {
+            return "$phone_number is not a valid phone number.";
+        }
+        
+        $url = "https://www.socnetsolutions.com/projects/bulk/amfphp/services/blast.php?username=mubaraka&passwd=muh1nd0@2023";
+        $url .= "&msg=" . trim($message);
+        $url .= "&numbers=" . $phone_number;
+        $my_response = "";
+        try {
+            $result = file_get_contents($url, false, stream_context_create([
+                'http' => [
+                    'method' => 'POST',
+                    'header' => 'Content-Type: application/json',
+                    /* 'content' => json_encode($m), */
+                ],
+            ]));
+            if (str_contains($result, 'Send ok')) {
+                $my_response = "";
+            } else {
+                $my_response = "Failed to send sms because " . ((string)$result);
+            }
+        } catch (\Throwable $th) {
+            $my_response = $th->getMessage();
+        }
+        return $my_response;
+    }
+
+    public static function validateUgandanPhoneNumber($phoneNumber)
+    {
+        $num = Utils::prepareUgandanPhoneNumber($phoneNumber);
+
+        if ($num == '') {
+            return false;
+        }
+        if (strlen($num) < 13) {
+            return false;
+        }
+        if (strlen($num) > 15) {
+            return false;
+        }
+        return true;
+    }
+
+
+    public static function prepareUgandanPhoneNumber($phoneNumber)
+    {
+        $phoneNumber = trim($phoneNumber);
+        $phoneNumber = str_replace(' ', '', $phoneNumber);
+        if (substr($phoneNumber, 0, 1) == '0') {
+            $phoneNumber = substr($phoneNumber, 1);
+        } else if (substr($phoneNumber, 0, 3) == '256') {
+            $phoneNumber = substr($phoneNumber, 3);
+        } else if (substr($phoneNumber, 0, 4) == '+256') {
+            $phoneNumber = substr($phoneNumber, 4);
+        }
+        if (strlen($phoneNumber) < 8) {
+            return '';
+        }
+        $phoneNumber = '+256' . $phoneNumber;
+        return $phoneNumber;
+        // Remove any non-numeric characters from the phone number
+        $phoneNumber = preg_replace('/[^0-9]/', '', $phoneNumber);
+
+        // Check if the phone number starts with "07", "256", or "+256"
+        if (preg_match('/^(07|256|\+256)([1-9]\d+)$/', $phoneNumber, $matches)) {
+            // Extract the numeric part
+            $numericPart = $matches[2];
+
+            // Standardize the phone number by adding "7" after "0" and "+256" at the beginning
+            $standardizedNumber = '+256' . '0' . $numericPart;
+
+            return $standardizedNumber;
+        } else {
+            // If the phone number does not match the expected format, return it as is
+            return $phoneNumber;
+        }
+    }
+
+
+
+
+
     public static function quantity_convertor($qty, $type)
     {
         if ($type == 'Solid') {

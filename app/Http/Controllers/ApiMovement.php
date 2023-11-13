@@ -178,6 +178,11 @@ class ApiMovement extends Controller
                 $hasSservice->save();
             }
             $msg = "Submitted successfully.";
+            $sms_to_admin = "New vendor registration request from {$u->first_name} {$u->last_name} - {$u->phone_number}. Login to the system to review.";
+            $sms_to_vendor = "Your vendor registration request has been submitted successfully. We will get back to you soon.";
+            Utils::send_message('+256783204665', $sms_to_admin);
+            Utils::send_message($u->business_phone_number, $sms_to_vendor);
+
             return $this->success(null, $msg, $code);
         } catch (\Throwable $th) {
             $msg = $th->getMessage();
@@ -185,7 +190,6 @@ class ApiMovement extends Controller
             return $this->error($msg);
         }
     }
-
 
 
 
