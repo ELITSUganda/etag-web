@@ -156,7 +156,7 @@ class ApiMovement extends Controller
             $images = Utils::upload_images_2($_FILES, false);
         }
         if (!empty($images)) {
-            $u->business_logo = 'images/' . $images[0];
+            $u->business_logo = 'storage/images/' . $images[0];
         }
 
         $code = 1;

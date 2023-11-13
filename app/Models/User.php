@@ -27,12 +27,14 @@ class User extends Authenticatable
     ];
 
 
-
-
-
-
-
-
+    //getter for business_cover_photo
+  /*   public function getBusinessCoverPhotoAttribute($x)
+    {
+        if ($x == null) {
+            return asset('images/placeholder.png');
+        }
+        return asset('storage/' . $x);
+    } */
     /**
      * The attributes that should be hidden for serialization.
      *

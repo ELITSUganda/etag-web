@@ -178,7 +178,7 @@ class VendorController extends AdminController
         $form->text('business_whatsapp', __('Business whatsapp'));
         $form->text('business_email', __('Business email'));
         $form->image('business_logo', __('Business logo'));
-        $form->text('business_cover_photo', __('Business cover photo'));
+        $form->image('business_cover_photo', __('Business cover photo'));
         $form->text('business_cover_details', __('Business cover details'));
         $form->radioCard('user_type', __('User type'))->default('Farmer')
             ->options(
