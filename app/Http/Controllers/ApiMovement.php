@@ -20,6 +20,8 @@ use App\Models\Trip;
 use App\Models\TripRecord;
 use App\Models\User;
 use App\Models\Utils;
+use App\Models\VetHasService;
+use App\Traits\ApiResponser;
 use Carbon\Carbon;
 use COM;
 use Encore\Admin\Auth\Database\Administrator;
@@ -27,6 +29,167 @@ use Illuminate\Http\Request;
 
 class ApiMovement extends Controller
 {
+
+    use ApiResponser;
+
+    public function become_vendor(Request $request)
+    {
+        $user_id = ((int)(Utils::get_user_id($request)));
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Failed'
+            ]);
+        }
+
+        if (
+            $request->first_name == null ||
+            strlen($request->first_name) < 2
+        ) {
+            return $this->error('First name is missing.');
+        }
+
+        //validate all
+        if (
+            $request->last_name == null ||
+            strlen($request->last_name) < 2
+        ) {
+            return $this->error('Last name is missing.');
+        }
+
+        //validate all
+        if (
+            $request->business_name == null ||
+            strlen($request->business_name) < 2
+        ) {
+            return $this->error('Business name is missing.');
+        }
+
+        if (
+            $request->business_license_number == null ||
+            strlen($request->business_license_number) < 2
+        ) {
+            return $this->error('Business license number is missing.');
+        }
+
+        if (
+            $request->business_license_issue_authority == null ||
+            strlen($request->business_license_issue_authority) < 2
+        ) {
+            return $this->error('Business license issue authority is missing.');
+        }
+
+        if (
+            $request->business_license_issue_date == null ||
+            strlen($request->business_license_issue_date) < 2
+        ) {
+            return $this->error('Business license issue date is missing.');
+        }
+
+        if (
+            $request->business_license_validity == null ||
+            strlen($request->business_license_validity) < 2
+        ) {
+            return $this->error('Business license validity is missing.');
+        }
+
+        if (
+            $request->business_address == null ||
+            strlen($request->business_address) < 2
+        ) {
+            return $this->error('Business address is missing.');
+        }
+
+        if (
+            $request->business_phone_number == null ||
+            strlen($request->business_phone_number) < 2
+        ) {
+            return $this->error('Business phone number is missing.');
+        }
+
+        if (
+            $request->business_whatsapp == null ||
+            strlen($request->business_whatsapp) < 2
+        ) {
+            return $this->error('Business whatsapp is missing.');
+        }
+
+        if (
+            $request->business_email == null ||
+            strlen($request->business_email) < 2
+        ) {
+            return $this->error('Business email is missing.');
+        }
+
+        $msg = "";
+        $u->first_name = $request->first_name;
+        $u->last_name = $request->last_name;
+        $u->nin = $request->campus_id;
+        $u->business_name = $request->business_name;
+        $u->business_license_number = $request->business_license_number;
+        $u->business_license_issue_authority = $request->business_license_issue_authority;
+        $u->business_license_issue_date = $request->business_license_issue_date;
+        $u->business_license_validity = $request->business_license_validity;
+        $u->business_address = $request->business_address;
+        $u->business_phone_number = $request->business_phone_number;
+        $u->business_whatsapp = $request->business_whatsapp;
+        $u->business_email = $request->business_email;
+        $u->business_cover_photo = $request->business_cover_photo;
+        $u->business_cover_details = $request->business_cover_details;
+        $u->status = 1;
+
+        $vet_services_ids = [];
+        if (
+            ($request->vet_services_ids != null) &&
+            (strlen($request->vet_services_ids) > 2)
+        ) {
+            try {
+                $vet_services_ids = json_decode($request->vet_services_ids);
+            } catch (\Throwable $th) {
+                $vet_services_ids = [];
+            }
+        }
+
+        $images = [];
+        if (!empty($_FILES)) {
+            $images = Utils::upload_images_2($_FILES, false);
+        }
+        if (!empty($images)) {
+            $u->business_logo = 'images/' . $images[0];
+        }
+
+        $code = 1;
+        try {
+            $u->save();
+            foreach ($vet_services_ids as $key => $val) {
+                $hasSservice = VetHasService::where([
+                    'administrator_id' => $u->id,
+                    'vet_service_category_id' => $val,
+                ])->first();
+                if ($hasSservice != null) {
+                    continue;
+                }
+                $hasSservice = new VetHasService();
+                $hasSservice->administrator_id = $u->id;
+                $hasSservice->vet_id = $u->id;
+                $hasSservice->vet_service_category_id = $val;
+                $hasSservice->save();
+            }
+            $msg = "Submitted successfully.";
+            return $this->success(null, $msg, $code);
+        } catch (\Throwable $th) {
+            $msg = $th->getMessage();
+            $code = 0;
+            return $this->error($msg);
+        }
+    }
+
+
+
+
+
     public function roll_call_sessions()
     {
         $administrator_id = Utils::get_user_id($request);

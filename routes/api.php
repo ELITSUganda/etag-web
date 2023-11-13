@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Route;
 
 
 
+Route::POST('become-vendor', [ApiMovement::class, 'become_vendor']);
 Route::get('drug-categories', [ApiMovement::class, 'drug_categories']);
 Route::post('drug-categories', [ApiMovement::class, 'drug_categories_create']);
 Route::get('api/Movement', [ApiMovement::class, 'index']);
