@@ -138,8 +138,7 @@ class ApiMovement extends Controller
         $u->business_email = $request->business_email;
         $u->business_cover_photo = $request->business_cover_photo;
         $u->business_cover_details = $request->business_cover_details;
-        $u->request_status = $request->request_status;
-        
+        $u->request_status = "Pending";
         $vet_services_ids = [];
         if (
             ($request->vet_services_ids != null) &&
