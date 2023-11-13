@@ -27,8 +27,25 @@ class User extends Authenticatable
     ];
 
 
+    //boot
+    public static function boot()
+    {
+        parent::boot();
+
+        self::creating(function ($m) {
+            if ($m->user_type == 'Vendor') {
+                if ($this->user_type == 'Vendor') {
+                    if ($m->request_status == 'Active') {
+                        $message_to_vendor = "Congratulations! Your account has been approved as a vendor. You can now login to your account and start selling your products.";
+                        Utils::send_message($m->business_phone_number, $message_to_vendor);
+                    }
+                }
+            }
+        });
+    }
+
     //getter for business_cover_photo
-  /*   public function getBusinessCoverPhotoAttribute($x)
+    /*   public function getBusinessCoverPhotoAttribute($x)
     {
         if ($x == null) {
             return asset('images/placeholder.png');
