@@ -63,7 +63,7 @@ class ApiMovement extends Controller
 
         //validate all
         if (
-            $r->source_name == null ||
+            $r->source_text == null ||
             strlen($r->source_name) < 2
         ) {
             return $this->error('Source is missing.');
@@ -114,8 +114,9 @@ class ApiMovement extends Controller
             $images = Utils::upload_images_2($_FILES, false);
         }
         if (!empty($images)) {
-            $u->image = 'storage/images/' . $images[0];
+            $p->image = 'storage/images/' . $images[0];
         }
+        
 
         $code = 1;
         try {
