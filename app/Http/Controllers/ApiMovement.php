@@ -89,7 +89,7 @@ class ApiMovement extends Controller
         $msg = "";
         $p->name = $r->name;
         $p->drug_category_id = $r->drug_category_id;
-        $p->administrator_id = $r->administrator_id;
+        $p->administrator_id = $u->id;
         $p->source_id = $r->source_id;
         $p->source_name = $r->source_text;
         $p->manufacturer = $r->manufacturer;
@@ -116,7 +116,7 @@ class ApiMovement extends Controller
         if (!empty($images)) {
             $p->image = 'storage/images/' . $images[0];
         }
-        
+
 
         $code = 1;
         try {
