@@ -15,6 +15,7 @@ use App\Models\Location;
 use App\Models\Movement;
 use App\Models\MovementHasMovementAnimal;
 use App\Models\MovementRoute;
+use App\Models\Product;
 use App\Models\SlaughterHouse;
 use App\Models\Trip;
 use App\Models\TripRecord;
@@ -31,6 +32,103 @@ class ApiMovement extends Controller
 {
 
     use ApiResponser;
+
+    public function drug_product_create(Request $r)
+    {
+        $user_id = ((int)(Utils::get_user_id($r)));
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Failed'
+            ]);
+        }
+
+        //validate all
+        if (
+            $r->name == null ||
+            strlen($r->name) < 2
+        ) {
+            return $this->error('Name is missing.');
+        }
+
+        //validate all
+        if (
+            $r->drug_category_id == null ||
+            strlen($r->drug_category_id) < 2
+        ) {
+            return $this->error('Drug category is missing.');
+        }
+
+        //validate all
+        if (
+            $r->source_text == null ||
+            strlen($r->source_text) < 2
+        ) {
+            return $this->error('Source text is missing.');
+        }
+
+        if ($r->drug_state != 'Solid') {
+            if ($r->drug_state != 'Liquid') {
+                return $this->error('Invalid drug state.');
+            }
+        }
+
+        if (
+            $r->drug_packaging_type == null ||
+            strlen($r->drug_packaging_type) < 2
+        ) {
+            return $this->error('Drug packaging type is missing.');
+        }
+
+
+
+        $p = new Product();
+
+        $msg = "";
+        $p->name = $r->name;
+        $p->drug_category_id = $r->drug_category_id;
+        $p->administrator_id = $r->administrator_id;
+        $p->source_id = $r->source_id;
+        $p->source_name = $r->source_text;
+        $p->manufacturer = $r->manufacturer;
+        $p->batch_number = $r->batch_number;
+        $p->expiry_date = $r->expiry_date;
+        $p->original_quantity = $r->original_quantity;
+        $p->current_quantity = $r->current_quantity;
+        $p->drug_state = $r->drug_state;
+        $p->drug_packaging_unit_quantity = $r->drug_packaging_unit_quantity;
+        $p->drug_packaging_type = $r->drug_packaging_type;
+        $p->drug_packaging_type_pieces = $r->drug_packaging_type_pieces;
+        $p->original_quantity_temp = $r->original_quantity_temp;
+        $p->source_type = $r->source_type;
+        $p->source_name = $r->source_name;
+        $p->source_contact = $r->source_contact;
+        $p->ingredients = $r->ingredients;
+        $p->other_photos = $r->other_photos;
+        $p->details = $r->details;
+
+        $images = [];
+        if (!empty($_FILES)) {
+            $images = Utils::upload_images_2($_FILES, false);
+        }
+        if (!empty($images)) {
+            $u->image = 'storage/images/' . $images[0];
+        }
+
+        $code = 1;
+        try {
+            $p->save();
+            $msg = "Submitted successfully.";
+            return $this->success(null, $msg, $code);
+        } catch (\Throwable $th) {
+            $msg = $th->getMessage();
+            $code = 0;
+            return $this->error($msg);
+        }
+    }
+
 
     public function become_vendor(Request $request)
     {
