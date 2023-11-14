@@ -63,7 +63,7 @@ class ApiMovement extends Controller
 
         //validate all
         if (
-            $r->source_text == null ||
+            $r->source_name == null ||
             strlen($r->source_name) < 2
         ) {
             return $this->error('Source is missing.');
