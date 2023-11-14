@@ -64,9 +64,9 @@ class ApiMovement extends Controller
         //validate all
         if (
             $r->source_text == null ||
-            strlen($r->source_text) < 2
+            strlen($r->source_name) < 2
         ) {
-            return $this->error('Source text is missing.');
+            return $this->error('Source is missing.');
         }
 
         if ($r->drug_state != 'Solid') {
