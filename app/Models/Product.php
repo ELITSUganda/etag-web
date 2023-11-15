@@ -38,7 +38,7 @@ class Product extends Model
         if ($drug_category == null) {
             return 'N/A';
         }
-        return $drug_category->name;
+        return $drug_category->name . ".";
     }
 
     //getter for administrator_text
@@ -48,7 +48,7 @@ class Product extends Model
         if ($admin == null) {
             return 'N/A';
         }
-        return $admin->business_name;
+        return $admin->business_name . "-" . $admin->name . ".";
     }
 
     protected $casts = [
