@@ -81,6 +81,12 @@ class ApiMovement extends Controller
         ) {
             return $this->error('Drug packaging type is missing.');
         }
+        if (
+            $r->price == null ||
+            strlen($r->price) < 1
+        ) {
+            return $this->error('Price is missing.');
+        }
 
 
 
@@ -108,6 +114,7 @@ class ApiMovement extends Controller
         $p->ingredients = $r->ingredients;
         $p->other_photos = $r->other_photos;
         $p->details = $r->details;
+        $p->price = $r->price;
 
         $images = [];
         if (!empty($_FILES)) {
