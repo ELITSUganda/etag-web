@@ -50,6 +50,9 @@ class Product extends Model
         }
         return $admin->business_name . "-" . $admin->name . ".";
     }
+    //append the drug_category_text and administrator_text to the model
+    protected $appends = ['drug_category_text', 'administrator_text'];
+
 
     protected $casts = [
         'data' => 'json',
