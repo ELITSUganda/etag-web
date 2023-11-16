@@ -11,6 +11,7 @@ use App\Models\Utils;
 use App\Models\Image;
 use App\Models\Product;
 use App\Models\ProductOrder;
+use App\Models\ProductOrderItem;
 use App\Models\Transaction;
 use App\Models\Vet;
 use Carbon\Carbon;
@@ -162,8 +163,6 @@ class ApiProductController extends Controller
         }
 
 
-        die("good to go!");
-
         $administrator_id = ((int) (Utils::get_user_id($r)));
         $u = Administrator::find($administrator_id);
         if ($u == null) {
@@ -173,39 +172,84 @@ class ApiProductController extends Controller
             ]);
         }
 
-        $p = new ProductOrder();
-        $p->status = 'Pending';
-        $p->name = $r->name;
-        $p->phone_number = $r->phone_number;
-        $p->phone_number_2 = $r->phone_number_2;
-        $p->address = $r->address;
-        $p->notes = $r->notes;
-/* 	
-status
-customer_id	
-product_data	
-customer_data	
-address	
-note		
-latitude	
-longitude	
-phone_number_2	
-order_is_paid	
-total_price	
-type
-*/
+        $order = new ProductOrder();
+        $order->status = 'Pending';
+        $order->name = $r->name;
+        $order->phone_number = $r->phone_number;
+        $order->phone_number_2 = $r->phone_number_2;
+        $order->address = $r->address;
+        $order->note = $r->notes;
+        $order->customer_id = $u->id;
+        $order->latitude = $r->latitude;
+        $order->longitude = $r->longitude;
+        $order->order_is_paid = 0;
+        $order->type = 'Drugs';
 
-        if ($p->save()) {
-            return Utils::response([
-                'status' => 1,
-                'data' => $p,
-                'message' => "Order submitted successfully."
-            ]);
-        } else {
+        $total = 0;
+        $items = json_decode($r->items);
+        if ($r->items != null) {
+            try {
+                $temp = json_decode($r->items);
+                if (is_array($temp)) {
+                    foreach ($temp as $key => $temp_item) {
+                        $pro = Product::find($temp_item->product_id);
+                        if ($pro == null) {
+                            die("Product not found");
+                            continue;
+                        }
+                        $item = new ProductOrderItem();
+                        $item->product_id = $pro->id;
+                        $item->quantity = $temp_item->product_quantity;
+                        $item->price = $pro->price;
+                        $item->total = $pro->price * $temp_item->product_quantity;
+                        $item->product_name = $pro->name;
+                        $item->product_photo = $pro->image;
+                        $total += $item->total;
+                        $items[] = $item;
+                    }
+                } else {
+                    $items = [];
+                }
+            } catch (Exception $e) {
+                $items = [];
+            }
+        }
+        if (empty($items)) {
             return Utils::response([
                 'status' => 0,
-                'data' => null,
-                'message' => "Failed to submit order. Please try gain."
+                'message' => "You must add at least one product in your cart."
+            ]);
+        }
+
+        $order->total_price = $total;
+
+
+        try {
+            $order->save();
+            foreach ($items as $key => $temp_item) {
+                $item->product_order_id = $order->id;
+                $item->save();
+            }
+            //$order->generate_payment_link();
+            //die("done");
+
+            $sms_to_send = "Hello " . $order->name . ", your order has been received. We will contact you soon. Thank you.";
+            Utils::send_message($order->phone_number, $sms_to_send);
+            Utils::sendNotification($order->phone_number, $sms_to_send);
+            Utils::sendNotification(
+                $sms_to_send,
+                $order->customer_id,
+                $headings =  "Order Received.",
+            );
+
+            return Utils::response([
+                'status' => 1,
+                'message' => "Order submitted successfully."
+            ]);
+        } catch (\Throwable $th) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Failed because " . $th->getMessage()
             ]);
         }
     }

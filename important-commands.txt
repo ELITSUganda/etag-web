@@ -104,6 +104,7 @@ php artisan admin:make TripController --model=App\Models\Trip
 php artisan admin:make WholesaleOrderItemController --model=App\Models\WholesaleOrderItem
 
 
+php artisan make:model ProductOrderItem -m
 php artisan make:model MovementRoute
 php artisan make:model WholesaleOrder
 php artisan make:model CheckPoint
