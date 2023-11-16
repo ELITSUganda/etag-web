@@ -144,47 +144,16 @@ class ApiProductController extends Controller
             'message' => "Request submitted successfully."
         ]);
     }
-    /* 
-created_at	
-updated_at	
-administrator_id	
-district_id	
-sub_county_id	
-parish_id	
-status	
-type	
-e_id	
-v_id	
-lhc	
-breed	
-sex	
-dob	
-color	
-farm_id	
-fmd	
-trader	
-destination	
-destination_slaughter_house	
-destination_farm	
-details	
-deleted_at	
-for_sale	
-price	
-weight	
-decline_reason	
-	
-	
-address
-*/
+
+
     public function drugs_order_create(Request $r)
     {
 
         if (
-            (!isset($r->product_id)) ||
             (!isset($r->name)) ||
             (!isset($r->phone_number)) ||
             (!isset($r->address)) ||
-            (!isset($r->note))
+            (!isset($r->items))
         ) {
             return Utils::response([
                 'status' => 0,
@@ -192,6 +161,8 @@ address
             ]);
         }
 
+
+        die("good to go!");
 
         $administrator_id = ((int) (Utils::get_user_id($r)));
         $u = Administrator::find($administrator_id);
@@ -202,28 +173,28 @@ address
             ]);
         }
 
-        $drug = DrugForSale::find(((int)($r->product_id)));
-        if ($drug == null) {
-            return Utils::response([
-                'status' => 0,
-                'message' => "Drugs not found."
-            ]);
-        }
-
-
         $p = new ProductOrder();
-        $p->status = 1;
-        $p->customer_id = $u->id;
-        $p->address = $r->id;
-        $p->note = $r->note;
+        $p->status = 'Pending';
         $p->name = $r->name;
         $p->phone_number = $r->phone_number;
-        $p->product_id = $drug->id;
-        $p->latitude = $r->latitude;
-        $p->longitude = $r->longitude;
-        $p->type = 'Drug';
-        $p->product_data = json_encode($drug);
-        $p->customer_data = json_encode($u);
+        $p->phone_number_2 = $r->phone_number_2;
+        $p->address = $r->address;
+        $p->notes = $r->notes;
+/* 	
+status
+customer_id	
+product_data	
+customer_data	
+address	
+note		
+latitude	
+longitude	
+phone_number_2	
+order_is_paid	
+total_price	
+type
+*/
+
         if ($p->save()) {
             return Utils::response([
                 'status' => 1,
