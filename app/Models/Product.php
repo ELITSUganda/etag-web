@@ -38,7 +38,7 @@ class Product extends Model
         if ($drug_category == null) {
             return 'N/A';
         }
-        return $drug_category->name . ".";
+        return $drug_category->name;
     }
 
     //getter for administrator_text
@@ -48,7 +48,7 @@ class Product extends Model
         if ($admin == null) {
             return 'N/A';
         }
-        return $admin->business_name . "-" . $admin->name . ".";
+        return $admin->business_name;
     }
     //append the drug_category_text and administrator_text to the model
     protected $appends = ['drug_category_text', 'administrator_text'];
