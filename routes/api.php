@@ -52,6 +52,7 @@ Route::get('product-drugs', [ApiProductController::class, 'product_drugs_list'])
 Route::POST('product-order', [ApiProductController::class, 'product_order_create']);
 Route::POST('drugs-order', [ApiProductController::class, 'drugs_order_create']);
 Route::get('order', [ApiProductController::class, 'orders']);
+Route::get('orders', [ApiProductController::class, 'get_orders']);
 
 Route::get('process-pending-images', [ApiProductController::class, 'process_pending_images']);
 Route::get('milk', [ApiProductController::class, 'milk']);

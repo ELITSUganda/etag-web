@@ -24,6 +24,27 @@ class ApiProductController extends Controller
 
 
 
+    public function get_orders(Request $r)
+    {
+        $items = [];
+        $administrator_id = ((int) (Utils::get_user_id($r)));
+        $u = Administrator::find($administrator_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found."
+            ]);
+        }
+        $orders = ProductOrder::where([
+            'customer_id' => $u->id
+        ])->get();
+        return Utils::response([
+            'status' => 1,
+            'data' => $orders,
+            'message' => "Success."
+        ]);
+    }
+
     public function orders(Request $r)
     {
 

@@ -10,6 +10,14 @@ class ProductOrder extends Model
 {
     use HasFactory;
 
+    //getter for product_data 
+    public function getProductDataAttribute()
+    {
+        $items = ProductOrderItem::where('product_order_id', $this->id)->get();
+        return json_encode($items);
+    } 
+ 
+
     public function generate_payment_link()
     {
 
