@@ -302,6 +302,7 @@ class ApiProductController extends Controller
         }
 
         try {
+            $order->order_total = 500;
             $payment_link = $order->generate_payment_link();
             if (strlen($payment_link) < 5) {
                 return Utils::response([
