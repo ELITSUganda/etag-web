@@ -344,13 +344,7 @@ class ApiProductController extends Controller
                 'message' => "Order not found."
             ]);
         }
-
-        if ($order->order_is_paid == 1) {
-            return Utils::response([
-                'status' => 0,
-                'message' => "Order is already paid."
-            ]);
-        }
+ 
 
         try {
 
