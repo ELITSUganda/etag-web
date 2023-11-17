@@ -34,6 +34,112 @@ Route::get('/', function () {
     die();
 });
 
+Route::get('/process', function () {
+
+    //set_time_limit(0);
+    set_time_limit(-1);
+    //ini_set('memory_limit', '1024M');
+    ini_set('memory_limit', '-1');
+
+    $folderPath = base_path('public/storage/images/');
+
+    $biggest = 0;
+    $tot = 0;
+    // Check if the folder exists
+    if (is_dir($folderPath)) {
+
+        // Get the list of items in the folder
+        $items = scandir($folderPath);
+
+        $i = 0;
+
+        // Loop through the items
+        foreach ($items as $item) {
+
+
+            // Exclude the current directory (.) and parent directory (..)
+            if ($item != '.' && $item != '..') {
+
+
+                $ext = pathinfo($item, PATHINFO_EXTENSION);
+                if ($ext == null) {
+                    return null;
+                }
+                $ext = strtolower($ext);
+
+
+                if (!in_array($ext, [
+                    'jpg',
+                    'jpeg',
+                    'png',
+                    'gif',
+                ])) {
+                    echo "not image";
+                    continue;
+                }
+                $target = $folderPath . "/" . $item;
+                $target_file_size = filesize($target);
+
+                if ($target_file_size > $biggest) {
+                    $biggest = $target_file_size;
+                }
+                $tot += $target_file_size;
+
+
+                //echo $i.". ".$item . "<br>";
+                $i++;
+                continue;
+
+                $i++;
+                print_r($i . "<br>");
+
+
+
+                $fileSize = filesize($folderPath . "/" . $item);
+                $fileSize = $fileSize / (1024 * 1024);
+                $fileSize = round($fileSize, 2);
+                $fileSize = $fileSize . " MB";
+                $url = "http://localhost:8888/ham/public/temp/pics-1/" . $item;
+
+                $source = $folderPath . "/" . $item;
+                $target = $folderPath . "/thumb/" . $item;
+                Utils::create_thumbail([
+                    'source' => $source,
+                    'target' => $target
+                ]);
+
+                echo "<img src='$url' alt='$item' width='550'/>";
+                $target_file_size = filesize($target);
+                $target_file_size = $target_file_size / (1024 * 1024);
+                $target_file_size = round($target_file_size, 2);
+                $target_file_size = $target_file_size . " MB";
+                $url_2 = "http://localhost:8888/ham/public/temp/pics-1/thumb/" . $item;
+                echo "<img src='$url_2' alt='$item' width='550' />";
+
+
+                // Print the item's name
+                echo "<b>" . $fileSize . "<==>" . $target_file_size . "<b><br>";
+            }
+        }
+    } else {
+        echo "The specified folder does not exist.";
+    }
+
+    $biggest = $biggest / (1024 * 1024);
+    $biggest = round($biggest, 2);
+    $biggest = $biggest . " MB";
+    $tot = $tot / (1024 * 1024);
+    $tot_gb = $tot / 1024;
+    $tot = round($tot, 2);
+    echo "<hr>";
+    $tot = $tot . " MB<br>";
+    $tot = $tot_gb . " GB<br>";
+    echo "Biggest: " . $biggest . "<br>";
+    echo "Total: " . $tot . "<br>";
+    die("done");
+});
+
+
 Route::get('/gen', function () {
     die(Gen::find($_GET['id'])->do_get());
 })->name("gen");

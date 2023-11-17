@@ -1,2 +1,6 @@
 /.env
 .env
+/thumbs
+/public/thumbs
+/public/thumbs/*
+/public/thumbs/
