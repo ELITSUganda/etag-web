@@ -23,7 +23,7 @@ class ProductOrder extends Model
 
         $data['tx_ref'] = 'ULITS-' . $this->id;
         $data['voucher'] = 'ULITS-' . $this->id;
-        $data['amount'] = $this->order_total;
+        $data['amount'] = $this->total_price;
         $data['currency'] = 'UGX';
         $data['network'] = 'MTN';
         $data['email'] = 'mubahood360@gmail.com';
