@@ -76,4 +76,59 @@ class ProductOrder extends Model
         }
         return $payment_link;
     }
+
+
+    public function is_order_paid()
+    {
+
+        //$tx_ref = 'ULITS-' . $this->id;
+        $tx_ref = 'ULITS-28';
+
+        // Create a new Guzzle client instance
+        $client = new Client();
+
+        // Specify the URL you want to send the request to
+        $url = 'https://api.flutterwave.com/v3/transactions/verify_by_reference?tx_ref=' . $tx_ref;
+
+        // Specify the headers you want to include in the request
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Authorization' => 'Bearer FLWSECK-4131a12ce00186825da8070013bef461-18bda11a003vt-X',
+            // Add any other headers as needed
+        ];
+
+
+        // Make the HTTP POST request with the specified parameters
+        $response = $client->get($url, [
+            'headers' => $headers,
+        ]);
+
+        // Get the response body as a string
+        $responseBody = $response->getBody()->getContents();
+
+        // You can now work with the response as needed
+        // For example, you might decode the JSON response:
+        $parsedResponse = json_decode($responseBody, true);
+
+        if ($parsedResponse == null) {
+            throw new \Exception('Error Processing Request', 1);
+        }
+
+        $status = 0;
+        $payment_link = '';
+        if (isset($parsedResponse['status'])) {
+            $status = $parsedResponse['status'];
+            if ($status == 'success') {
+                if (isset($parsedResponse['data'])) {
+                    if (isset($parsedResponse['data']['status'])) {
+                        $status = $parsedResponse['data']['status'];
+                        if ($status == 'successful') {
+                            $status = 1;
+                        }
+                    }
+                }
+            }
+        }
+        return $status;
+    }
 }

@@ -325,6 +325,62 @@ class ApiProductController extends Controller
         }
     }
 
+
+
+    public function product_order_verify(Request $r)
+    {
+        if (
+            (!isset($r->order_id))
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Order ID is required."
+            ]);
+        }
+        $order  = ProductOrder::find($r->order_id);
+        if ($order == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Order not found."
+            ]);
+        }
+
+        if ($order->order_is_paid == 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Order is already paid."
+            ]);
+        }
+
+        try {
+
+            $is_piad = $order->is_order_paid();
+            if ($is_piad == 1) {
+                $order->order_is_paid = 1;
+                $order->save();
+                return Utils::response([
+                    'status' => 1,
+                    'message' => "Order is paid successfully.",
+                    'data' => $order
+                ]);
+            } else {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Order is not paid yet.",
+                    'data' => $order
+                ]);
+            }
+        } catch (\Throwable $th) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Failed because " . $th->getMessage()
+            ]);
+        }
+    }
+
+
+
+
     public function product_order_create(Request $r)
     {
         if (
