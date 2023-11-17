@@ -276,6 +276,54 @@ class ApiProductController extends Controller
     }
 
 
+    public function product_order_payment_link_create(Request $r)
+    {
+        if (
+            (!isset($r->order_id))
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Order ID is required."
+            ]);
+        }
+        $order  = ProductOrder::find($r->order_id);
+        if ($order == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Order not found."
+            ]);
+        }
+
+        if ($order->order_is_paid == 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Order is already paid."
+            ]);
+        }
+
+        try {
+            $payment_link = $order->generate_payment_link();
+            if (strlen($payment_link) < 5) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Failed to generate payment link."
+                ]);
+            }
+            $order->payment_link = $payment_link;
+            $order->save();
+            return Utils::response([
+                'status' => 1,
+                'message' => "Payment link generated successfully.",
+                'data' => $order
+            ]);
+        } catch (\Throwable $th) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Failed because " . $th->getMessage()
+            ]);
+        }
+    }
+
     public function product_order_create(Request $r)
     {
         if (

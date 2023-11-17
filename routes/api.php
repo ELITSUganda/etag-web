@@ -50,6 +50,7 @@ Route::POST('product-upload', [ApiProductController::class, 'product_upload']);
 Route::POST('product-drugs-upload', [ApiProductController::class, 'product_drugs_upload']);
 Route::get('product-drugs', [ApiProductController::class, 'product_drugs_list']);
 Route::POST('product-order', [ApiProductController::class, 'product_order_create']);
+Route::POST('product-order-payment-link-create', [ApiProductController::class, 'product_order_payment_link_create']);
 Route::POST('drugs-order', [ApiProductController::class, 'drugs_order_create']);
 Route::get('order', [ApiProductController::class, 'orders']);
 Route::get('orders', [ApiProductController::class, 'get_orders']);

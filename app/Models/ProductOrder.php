@@ -15,14 +15,14 @@ class ProductOrder extends Model
     {
         $items = ProductOrderItem::where('product_order_id', $this->id)->get();
         return json_encode($items);
-    } 
- 
+    }
+
 
     public function generate_payment_link()
     {
 
-        $data['tx_ref'] = 'ULITS-'.$this->id;
-        $data['voucher'] = 'ULITS-'.$this->id;
+        $data['tx_ref'] = 'ULITS-' . $this->id;
+        $data['voucher'] = 'ULITS-' . $this->id;
         $data['amount'] = $this->total;
         $data['currency'] = 'UGX';
         $data['network'] = 'MTN';
@@ -32,7 +32,7 @@ class ProductOrder extends Model
         $data['client_ip'] = '154.123.220.1';
         $data['device_fingerprint'] = '62wd23423rq324323qew1';
         $data['meta'] = json_encode($this);
-    
+
 
         // Create a new Guzzle client instance
         $client = new Client();
@@ -63,13 +63,17 @@ class ProductOrder extends Model
         // For example, you might decode the JSON response:
         $parsedResponse = json_decode($responseBody, true);
 
-        // Do something with $parsedResponse
-
-        print_r($parsedResponse);
-        die();
-
-        
-
-
+        if ($parsedResponse == null) {
+            throw new \Exception('Error Processing Request', 1);
+        }
+        $payment_link = '';
+        if (isset($parsedResponse['meta'])) {
+            if (isset($parsedResponse['meta']['authorization'])) {
+                if (isset($parsedResponse['meta']['authorization']['redirect'])) {
+                    $payment_link = $parsedResponse['meta']['authorization']['redirect'];
+                }
+            }
+        }
+        return $payment_link;
     }
 }
