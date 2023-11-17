@@ -286,6 +286,15 @@ class ApiProductController extends Controller
                 'message' => "Order ID is required."
             ]);
         }
+        if (
+            (!isset($r->phone_number))
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Phone number is required."
+            ]);
+        }
+
         $order  = ProductOrder::find($r->order_id);
         if ($order == null) {
             return Utils::response([
@@ -294,16 +303,43 @@ class ApiProductController extends Controller
             ]);
         }
 
-        if ($order->order_is_paid == 1) {
+        $phone_number = $r->phone_number;
+        $phone_number_type = substr($phone_number, 0, 6);
+
+        if (
+            $phone_number_type == '+25670' ||
+            $phone_number_type == '+25675' ||
+            $phone_number_type == '+25674'
+        ) {
+            $phone_number_type = 'AIRTEL';
+        } else if (
+            $phone_number_type == '+25677' ||
+            $phone_number_type == '+25678' ||
+            $phone_number_type == '+25676'
+        ) {
+            $phone_number_type = 'MTN';
+        }
+
+        if (
+            $phone_number_type != 'MTN' &&
+            $phone_number_type != 'AIRTEL'
+        ) {
             return Utils::response([
                 'status' => 0,
-                'message' => "Order is already paid."
+                'message' => "Phone number must be MTN or AIRTEL."
             ]);
         }
 
+        $phone_number = str_replace([
+            '+256'
+        ], "0", $phone_number);
+ 
+
         try {
-            $order->total_price = 500;
-            $payment_link = $order->generate_payment_link();
+            $payment_link = $order->generate_payment_link(
+                $phone_number,
+                $phone_number_type
+            );
             if (strlen($payment_link) < 5) {
                 return Utils::response([
                     'status' => 0,
@@ -344,7 +380,7 @@ class ApiProductController extends Controller
                 'message' => "Order not found."
             ]);
         }
- 
+
 
         try {
 

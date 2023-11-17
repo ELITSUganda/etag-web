@@ -18,21 +18,23 @@ class ProductOrder extends Model
     }
 
 
-    public function generate_payment_link()
-    {
+    public function generate_payment_link(
+        $phone_number,
+        $phone_number_type
+    ) {
 
+        $ip = $_SERVER['REMOTE_ADDR'];
         $data['tx_ref'] = 'ULITS-' . $this->id;
         $data['voucher'] = 'ULITS-' . $this->id;
         $data['amount'] = $this->total_price;
         $data['currency'] = 'UGX';
-        $data['network'] = 'MTN';
+        $data['network'] = $phone_number_type;
         $data['email'] = 'mubahood360@gmail.com';
-        $data['phone_number'] = '0783204665';
+        $data['phone_number'] = $phone_number;
         $data['fullname'] = $this->name;
-        $data['client_ip'] = '154.123.220.1';
+        $data['client_ip'] = $ip;
         $data['device_fingerprint'] = '62wd23423rq324323qew1';
         $data['meta'] = json_encode($this);
-
 
         // Create a new Guzzle client instance
         $client = new Client();
