@@ -11,6 +11,7 @@ use App\Models\DrugCategory;
 use App\Models\DrugStockBatch;
 use App\Models\Event;
 use App\Models\Farm;
+use App\Models\FinanceCategory;
 use App\Models\Location;
 use App\Models\Movement;
 use App\Models\MovementHasMovementAnimal;
@@ -33,6 +34,24 @@ class ApiMovement extends Controller
 
     use ApiResponser;
 
+    public function fiance_categories(Request $r)
+    {
+        $user_id = ((int)(Utils::get_user_id($r)));
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Failed'
+            ]);
+        }
+        $cats = FinanceCategory::where('administrator_id', $user_id)->get();
+        return Utils::response([
+            'status' => 1,
+            'data' => $cats,
+            'message' => 'Success'
+        ]);
+    }
     public function drug_product_create(Request $r)
     {
         $user_id = ((int)(Utils::get_user_id($r)));

@@ -35,6 +35,24 @@ Route::get('/', function () {
     die();
 });
 
+Route::get('/process-profile-photos', function () {
+    $aniamls = Animal::all();
+    $i = 0;
+    foreach ($aniamls as $key => $an) {
+        if($an->photo != null){
+            if(strlen($an->photo) > 3){
+                continue;
+            }
+        }
+        $i++;
+        $img = Image::where([
+            'parent_id' => $an->id,
+            'type' => 'Animal',
+            'parent_endpoint' => 'Animal',
+        ])->first();
+    }
+    echo "Done: $i";
+});
 Route::get('/process', function () {
 
     //set_time_limit(0);
@@ -129,7 +147,7 @@ Route::get('/process', function () {
                 $source = $folderPath . "/" . $item;
                 $target = $folderPath . "/done/" . $img_id;
                 rename($source, $target);
-                $img = new Image();
+                $img = new \App\Models\Image();
                 $img->administrator_id = $an->administrator_id;
                 $img->src = $img_id;
                 $img->thumbnail = 'thumb_' . $img_id;
