@@ -8,6 +8,7 @@ use App\Http\Controllers\WebController;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Models\Animal;
 use App\Models\Event;
+use App\Models\Farm;
 use App\Models\Gen;
 use App\Models\Image;
 use App\Models\Utils;
@@ -41,6 +42,7 @@ Route::get('/process', function () {
     //ini_set('memory_limit', '1024M');
     ini_set('memory_limit', '-1');
 
+    $folderPath = base_path('public/thumbs/');
     $folderPath = base_path('public/storage/images/');
 
     $biggest = 0;
@@ -53,6 +55,7 @@ Route::get('/process', function () {
 
         $i = 0;
 
+        $imgs = [];
         // Loop through the items
         foreach ($items as $item) {
 
@@ -73,10 +76,76 @@ Route::get('/process', function () {
                     'jpeg',
                     'png',
                     'gif',
-                ])) {
-                    echo "not image";
+                ])) { 
                     continue;
                 }
+                
+                $source = $folderPath . "" . $item;
+                $thumb = $folderPath . "thumb_" . $item;
+
+                if(file_exists($thumb)){
+                    continue;
+                }
+                
+                $source = $folderPath . "" . $item;
+                $target = $folderPath . "thumb_" . $item;
+                Utils::create_thumbail([
+                    'source' => $source,
+                    'target' => $target
+                ]);
+
+                $target_file_size = filesize($target);
+                $target_file_size = $target_file_size / (1024 * 1024);
+                $target_file_size = round($target_file_size, 2);
+                $target_file_size = $target_file_size . " MB";
+
+                $thumb_size = filesize($target);
+                $thumb_size = $thumb_size / (1024 * 1024);
+                $thumb_size = round($thumb_size, 2);
+                $thumb_size = $thumb_size . " MB";
+                
+                echo "Original Size: " . $item . "<br>";
+                echo "Original Size: " . $target_file_size . "<br>";
+                echo "Thumb Size: " . $thumb_size . "<br>";
+                echo "<hr>";
+
+                die("compress");
+
+                $id = (int)$item;
+                if (20142 < 1000) {
+                    die("ID is less than 1000 => $id");
+                }
+
+                $an = Animal::where([
+                    'v_id' => $id
+                ])->first();
+                if ($an == null) {
+                    continue;
+                    die("Animal not exists => $id");
+                }
+
+                $img_id = time() . '-' . rand(10000, 99999) . "." . $ext;
+
+                $source = $folderPath . "/" . $item;
+                $target = $folderPath . "/done/" . $img_id;
+                rename($source, $target);
+                $img = new Image();
+                $img->administrator_id = $an->administrator_id;
+                $img->src = $img_id;
+                $img->thumbnail = 'thumb_' . $img_id;
+                $img->parent_id = $an->id;
+                $img->product_id = null;
+                $img->size  = 0;
+                $img->type  = 'Animal';
+                $img->parent_endpoint  = 'Animal';
+                $img->note  = 'First Photo';
+                $img->save();
+
+                echo $i . ". " . $item . "<br>";
+                continue;
+
+                $imgs[] = $id;
+
                 $target = $folderPath . "/" . $item;
                 $target_file_size = filesize($target);
 
@@ -125,6 +194,40 @@ Route::get('/process', function () {
         echo "The specified folder does not exist.";
     }
 
+    die("<hr>");
+    $i = 0;
+    $farm = Farm::find(309);
+    foreach ($imgs as $key => $v_id) {
+        $an = Animal::where([
+            'v_id' => $v_id
+        ])->first();
+        if ($an != null) {
+            continue;
+        }
+        $an = new Animal();
+        $an->administrator_id = $farm->administrator_id;
+        $an->district_id = $farm->district_id;
+        $an->sub_county_id = $farm->sub_county_id;
+        $an->parish_id = $farm->parish_id;
+        $an->status = 'Active';
+        $an->type = 'Cattle';
+        $an->e_id = '8000000000' . $v_id;
+        $an->v_id = $v_id;
+        $an->farm_id = $farm->id;
+        $an->lhc = $farm->holding_code;
+        $an->breed = 'Ankole';
+        $an->sex = 'Female';
+        $an->dob = Carbon::now()->subYears(2);
+        $an->weight = 0;
+        $an->group_id = 263;
+        $an->save();
+        $i++;
+        echo $i . ". " . $v_id . "<br>";
+    }
+    die("done");
+
+    dd($imgs);
+    //8000000
     $biggest = $biggest / (1024 * 1024);
     $biggest = round($biggest, 2);
     $biggest = $biggest . " MB";
@@ -136,6 +239,7 @@ Route::get('/process', function () {
     $tot = $tot_gb . " GB<br>";
     echo "Biggest: " . $biggest . "<br>";
     echo "Total: " . $tot . "<br>";
+    echo "Count: " . $i . "<br>";
     die("done");
 });
 
