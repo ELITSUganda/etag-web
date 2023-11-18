@@ -52,6 +52,31 @@ class ApiMovement extends Controller
             'message' => 'Success'
         ]);
     }
+
+    public function finance_categories(Request $r)
+    {
+        $user_id = ((int)(Utils::get_user_id($r)));
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Failed'
+            ]);
+        }
+        $cats = new FinanceCategory();
+        $cats->name = $r->name;
+        $cats->administrator_id = $user_id;
+        $cats->balance = 0;
+        $cats->details = $r->details;
+        $cats->save();
+
+        return Utils::response([
+            'status' => 1,
+            'data' => $cats,
+            'message' => 'Success'
+        ]);
+    }
     public function drug_product_create(Request $r)
     {
         $user_id = ((int)(Utils::get_user_id($r)));
