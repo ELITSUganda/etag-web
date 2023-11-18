@@ -502,7 +502,7 @@ class ApiLoginController extends Controller
 
         return Utils::response([
             'status' => 0,
-            'message' => "You provided wring passwrd.",
+            'message' => "You provided wrong passwrd.",
             'data' => null
         ]);
     }
