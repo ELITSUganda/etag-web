@@ -76,7 +76,11 @@ Route::get('/process', function () {
             continue;
         }
         echo $i . ". " . $img . " Exists.<br>";
-        unlink($path);
+        try{
+            unlink($path);
+        }catch(\Throwable $th){
+            echo $th->getMessage()."<br>";
+        }
     }
     die();
 
