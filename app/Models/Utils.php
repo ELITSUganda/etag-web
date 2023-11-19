@@ -56,6 +56,9 @@ class Utils extends Model
         $months = Carbon::parse($start_date)->monthsUntil($end_date);
         $monthly_datas = [];
         $data['total_balance'] = $data['total_income'] + $data['total_expense'];
+
+
+
         foreach ($months as $key => $month) {
             $monthly_data['income'] = Transaction::where([
                 'is_income' => 1,
@@ -75,6 +78,9 @@ class Utils extends Model
             }
             $monthly_datas[] = $monthly_data;
         }
+
+        //reverse months $monthly_datas
+        $monthly_datas = array_reverse($monthly_datas);
 
         $data['monthly_datas'] = $monthly_datas;
         return $data;
