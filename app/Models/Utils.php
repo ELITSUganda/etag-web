@@ -66,7 +66,7 @@ class Utils extends Model
                 'administrator_id' => $u->id,
             ])->whereMonth('transaction_date', $month->month)->sum('amount');
             $monthly_data['balance'] = $monthly_data['income'] + $monthly_data['expense'];
-            $monthly_data['month'] = $month->format('MM');
+            $monthly_data['month'] = $month->format('F');
             $monthly_data['year'] = $month->format('Y');
 
             //check if is current month
