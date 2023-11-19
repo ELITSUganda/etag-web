@@ -15,13 +15,77 @@ use Illuminate\Support\Str;
 class Utils extends Model
 {
 
+    public static function get_finance_report($u)
+    {
+
+        $cats = FinanceCategory::where([
+            'administrator_id' => $u->id,
+        ])->get();
+
+        /* for ($i = 0; $i < 50; $i++) {
+            $t = new Transaction();
+            $t->finance_category_id = $cats[rand(0, count($cats) - 1)]->id;
+            $t->amount = rand(1000, 100000);
+            $t->is_income = rand(0, 1);
+            $t->description = "Test Transaction $i";
+            $transaction_date = Carbon::now()->subDays(rand(0, 365));
+            $t->transaction_date = $transaction_date;
+            $t->administrator_id = $u->id;
+            $t->district_id = 1;
+            $t->sub_county_id = 1;
+            $t->farm_id = 1;
+            $t->save();
+        } */
+
+
+        $data = [];
+        $data['total_income'] = 0;
+        $data['total_expense'] = 0;
+        $data['total_balance'] = 0;
+        $data['total_income'] = Transaction::where([
+            'is_income' => 1,
+            'administrator_id' => $u->id,
+        ])->sum('amount');
+        $data['total_expense'] = Transaction::where([
+            'is_income' => 0,
+            'administrator_id' => $u->id,
+        ])->sum('amount');
+
+        $start_date = date('2023-01-01');
+        $end_date = now();
+        $months = Carbon::parse($start_date)->monthsUntil($end_date);
+        $monthly_datas = [];
+        $data['total_balance'] = $data['total_income'] + $data['total_expense'];
+        foreach ($months as $key => $month) {
+            $monthly_data['income'] = Transaction::where([
+                'is_income' => 1,
+                'administrator_id' => $u->id,
+            ])->whereMonth('transaction_date', $month->month)->sum('amount');
+            $monthly_data['expense'] = Transaction::where([
+                'is_income' => 0,
+                'administrator_id' => $u->id,
+            ])->whereMonth('transaction_date', $month->month)->sum('amount');
+            $monthly_data['balance'] = $monthly_data['income'] + $monthly_data['expense'];
+            $monthly_data['month'] = $month->format('M');
+            $monthly_data['year'] = $month->format('Y');
+
+            //check if is current month
+            if ($month->format('Y-m') == now()->format('Y-m')) {
+                $data['current_month'] = $monthly_data;
+            }
+            $monthly_datas[] = $monthly_data;
+        }
+
+        $data['monthly_datas'] = $monthly_datas;
+        return $data;
+    }
 
     public static function send_message($phone_number, $message)
     {
         if (!Utils::validateUgandanPhoneNumber($phone_number)) {
             return "$phone_number is not a valid phone number.";
         }
-        
+
         $url = "https://www.socnetsolutions.com/projects/bulk/amfphp/services/blast.php?username=mubaraka&passwd=muh1nd0@2023";
         $url .= "&msg=" . trim($message);
         $url .= "&numbers=" . $phone_number;
@@ -839,7 +903,7 @@ class Utils extends Model
         $ArchivedAnimal->breed = $animal->breed;
         $ArchivedAnimal->sex = $animal->sex;
         $ArchivedAnimal->dob = $animal->dob;
-        $ArchivedAnimal->administrator_id = $animal->administrator_id; 
+        $ArchivedAnimal->administrator_id = $animal->administrator_id;
 
         $ArchivedAnimal->events = json_encode($animal->events);
         if ($ArchivedAnimal->save()) {

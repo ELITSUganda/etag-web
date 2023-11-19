@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -32,6 +33,10 @@ class Transaction extends Model
                 throw new Exception('Farm not found.');
             }
 
+            if (isset($m->created_at) && $m->created_at != null && $m->created_at != "") {
+                $m->created_at = Carbon::parse($m->created_at);
+            }
+
             $m->administrator_id = $f->administrator_id;
             $m->district_id = $f->district_id;
             $m->sub_county_id = $f->sub_county_id;
@@ -54,9 +59,12 @@ class Transaction extends Model
         return "UGX " . number_format($this->amount);
     }
 
-    public function getTransactionDateAttribute()
+    public function getTransactionDateAttribute($d)
     {
-        return Utils::my_date_time($this->created_at);
+        if ($d == null || $d == "") {
+            return $this->created_at;
+        }
+        return $d;
     }
 
     protected $appends = [

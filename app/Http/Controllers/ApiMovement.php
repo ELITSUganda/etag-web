@@ -26,6 +26,7 @@ use App\Models\VetHasService;
 use App\Traits\ApiResponser;
 use Carbon\Carbon;
 use COM;
+use Dflydev\DotAccessData\Util;
 use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Http\Request;
 
@@ -33,6 +34,27 @@ class ApiMovement extends Controller
 {
 
     use ApiResponser;
+
+    public function fiance_report(Request $r)
+    {
+        $user_id = ((int)(Utils::get_user_id($r)));
+        $u = User::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Failed'
+            ]);
+        }
+
+        $data = Utils::get_finance_report($u);
+        return Utils::response([
+            'status' => 1,
+            'data' => $data,
+            'message' => 'Success'
+        ]);
+    }
+
 
     public function fiance_categories(Request $r)
     {
