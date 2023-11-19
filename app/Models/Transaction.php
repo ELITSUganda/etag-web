@@ -22,6 +22,10 @@ class Transaction extends Model
         });
         self::creating(function ($m) {
 
+            if ($m->transaction_date == null || $m->transaction_date == "") {
+                $m->transaction_date = Carbon::now();
+            }
+
             $financeAcc = FinanceCategory::find($m->finance_category_id);
 
             if ($financeAcc == null) {

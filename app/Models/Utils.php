@@ -17,12 +17,12 @@ class Utils extends Model
 
     public static function get_finance_report($u)
     {
-
+        /* 
         $cats = FinanceCategory::where([
             'administrator_id' => $u->id,
         ])->get();
 
-        /* for ($i = 0; $i < 50; $i++) {
+        for ($i = 0; $i < 50; $i++) {
             $t = new Transaction();
             $t->finance_category_id = $cats[rand(0, count($cats) - 1)]->id;
             $t->amount = rand(1000, 100000);
@@ -66,7 +66,7 @@ class Utils extends Model
                 'administrator_id' => $u->id,
             ])->whereMonth('transaction_date', $month->month)->sum('amount');
             $monthly_data['balance'] = $monthly_data['income'] + $monthly_data['expense'];
-            $monthly_data['month'] = $month->format('M');
+            $monthly_data['month'] = $month->format('MM');
             $monthly_data['year'] = $month->format('Y');
 
             //check if is current month
