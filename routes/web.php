@@ -76,6 +76,7 @@ Route::get('/process', function () {
             continue;
         }
         echo $i . ". " . $img . " Exists.<br>";
+        unlink($path);
     }
     die();
 
