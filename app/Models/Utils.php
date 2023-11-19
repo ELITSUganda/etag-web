@@ -75,9 +75,9 @@ class Utils extends Model
             //check if is current month
             if ($month->format('Y-m') == now()->format('Y-m')) {
                 $data['current_month'] = $monthly_data;
-            }else{
-                $monthly_datas[] = $monthly_data;
+                continue;
             }
+            $monthly_datas[] = $monthly_data;
         }
 
         //reverse months $monthly_datas
