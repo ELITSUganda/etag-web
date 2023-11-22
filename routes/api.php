@@ -137,7 +137,7 @@ Route::POST('users', [ApiLoginController::class, 'create_account']);
 
 
 // ========== lofin starts ============== //
-Route::POST('login', [ApiLoginController::class, 'ind                                                                                                           ex']);
+Route::POST('login', [ApiLoginController::class, 'index']);
 Route::POST('update-roles', [ApiLoginController::class, 'update_roles']);
 Route::POST('remove-vet-role', [ApiLoginController::class, 'remove_vet_role']);
 Route::POST('vet-profile', [ApiLoginController::class, 'vet_profile']);
