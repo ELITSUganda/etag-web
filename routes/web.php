@@ -57,6 +57,7 @@ Route::get('/process-profile-photos', function () {
 });
 Route::get('/process', function () {
 
+    die();
 
     //set_time_limit(0);
     set_time_limit(-1);
@@ -70,7 +71,7 @@ Route::get('/process', function () {
     $i = 0;
     foreach ($items as $key => $img) {
         $path = base_path('public/storage/images/' . $img);
-        $path = './public/storage/images/' . $img;
+        $path = 'public_html/public/storage/images/' . $img;
         $i++;
         if (!file_exists($path)) {
             echo $i . ". " . $img . " DNE.<br>";

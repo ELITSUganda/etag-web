@@ -488,7 +488,7 @@ class ApiLoginController extends Controller
                 'message' => "Account is disabled. Please contact us on +256783204665 to re-activate your account."
             ]);
         }
-
+        
         if (password_verify(trim($request->password), $user->password)) {
             unset($user->password);
             $user->role =  Utils::get_role($user);
