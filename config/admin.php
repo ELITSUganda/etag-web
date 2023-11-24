@@ -403,6 +403,45 @@ return [
     */
     'extensions' => [
 
+        'quill' => [
+            // If the value is set to false, this extension will be disabled
+            'enable' => true,
+            'config' => [
+                'modules' => [
+                    'syntax' => true,
+                    'toolbar' =>
+                    [
+                        ['size' => []],
+                        ['header' => []],
+                        'bold',
+                        'italic',
+                        'underline',
+                        'strike',
+                        ['script' => 'super'],
+                        ['script' => 'sub'],
+                        ['color' => []],
+                        ['background' => []],
+                        'blockquote',
+                        'code-block',
+                        ['list' => 'ordered'],
+                        ['list' => 'bullet'],
+                        ['indent' => '-1'],
+                        ['indent' => '+1'],
+                        'direction',
+                        ['align' => []],
+                        'link',
+                        'image',
+                        'video',
+                        'formula',
+                        'clean'
+                    ],
+                    "htmlEditButton" => ["syntax" => true, "debug" => true]
+                ],
+                'theme' => 'snow',
+                'height' => '200px',
+            ]
+        ],
+
         'grid-lightbox' => [
             'enable' => true,
         ],
@@ -427,7 +466,7 @@ return [
             // According to the selected provider above, fill in the corresponding api_key
             'providers' => [
 
-/*                 'google' => [
+                /*                 'google' => [
                     'api_key' => 'AIzaSyAcctJQgkbQQI37Ae_2rAeck-l6nyDRQj0',
                 ], */
 

@@ -160,7 +160,7 @@ class ProductController extends AdminController
         $form->image('image', __('Feature photo'));
         $form->decimal('price', __('Price'));
 
-        $form->textarea('description', __('Description'));
+        $form->quill('description', __('Description'));
 
         /*         $form->number('category', __('Category'));
         $form->number('sub_category', __('Sub category'));
