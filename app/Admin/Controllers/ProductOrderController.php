@@ -33,6 +33,8 @@ class ProductOrderController extends AdminController
         $grid->disableCreateButton();
         $grid->disableCreateButton();
 
+        $grid->model()->orderBy('id', 'desc');
+
         //filters
         $grid->filter(function ($filter) {
             $filter->disableIdFilter();
@@ -167,6 +169,18 @@ class ProductOrderController extends AdminController
         $form->number('total_price', __('Total price'));
         $form->text('type', __('Type'));
         $form->textarea('payment_link', __('Payment link'));
+        //has many items
+        //
+        $form->hasMany('items', 'Items', function (Form\NestedForm $form) {
+ 
+            $form->number('product_order_id', __('Product order id'));
+            $form->number('product_id', __('Product id'));
+            $form->number('quantity', __('Quantity'));
+            $form->number('price', __('Price'));
+            $form->number('total', __('Total'));
+            $form->text('product_name', __('Product name'));
+            $form->text('product_photo', __('Product photo'));
+        });
 
         return $form;
     }

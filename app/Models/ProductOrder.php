@@ -26,7 +26,7 @@ class ProductOrder extends Model
         });
 
         static::updated(function ($order) {
-            if ($order->status != $this->getOriginal('status')) {
+            if ($order->status != $order->getOriginal('status')) {
                 if ($order->status == 'Completed') {
                     $sms_to_send = 'Your order has been completed. Thank you for shopping with us.';
                     Utils::send_message($order->phone_number, $sms_to_send);
@@ -76,13 +76,7 @@ class ProductOrder extends Model
             }
         });
     }
-    /* 
-'Pending' => 'Pending',
-                'Shipping' => 'Shipping',
-                'Delivered' => 'Delivered',
-                'Cancelled' => 'Cancelled'
-*/
-    //getter for product_data 
+
     public function getProductDataAttribute()
     {
         $items = ProductOrderItem::where('product_order_id', $this->id)->get();
@@ -210,5 +204,10 @@ class ProductOrder extends Model
             }
         }
         return $status;
+    }
+    //has many ProductOrderItem
+    public function items()
+    {
+        return $this->hasMany(ProductOrderItem::class);
     }
 }
