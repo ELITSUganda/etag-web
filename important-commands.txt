@@ -65,14 +65,14 @@ php artisan make:migration create_trip_records_table
 Encore\Admin\Auth\Database\Administrator::class,
 php artisan admin:make FormSr4Controller --model=App\FormSr4
 php artisan admin:make Animal1Controller --model=App\Animal
-php artisan admin:make WholesaleOrderItemController --model=App\WholesaleOrderItem
+php artisan admin:make ProductOrderController --model=App\\Models\\ProductOrder
 
 php artisan admin:controller --model=App\FormSr4
 php artisan admin:controller --model=App\SlaughterRecord
 php artisan admin:make FormSr4Controller --model=App\FormSr4
 php artisan admin:make MovementRouteController --model=App\MovementRoute
 php artisan admin:make MovementRouteController --model=App\Models\MovementRoute
-php artisan admin:make WholesaleOrderController --model=App\Models\WholesaleOrder
+php artisan admin:make ProductOrderController --model=App\Models\ProductOrder
 
 
 php artisan admin:make ContractController --model=App\\Models\\ContractRecords
@@ -101,12 +101,12 @@ php artisan admin:make CheckpointSessionController --model=App\Models\Checkpoint
 php artisan admin:make VetServiceCategoryController --model=App\Models\VetServiceCategory
 php artisan admin:make GroupController --model=App\Models\Group
 php artisan admin:make TripController --model=App\Models\Trip
-php artisan admin:make WholesaleOrderItemController --model=App\Models\WholesaleOrderItem
+php artisan admin:make ProductOrderController --model=App\Models\ProductOrder
 
 
-php artisan make:model ProductOrderItem -m
+php artisan make:model ProductOrder -m
 php artisan make:model MovementRoute
-php artisan make:model WholesaleOrder
+php artisan make:model ProductOrder
 php artisan make:model CheckPoint
 php artisan make:model ArchivedAnimal
 php artisan make:model CheckPointRecord
@@ -139,7 +139,7 @@ php artisan make:model SubCounty
 php artisan make:model Group
 php artisan make:model Trip
 php artisan make:model WholesaleDrugStock
-php artisan make:model WholesaleOrderItem
+php artisan make:model ProductOrder
 
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs

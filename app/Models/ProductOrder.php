@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Encore\Admin\Auth\Database\Administrator;
 use GuzzleHttp\Client;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +11,77 @@ class ProductOrder extends Model
 {
     use HasFactory;
 
+    //boot
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $model->total_price = 0;
+            $model->status = 'Pending';
+            $model->order_is_paid = 0;
+        });
+
+        static::created(function ($model) {
+        });
+
+        static::updated(function ($order) {
+            if ($order->status != $this->getOriginal('status')) {
+                if ($order->status == 'Completed') {
+                    $sms_to_send = 'Your order has been completed. Thank you for shopping with us.';
+                    Utils::send_message($order->phone_number, $sms_to_send);
+                    Utils::sendNotification($order->phone_number, $sms_to_send);
+                    Utils::sendNotification(
+                        $sms_to_send,
+                        $order->customer_id,
+                        $headings =  "Order Completed",
+                    );
+                } else if ($order->status == 'Cancelled') {
+                    $sms_to_send = 'Your order has been cancelled. Thank you for shopping with us.';
+                    Utils::send_message($order->phone_number, $sms_to_send);
+                    Utils::sendNotification($order->phone_number, $sms_to_send);
+                    Utils::sendNotification(
+                        $sms_to_send,
+                        $order->customer_id,
+                        $headings =  "Order Cancelled",
+                    );
+                } else if ($order->status == 'Pending') {
+                    $sms_to_send = 'Your order has been received. Thank you for shopping with us.';
+                    Utils::send_message($order->phone_number, $sms_to_send);
+                    Utils::sendNotification($order->phone_number, $sms_to_send);
+                    Utils::sendNotification(
+                        $sms_to_send,
+                        $order->customer_id,
+                        $headings =  "Order Received",
+                    );
+                } else if ($order->status == 'Shipping') {
+                    $sms_to_send = 'Your order is being shipped. Thank you for shopping with us.';
+                    Utils::send_message($order->phone_number, $sms_to_send);
+                    Utils::sendNotification($order->phone_number, $sms_to_send);
+                    Utils::sendNotification(
+                        $sms_to_send,
+                        $order->customer_id,
+                        $headings =  "Order Shipping",
+                    );
+                } else if ($order->status == 'Delivered') {
+                    $sms_to_send = 'Your order has been delivered. Thank you for shopping with us.';
+                    Utils::send_message($order->phone_number, $sms_to_send);
+                    Utils::sendNotification($order->phone_number, $sms_to_send);
+                    Utils::sendNotification(
+                        $sms_to_send,
+                        $order->customer_id,
+                        $headings =  "Order Delivered",
+                    );
+                }
+            }
+        });
+    }
+    /* 
+'Pending' => 'Pending',
+                'Shipping' => 'Shipping',
+                'Delivered' => 'Delivered',
+                'Cancelled' => 'Cancelled'
+*/
     //getter for product_data 
     public function getProductDataAttribute()
     {
@@ -77,6 +149,12 @@ class ProductOrder extends Model
             }
         }
         return $payment_link;
+    }
+
+    //customer_id
+    public function customer()
+    {
+        return $this->belongsTo(Administrator::class, 'customer_id', 'id');
     }
 
 

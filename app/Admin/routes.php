@@ -18,6 +18,7 @@ Route::group([
 
     $router->get('/', 'HomeController@index')->name('home');
     $router->get('/become-farmer', 'HomeController@become_farmer');
+    $router->resource('product-orders', ProductOrderController::class);
     $router->resource('requests', VendorController::class);
     $router->resource('districts', DistrictController::class);
     $router->resource('sub-counties', SubCountyController::class);
@@ -56,11 +57,11 @@ Route::group([
     $router->resource('checkpoint-sessions', CheckpointSessionController::class);
     $router->resource('vet-service-categories', VetServiceCategoryController::class);
     $router->resource('locations', LocationController::class);
-    
+
     $router->resource('groups', GroupController::class);
     $router->resource('gens', GenController::class);
     $router->resource('trips', TripController::class);
-    
+
     $router->resource('wholesale-drug-stocks', WholesaleDrugStockController::class);
     $router->resource('wholesale-orders', WholesaleOrderController::class);
     $router->resource('wholesale-order-items', WholesaleOrderItemController::class);
