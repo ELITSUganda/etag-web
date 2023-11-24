@@ -29,7 +29,7 @@ class ProductController extends AdminController
         $grid->quickSearch('name');
         $grid->model()->orderBy('id', 'desc');
 
-        $grid->column('id', __('Id'));
+        $grid->column('id', __('Id')); 
         $grid->column('name', __('Name'))->sortable();
         $grid->column('price', __('Price'))->sortable();
         /*         $grid->column('metric', __('Metric'));
@@ -157,7 +157,7 @@ class ProductController extends AdminController
         $form = new Form(new Product());
 
         $form->text('name', __('Name'));
-        $form->image('feature_photo', __('Feature photo'));
+        $form->text('feature_photo', __('Feature photo'));
         $form->decimal('price', __('Price'));
 
         $form->textarea('description', __('Description'));
