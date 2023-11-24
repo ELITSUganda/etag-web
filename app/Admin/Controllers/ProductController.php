@@ -157,7 +157,7 @@ class ProductController extends AdminController
         $form = new Form(new Product());
 
         $form->text('name', __('Name'));
-        $form->text('feature_photo', __('Feature photo'));
+        $form->image('image', __('Feature photo'));
         $form->decimal('price', __('Price'));
 
         $form->textarea('description', __('Description'));
