@@ -17,7 +17,6 @@ class ProductOrder extends Model
         parent::boot();
 
         static::creating(function ($model) {
-            $model->total_price = 0;
             $model->status = 'Pending';
             $model->order_is_paid = 0;
         });
