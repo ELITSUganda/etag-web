@@ -84,7 +84,6 @@ class ApiProductController extends Controller
                     ->orderBy('id', 'DESC')
                     ->paginate($per_page)->withQueryString()->items();
             } else {
-
                 $items =
                     ProductOrder::where([
                         'customer_id' => $u->id
@@ -94,6 +93,25 @@ class ApiProductController extends Controller
             }
         }
 
+
+        foreach ($items as $key => $order) {
+            $total = 0;
+            if ($order->items != null) {
+                foreach ($order->items as $key => $item) {
+                    if ($item->total != null) {
+                        $total += $item->total;
+                    } else {
+                        $quality = (int)($item->quantity);
+                        $price = (int)($item->price);
+                        $item->total = $quality * $price;
+                        $item->save();
+                        $total += $item->total;
+                    }
+                }
+            }
+            $order->total_price = $total;
+            $order->save();
+        }
 
         return Utils::response([
             'status' => 1,
@@ -333,7 +351,7 @@ class ApiProductController extends Controller
         $phone_number = str_replace([
             '+256'
         ], "0", $phone_number);
- 
+
 
         try {
             $payment_link = $order->generate_payment_link(
