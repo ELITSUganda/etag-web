@@ -399,6 +399,31 @@ class ApiAnimalController extends Controller
             ]);
         }
 
+
+        if ($sr->available_weight == null || (strlen($sr->available_weight) < 1)) {
+            $sr->available_weight = $sr->post_weight;
+            $sr->save();
+        }
+
+        $available = ((int)($sr->available_weight));
+        if ($available < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "No meat available.",
+            ]);
+        }
+
+        $weight = ((int)($r->original_weight));
+        if ($weight < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Weight must be greater than 0.",
+            ]);
+        }
+        $sr->available_weight = $available - $weight;
+
+
+
         $rec = new SlaughterDistributionRecord();
         $rec->animal_id = $r->animal_id;
         $rec->slaughterhouse_id = $sr->id;
@@ -422,8 +447,8 @@ class ApiAnimalController extends Controller
         $rec->post_grade = $sr->post_grade;
         $rec->post_animal = $sr->post_animal;
         $rec->post_age = $sr->post_age;
-        $rec->original_weight = $r->original_weight;
-        $rec->current_weight = $r->original_weight;
+        $rec->original_weight = $weight;
+        $rec->current_weight = $weight;
         $rec->price = $r->price;
         $rec->slaughter_date = $sr->created_at;
 
@@ -440,6 +465,17 @@ class ApiAnimalController extends Controller
                 $path = Utils::generate_qrcode($data);
                 $rec->qr_code = $path;
                 $rec->save();
+                $sr->save();
+
+                //Reciever message
+                $msg = "You have received {$rec->current_weight}kg of meat from {$rec->source_name}. Open the App to see more details.";
+                $title = "MEAT RECEIVED - {$rec->v_id}";
+                Utils::sendNotification(
+                    $msg,
+                    $u->id,
+                    $headings =  $title
+                );
+
                 //return success
                 return Utils::response([
                     'status' => 1,
