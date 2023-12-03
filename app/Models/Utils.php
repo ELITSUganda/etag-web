@@ -11,22 +11,22 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Zebra_Image;
 use Illuminate\Support\Str;
+use Milon\Barcode\DNS1D;
 
 class Utils extends Model
 {
 
-    public static function generate_barcode($data = [])
+    public static function generate_barcode($data)
     {
-        $barcode = new \Com\Tecnick\Barcode\Barcode();
-        $bobj = $barcode->getBarcodeObj(
-            'QRCODE,H',
-            $data['data'],
-            -4,
-            -4,
-            'black',
-            array(-2, -2, -2, -2)
-        );
-        $bobj->savePNG($data['file_name']);
+        $obj = new DNS1D();
+        $multiplier = 2;
+        $path = "";
+        try {
+            $path = $obj->getBarcodePNGPath($data, 'C128', 3 * $multiplier, 66 * $multiplier, array(0, 0, 0), true);
+        } catch (Exception $e) {
+            throw $e;
+        }
+        return $path;
     }
 
     public static function get_finance_report($u)

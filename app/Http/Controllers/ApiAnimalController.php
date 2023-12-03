@@ -318,18 +318,23 @@ class ApiAnimalController extends Controller
             ]);
         }
 
-        if($sr->bar_code == null){
-            $sr->bar_code = Utils::generate_barcode();
+
+        if ($sr->bar_code == null || strlen($sr->bar_code) < 2) {
+            try {
+                $sr->bar_code = Utils::generate_barcode($sr->v_id);
+            } catch (\Throwable $e) {
+                $err = $e->getMessage();
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Failed to generate barcode. {$err}",
+                ]);
+            }
         }
 
         $sr->save();
-
-
-
-
         return Utils::response([
             'status' => 1,
-            'message' => "{$i} Slauhter records have been created successfully.",
+            'message' => "Record saved successfully.",
         ]);
     }
 
