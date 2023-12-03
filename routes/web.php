@@ -39,6 +39,38 @@ Route::get('/test', function () {
     //echo DNS1D::getBarcodePNGPath('4445645656', 'PHARMA2T');
     //echo '<img src="data:image/png;base64,' . DNS1D::getBarcodePNG('4', 'C39+') . '" alt="barcode"   />';
 
+    $data = 'VID: 4445645656\n';
+    $data .= 'SLAUGHTER DATE: \n';
+    $data .= '4445645656\n';
+    $data .= '4445645656\n';
+    $data .= '4445645656\n';
+    $data .= '4445645656\n';
+    $multiplier = 3;
+    $link = DNS2D::getBarcodePNGPath($data, 'QRCODE', 3 * $multiplier, 3 * $multiplier, array(0, 0, 0), true); 
+    $url = url($link);
+    echo $url;
+
+    $img_size = getimagesize($url);
+
+    //to mb
+    $size = $img_size[0] * $img_size[1] * 8 / 1024 / 1024;
+
+    echo '<img  width="400" src="' . $url . '" alt="barcode"   />';
+    echo "<br>";
+    echo "<br>";
+    echo "<br>";
+    echo "<br>";
+    echo "Size: $size MB";
+ 
+    die(); 
+
+
+    echo DNS1D::getBarcodeSVG('4445645656', 'C39');
+    echo DNS2D::getBarcodeHTML('4445645656', 'QRCODE');
+    echo DNS2D::getBarcodePNGPath('4445645656', 'PDF417');
+    echo DNS2D::getBarcodeSVG('4445645656', 'DATAMATRIX');
+    echo '<img src="data:image/png;base64,' . DNS2D::getBarcodePNG('4', 'PDF417') . '" alt="barcode"   />';
+    die();
 
     $multiplier = 1.5;
     $link = DNS1D::getBarcodePNGPath('4445561', 'C128', 3 * $multiplier, 44 * $multiplier, array(0, 0, 0), true);

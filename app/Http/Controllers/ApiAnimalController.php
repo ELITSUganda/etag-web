@@ -12,6 +12,7 @@ use App\Models\Farm;
 use App\Models\Group;
 use App\Models\Image;
 use App\Models\Movement;
+use App\Models\SlaughterDistributionRecord;
 use App\Models\SlaughterHouse;
 use App\Models\SlaughterRecord;
 use App\Models\Utils;
@@ -360,6 +361,100 @@ class ApiAnimalController extends Controller
             'status' => 1,
             'message' => "Record saved successfully.",
         ]);
+    }
+
+    public function create_slaughter_distribution_record(Request $r)
+    {
+
+        $user_id = Utils::get_user_id($r);
+
+        if ($user_id < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Slaugter house ID not found.",
+            ]);
+        }
+
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
+        }
+
+        $sr = SlaughterRecord::find($r->source_id);
+        if ($sr == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Slaughter record not found.",
+            ]);
+        }
+
+        $receiver = Administrator::find($r->receiver_id);
+        if ($receiver == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Receiver not found.",
+            ]);
+        }
+
+        $rec = new SlaughterDistributionRecord();
+        $rec->animal_id = $r->animal_id;
+        $rec->slaughterhouse_id = $sr->id;
+        $rec->created_by_id  = $u->id;
+        $rec->source_type = "Slaughter House";
+        $rec->source_id = $sr->id;
+        $rec->source_name = $u->name;
+        $rec->source_address = $u->address;
+        $rec->source_phone = $u->phone_number;
+        $rec->receiver_id = $receiver->id;
+        $rec->receiver_type = "Trader";
+        $rec->receiver_name = $receiver->name;
+        $rec->receiver_address = $receiver->address;
+        $rec->receiver_phone = $receiver->phone_number;
+        $rec->lhc = $sr->lhc;
+        $rec->v_id = $sr->v_id;
+        $rec->e_id = $sr->e_id;
+        $rec->animal_owner_id = 1;
+        $rec->bar_code = $sr->bar_code;
+        $rec->post_fat = $sr->post_fat;
+        $rec->post_grade = $sr->post_grade;
+        $rec->post_animal = $sr->post_animal;
+        $rec->post_age = $sr->post_age;
+        $rec->original_weight = $r->original_weight;
+        $rec->current_weight = $r->original_weight;
+        $rec->price = $r->price;
+        $rec->slaughter_date = $sr->created_at;
+
+
+        try {
+            $rec->save();
+
+            try {
+                $url = url('sdr/' . $rec->id);
+                $data =
+                    'ID: ' . $rec->id .
+                    '\nSlaughter Date: ' . Utils::my_date($rec->slaughter_date) .
+                    '\nMeat Grade: ' . $rec->post_grade .
+                    '\nSource: ' . $rec->source_name;
+                '\nMore Details: ' . $url;
+                $path = Utils::generate_qrcode($data);
+                $rec->qr_code = $path;
+                $rec->save();
+            } catch (\Throwable $e) {
+                $rec->delete();
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Failed to save record. {$e->getMessage()}",
+                ]);
+            }
+        } catch (\Throwable $e) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Failed to save record. {$e->getMessage()}",
+            ]);
+        }
     }
 
 

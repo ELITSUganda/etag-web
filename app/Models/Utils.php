@@ -12,9 +12,24 @@ use Illuminate\Support\Facades\Schema;
 use Zebra_Image;
 use Illuminate\Support\Str;
 use Milon\Barcode\DNS1D;
+use Milon\Barcode\DNS2D;
 
 class Utils extends Model
 {
+
+    public static function generate_qrcode($data)
+    {
+        $obj = new DNS2D();
+        $multiplier = 2;
+        $path = "";
+        try {
+            $multiplier = 3;
+            $path = $obj->getBarcodePNGPath($data, 'QRCODE', 3 * $multiplier, 3 * $multiplier, array(0, 0, 0), true);
+        } catch (Exception $e) {
+            throw $e;
+        }
+        return $path;
+    }
 
     public static function generate_barcode($data)
     {

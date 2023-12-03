@@ -919,6 +919,8 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'App\\Models\\ProductOrder' => __DIR__ . '/../..' . '/app/Models/ProductOrder.php',
         'App\\Models\\ProductOrderItem' => __DIR__ . '/../..' . '/app/Models/ProductOrderItem.php',
         'App\\Models\\SickAnimal' => __DIR__ . '/../..' . '/app/Models/SickAnimal.php',
+        'App\\Models\\SlaughterDistributionRecord' => __DIR__ . '/../..' . '/app/Models/SlaughterDistributionRecord.php',
+        'App\\Models\\SlaughterDistributionRecordCreate' => __DIR__ . '/../..' . '/app/Models/SlaughterDistributionRecordCreate.php',
         'App\\Models\\SlaughterHouse' => __DIR__ . '/../..' . '/app/Models/SlaughterHouse.php',
         'App\\Models\\SlaughterRecord' => __DIR__ . '/../..' . '/app/Models/SlaughterRecord.php',
         'App\\Models\\SubCounty' => __DIR__ . '/../..' . '/app/Models/SubCounty.php',
