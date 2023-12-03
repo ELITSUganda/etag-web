@@ -15,6 +15,20 @@ use Illuminate\Support\Str;
 class Utils extends Model
 {
 
+    public static function generate_barcode($data = [])
+    {
+        $barcode = new \Com\Tecnick\Barcode\Barcode();
+        $bobj = $barcode->getBarcodeObj(
+            'QRCODE,H',
+            $data['data'],
+            -4,
+            -4,
+            'black',
+            array(-2, -2, -2, -2)
+        );
+        $bobj->savePNG($data['file_name']);
+    }
+
     public static function get_finance_report($u)
     {
         /* 

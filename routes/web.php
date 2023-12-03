@@ -17,6 +17,7 @@ use App\Models\Utils;
 use Carbon\Carbon;
 use Encore\Admin\Grid\Tools\Header;
 use Illuminate\Support\Facades\Route;
+use Milon\Barcode\DNS1D;
 
 use function PHPUnit\Framework\fileExists;
 
@@ -32,11 +33,38 @@ use function PHPUnit\Framework\fileExists;
 */
 
 Route::get('/test', function () {
-    echo DNS1D::getBarcodeSVG('4445645656', 'PHARMA2T');
-    echo DNS1D::getBarcodeHTML('4445645656', 'PHARMA2T');
-    echo '<img src="data:image/png,' . DNS1D::getBarcodePNG('4', 'C39+') . '" alt="barcode"   />';
-    echo DNS1D::getBarcodePNGPath('4445645656', 'PHARMA2T');
-    echo '<img src="data:image/png;base64,' . DNS1D::getBarcodePNG('4', 'C39+') . '" alt="barcode"   />';
+
+    Utils::generate_barcode(['444556'], 'C128', 3, 66, [0, 0, 0], true);
+    
+
+    die();
+
+    //echo DNS1D::getBarcodeSVG('4445645656', 'PHARMA2T');
+    //echo DNS1D::getBarcodeHTML('4445645656', 'PHARMA2T');
+    //echo '<img src="data:image/png,' . DNS1D::getBarcodePNG('4', 'C39+') . '" alt="barcode"   />';
+    //echo DNS1D::getBarcodePNGPath('4445645656', 'PHARMA2T');
+    //echo '<img src="data:image/png;base64,' . DNS1D::getBarcodePNG('4', 'C39+') . '" alt="barcode"   />';
+
+
+    $multiplier = 1;
+    $obj = new DNS1D();
+    $link = $obj->getBarcodePNGPath('444556', 'C128', 3 * $multiplier, 66 * $multiplier, array(0, 0, 0), true);
+    $url = url($link);
+
+    $img_size = getimagesize($url);
+
+    //to mb
+    $size = $img_size[0] * $img_size[1] * 8 / 1024 / 1024;
+
+    echo '<img  width="400" src="' . $url . '" alt="barcode"   />';
+    echo "<br>";
+    echo "<br>";
+    echo "<br>";
+    echo "<br>";
+    //echo "Size: $size MB";
+
+
+
     die();
 });
 

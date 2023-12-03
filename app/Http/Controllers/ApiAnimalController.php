@@ -18,6 +18,7 @@ use App\Models\Utils;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Http\Request;
+use Monolog\Handler\Slack\SlackRecord;
 
 class ApiAnimalController extends Controller
 {
@@ -228,6 +229,103 @@ class ApiAnimalController extends Controller
             }
             $i++;
         }
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "{$i} Slauhter records have been created successfully.",
+        ]);
+    }
+
+    public function create_slaughter_single(Request $r)
+    {
+        if ($r->task == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Task not found.",
+            ]);
+        }
+        if (
+            ($r->task != 'Create') &&
+            ($r->task != 'Edit')
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Task not specified.",
+            ]);
+        }
+
+        $user_id = Utils::get_user_id($request);
+
+        if ($user_id < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Slaugter house ID not found.",
+            ]);
+        }
+
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
+        }
+
+        $sr = null;
+        if ($r->task == 'Create') {
+            $an = Animal::where([
+                'v_id' => $r->v_id
+            ])->first();
+            if ($an == null) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Animal not found.",
+                ]);
+            }
+
+            $house = SlaughterHouse::find($r->house_id);
+
+            $sr = new SlaughterRecord();
+            $sr->lhc = $an->lhc;
+            $sr->v_id = $an->v_id;
+            $sr->administrator_id = $user_id;
+            $sr->e_id = $an->e_id;
+            $sr->breed = $an->breed;
+            $sr->sex = $an->sex;
+            $sr->dob = Carbon::parse($an->dob);
+            $sr->fmd = $an->fmd;
+            $sr->details = "Slautered by " . $u->name . ", ID " . $u->id . ". ";
+
+            if ($house != null) {
+                $sr->destination_slaughter_house = $house->id;
+            }
+
+            if ($sr->save()) {
+                /* Utils::archive_animal([
+                    'animal_id' => $an->name,
+                    'details' => $sr->details,
+                    'event' => 'Slautered',
+                ]); */
+            }
+        } else if ($r->task == 'Edit') {
+            $sr = SlaughterRecord::find($r->id);
+        }
+
+        if ($sr == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Record not found.",
+            ]);
+        }
+
+        if($sr->bar_code == null){
+            $sr->bar_code = Utils::generate_barcode();
+        }
+
+        $sr->save();
+
+
+
 
         return Utils::response([
             'status' => 1,

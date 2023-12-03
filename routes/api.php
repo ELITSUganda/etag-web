@@ -90,6 +90,7 @@ Route::get('images-v2', [ApiAnimalController::class, 'images_v2']);
 
 Route::get('photos-downloads', [ApiAnimalController::class, 'photo_downloads']);
 Route::POST('create-slaughter', [ApiAnimalController::class, 'create_slaughter']);
+Route::POST('create-slaughter-single', [ApiAnimalController::class, 'create_slaughter_single']);
 Route::get('animals/{id}', [ApiAnimalController::class, 'show']);
 
 Route::get('events', [ApiAnimalController::class, 'events']);
