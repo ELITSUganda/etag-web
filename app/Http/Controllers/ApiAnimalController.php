@@ -427,7 +427,6 @@ class ApiAnimalController extends Controller
         $rec->price = $r->price;
         $rec->slaughter_date = $sr->created_at;
 
-
         try {
             $rec->save();
 
