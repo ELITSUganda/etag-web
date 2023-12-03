@@ -40,9 +40,9 @@ Route::get('/test', function () {
     //echo '<img src="data:image/png;base64,' . DNS1D::getBarcodePNG('4', 'C39+') . '" alt="barcode"   />';
 
     $data = 'VID: 4445645656\n';
-    $data .= 'SLAUGHTER DATE: \n';
-    $data .= '4445645656\n';
-    $data .= '4445645656\n';
+    $data .= "SLAUGHTER DATE: \n";
+    $data .= "4445645656\n";
+    $data .= "4445645656\n";
     $data .= '4445645656\n';
     $data .= '4445645656\n';
     $multiplier = 3;
