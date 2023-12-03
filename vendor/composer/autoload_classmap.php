@@ -129,7 +129,6 @@ return array(
     'App\\Models\\ProductOrderItem' => $baseDir . '/app/Models/ProductOrderItem.php',
     'App\\Models\\SickAnimal' => $baseDir . '/app/Models/SickAnimal.php',
     'App\\Models\\SlaughterDistributionRecord' => $baseDir . '/app/Models/SlaughterDistributionRecord.php',
-    'App\\Models\\SlaughterDistributionRecordCreate' => $baseDir . '/app/Models/SlaughterDistributionRecordCreate.php',
     'App\\Models\\SlaughterHouse' => $baseDir . '/app/Models/SlaughterHouse.php',
     'App\\Models\\SlaughterRecord' => $baseDir . '/app/Models/SlaughterRecord.php',
     'App\\Models\\SubCounty' => $baseDir . '/app/Models/SubCounty.php',
