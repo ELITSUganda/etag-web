@@ -31,6 +31,16 @@ use function PHPUnit\Framework\fileExists;
 |
 */
 
+Route::get('/test', function () {
+    echo DNS1D::getBarcodeSVG('4445645656', 'PHARMA2T');
+    echo DNS1D::getBarcodeHTML('4445645656', 'PHARMA2T');
+    echo '<img src="data:image/png,' . DNS1D::getBarcodePNG('4', 'C39+') . '" alt="barcode"   />';
+    echo DNS1D::getBarcodePNGPath('4445645656', 'PHARMA2T');
+    echo '<img src="data:image/png;base64,' . DNS1D::getBarcodePNG('4', 'C39+') . '" alt="barcode"   />';
+    die();
+});
+
+
 //Route::get('/', [WebController::class, 'index']);
 Route::get('/', function () {
     header('Location: ' . admin_url());
@@ -78,10 +88,10 @@ Route::get('/process', function () {
             continue;
         }
         echo $i . ". " . $img . " Exists.<br>";
-        try{
+        try {
             unlink($path);
-        }catch(\Throwable $th){
-            echo $th->getMessage()."<br>";
+        } catch (\Throwable $th) {
+            echo $th->getMessage() . "<br>";
         }
     }
     die();
