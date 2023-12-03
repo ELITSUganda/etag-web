@@ -254,7 +254,7 @@ class ApiAnimalController extends Controller
             ]);
         }
 
-        $user_id = Utils::get_user_id($request);
+        $user_id = Utils::get_user_id($r);
 
         if ($user_id < 1) {
             return Utils::response([
@@ -313,6 +313,7 @@ class ApiAnimalController extends Controller
 
         if ($sr == null) {
             return Utils::response([
+                'data' => $sr,
                 'status' => 0,
                 'message' => "Record not found.",
             ]);
@@ -333,6 +334,7 @@ class ApiAnimalController extends Controller
 
         $sr->save();
         return Utils::response([
+            'data' => $sr,
             'status' => 1,
             'message' => "Record saved successfully.",
         ]);
