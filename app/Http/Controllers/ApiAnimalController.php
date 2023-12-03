@@ -434,12 +434,18 @@ class ApiAnimalController extends Controller
                 $url = url('sdr/' . $rec->id);
                 $data =
                     'ID: ' . $rec->id .
-                    ',Meat Grade: ' . $rec->post_grade .
+                    ', Meat Grade: ' . $rec->post_grade .
                     /*                     '\nSource: ' . $rec->source_name; */
                     ', More Details: ' . $url;
                 $path = Utils::generate_qrcode($data);
                 $rec->qr_code = $path;
                 $rec->save();
+                //return success
+                return Utils::response([
+                    'status' => 1,
+                    'message' => "Record saved successfully.",
+                    'data' => $rec,
+                ]);
             } catch (\Throwable $e) {
                 $rec->delete();
                 return Utils::response([
