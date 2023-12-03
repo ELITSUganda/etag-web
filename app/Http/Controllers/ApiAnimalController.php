@@ -434,10 +434,10 @@ class ApiAnimalController extends Controller
                 $url = url('sdr/' . $rec->id);
                 $data =
                     'ID: ' . $rec->id .
-                    '\nSlaughter Date: ' . Utils::my_date($rec->slaughter_date) .
+                    /*                     '\nSlaughter Date: ' . Utils::my_date($rec->slaughter_date) . */
                     '\nMeat Grade: ' . $rec->post_grade .
-                    '\nSource: ' . $rec->source_name;
-                '\nMore Details: ' . $url;
+                    /*                     '\nSource: ' . $rec->source_name; */
+                    '\nMore Details: ' . $url;
                 $path = Utils::generate_qrcode($data);
                 $rec->qr_code = $path;
                 $rec->save();
