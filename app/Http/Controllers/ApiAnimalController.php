@@ -283,6 +283,18 @@ class ApiAnimalController extends Controller
                 ]);
             }
 
+            $existing = SlaughterRecord::where([
+                'v_id' => $r->v_id
+            ])->first();
+
+            if ($existing != null) {
+                return Utils::response([
+                    'data' => $existing,
+                    'status' => 1,
+                    'message' => "Slaughter record already created.",
+                ]);
+            }
+
             $house = SlaughterHouse::find($r->house_id);
 
             $sr = new SlaughterRecord();
