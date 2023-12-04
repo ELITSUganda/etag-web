@@ -350,9 +350,11 @@ class ApiAnimalController extends Controller
             $sr->post_age = $r->post_age;
             $sr->post_dentition = $r->post_dentition;
             $sr->post_weight = $r->post_weight;
-            $sr->post_fat = $r->post_fat;
+            $sr->available_weight = $r->post_weight;
+            $sr->post_fat = $r->post_fat; 
             $sr->post_other = $r->post_other;
             $sr->has_post_info = $r->has_post_info;
+            $sr->post_grade = $r->post_grade;
         }
 
         $sr->save();
@@ -1758,8 +1760,8 @@ class ApiAnimalController extends Controller
         if ($u == null) {
             return [];
         }
- 
-    
+
+
         $items = SlaughterRecord::where('administrator_id', $user_id)->get();
         return Utils::response([
             'status' => 1,
