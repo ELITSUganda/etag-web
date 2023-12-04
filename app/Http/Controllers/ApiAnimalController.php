@@ -357,7 +357,7 @@ class ApiAnimalController extends Controller
             $sr->post_grade = $r->post_grade;
         }
 
-        $sr->save(); 
+        $sr->save();
         return Utils::response([
             'data' => $sr,
             'status' => 1,
@@ -2062,6 +2062,29 @@ class ApiAnimalController extends Controller
             ]);
         }
     }
+
+    public function cut_by_id(Request $request)
+    {
+        if ($request->id == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Cut ID not provided.",
+            ]);
+        }
+        $cut = SlaughterDistributionRecord::find(trim($request->id));
+        if ($cut == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Cut not found.",
+            ]);
+        }
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success.",
+            'data' => $cut
+        ]);
+    }
+
 
     public function events(Request $request)
     {
