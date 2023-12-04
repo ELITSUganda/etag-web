@@ -420,9 +420,14 @@ class ApiAnimalController extends Controller
                 'message' => "Weight must be greater than 0.",
             ]);
         }
+
+        if ($available < $weight) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Quantity can't be more than available quantity.",
+            ]);
+        }
         $sr->available_weight = $available - $weight;
-
-
 
         $rec = new SlaughterDistributionRecord();
         $rec->animal_id = $r->animal_id;
@@ -1725,6 +1730,26 @@ class ApiAnimalController extends Controller
             'status' => 1,
             'message' => "Success.",
             'data' => SlaughterHouse::all()
+        ]);
+    }
+
+
+    public function slaughter_distributions(Request $request)
+    {
+        $user_id = Utils::get_user_id($request);
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return [];
+        }
+
+        $items = [];
+        $_items = [];
+
+        $items = SlaughterDistributionRecord::where('created_by_id', $user_id)->limit(4000)->get();
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success.",
+            'data' => $items
         ]);
     }
 
