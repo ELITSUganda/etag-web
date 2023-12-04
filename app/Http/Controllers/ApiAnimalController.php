@@ -351,13 +351,13 @@ class ApiAnimalController extends Controller
             $sr->post_dentition = $r->post_dentition;
             $sr->post_weight = $r->post_weight;
             $sr->available_weight = $r->post_weight;
-            $sr->post_fat = $r->post_fat; 
+            $sr->post_fat = $r->post_fat;
             $sr->post_other = $r->post_other;
             $sr->has_post_info = $r->has_post_info;
             $sr->post_grade = $r->post_grade;
         }
 
-        $sr->save();
+        $sr->save(); 
         return Utils::response([
             'data' => $sr,
             'status' => 1,
