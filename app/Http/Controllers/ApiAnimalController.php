@@ -1742,13 +1742,10 @@ class ApiAnimalController extends Controller
             return [];
         }
 
-        $items = [];
-        $_items = [];
-
         $items = SlaughterDistributionRecord::where('created_by_id', $user_id)->limit(4000)->get();
         return Utils::response([
             'status' => 1,
-            'message' => "Success.",
+            'message' => "Success",
             'data' => $items
         ]);
     }
