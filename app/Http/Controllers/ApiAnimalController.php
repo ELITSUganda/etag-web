@@ -1745,7 +1745,7 @@ class ApiAnimalController extends Controller
         $items = SlaughterDistributionRecord::where('created_by_id', $user_id)->limit(4000)->get();
         return Utils::response([
             'status' => 1,
-            'message' => "Success",
+            'message' => "Success.",
             'data' => $items
         ]);
     }
@@ -1758,16 +1758,14 @@ class ApiAnimalController extends Controller
         if ($u == null) {
             return [];
         }
-
-        $items = [];
-        $_items = [];
-
+ 
+    
         $items = SlaughterRecord::where('administrator_id', $user_id)->get();
-        foreach ($items as $key => $value) {
-            $value->created = Carbon::parse($value->created_at)->toFormattedDateString();
-            $_items[] = $value;
-        }
-        return $_items;
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success.",
+            'data' => $items
+        ]);
     }
 
 
