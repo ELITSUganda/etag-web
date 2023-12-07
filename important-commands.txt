@@ -144,3 +144,5 @@ php artisan make:model Product
 
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs
+
+php artisan make:migration add_column_name_to_farmer_groups --table=farmer_groups 
