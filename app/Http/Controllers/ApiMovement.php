@@ -35,6 +35,26 @@ class ApiMovement extends Controller
 
     use ApiResponser;
 
+    public function workers(Request $r)
+    {
+        $user_id = ((int)(Utils::get_user_id($r)));
+        $u = User::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Failed'
+            ]);
+        }
+
+        $data = Administrator::where('temp_id', $user_id)->get();
+        return Utils::response([
+            'status' => 1,
+            'data' => $data,
+            'message' => 'Success'
+        ]);
+    }
+
     public function fiance_report(Request $r)
     {
         $user_id = ((int)(Utils::get_user_id($r)));
@@ -353,6 +373,106 @@ class ApiMovement extends Controller
             $sms_to_vendor = "Your vendor registration request has been submitted successfully. We will get back to you soon.";
             Utils::send_message('+256783204665', $sms_to_admin);
             Utils::send_message($u->business_phone_number, $sms_to_vendor);
+
+            return $this->success(null, $msg, $code);
+        } catch (\Throwable $th) {
+            $msg = $th->getMessage();
+            $code = 0;
+            return $this->error($msg);
+        }
+    }
+
+
+    public function workers_register(Request $request)
+    {
+        $user_id = ((int)(Utils::get_user_id($request)));
+        $admin = Administrator::find($user_id);
+        if ($admin == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Failed'
+            ]);
+        }
+
+        if (
+            $request->name == null ||
+            strlen($request->name) < 2
+        ) {
+            return $this->error('First name is missing.');
+        }
+
+        //validate all
+        if (
+            $request->phone_number == null ||
+            strlen($request->phone_number) < 2
+        ) {
+            return $this->error('Phone number is missing.');
+        }
+
+
+        if (
+            $request->business_license_number == null ||
+            strlen($request->business_license_number) < 2
+        ) {
+            return $this->error('Business license number is missing.');
+        }
+
+        if (
+            $request->vet_service == null ||
+            strlen($request->vet_service) < 2
+        ) {
+            return $this->error('Role is missing.');
+        }
+
+        $u = Administrator::find($request->id);
+        $isEdit = true;
+        if ($u == null) {
+            $u = new Administrator();
+            $isEdit = false;
+        }
+
+        if (
+            $request->password == null &&
+            strlen($request->password) > 3
+        ) {
+            $u->password = password_hash($request->password, PASSWORD_DEFAULT);
+        }
+
+        $msg = "";
+        $u->name = $request->name;
+        $u->temp_id = $admin->id;
+        
+        //names split $u->name
+        $names = explode(" ", $request->name);
+        if ($names != null) {
+            if (count($names) > 0) {
+                $u->first_name = $names[0];
+            }
+            if (count($names) > 1) {
+                $u->last_name = $names[1];
+            }
+        }
+        $phone_number = Utils::prepare_phone_number($request->phone_number);
+        if (!Utils::phone_number_is_valid($phone_number)) {
+            return $this->error('Invalid phone number.');
+        }
+        $u->phone_number = $phone_number;
+        $u->vet_service = $request->vet_service;
+        $u->request_status = "Active";
+
+        $code = 1;
+        try {
+            $u->save();
+
+            $msg = "Worker registered successfully.";
+            if ($isEdit) {
+                $msg = "Worker updated successfully.";
+            }
+            // $sms_to_admin = "New vendor registration request from {$u->first_name} {$u->last_name} - {$u->phone_number}. Login to the system to review.";
+            // $sms_to_vendor = "Your vendor registration request has been submitted successfully. We will get back to you soon.";
+            // Utils::send_message('+256783204665', $sms_to_admin);
+            // Utils::send_message($u->business_phone_number, $sms_to_vendor);
 
             return $this->success(null, $msg, $code);
         } catch (\Throwable $th) {
