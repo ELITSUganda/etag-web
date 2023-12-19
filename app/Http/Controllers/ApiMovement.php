@@ -457,6 +457,16 @@ class ApiMovement extends Controller
         if (!Utils::phone_number_is_valid($phone_number)) {
             return $this->error('Invalid phone number.');
         }
+
+        $oldUser = Administrator::where('phone_number', $phone_number)->first();
+        if ($oldUser != null) {
+            if ($oldUser->id != $u->id) {
+                return $this->error('Phone number already registered.');
+            }
+        } else {
+            $u->phone_number = $phone_number;
+        }
+
         $u->phone_number = $phone_number;
         $u->vet_service = $request->vet_service;
         $u->request_status = "Active";
