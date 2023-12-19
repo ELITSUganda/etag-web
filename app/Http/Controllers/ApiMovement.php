@@ -410,14 +410,7 @@ class ApiMovement extends Controller
             return $this->error('Phone number is missing.');
         }
 
-
-        if (
-            $request->business_license_number == null ||
-            strlen($request->business_license_number) < 2
-        ) {
-            return $this->error('Business license number is missing.');
-        }
-
+ 
         if (
             $request->vet_service == null ||
             strlen($request->vet_service) < 2
@@ -432,8 +425,12 @@ class ApiMovement extends Controller
             $isEdit = false;
         }
 
+        if((!$isEdit) && ($request->password == null || strlen($request->password) < 4)){
+            return $this->error('Password is missing.');
+        } 
+
         if (
-            $request->password == null &&
+            $request->password != null &&
             strlen($request->password) > 3
         ) {
             $u->password = password_hash($request->password, PASSWORD_DEFAULT);
@@ -470,6 +467,7 @@ class ApiMovement extends Controller
         $u->phone_number = $phone_number;
         $u->vet_service = $request->vet_service;
         $u->request_status = "Active";
+        $u->user_type = 'Worker';
 
         $code = 1;
         try {
@@ -484,7 +482,12 @@ class ApiMovement extends Controller
             // Utils::send_message('+256783204665', $sms_to_admin);
             // Utils::send_message($u->business_phone_number, $sms_to_vendor);
 
-            return $this->success(null, $msg, $code);
+            $newUser = Administrator::find($u->id);
+            if($newUser == null){
+                $newUser = $u;
+            }
+
+            return $this->success($newUser, $msg, $code);
         } catch (\Throwable $th) {
             $msg = $th->getMessage();
             $code = 0;
