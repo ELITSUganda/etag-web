@@ -410,7 +410,7 @@ class ApiMovement extends Controller
             return $this->error('Phone number is missing.');
         }
 
- 
+
         if (
             $request->vet_service == null ||
             strlen($request->vet_service) < 2
@@ -425,9 +425,9 @@ class ApiMovement extends Controller
             $isEdit = false;
         }
 
-        if((!$isEdit) && ($request->password == null || strlen($request->password) < 4)){
+        if ((!$isEdit) && ($request->password == null || strlen($request->password) < 4)) {
             return $this->error('Password is missing.');
-        } 
+        }
 
         if (
             $request->password != null &&
@@ -439,7 +439,7 @@ class ApiMovement extends Controller
         $msg = "";
         $u->name = $request->name;
         $u->temp_id = $admin->id;
-        
+
         //names split $u->name
         $names = explode(" ", $request->name);
         if ($names != null) {
@@ -483,11 +483,42 @@ class ApiMovement extends Controller
             // Utils::send_message($u->business_phone_number, $sms_to_vendor);
 
             $newUser = Administrator::find($u->id);
-            if($newUser == null){
+            if ($newUser == null) {
                 $newUser = $u;
             }
 
             return $this->success($newUser, $msg, $code);
+        } catch (\Throwable $th) {
+            $msg = $th->getMessage();
+            $code = 0;
+            return $this->error($msg);
+        }
+    }
+
+
+    public function workers_delete(Request $request)
+    {
+        $user_id = ((int)(Utils::get_user_id($request)));
+        $admin = Administrator::find($user_id);
+        if ($admin == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Failed'
+            ]);
+        }
+
+        $u = Administrator::find($request->id);
+        $isEdit = true;
+        if ($u == null) {
+            $u = new Administrator();
+            $isEdit = false;
+        }
+
+        try {
+            $u->delete();
+            $msg = "Worker deleted successfully.";
+            return $this->success(null, $msg);
         } catch (\Throwable $th) {
             $msg = $th->getMessage();
             $code = 0;
