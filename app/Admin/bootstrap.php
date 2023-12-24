@@ -36,6 +36,72 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 
+/* //csv file
+$csv = 'ug_arishes.csv';
+
+//check if file exist
+if (!file_exists($csv)) {
+    die("File not found. Make sure you specified the correct path.");
+}
+
+
+
+//open csv file and loop
+$isFirst = false;
+$i = 0;
+$done = [];
+if (($handle = fopen($csv, "r")) !== FALSE) {
+    while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+        if (!$isFirst) {
+            $isFirst = true;
+            continue;
+        }
+        $key = 0;
+        if (!isset($data[$key]) || $data[$key] == null || strlen($data[$key]) < 1) {
+            continue;
+        }
+        $word2 = trim($data[$key + 2]);
+        $word = trim($data[$key]);
+        if (in_array($word . $word2, $done)) {
+            continue;
+        }
+        $done[] = $word . $word2;
+
+        $dist = DB::table('locations')->where([
+            'name' => $word,
+        ])->first();
+
+        $sub = Location::where([
+            'name' => $word2,
+            'parent' => $dist->id, 
+            'detail' => 'Subcounty',
+        ])->first();
+        if ($sub != null) {
+            continue;
+        } 
+
+        //to sentence case
+        $word2 = ucwords(strtolower($word2));
+
+        $newDist = new Location();
+        $newDist->name = $word2;
+        $newDist->locked_down = 1;
+        $newDist->parent = $dist->id;
+        $newDist->photo = '';
+        $newDist->detail = 'Subcounty';
+        $newDist->order = 0;
+        $newDist->code = 0;
+        $newDist->save();
+
+        $i++;
+        echo $newDist->id . ". " . $word . ", $word2 <br>"; 
+    }
+    fclose($handle);
+}
+
+die("romina"); */
+
+
 /* foreach (Event::where([])->orderBy('id','desc')->get() as $key => $f) { 
     $f->updated_at  = now();
     $f->save();
