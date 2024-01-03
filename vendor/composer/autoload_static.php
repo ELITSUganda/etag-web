@@ -827,6 +827,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'App\\Admin\\Controllers\\MovementRouteController' => __DIR__ . '/../..' . '/app/Admin/Controllers/MovementRouteController.php',
         'App\\Admin\\Controllers\\MovementsItemsController' => __DIR__ . '/../..' . '/app/Admin/Controllers/MovementsItemsController.php',
         'App\\Admin\\Controllers\\MyProductController' => __DIR__ . '/../..' . '/app/Admin/Controllers/MyProductController.php',
+        'App\\Admin\\Controllers\\NotificationModelController' => __DIR__ . '/../..' . '/app/Admin/Controllers/NotificationModelController.php',
         'App\\Admin\\Controllers\\OrderController' => __DIR__ . '/../..' . '/app/Admin/Controllers/OrderController.php',
         'App\\Admin\\Controllers\\ParishController' => __DIR__ . '/../..' . '/app/Admin/Controllers/ParishController.php',
         'App\\Admin\\Controllers\\PregnantAnimalController' => __DIR__ . '/../..' . '/app/Admin/Controllers/PregnantAnimalController.php',

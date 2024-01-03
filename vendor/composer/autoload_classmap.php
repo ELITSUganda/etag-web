@@ -36,6 +36,7 @@ return array(
     'App\\Admin\\Controllers\\MovementRouteController' => $baseDir . '/app/Admin/Controllers/MovementRouteController.php',
     'App\\Admin\\Controllers\\MovementsItemsController' => $baseDir . '/app/Admin/Controllers/MovementsItemsController.php',
     'App\\Admin\\Controllers\\MyProductController' => $baseDir . '/app/Admin/Controllers/MyProductController.php',
+    'App\\Admin\\Controllers\\NotificationModelController' => $baseDir . '/app/Admin/Controllers/NotificationModelController.php',
     'App\\Admin\\Controllers\\OrderController' => $baseDir . '/app/Admin/Controllers/OrderController.php',
     'App\\Admin\\Controllers\\ParishController' => $baseDir . '/app/Admin/Controllers/ParishController.php',
     'App\\Admin\\Controllers\\PregnantAnimalController' => $baseDir . '/app/Admin/Controllers/PregnantAnimalController.php',
