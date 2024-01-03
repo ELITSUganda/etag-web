@@ -47,6 +47,48 @@ class AdminRoleUser extends Model
                 'role_id' => $model->role_id
             ])->delete();
         });
+        self::updating(function ($model) {
+            if (isset($model->type_id_1)) {
+                if ($model->type_id_1 != null) {
+                    $t = (int)($model->type_id_1);
+                    if ($t > 0) {
+                        $model->type_id = $t;
+                    }
+                }
+            }
+            if (isset($model->type_id_2)) {
+                if ($model->type_id_2 != null) {
+                    $t = (int)($model->type_id_2);
+                    if ($t > 0) {
+                        $model->type_id = $t;
+                    }
+                }
+            }
+            if (isset($model->type_id_3)) {
+                if ($model->type_id_3 != null) {
+                    $t = (int)($model->type_id_3);
+                    if ($t > 0) {
+                        $model->type_id = $t;
+                    }
+                }
+            }
+            if (isset($model->type_id_4)) {
+                if ($model->type_id_4 != null) {
+                    $t = (int)($model->type_id_4);
+                    if ($t > 0) {
+                        $model->type_id = $t;
+                    }
+                }
+                unset($model->type_id_4);
+            }
+
+            $model->type_id_1 = null;
+            $model->type_id_2 = null;
+            $model->type_id_3 = null;
+            $model->type_id_4 = null;
+            return $model;
+        });
+        return true;
     }
 
     public function owner()

@@ -13,6 +13,7 @@ class AddColumnNameToFarmerGroups extends Migration
      */
     public function up()
     {
+        return;
         Schema::table('farmer_groups', function (Blueprint $table) {
             $table->text('external_id')->nullable();
         });

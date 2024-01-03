@@ -26,6 +26,7 @@ Route::POST('workers-register', [ApiMovement::class, 'workers_register']);
 Route::POST('workers-delete', [ApiMovement::class, 'workers_delete']);
 Route::get('fiance-report', [ApiMovement::class, 'fiance_report']);
 Route::get('workers', [ApiMovement::class, 'workers']);
+Route::get('notifications', [ApiMovement::class, 'notifications']);
 Route::get('fiance-categories', [ApiMovement::class, 'fiance_categories']);
 Route::POST('finance-categories', [ApiMovement::class, 'finance_categories']);
 Route::get('drug-categories', [ApiMovement::class, 'drug_categories']);
@@ -96,8 +97,10 @@ Route::get('images-v2', [ApiAnimalController::class, 'images_v2']);
 Route::get('photos-downloads', [ApiAnimalController::class, 'photo_downloads']);
 Route::POST('create-slaughter', [ApiAnimalController::class, 'create_slaughter']);
 Route::POST('create-slaughter-single', [ApiAnimalController::class, 'create_slaughter_single']);
-Route::POST('create-slaughter-distribution-record', [ApiAnimalController::class, 
-'create_slaughter_distribution_record']);
+Route::POST('create-slaughter-distribution-record', [
+    ApiAnimalController::class,
+    'create_slaughter_distribution_record'
+]);
 Route::get('animals/{id}', [ApiAnimalController::class, 'show']);
 
 Route::get('events', [ApiAnimalController::class, 'events']);
@@ -302,12 +305,18 @@ Route::get('districts', function (Request $r) {
             "%$q%"
         )
         ->where('parent', '==', 0)
-        ->limit(20)->get();
+        ->limit(50)->get();
     $data = [];
     foreach ($res_1 as $key => $v) {
+        if ($v->parent != 0) {
+            continue;
+        }
+        if ($v->details == 'Subcounty') {
+            continue;
+        }
         $data[] = [
             'id' => $v->id,
-            'text' => "$v->name"
+            'text' => "$v->name - #".$v->id
         ];
     }
 

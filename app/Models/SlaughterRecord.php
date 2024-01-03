@@ -17,10 +17,10 @@ class SlaughterRecord extends Model
         return  SlaughterDistributionRecord::where('source_id', $this->id)->count();
     }
 
-    //getter for available_weight 
+    /* //getter for available_weight 
     public function getAvailableWeightAttribute()
     {
         $sum = SlaughterDistributionRecord::where('source_id', $this->id)->sum('original_weight');
         return  $this->original_weight - $sum;
-    }
+    } */
 }

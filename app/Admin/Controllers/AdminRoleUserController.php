@@ -149,6 +149,12 @@ class AdminRoleUserController extends AdminController
      */
     protected function form()
     {
+
+        // $rec = AdminRoleUser::find(request()->route()->parameter('admin_role_user'));
+        // $rec->type_id_1  = 15;
+        // $rec->save();
+        // dd($rec);
+
         $form = new Form(new AdminRoleUser());
 
         $form->select('user_id', 'Select user')
@@ -175,9 +181,16 @@ class AdminRoleUserController extends AdminController
                 $f->hidden('role_id', __('Role id'))->default(7);
                 $f->select('type_id_1', 'Select District')
                     ->options(function ($id) {
-                        $parent = Location::find($id);
-                        if ($parent != null) {
-                            return [$parent->id =>  $parent->name];
+
+                        //current route id
+                        $route_id = request()->route()->parameter('admin_role_user');
+
+                        $rec = AdminRoleUser::find($route_id);
+                        if ($rec) {
+                            $parent = Location::find($rec->type_id);
+                            if ($parent != null) {
+                                return [$parent->id =>  $parent->name]; 
+                            }
                         }
                     })
                     ->rules('required')
@@ -187,7 +200,7 @@ class AdminRoleUserController extends AdminController
             })
             ->when('scvo', function ($f) {
                 $f->hidden('role_id', __('Role id'))->default(2);
-                $f->select('type_id', 'Select sub-county')
+                $f->select('type_id_2', 'Select sub-county')
                     ->options(function ($id) {
                         $parent = Location::find($id);
                         if ($parent != null) {

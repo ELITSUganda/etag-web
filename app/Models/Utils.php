@@ -1171,13 +1171,40 @@ class Utils extends Model
         $msg,
         $receiver,
         $headings = 'U-LITS',
-        $data = null,
+        $data = [],
         $url = null,
         $buttons = null,
         $schedule = null,
     ) {
 
+        $noti = new NotificationModel();
+        $noti->title = $headings;
+        $noti->message = $msg;
+        $noti->data = json_encode($data);
+        $noti->reciever_id = $receiver;
+        $noti->status = 'NOT READ';
+        $noti->type = 'NOTIFICATION';
+        $noti->image = '';
+        if(isset($data['image'])){
+            $noti->image = $data['image'];
+        }
+        if(isset($data['type'])){
+            $noti->type = $data['type'];
+        }
+        try{
+            $noti->save();
+            $data['id'] = $noti->id;
+            $data['notification_id'] = $noti->id;
+        }catch(\Throwable $th){
+            throw $th;
+        }
 
+
+        /* 
+
+        $table->text('')->nullable();
+        $table->string('')->nullable();
+        */
         try {
             \OneSignal::addParams(
                 [

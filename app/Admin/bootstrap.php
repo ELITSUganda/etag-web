@@ -36,6 +36,21 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 
+/* $reciever_id = 709;
+$msg = "Simple test message";
+$title = "NOT RECEIVED - {$reciever_id}";
+Utils::sendNotification(
+    $msg,
+    $reciever_id,
+    $headings =  $title,
+    $data = [
+        'type' => 'Animal',
+        'id' => 1,
+    ]
+);
+
+die("tome to test notifications");
+ */
 /* //csv file
 $csv = 'ug_arishes.csv';
 

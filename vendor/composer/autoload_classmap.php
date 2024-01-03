@@ -119,6 +119,7 @@ return array(
     'App\\Models\\MovementHasMovementAnimal' => $baseDir . '/app/Models/MovementHasMovementAnimal.php',
     'App\\Models\\MovementRoute' => $baseDir . '/app/Models/MovementRoute.php',
     'App\\Models\\MyFaker' => $baseDir . '/app/Models/MyFaker.php',
+    'App\\Models\\NotificationModel' => $baseDir . '/app/Models/NotificationModel.php',
     'App\\Models\\Order' => $baseDir . '/app/Models/Order.php',
     'App\\Models\\Parish' => $baseDir . '/app/Models/Parish.php',
     'App\\Models\\PregnantAnimal' => $baseDir . '/app/Models/PregnantAnimal.php',

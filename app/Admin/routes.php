@@ -65,4 +65,5 @@ Route::group([
     $router->resource('wholesale-drug-stocks', WholesaleDrugStockController::class);
     $router->resource('wholesale-orders', WholesaleOrderController::class);
     $router->resource('wholesale-order-items', WholesaleOrderItemController::class);
+    $router->resource('notifications', NotificationModelController::class); 
 });

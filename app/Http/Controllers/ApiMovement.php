@@ -16,6 +16,7 @@ use App\Models\Location;
 use App\Models\Movement;
 use App\Models\MovementHasMovementAnimal;
 use App\Models\MovementRoute;
+use App\Models\NotificationModel;
 use App\Models\Product;
 use App\Models\SlaughterHouse;
 use App\Models\Trip;
@@ -29,11 +30,35 @@ use COM;
 use Dflydev\DotAccessData\Util;
 use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Notification;
 
 class ApiMovement extends Controller
 {
 
     use ApiResponser;
+
+    public function notifications(Request $r)
+    {
+        $user_id = ((int)(Utils::get_user_id($r)));
+        $u = User::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Failed'
+            ]);
+        }
+
+        $data = NotificationModel::where('reciever_id', $user_id)
+            ->orderBy('id', 'desc')
+            ->limit(500)
+            ->get();
+        return Utils::response([
+            'status' => 1,
+            'data' => $data,
+            'message' => 'Success'
+        ]);
+    }
 
     public function workers(Request $r)
     {

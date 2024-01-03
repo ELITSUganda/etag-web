@@ -345,17 +345,17 @@ class ApiAnimalController extends Controller
             }
         }
 
-        if ($r->has_post_info == 'Yes') {
-            $sr->post_animal = $r->post_animal;
-            $sr->post_age = $r->post_age;
-            $sr->post_dentition = $r->post_dentition;
-            $sr->post_weight = $r->post_weight;
-            $sr->available_weight = $r->post_weight;
-            $sr->post_fat = $r->post_fat;
-            $sr->post_other = $r->post_other;
-            $sr->has_post_info = $r->has_post_info;
-            $sr->post_grade = $r->post_grade;
-        }
+
+        $sr->post_animal = $r->post_animal;
+        $sr->post_age = $r->post_age;
+        $sr->post_dentition = $r->post_dentition;
+        $sr->post_weight = $r->post_weight;
+        $sr->available_weight = $r->post_weight;
+        $sr->post_fat = $r->post_fat;
+        $sr->post_other = $r->post_other;
+        $sr->has_post_info = $r->has_post_info;
+        $sr->post_grade = $r->post_grade;
+        
 
         $sr->save();
         return Utils::response([
@@ -411,7 +411,7 @@ class ApiAnimalController extends Controller
         if ($available < 1) {
             return Utils::response([
                 'status' => 0,
-                'message' => "No meat available.",
+                'message' => "Current available weight is $sr.",
             ]);
         }
 
