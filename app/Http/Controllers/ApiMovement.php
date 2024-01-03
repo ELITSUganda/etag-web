@@ -60,6 +60,35 @@ class ApiMovement extends Controller
         ]);
     }
 
+    public function notifications_read(Request $r)
+    {
+        $user_id = ((int)(Utils::get_user_id($r)));
+        $u = User::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Failed'
+            ]);
+        }
+
+        $data = NotificationModel::find($r->id);
+        if ($data == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Notification not found'
+            ]);
+        }
+        $data->status = 'READ';
+        $data->save();
+        return Utils::response([
+            'status' => 1,
+            'data' => $data,
+            'message' => 'Success'
+        ]);
+    }
+
     public function workers(Request $r)
     {
         $user_id = ((int)(Utils::get_user_id($r)));
