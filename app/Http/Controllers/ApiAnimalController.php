@@ -480,7 +480,11 @@ class ApiAnimalController extends Controller
                 Utils::sendNotification(
                     $msg,
                     $u->id,
-                    $headings =  $title
+                    $headings =  $title,
+                    $data = [
+                        'type' => 'Animal',
+                        'animal_id' => $rec->id,
+                    ]
                 );
 
                 //return success

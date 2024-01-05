@@ -28,7 +28,19 @@ class Administrator extends Model implements AuthenticatableContract
     use DefaultDatetimeFormat;
 
     protected $fillable = ['username', 'password', 'name', 'avatar'];
-    protected $appends = ['vet_profile','sub_county_text'];
+    protected $appends = ['vet_profile', 'sub_county_text', 'farm_text'];
+
+
+    //getter for farm_text
+    public function getFarmTextAttribute()
+    {
+        $farm = Farm::where('administrator_id', $this->id)->first();
+        if ($farm != null) {
+            return $farm->name;
+        }
+        return 'N/A'; 
+    }
+
 
     public static function boot()
     {
@@ -82,7 +94,7 @@ class Administrator extends Model implements AuthenticatableContract
                         ]);
                     }
                 }
-            }  
+            }
 
             return $m;
         });
@@ -144,7 +156,7 @@ class Administrator extends Model implements AuthenticatableContract
     public function getSubCountyTextAttribute()
     {
         $sub =  Location::find($this->sub_county_id);
-        if($sub!=null){
+        if ($sub != null) {
             return $sub->name_text;
         }
         return '-';

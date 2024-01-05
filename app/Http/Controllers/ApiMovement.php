@@ -456,6 +456,13 @@ class ApiMovement extends Controller
             return $this->error('First name is missing.');
         }
 
+        if (
+            $request->farm_id == null ||
+            strlen($request->farm_id) < 1
+        ) {
+            return $this->error('Farm is missing.');
+        }
+
         //validate all
         if (
             $request->phone_number == null ||
@@ -520,6 +527,7 @@ class ApiMovement extends Controller
 
         $u->phone_number = $phone_number;
         $u->vet_service = $request->vet_service;
+        $u->farm_id = $request->farm_id;
         $u->request_status = "Active";
         $u->user_type = 'Worker';
 
