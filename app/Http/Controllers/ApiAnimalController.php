@@ -355,7 +355,7 @@ class ApiAnimalController extends Controller
         $sr->post_other = $r->post_other;
         $sr->has_post_info = $r->has_post_info;
         $sr->post_grade = $r->post_grade;
-        
+
 
         $sr->save();
         return Utils::response([
@@ -438,7 +438,6 @@ class ApiAnimalController extends Controller
         $rec->source_type = "Slaughter House";
         $rec->source_id = $sr->id;
         $rec->source_name = $u->name;
-        $rec->source_address = $u->address;
         $rec->source_phone = $u->phone_number;
         $rec->receiver_id = $receiver->id;
         $rec->receiver_type = "Trader";
@@ -449,6 +448,7 @@ class ApiAnimalController extends Controller
         $rec->v_id = $sr->v_id;
         $rec->e_id = $sr->e_id;
         $rec->animal_owner_id = 1;
+        $rec->source_address = $r->source_address;
         $rec->bar_code = $sr->bar_code;
         $rec->post_fat = $sr->post_fat;
         $rec->post_grade = $sr->post_grade;
@@ -487,11 +487,24 @@ class ApiAnimalController extends Controller
                     ]
                 );
 
+
+                $sr = SlaughterRecord::find($sr->id);
+                $rec = SlaughterDistributionRecord::find($rec->id); 
+                if ($sr == null) {
+                    return Utils::response([
+                        'status' => 0,
+                        'message' => "Slaughter record not found.",
+                    ]);
+                }
+
                 //return success
                 return Utils::response([
                     'status' => 1,
                     'message' => "Record saved successfully.",
-                    'data' => $rec,
+                    'data' => [
+                        'sr' => $sr,
+                        'sdr' => $rec,
+                    ]
                 ]);
             } catch (\Throwable $e) {
                 $rec->delete();
@@ -2190,11 +2203,16 @@ class ApiAnimalController extends Controller
 
         if ($request->updated_at != null) {
             if (strlen($request->updated_at) > 2) {
-                $query->whereDate('updated_at', '>', Carbon::parse($request->updated_at));
+                $updated_at = Carbon::parse($request->updated_at);
+                if ($updated_at != null) {
+                    $query->whereDate('updated_at', '>', $updated_at);
+                }
             }
         }
 
-        $data = $query->get();
+        $data = $query
+            ->orderBy('id', 'desc')
+            ->limit(1000)->get();
 
         return Utils::response([
             'status' => 1,

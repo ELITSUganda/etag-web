@@ -83,7 +83,7 @@ class AdminRoleUserController extends AdminController
             $roles = [];
             foreach (AdminRole::all() as $key => $v) {
                 $roles[$v->id] = $v->name;
-            }
+            } 
             $filter->equal('role_id', 'Filter by Role')
                 ->select($roles);
         });
