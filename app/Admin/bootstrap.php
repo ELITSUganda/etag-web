@@ -43,6 +43,8 @@ date_default_timezone_set('Africa/Nairobi');
 
 echo $ev->created_at."<br>";
 $t = Carbon\Carbon::parse($ev->created_at); 
+echo '<hr>';
+echo '2024-01-31 03:50:00.000'; 
 //echo Utils::my_date_time($ev->created_at);
 
 //display time in format date and time with pm or am
