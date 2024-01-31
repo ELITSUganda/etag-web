@@ -35,7 +35,7 @@ use Encore\Admin\Facades\Admin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-$ev = Event::where([
+/* $ev = Event::where([
      
 ])->orderBy('id','desc')->first();
 
@@ -51,7 +51,7 @@ echo $t->format('Y-m-d H:i:s') . "<br>";
 echo '<hr>'; 
 
 die(); 
-
+ */
 //$now = new DateTime();
 
 //$now->setTimezone(new DateTimeZone('Africa/Nairobi'));
