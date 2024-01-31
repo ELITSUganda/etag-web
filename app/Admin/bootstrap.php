@@ -36,8 +36,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 $ev = Event::where([
-    'id' => 34481
-])->first();
+     
+])->orderBy('id','desc')->first();
 
 date_default_timezone_set('Africa/Nairobi'); 
 
@@ -48,8 +48,7 @@ $t = Carbon\Carbon::parse($ev->created_at);
 
 //display time in format date and time with pm or am
 echo $t->format('Y-m-d H:i:s') . "<br>"; 
-echo '<hr>';
-echo '2024-01-31 03:50:00.000';  
+echo '<hr>'; 
 
 die(); 
 
