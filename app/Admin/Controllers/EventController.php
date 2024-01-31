@@ -206,7 +206,7 @@ class EventController extends AdminController
 
         $grid->column('created_at', __('Date'))
             ->display(function ($f) {
-                return Carbon::parse($f)->toFormattedDateString();
+                return Utils::my_date_time($f);
             })->sortable();
         $grid->column('type', __('Event Type'))->sortable();
         $grid->column('milk', __('Milk (Ltrs)'))->sortable();
