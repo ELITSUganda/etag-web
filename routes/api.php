@@ -134,6 +134,7 @@ Route::POST('slaughter-session', [ApiMovement::class, 'slaughter_session']);
 Route::POST('movements-review/{id}', [ApiMovement::class, 'review']);
 Route::POST('change-tag/{id}', [ApiAnimalController::class, 'change_tag']);
 Route::POST('archive-animal/{id}', [ApiAnimalController::class, 'archive_animal']);
+Route::POST('cancel-delete-request/{id}', [ApiAnimalController::class, 'cancel_delete_request']);
 
 Route::POST('check-point-records', [ApiMovement::class, 'create_check_record']);
 Route::get('check-point-records', [ApiMovement::class, 'get_check_record']);

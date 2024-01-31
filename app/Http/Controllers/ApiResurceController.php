@@ -15,6 +15,7 @@ use App\Models\Image;
 use App\Models\Product;
 use App\Models\ProductOrder;
 use App\Models\Transaction;
+use App\Models\User;
 use App\Models\Vaccine;
 use Carbon\Carbon;
 use Dflydev\DotAccessData\Util;
@@ -148,6 +149,16 @@ class ApiResurceController extends Controller
 
     public function archived_animals(Request $r)
     {
+
+        $worker_id = Utils::get_user_id($r);
+        $worker = User::find($worker_id);
+        if($worker != null){
+            return Utils::response([
+                'status' => 0,
+                'message' => "Worker not allowed to delete animals.",
+            ]); 
+        }
+
         $administrator_id = Utils::get_user_id($r);
         $u = Administrator::find($administrator_id);
 

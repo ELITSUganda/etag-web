@@ -865,6 +865,44 @@ class Utils extends Model
         if ($header < 1) {
             $header = (int)($request->user);
         }
+
+        if ($header < 1) {
+            if (isset($request->user_id)) {
+                $header = (int)($request->user_id);
+            }
+        }
+
+        //temp_worker_id
+        if ($header < 1) {
+            return 0;
+        }
+        return $header;
+    }
+
+    public static function get_temp_worker_id($request = null)
+    {
+        $header = (int)($request->header('temp_worker_id'));
+        if ($header < 1) {
+            $header = (int)($request->user);
+        }
+        
+        if ($header < 1) {
+            if (isset($request->temp_worker_id)) {
+                $header = (int)($request->temp_worker_id);
+            }
+        }
+        if ($header > 0) {
+            return $header;
+        }
+
+        if ($request == null) {
+            return 0;
+        }
+    
+
+
+
+        //temp_worker_id
         if ($header < 1) {
             return 0;
         }
@@ -1185,17 +1223,17 @@ class Utils extends Model
         $noti->status = 'NOT READ';
         $noti->type = 'NOTIFICATION';
         $noti->image = '';
-        if(isset($data['image'])){
+        if (isset($data['image'])) {
             $noti->image = $data['image'];
         }
-        if(isset($data['type'])){
+        if (isset($data['type'])) {
             $noti->type = $data['type'];
         }
-        try{
+        try {
             $noti->save();
             $data['id'] = $noti->id;
             $data['notification_id'] = $noti->id;
-        }catch(\Throwable $th){
+        } catch (\Throwable $th) {
             throw $th;
         }
 

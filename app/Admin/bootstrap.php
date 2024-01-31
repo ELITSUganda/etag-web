@@ -35,6 +35,22 @@ use Encore\Admin\Facades\Admin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+$now = new DateTime();
+//$now->setTimezone(new DateTimeZone('Africa/Nairobi'));
+//display timezone
+echo $now->format('Y-m-d H:i:s') . "<br>";
+echo $now->getTimezone()->getName() . "<br>";
+echo date_default_timezone_get() . "<br>";
+echo date('Y-m-d H:i:s') . "<br>";
+echo now() . "<br>";
+echo now()->format('Y-m-d H:i:s') . "<br>";
+echo now()->timezone('Africa/Nairobi')->format('Y-m-d H:i:s') . "<br>";
+
+die("romina"); 
+
+
+
+
 
 /* $reciever_id = 709;
 $msg = "Simple test message";

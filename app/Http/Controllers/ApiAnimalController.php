@@ -15,6 +15,7 @@ use App\Models\Movement;
 use App\Models\SlaughterDistributionRecord;
 use App\Models\SlaughterHouse;
 use App\Models\SlaughterRecord;
+use App\Models\User;
 use App\Models\Utils;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
@@ -489,7 +490,7 @@ class ApiAnimalController extends Controller
 
 
                 $sr = SlaughterRecord::find($sr->id);
-                $rec = SlaughterDistributionRecord::find($rec->id); 
+                $rec = SlaughterDistributionRecord::find($rec->id);
                 if ($sr == null) {
                     return Utils::response([
                         'status' => 0,
@@ -526,6 +527,13 @@ class ApiAnimalController extends Controller
     public function archive_animal(Request $r, $id)
     {
 
+        $worker_id = Utils::get_user_id($r);
+        $worker = User::find($worker_id);
+        $animal = Animal::find($id);
+        if ($animal == null) {
+            return Utils::response(['status' => 0, 'message' => "Animal was not found.",]);
+        }
+
         $administrator_id = Utils::get_user_id($r);
         $u = Administrator::find($administrator_id);
         if ($u == null) {
@@ -535,10 +543,39 @@ class ApiAnimalController extends Controller
             ]);
         }
 
-        $animal = Animal::find($id);
-        if ($animal == null) {
-            return Utils::response(['status' => 0, 'message' => "Animal was not found.",]);
+
+
+        if ($worker != null) {
+            $animal->destination = 'pending_for_deletion';
+            $animal->decline_reason = $r->reason;
+            $animal->comments = $r->details;
+
+            try {
+                $animal->save();
+            } catch (\Throwable $e) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Failed to save animal. {$e->getMessage()}",
+                ]);
+            }
+
+
+            $mgs = "{$worker->first_name} is requesting for deletion of animal {$animal->v_id}, Reason:  {$r->reason}, Details: {$r->details}. Open the App to see more details.";
+            $title = "ANIMAL DELETION REQUEST - {$animal->v_id}";
+            Utils::sendNotification(
+                $mgs,
+                $u->id,
+                $headings =  $title
+            );
+
+            return Utils::response([
+                'status' => 1,
+                'message' => "Animal deleted has been requested successfully.",
+            ]);
         }
+
+        die("here");
+
 
 
         $mgs = "{$animal->type} - {$animal->v_id} has been archived. Reason: {$r->reason}, {$r->details}. Open the App to see more details.";
@@ -592,6 +629,35 @@ class ApiAnimalController extends Controller
         return Utils::response([
             'status' => 1,
             'message' => $mgs,
+        ]);
+    }
+
+    public function cancel_delete_request(Request $r, $id)
+    {
+
+        $worker_id = Utils::get_user_id($r);
+        $worker = User::find($worker_id);
+        $animal = Animal::find($id);
+        if ($animal == null) {
+            return Utils::response(['status' => 0, 'message' => "Animal was not found.",]);
+        }
+        $animal->destination = null;
+        $animal->decline_reason = null;
+        $animal->comments = null;
+        $animal->save();
+
+        try {
+            $animal->save();
+        } catch (\Throwable $e) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Failed to save animal. {$e->getMessage()}",
+            ]);
+        }
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "Animal deletion request has been cancelled successfully.",
         ]);
     }
 
