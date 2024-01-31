@@ -75,7 +75,7 @@ class NotificationModelController extends AdminController
         $reciever_id = 709;
         $msg = "Simple test message";
         $title = "NOT RECEIVED - {$reciever_id}";
-        Utils::sendNotification(
+        Utils:: sendNotification(
             $msg,
             $reciever_id,
             $headings =  $title,

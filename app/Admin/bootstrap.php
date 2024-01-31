@@ -78,7 +78,7 @@ $ans = Animal::where([
     'administrator_id' => $reciever_id,
 ])->get()->pluck('id')->toArray();
 
-Utils::sendNotification(
+Utils:: sendNotification(
     $msg,
     $reciever_id,
     $headings =  $title,

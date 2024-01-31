@@ -1226,6 +1226,18 @@ class Utils extends Model
                 foreach ($data as $key => $value) {
                     $animal = Animal::find((int)(($value)));
                     if ($animal == null) {
+                        $arhive = ArchivedAnimal::get_animal((int)(($value)));
+                        if ($arhive == null) {
+                            continue;
+                        }
+                        $animal = $arhive;
+                        $temp_data_item = [];
+                        $temp_data_item['id'] = $value;
+                        $temp_data_item['e_id'] = $animal->e_id;
+                        $temp_data_item['photo'] = 'logo.png';
+                        $temp_data_item['last_seen'] = $animal->updated_at;
+                        $temp_data_item['type'] = $animal->type;
+                        $temp_data[] = $temp_data_item;
                         continue;
                     }
                     if ($animal->photo == null) {
@@ -1250,6 +1262,7 @@ class Utils extends Model
         }
 
         $noti->data = json_encode($temp_data);
+        
         $noti->reciever_id = $receiver;
         $noti->status = 'NOT READ';
         $noti->type = 'NOTIFICATION';

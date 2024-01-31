@@ -478,14 +478,11 @@ class ApiAnimalController extends Controller
                 //Reciever message
                 $msg = "You have received {$rec->current_weight}kg of meat from {$rec->source_name}. Open the App to see more details.";
                 $title = "MEAT RECEIVED - {$rec->v_id}";
-                Utils::sendNotification(
+                Utils:: sendNotification(
                     $msg,
                     $u->id,
                     $headings =  $title,
-                    $data = [
-                        'type' => 'Animal',
-                        'animal_id' => $rec->id,
-                    ]
+                    $data = [$rec->animal_id]
                 );
 
 
@@ -542,6 +539,16 @@ class ApiAnimalController extends Controller
                 'message' => "User not found.",
             ]);
         }
+        if (strtolower($u->user_type) != 'worker') {
+            $worker = null;
+        } else {
+            if ($worker == null) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Worker account not found. Update the app and try again.",
+                ]);
+            }
+        }
 
 
 
@@ -562,10 +569,11 @@ class ApiAnimalController extends Controller
 
             $mgs = "{$worker->first_name} is requesting for deletion of animal {$animal->v_id}, Reason:  {$r->reason}, Details: {$r->details}. Open the App to see more details.";
             $title = "ANIMAL DELETION REQUEST - {$animal->v_id}";
-            Utils::sendNotification(
+            Utils:: sendNotification(
                 $mgs,
                 $u->id,
-                $headings =  $title
+                $headings =  $title,
+                $data = [$animal->id]
             );
 
             return Utils::response([
@@ -573,9 +581,6 @@ class ApiAnimalController extends Controller
                 'message' => "Animal deleted has been requested successfully.",
             ]);
         }
-
-        die("here");
-
 
 
         $mgs = "{$animal->type} - {$animal->v_id} has been archived. Reason: {$r->reason}, {$r->details}. Open the App to see more details.";
@@ -622,7 +627,8 @@ class ApiAnimalController extends Controller
         Utils::sendNotification(
             $mgs,
             $u->id,
-            $headings =  $title
+            $headings =  $title,
+            $data = [$animal->id]
         );
 
 
@@ -851,7 +857,7 @@ class ApiAnimalController extends Controller
             $num = count($animal_ids_found);
             $session->description =    "Milked {$litters} litters from {$num} animals in a {$session->name} session. Open the App to see details.";
             $session->save();
-            Utils::sendNotification(
+            Utils:: sendNotification(
                 $session->description,
                 $session->administrator_id,
                 $headings = "Milked {$num} animals."
