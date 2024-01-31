@@ -898,7 +898,7 @@ class Utils extends Model
         if ($request == null) {
             return 0;
         }
-    
+
 
 
 
@@ -1218,14 +1218,43 @@ class Utils extends Model
         $noti = new NotificationModel();
         $noti->title = $headings;
         $noti->message = $msg;
-        $noti->data = json_encode($data);
+        $noti->data = '[]';
+        $temp_data = [];
+        $noti->image = 'logo.png';
+        if ($data != null && is_array($data)) {
+            try {
+                foreach ($data as $key => $value) {
+                    $animal = Animal::find((int)(($value)));
+                    if ($animal == null) {
+                        continue;
+                    }
+                    if ($animal->photo == null) {
+                        continue;
+                    }
+                    $temp_data_item = [];
+                    $temp_data_item['id'] = $animal->id;
+                    $temp_data_item['e_id'] = $animal->e_id;
+                    $temp_data_item['photo'] = $animal->photo;
+                    $temp_data_item['last_seen'] = $animal->updated_at;
+                    $temp_data_item['type'] = $animal->type;
+                    $temp_data[] = $temp_data_item;
+
+                    //if $animal->photo does not contain logo.png
+                    if (!str_contains($animal->photo, 'logo.png')) {
+                        $noti->image = $animal->photo;
+                    }
+                }
+            } catch (\Throwable $th) {
+                $temp_data = [];
+            }
+        }
+
+        $noti->data = json_encode($temp_data);
         $noti->reciever_id = $receiver;
         $noti->status = 'NOT READ';
         $noti->type = 'NOTIFICATION';
-        $noti->image = '';
-        if (isset($data['image'])) {
-            $noti->image = $data['image'];
-        }
+
+
         if (isset($data['type'])) {
             $noti->type = $data['type'];
         }

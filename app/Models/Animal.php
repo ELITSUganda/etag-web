@@ -183,8 +183,32 @@ class Animal extends Model
 
     public function getPhotoAttribute($photo)
     {
-        return $photo;
-        return str_replace("storage/", "", $photo);
+        if ($photo !=  null && strlen($photo) > 3) {
+            return $photo;
+        }
+        $imgs = Image::where([
+            'parent_id' => $this->id,
+            'parent_endpoint' => 'Animal',
+        ])->get();
+
+        if ($imgs == null || count($imgs) < 1) {
+            return null;
+        }
+
+        foreach ($imgs as $img) {
+            if (
+                $img->thumbnail != null && strlen($img->thumbnail) > 3 &&
+                str_contains($img->thumbnail, "logo.png") == false
+            ) {
+                return $img->thumbnail;
+            }
+
+            if ($img->src != null && strlen($img->src) > 3) {
+                return $img->src;
+            }
+        }
+
+        return 'logo.png';
     }
 
     public function getParentTextAttribute()
