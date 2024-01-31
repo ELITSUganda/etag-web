@@ -35,7 +35,18 @@ use Encore\Admin\Facades\Admin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-$now = new DateTime();
+$ev = Event::where([
+    'id' => 34481
+])->first();
+
+date_default_timezone_set('Africa/Nairobi'); 
+
+echo $ev->created_at."<br>";
+echo Utils::my_date_time($ev->created_at);
+die(); 
+
+//$now = new DateTime();
+
 //$now->setTimezone(new DateTimeZone('Africa/Nairobi'));
 //display timezone
 // echo $now->format('Y-m-d H:i:s') . "<br>";
