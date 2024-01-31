@@ -600,7 +600,7 @@ class Utils extends Model
         if ($t == null) {
             return $t;
         }
-        return $c->format('d M, Y - h:m a');
+        return $c->format('d M, Y - h:i a');
     }
 
     public static function to_date_time($raw)
@@ -885,7 +885,7 @@ class Utils extends Model
         if ($header < 1) {
             $header = (int)($request->user);
         }
-        
+
         if ($header < 1) {
             if (isset($request->temp_worker_id)) {
                 $header = (int)($request->temp_worker_id);

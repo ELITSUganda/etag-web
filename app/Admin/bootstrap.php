@@ -42,7 +42,12 @@ $ev = Event::where([
 date_default_timezone_set('Africa/Nairobi'); 
 
 echo $ev->created_at."<br>";
-echo Utils::my_date_time($ev->created_at);
+$t = Carbon\Carbon::parse($ev->created_at); 
+//echo Utils::my_date_time($ev->created_at);
+
+//display time in format date and time with pm or am
+echo $t->format('Y-m-d H:i:s') . "<br>"; 
+
 die(); 
 
 //$now = new DateTime();
