@@ -101,7 +101,7 @@ php artisan admin:make CheckpointSessionController --model=App\Models\Checkpoint
 php artisan admin:make VetServiceCategoryController --model=App\Models\VetServiceCategory
 php artisan admin:make GroupController --model=App\Models\Group
 php artisan admin:make TripController --model=App\Models\Trip
-php artisan admin:make ProductController --model=App\Models\Product
+php artisan admin:make BatchSessionController --model=App\\Models\\BatchSession
 
 
 php artisan make:model SlaughterDistributionRecord -m

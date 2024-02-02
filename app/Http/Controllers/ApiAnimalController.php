@@ -478,7 +478,7 @@ class ApiAnimalController extends Controller
                 //Reciever message
                 $msg = "You have received {$rec->current_weight}kg of meat from {$rec->source_name}. Open the App to see more details.";
                 $title = "MEAT RECEIVED - {$rec->v_id}";
-                Utils:: sendNotification(
+                Utils::sendNotification(
                     $msg,
                     $u->id,
                     $headings =  $title,
@@ -857,7 +857,7 @@ class ApiAnimalController extends Controller
             $num = count($animal_ids_found);
             $session->description =    "Milked {$litters} litters from {$num} animals in a {$session->name} session. Open the App to see details.";
             $session->save();
-            Utils:: sendNotification(
+            Utils::sendNotification(
                 $session->description,
                 $session->administrator_id,
                 $headings = "Milked {$num} animals."

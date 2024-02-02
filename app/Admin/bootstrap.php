@@ -70,7 +70,7 @@ die();
 
 
 
-$reciever_id = 709;
+/* $reciever_id = 709;
 $msg = "Simple test message";
 $title = "NOT RECEIVED - {$reciever_id}";
 
@@ -85,7 +85,7 @@ Utils:: sendNotification(
     $data = $ans
 );
 
-die("tome to test notifications");
+die("tome to test notifications"); */
 
 /* //csv file
 $csv = 'ug_arishes.csv';

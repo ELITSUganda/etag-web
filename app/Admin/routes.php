@@ -57,6 +57,7 @@ Route::group([
     $router->resource('checkpoint-sessions', CheckpointSessionController::class);
     $router->resource('vet-service-categories', VetServiceCategoryController::class);
     $router->resource('locations', LocationController::class);
+    $router->resource('sessions', BatchSessionController::class);
 
     $router->resource('groups', GroupController::class);
     $router->resource('gens', GenController::class);
@@ -66,4 +67,5 @@ Route::group([
     $router->resource('wholesale-orders', WholesaleOrderController::class);
     $router->resource('wholesale-order-items', WholesaleOrderItemController::class);
     $router->resource('notifications', NotificationModelController::class); 
+    $router->resource('treatment-events', TreatmentEventController::class);
 });
