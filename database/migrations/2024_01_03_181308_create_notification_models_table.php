@@ -13,10 +13,10 @@ class CreateNotificationModelsTable extends Migration
      */
     public function up()
     {
+        return;
         Schema::create('notification_models', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
-            $table->string('title')->nullable();
+            $table->timestamps(); 
             $table->longText('message')->nullable();
             $table->longText('data')->nullable();
             $table->string('reciever_id')->nullable(); 

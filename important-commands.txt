@@ -146,4 +146,4 @@ php artisan make:model NotificationModel -m
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs
 
-php artisan make:migration add_column_name_to_farmer_groups --table=farmer_groups 
+php artisan make:migration add_more_info_to_notification_models --table=notification_models 

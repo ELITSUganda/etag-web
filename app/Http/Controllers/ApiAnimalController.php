@@ -569,7 +569,7 @@ class ApiAnimalController extends Controller
 
             $mgs = "{$worker->first_name} is requesting for deletion of animal {$animal->v_id}, Reason:  {$r->reason}, Details: {$r->details}. Open the App to see more details.";
             $title = "ANIMAL DELETION REQUEST - {$animal->v_id}";
-            Utils:: sendNotification(
+            Utils::sendNotification(
                 $mgs,
                 $u->id,
                 $headings =  $title,
@@ -1125,13 +1125,29 @@ class ApiAnimalController extends Controller
             }
 
             $num = count($animal_ids_found);
-            $session->description =    "Milked {$litters} litters from {$num} animals in a {$session->name} session. Open the App to see details.";
+            $session->description = "Milked {$litters} litters from {$num} animals in a {$session->name} session. Open the App to see details.";
             $session->save();
-            Utils::sendNotification(
-                $session->description,
-                $session->administrator_id,
-                $headings = "Milked {$num} animals."
-            );
+            try {
+                Utils::CreateNotification([
+                    'title' => "Milked $num animals",
+                    'message' => $session->description,
+                    'receiver_id' => $session->administrator_id,
+                    'receiver' => $session->administrator_id,
+                    'type' => 'Milking',
+                    'session_id' =>  $session->id . "",
+                    'animal_ids' => $animal_ids_found,
+                ]);
+            } catch (\Throwable $th) {
+                try {
+                    Utils::sendNotification(
+                        $session->description,
+                        $session->administrator_id,
+                        $headings = "Milked {$num} animals. v1"
+                    );
+                } catch (\Throwable $th) {
+                    //throw $th;
+                }
+            }
         } else if ($r->type == 'Treatment') {
 
 
@@ -1239,12 +1255,29 @@ class ApiAnimalController extends Controller
             }
 
             $num = count($animal_ids_found);
-
-            Utils::sendNotification(
-                "Treated {$num} animals with  {$meds_text} in a {$session->name} session. Open the App to see details.",
-                $session->administrator_id,
-                $headings = $session->name . ' - Batch treatment'
-            );
+            $title = "Treated {$num} animals in a {$session->name} session. Open the App to see details.";
+            $body = "Treated {$num} animals with  {$meds_text} in a {$session->name} session. Open the App to see details.";
+            try {
+                Utils::CreateNotification([
+                    'title' => $title,
+                    'message' => $body,
+                    'receiver_id' => $session->administrator_id,
+                    'receiver' => $session->administrator_id,
+                    'type' => 'Treatment',
+                    'session_id' =>  $session->id . "",
+                    'animal_ids' => $animal_ids_found,
+                ]);
+            } catch (\Throwable $th) {
+                try {
+                    Utils::sendNotification(
+                        $body." => ".$th->getMessage(),
+                        $session->administrator_id,
+                        $headings = $title
+                    );
+                } catch (\Throwable $th) {
+                    //throw $th;
+                }
+            }
         } else if (
             $r->type == 'Roll call' ||
             $r->type == 'RollCall'
@@ -1398,11 +1431,28 @@ class ApiAnimalController extends Controller
             $num = count($animal_ids_found);
             $session->description =    "{$num} animals Weighed in a {$session->name} session. Open the App to see details.";
             $session->save();
-            Utils::sendNotification(
-                $session->description,
-                $session->administrator_id,
-                $headings = "Milked {$num} animals."
-            );
+            $title = "Milked {$num} animals.";
+            try {
+                Utils::CreateNotification([
+                    'title' => "Weighed $num animals. v2",
+                    'message' => $session->description,
+                    'receiver_id' => $session->administrator_id,
+                    'receiver' => $session->administrator_id,
+                    'type' => 'Animal',
+                    'session_id' =>  $session->id . "",
+                    'animal_ids' => $animal_ids_found,
+                ]);
+            } catch (\Throwable $th) {
+                try {
+                    Utils::sendNotification(
+                        $session->description,
+                        $session->administrator_id,
+                        $headings = "Weighed {$num} animals. v1"
+                    );
+                } catch (\Throwable $th) {
+                    //throw $th;
+                }
+            }
         }
 
 

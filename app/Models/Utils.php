@@ -1205,6 +1205,123 @@ class Utils extends Model
         return $r;
     }
 
+
+    public static function CreateNotification(
+        $params = [
+            'receiver_id' => null,
+            'type' => null,
+            'animal_id' => null,
+            'event_id' => null,
+            'animal_ids' => [],
+            'event_ids' => [],
+            'notification_id' => null,
+            'notification_ids' => [],
+            'session_id' => null,
+            'session_ids' => [],
+            'message' => 'Open U-LITS App fore more details.',
+            'title' => 'U-LITS',
+            'data' => [],
+            'url' => null,
+            'buttons' => null,
+            'image' => 'logo.png',
+        ],
+    ) {
+
+        if ($params['receiver_id'] == null) {
+            throw new Exception("Receiver ID is required.");
+        } 
+        if ($params['type'] == null) {
+            throw new Exception("Type is required.");
+        }
+        if ($params['type'] == "") {
+            throw new Exception("Type is required.");
+        }
+        if ($params['title'] == null) {
+            throw new Exception("Title is required.");
+        }
+        if($params['title'] == ""){
+            throw new Exception("Title is required.");
+        }
+        if ($params['message'] == null) {
+            throw new Exception("Message is required.");
+        }
+        $receiver = $params['receiver_id'];
+        $msg = $params['message'];
+        $noti = new NotificationModel();
+        $noti->data = json_encode($params);
+        $noti->title = $params['title'];
+
+        if (isset($params['image'])) {
+            $noti->image = $params['image'];
+        }
+        $noti->reciever_id = $receiver;
+        $noti->status = 'NOT READ';
+        $noti->type = $params['type'];
+        $noti->message = $msg;
+        if (isset($params['session_id'])) {
+            $noti->session_id = $params['session_id'];
+        }
+        if (isset($params['session_ids'])) {
+            $noti->session_ids = json_encode($params['session_ids']);
+        }
+        if (isset($params['url'])) {
+            $noti->url = $params['url'];
+        }
+        if (isset($params['buttons'])) {
+            $noti->buttons = json_encode($params['buttons']);
+        }
+        if (isset($params['event_id'])) {
+            $noti->event_id = $params['event_id'];
+        }
+        if (isset($params['event_ids'])) {
+            $noti->event_ids = json_encode($params['event_ids']);
+        }
+        if (isset($params['message'])) {
+            $params['message'] = $params['message'];
+        }
+        if (isset($params['animal_id'])) {
+            $noti->animal_id = $params['animal_id'];
+        }
+
+        if (isset($params['animal_ids'])) {
+            $noti->animal_ids = json_encode($params['animal_ids']);
+        }
+
+        if (isset($data['type'])) {
+            $noti->type = $data['type'];
+        }
+        try {
+            $noti->save();
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+
+        try {
+            \OneSignal::addParams(
+                [
+                    'android_channel_id' => 'f3469729-c2b4-4fce-89da-78550d5a2dd1',
+                    'large_icon' => 'https://u-lits.com/logo-1.png',
+                    'small_icon' => 'logo_1',
+                ]
+            )
+                ->sendNotificationToExternalUser(
+                    $noti->message,
+                    $noti->reciever_id,
+                    $url = null,
+                    $data = null,
+                    $buttons = [],
+                    $schedule = null,
+                    $headings = $noti->title
+                );
+        } catch (\Throwable $th) {
+            $noti->delete();
+            throw $th;
+        }
+
+
+        return;
+    }
+
     public static function sendNotification(
         $msg,
         $receiver,
@@ -1262,7 +1379,7 @@ class Utils extends Model
         }
 
         $noti->data = json_encode($temp_data);
-        
+
         $noti->reciever_id = $receiver;
         $noti->status = 'NOT READ';
         $noti->type = 'NOTIFICATION';
@@ -1303,7 +1420,7 @@ class Utils extends Model
                     $headings = $headings
                 );
         } catch (\Throwable $th) {
-            //throw $th;
+            throw $th; 
         }
 
 
