@@ -2334,7 +2334,7 @@ class ApiAnimalController extends Controller
 
         $data = $query
             ->orderBy('id', 'desc')
-            ->limit(1000)->get();
+            ->limit(10000000)->get();
 
         return Utils::response([
             'status' => 1,
