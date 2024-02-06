@@ -2323,14 +2323,14 @@ class ApiAnimalController extends Controller
             'administrator_id' => $user_id
         ]);
 
-        if ($request->updated_at != null) {
+        /* if ($request->updated_at != null) {
             if (strlen($request->updated_at) > 2) {
                 $updated_at = Carbon::parse($request->updated_at);
                 if ($updated_at != null) {
                     $query->whereDate('updated_at', '>', $updated_at);
                 }
             }
-        }
+        } */
 
         $data = $query
             ->orderBy('id', 'desc')
