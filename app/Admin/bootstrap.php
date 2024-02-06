@@ -70,7 +70,7 @@ die();
 
 
 
-/* $reciever_id = 709;
+$reciever_id = 709;
 $msg = "Simple test message";
 $title = "NOT RECEIVED - {$reciever_id}";
 
@@ -86,7 +86,7 @@ Utils::CreateNotification([
     'animal_ids' => [1,3,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
 ]);
 
-die("time to test notifications"); */
+die("time to test notifications");
 
 /* //csv file
 $csv = 'ug_arishes.csv';

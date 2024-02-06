@@ -1295,7 +1295,7 @@ class Utils extends Model
         } catch (\Throwable $th) {
             throw $th;
         }
-
+ 
         try {
             \OneSignal::addParams(
                 [
@@ -1306,7 +1306,7 @@ class Utils extends Model
             )
                 ->sendNotificationToExternalUser(
                     $noti->message,
-                    $noti->reciever_id,
+                    $noti->reciever_id."",
                     $url = null,
                     $data = null,
                     $buttons = [],
