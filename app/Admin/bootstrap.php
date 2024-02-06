@@ -70,7 +70,7 @@ die();
 
 
 
-$reciever_id = 709;
+/* $reciever_id = 709;
 $msg = "Simple test message";
 $title = "NOT RECEIVED - {$reciever_id}";
 
@@ -78,15 +78,14 @@ $ans = Animal::where([
     'administrator_id' => $reciever_id,
 ])->get()->pluck('id')->toArray();
 
-Utils::CreateNotification([
-    'message' => 'Simple test message',
-    'receiver_id' => $reciever_id,
-    'title' => $title,
-    'type' => 'Animal',
-    'animal_ids' => [1,3,5,6,7,8,9,10,11,12,13,14,15,16,17,18],
-]);
+Utils:: sendNotification(
+    $msg,
+    $reciever_id,
+    $headings =  $title,
+    $data = $ans
+);
 
-die("time to test notifications");
+die("tome to test notifications"); */
 
 /* //csv file
 $csv = 'ug_arishes.csv';
