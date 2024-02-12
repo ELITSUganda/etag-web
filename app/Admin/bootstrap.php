@@ -70,8 +70,8 @@ die();
 
 
 
-/* $reciever_id = 709;
-$msg = "Simple test message";
+$reciever_id = '709';
+$msg = "Simple test message nico";
 $title = "NOT RECEIVED - {$reciever_id}";
 
 $ans = Animal::where([
@@ -85,7 +85,7 @@ Utils:: sendNotification(
     $data = $ans
 );
 
-die("tome to test notifications"); */
+die("tome to test notifications");
 
 /* //csv file
 $csv = 'ug_arishes.csv';
