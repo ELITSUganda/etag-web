@@ -11,13 +11,16 @@ use App\Models\Event;
 use App\Models\Farm;
 use App\Models\Group;
 use App\Models\Image;
+use App\Models\Location;
 use App\Models\Movement;
 use App\Models\SlaughterDistributionRecord;
 use App\Models\SlaughterHouse;
 use App\Models\SlaughterRecord;
 use App\Models\User;
 use App\Models\Utils;
+use App\Models\VaccinationSchedule;
 use Carbon\Carbon;
+use Dflydev\DotAccessData\Util;
 use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Http\Request;
 use Monolog\Handler\Slack\SlackRecord;
@@ -235,6 +238,283 @@ class ApiAnimalController extends Controller
         return Utils::response([
             'status' => 1,
             'message' => "{$i} Slauhter records have been created successfully.",
+        ]);
+    }
+
+    public function vaccination_schedules_list(Request $r)
+    {
+        $user_id = Utils::get_user_id($r);
+
+        if ($user_id < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Slaugter house ID not found.",
+            ]);
+        }
+
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
+        }
+        $conds = [];
+        if ($u->isRole('farmer')) {
+            $conds['applicant_id'] = $user_id;
+        } else if (
+            $u->isRole('dvo') ||
+            $u->isRole('scvo')
+        ) {
+            $conds['applicant_id'] = $user_id;
+            $conds = [];
+        }
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success.",
+            'data' => VaccinationSchedule::where($conds)->get()
+        ]);
+    }
+    public function create_vaccination_schedules(Request $r)
+    {
+        if ($r->task == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Task not specified.",
+            ]);
+        }
+        if (
+            ($r->task != 'Create') &&
+            ($r->task != 'Edit')
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Task not specified.",
+            ]);
+        }
+
+        $user_id = Utils::get_user_id($r);
+
+        if ($user_id < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Slaugter house ID not found.",
+            ]);
+        }
+
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
+        }
+
+        if ($r->task == 'Create') {
+            $farm = Farm::where([
+                'id' => $r->farm_id
+            ])->first();
+            if ($farm == null) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Farm not found.",
+                ]);
+            }
+            //check if farm already have another pending request
+            $existing = VaccinationSchedule::where([
+                'farm_id' => $farm->id,
+                'status' => 'Pending'
+            ])->first();
+            if ($existing != null) {
+                return Utils::response([
+                    'data' => $existing,
+                    'status' => 0,
+                    'message' => "Vaccination schedule already created.",
+                ]);
+            }
+            $owner = $farm->owner();
+            if ($owner == null) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Farm owner not found.",
+                ]);
+            }
+
+            $rec = new VaccinationSchedule();
+            $rec->farm_id = $farm->id;
+            $rec->vaccination_type = $r->vaccination_type;
+            $rec->applicant_message = $r->applicant_message;
+            $rec->applicant_name = $owner->name;
+            $rec->applicant_id = $owner->id;
+            $rec->district_id = $farm->district_id;
+            $district = Location::find($farm->district_id);
+            if ($district == null) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "District not found.",
+                ]);
+            }
+            $rec->sub_county_id = $farm->sub_county_id;
+            $sub = Location::find($farm->sub_county_id);
+            if ($sub == null) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Subcounty not found.",
+                ]);
+            }
+
+            $rec->applicant_contact = $r->applicant_contact;
+            $rec->applicant_address = $farm->village;
+            $rec->gps_latitute = $farm->latitude;
+            $rec->gps_longitude = $farm->longitude;
+            $rec->status = 'Pending';
+
+            try {
+                $rec->save();
+            } catch (\Throwable $e) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Failed to save record. {$e->getMessage()}",
+                ]);
+            }
+
+            //send notification farmer how we have received the request
+            $msg = "We have received your request for vaccination. We will contact you about the schedule soon. Open the App to see more details.";
+            $title = "VACCINATION REQUEST - {$farm->holding_code}";
+            Utils::sendNotification(
+                $msg,
+                $owner->id . "",
+                $headings =  $title,
+                $data = [$farm->id]
+            );
+            $owenr_phone = Utils::prepare_phone_number($rec->applicant_contact);
+            if (Utils::phone_number_is_valid($owenr_phone)) {
+                Utils::send_message($owenr_phone, $msg);
+            }
+
+            $user_roles = AdminRoleUser::where([
+                'role_type' => 'dvo',
+                'type_id_1' => $farm->district_id
+            ])->get();
+            foreach ($user_roles as $key => $value) {
+                $admin = Administrator::find($value->user_id);
+                if ($admin == null) {
+                    continue;
+                }
+                $msg = "You have received a new vaccination request from {$owner->name}. Open the App to see more details.";
+                $title = "NEW VACCINATION REQUEST - {$farm->holding_code}";
+                Utils::sendNotification(
+                    $msg,
+                    $value->user_id . "",
+                    $headings =  $title,
+                    $data = [$farm->id]
+                );
+                $dvo_phone = Utils::prepare_phone_number($admin->phone_number);
+                if (Utils::phone_number_is_valid($dvo_phone)) {
+                    Utils::send_message($dvo_phone, $msg);
+                }
+            }
+
+            return Utils::response([
+                'status' => 1,
+                'message' => "Vaccination schedule created successfully.",
+                'data' => $rec,
+            ]);
+        }
+        if (trim($r->task) == 'Edit') {
+            $original = VaccinationSchedule::find($r->id);
+            if ($original == null) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Record not found.",
+                ]);
+            }
+            $update = $original;
+
+            if ($r->status != null && strlen($r->status) > 0) {
+                $update->status = $r->status;
+            }
+            if ($r->actual_date != null && strlen($r->actual_date) > 0) {
+                $update->actual_date = $r->actual_date;
+            }
+
+            if ($original->status != 'Approved') {
+                if ($update->status == 'Approved') {
+                    $update->approver_id = $user_id;
+                    $update->verification_code = rand(1000, 9999) . "";
+                }
+            }
+
+            if ($r->veterinary_officer_id != null && strlen($r->veterinary_officer_id) > 0) {
+                $update->veterinary_officer_id = $r->veterinary_officer_id;
+            }
+            if ($r->schedule_date != null && strlen($r->schedule_date) > 0) {
+                $update->schedule_date = Carbon::parse($r->schedule_date);
+            }
+            if ($r->veterinary_officer_message != null && strlen($r->veterinary_officer_message) > 0) {
+                $update->veterinary_officer_message = ($r->veterinary_officer_message);
+            }
+            if ($r->dvo_message != null && strlen($r->dvo_message) > 0) {
+                $update->dvo_message = ($r->dvo_message);
+            }
+            if ($r->reason_for_rejection != null && strlen($r->reason_for_rejection) > 0) {
+                $update->reason_for_rejection = ($r->reason_for_rejection);
+            }
+            if ($r->details != null && strlen($r->details) > 0) {
+                $update->details = ($r->details);
+            }
+            try {
+                $update->save();
+            } catch (\Throwable $e) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Failed to save record. {$e->getMessage()}",
+                ]);
+            }
+
+            $owner = $original->owner();
+            $farm = $original->farm;
+            if ($owner == null) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Farm owner not found.",
+                ]);
+            }
+            $msg = "Your vaccination request has been {$update->status}. Open the App to see more details.";
+
+            if ($original->status != 'Approved') {
+                if ($update->status == 'Approved') {
+                    if ($update->verification_code == null || strlen($update->verification_code) < 1) {
+                        $update->verification_code = rand(1000, 9999) . "";
+                        $update->save();
+                    }
+                    $msg = "Your vaccination request has been approved. The verification code is {$update->verification_code}. Open the App to see more details.";
+                }
+            }
+
+            $title = "VACCINATION REQUEST - {$original->farm->holding_code}";
+            Utils::sendNotification(
+                $msg,
+                $owner->id . "",
+                $headings =  $title,
+                $data = [$original->farm->id]
+            );
+            $owenr_phone = Utils::prepare_phone_number($original->applicant_contact);
+            if (Utils::phone_number_is_valid($owenr_phone)) {
+                Utils::send_message($owenr_phone, $msg);
+            }
+            return Utils::response([
+                'data' => $update,
+                'status' => 1,
+                'message' => "Record saved successfully.",
+            ]);
+        }
+
+        return Utils::response([
+            'data' => null,
+            'status' => 0,
+            'message' => " Type not found.",
         ]);
     }
 
@@ -1270,7 +1550,7 @@ class ApiAnimalController extends Controller
             } catch (\Throwable $th) {
                 try {
                     Utils::sendNotification(
-                        $body." => ".$th->getMessage(),
+                        $body . " => " . $th->getMessage(),
                         $session->administrator_id,
                         $headings = $title
                     );

@@ -197,6 +197,17 @@ class Utils extends Model
     }
 
 
+    public static function quantity_convertor_2($qty, $stock)
+    {
+        $val = $qty / $stock->drug_packaging_unit_quantity;
+        $unit = "";
+        if ($stock->drug_state == 'Solid') { 
+            $unit = "Tablets";
+        } else {
+            $unit = "Bottoles";
+        }
+        return number_format($val) . " " . $unit;
+    }
 
 
 

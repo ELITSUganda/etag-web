@@ -1,6 +1,7 @@
 <?php
 //rominah j
 use App\Admin\Controllers\FarmController;
+use App\Admin\Controllers\VaccinationScheduleController;
 use App\Http\Controllers\ApiAnimalController;
 use App\Http\Controllers\ApiEventController;
 use App\Http\Controllers\ApiFarmController;
@@ -19,6 +20,8 @@ use App\Models\Utils;
 use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+Route::resource('vaccination-schedules', VaccinationScheduleController::class);
 
 Route::POST('drug-product-create', [ApiMovement::class, 'drug_product_create']);
 Route::POST('become-vendor', [ApiMovement::class, 'become_vendor']);
@@ -98,6 +101,8 @@ Route::get('images-v2', [ApiAnimalController::class, 'images_v2']);
 Route::get('photos-downloads', [ApiAnimalController::class, 'photo_downloads']);
 Route::POST('create-slaughter', [ApiAnimalController::class, 'create_slaughter']);
 Route::POST('create-slaughter-single', [ApiAnimalController::class, 'create_slaughter_single']);
+Route::POST('create-vaccination-schedules', [ApiAnimalController::class, 'create_vaccination_schedules']);
+Route::get('vaccination-schedules-list', [ApiAnimalController::class, 'vaccination_schedules_list']);
 Route::POST('create-slaughter-distribution-record', [
     ApiAnimalController::class,
     'create_slaughter_distribution_record'

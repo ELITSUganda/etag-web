@@ -66,6 +66,12 @@ Route::group([
     $router->resource('wholesale-drug-stocks', WholesaleDrugStockController::class);
     $router->resource('wholesale-orders', WholesaleOrderController::class);
     $router->resource('wholesale-order-items', WholesaleOrderItemController::class);
-    $router->resource('notifications', NotificationModelController::class); 
+    $router->resource('notifications', NotificationModelController::class);
     $router->resource('treatment-events', TreatmentEventController::class);
+
+    $router->resource('main-vaccine-stocks', VaccineMainStockController::class);
+    $router->resource('vaccine-categories', VaccineCategoryController::class);
+    $router->resource('district-vaccine-stocks', DistrictVaccineStockController::class);
+    $router->resource('vaccine-events', VaccineEventController::class);
+    $router->resource('vaccination-schedules', VaccinationScheduleController::class);
 });

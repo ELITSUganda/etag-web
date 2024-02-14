@@ -219,11 +219,13 @@ class Event extends Model
                 $model->detail =  "{$animal->v_id}'s photo was recorded.";
             } else if ($model->type == 'Note') {
                 $model->detail =  "{$animal->v_id}'s note was recorded.";
+            } else if ($model->type == 'Vaccination') {
+                $model = self::process_vaccination($model);
             } else {
                 $model->description = "{$animal->v_id} {$model->type} event was recorded.";
             }
 
- 
+
 
             unset($model->disease_id);
             unset($model->disease_test_results);
@@ -275,6 +277,15 @@ class Event extends Model
             }
             $animal->status = $model->type;
             $animal->save();
+
+            if ($model->type == 'Vaccination') {
+                $vaccine = DistrictVaccineStock::find($model->vaccine_id);
+                if ($vaccine == null) {
+                    throw new Exception("Vaccine not found.");
+                    return false;
+                }
+                DistrictVaccineStock::update_balance($vaccine);
+            }
         });
 
         self::updating(function ($model) {
@@ -308,6 +319,10 @@ class Event extends Model
                 return false;
             }
 
+            if ($model->type == 'Vaccination') {
+                $model = self::process_vaccination($model);
+            }
+
             $model->district_id = $animal->district_id;
             $model->sub_county_id = $animal->sub_county_id;
             $model->parish_id = $animal->parish_id;
@@ -324,6 +339,14 @@ class Event extends Model
             }
             $animal->status = $model->type;
             $animal->save();
+            if ($model->type == 'Vaccination') {
+                $vaccine = DistrictVaccineStock::find($model->vaccine_id);
+                if ($vaccine == null) {
+                    throw new Exception("Vaccine not found.");
+                    return false;
+                }
+                DistrictVaccineStock::update_balance($vaccine);
+            }
         });
 
         self::deleting(function ($model) {
@@ -335,7 +358,24 @@ class Event extends Model
         });
     }
 
-
+    //process_vaccination
+    public static function process_vaccination($m)
+    {
+        if ($m->type != 'Vaccination') {
+            return $m;
+        }
+        $vaccine = DistrictVaccineStock::find($m->vaccine_id);
+        if ($vaccine == null) {
+            throw new Exception("Vaccine not found.");
+            return $m;
+        }
+        $vaccination_quantity = (int)($m->vaccination);
+        if ($vaccination_quantity < 1) {
+            throw new Exception("Vaccination quantity must be greater than 0.");
+            return $m;
+        }
+        return $m;
+    }
     public static function process_btach_important($m)
     {
 
@@ -470,8 +510,9 @@ class Event extends Model
     }
 
 
-    public function getUpdatedAtTextAttribute(){
+    public function getUpdatedAtTextAttribute()
+    {
         return Carbon::parse($this->updated_at)->timestamp;
-    } 
-    protected $appends = ['updated_at_text']; 
+    }
+    protected $appends = ['updated_at_text'];
 }
