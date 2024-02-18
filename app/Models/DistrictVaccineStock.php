@@ -107,8 +107,20 @@ class DistrictVaccineStock extends Model
         return Utils::quantity_convertor($this->current_quantity, $this->drug_stock->drug_state);
     }
 
+    //getter for drug_category_text
+    public function getDrugCategoryTextAttribute()
+    {
+        return $this->drug_category->name_of_drug;
+    } 
+
+    //getter for district_text
+    public function getDistrictTextAttribute()
+    {
+        return $this->district->name_text;
+    } 
+
 
     protected $appends = [
-        'current_quantity_text',
+        'current_quantity_text','drug_category_text','district_text'
     ];
 }

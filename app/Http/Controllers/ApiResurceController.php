@@ -152,11 +152,11 @@ class ApiResurceController extends Controller
 
         $worker_id = Utils::get_user_id($r);
         $worker = User::find($worker_id);
-        if($worker != null){
+        if ($worker != null) {
             return Utils::response([
                 'status' => 0,
                 'message' => "Worker not allowed to delete animals.",
-            ]); 
+            ]);
         }
 
         $administrator_id = Utils::get_user_id($r);
@@ -374,6 +374,38 @@ class ApiResurceController extends Controller
 
 
 
+    public function send_verification_code(Request $r)
+    {
+        if (!isset($r->phone)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Phone number is required.'
+            ]);
+        }
+        $phone = Utils::prepare_phone_number($r->phone);
+        if (!Utils::phone_number_is_valid($phone)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Invalid phone number.'
+            ]);
+        }
+        $code = rand(1000, 9999) . "";
+        $msg = $code . " is your U-LITS verification code.";
+        $resp = Utils::send_message($phone, $msg);
+        if ($resp != '') {
+            //failed
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Failed to send verification code because ' . $resp
+            ]);
+        }
+        return Utils::response([
+            'data' => $code,
+            'status' => 1,
+            'code' => 1,
+            'message' => 'Verification code sent successfully.'
+        ]);
+    }
     public function save_new_drug_dosage(Request $r)
     {
         $_items = $r->items;

@@ -220,7 +220,7 @@ class Event extends Model
             } else if ($model->type == 'Note') {
                 $model->detail =  "{$animal->v_id}'s note was recorded.";
             } else if ($model->type == 'Vaccination') {
-                $model = self::process_vaccination($model);
+                //$model = self::process_vaccination($model);
             } else {
                 $model->description = "{$animal->v_id} {$model->type} event was recorded.";
             }
@@ -279,12 +279,18 @@ class Event extends Model
             $animal->save();
 
             if ($model->type == 'Vaccination') {
-                $vaccine = DistrictVaccineStock::find($model->vaccine_id);
+                //today date in this formart 2021-2-1
+                try {
+                    $animal->fmd = date('Y-m-d');
+                    $animal->save();
+                } catch (Exception $e) {
+                }
+                /* $vaccine = DistrictVaccineStock::find($model->vaccine_id);
                 if ($vaccine == null) {
                     throw new Exception("Vaccine not found.");
                     return false;
                 }
-                DistrictVaccineStock::update_balance($vaccine);
+                DistrictVaccineStock::update_balance($vaccine); */
             }
         });
 
@@ -320,7 +326,7 @@ class Event extends Model
             }
 
             if ($model->type == 'Vaccination') {
-                $model = self::process_vaccination($model);
+                //$model = self::process_vaccination($model);
             }
 
             $model->district_id = $animal->district_id;
@@ -361,6 +367,7 @@ class Event extends Model
     //process_vaccination
     public static function process_vaccination($m)
     {
+        return $m;
         if ($m->type != 'Vaccination') {
             return $m;
         }

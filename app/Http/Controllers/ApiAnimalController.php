@@ -6,6 +6,7 @@ use App\Models\AdminRoleUser;
 use App\Models\Animal;
 use App\Models\ArchivedAnimal;
 use App\Models\BatchSession;
+use App\Models\DistrictVaccineStock;
 use App\Models\DrugStockBatch;
 use App\Models\Event;
 use App\Models\Farm;
@@ -23,6 +24,7 @@ use Carbon\Carbon;
 use Dflydev\DotAccessData\Util;
 use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Monolog\Handler\Slack\SlackRecord;
 
 class ApiAnimalController extends Controller
@@ -276,6 +278,60 @@ class ApiAnimalController extends Controller
             'data' => VaccinationSchedule::where($conds)->get()
         ]);
     }
+
+    public function district_vaccine_stocks(Request $r)
+    {
+        $user_id = Utils::get_user_id($r);
+
+        /* if ($user_id < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Slaugter house ID not found.",
+            ]);
+        }
+        $adminRole = AdminRoleUser::where([
+            'user_id' => $user_id,
+            'role_type' => 'dvo'
+        ])->first();
+
+        $conds = [];
+        if ($adminRole != null) {
+            $conds =  [
+                'district_id' => $adminRole->type_id_1,
+            ];
+        }
+
+        if (count($conds) == 0) {
+            $adminRole = AdminRoleUser::where([
+                'user_id' => $user_id,
+                'role_type' => 'scvo'
+            ])->first();
+            if ($adminRole != null) {
+                $sub = Location::find($adminRole->type_id_2);
+                if ($sub != null) {
+                    $conds =  [
+                        'district_id' => $sub->parent_id,
+                    ];
+                }
+            }
+        }
+
+        if (count($conds) == 0) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "District not found.",
+            ]);
+        } */
+
+        $conds = [];
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success.",
+            'data' => DistrictVaccineStock::where($conds)->get()
+        ]);
+    }
+
+
     public function create_vaccination_schedules(Request $r)
     {
         if ($r->task == null) {
@@ -515,6 +571,185 @@ class ApiAnimalController extends Controller
             'data' => null,
             'status' => 0,
             'message' => " Type not found.",
+        ]);
+    }
+
+    public function vaccination_session_submit(Request $r)
+    {
+        if ($r->session_id == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Session ID not found.",
+            ]);
+        }
+        if ($r->animal_ids == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Animals must be provided.",
+            ]);
+        }
+        if ($r->quantity == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Quantity must be provided.",
+            ]);
+        }
+        $quantity = ((int)($r->quantity));
+        $district_vaccine_id = ((int)($r->district_vaccine_id));
+        if ($quantity < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Quantity must be greater than 0.",
+            ]);
+        }
+        if ($district_vaccine_id < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Vaccine not found.",
+            ]);
+        }
+
+
+        $animal_ids = null;
+        try {
+            $animal_ids = json_decode($r->animal_ids);
+        } catch (\Throwable $e) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Invalid animal IDs.",
+            ]);
+        }
+        if ($animal_ids == null || empty($animal_ids)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "No animals found.",
+            ]);
+        }
+
+        $session = VaccinationSchedule::find($r->session_id);
+        if ($session == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Session not found.",
+            ]);
+        }
+
+        if ($session->status != 'Approved') {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Session not approved. Status: {$session->status}.",
+            ]);
+        }
+
+        $user_id = Utils::get_user_id($r);
+
+        if ($user_id < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User ID not found.",
+            ]);
+        }
+
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
+        }
+
+        $vaccince = DistrictVaccineStock::find($district_vaccine_id);
+        if ($vaccince == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Vaccine not found.",
+            ]);
+        }
+
+        if ($vaccince->drug_category == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Vaccine category not found.",
+            ]);
+        }
+        $drug_category_text = $vaccince->drug_category_text;
+
+        $i = 0;
+        foreach ($animal_ids as $key => $id) {
+            $_id = ((int)($id));
+            if ($_id < 1) {
+                continue;
+            }
+            $an = Animal::find($_id);
+            if ($an == null) {
+                continue;
+            }
+
+            $oldEvent = Event::where([
+                'animal_id' => $an->id,
+                'session_id' => $session->id,
+                'type' => 'Vaccination'
+            ])->first();
+            if ($oldEvent != null) {
+                continue;
+            }
+            $event = new Event();
+            $event->administrator_id = $an->administrator_id;
+            $farm = Farm::find($an->farm_id);
+            if ($farm != null) {
+                $event->district_id = $farm->district_id;
+                $event->sub_county_id = $farm->sub_county_id;
+                $event->parish_id = $farm->parish_id;
+                $event->farm_id = $farm->id;
+            }
+            $event->animal_id = $an->id;
+            $event->type = 'Vaccination';
+            $event->approved_by = $u->id;
+            $event->detail = "Vaccinated by $quantity Mills of " . $drug_category_text . " by " . $u->name . ", ID " . $u->id . ". ";
+            $event->description = "Vaccinated by $quantity Mills of " . $drug_category_text . " by " . $u->name . ", ID " . $u->id . ". ";
+            $event->short_description = "Vaccination of " . $an->type . " by " . $u->name . ", ID " . $u->id . ". ";
+            $event->vaccination = $quantity;
+            $event->animal_type = $an->type;
+            $event->vaccine_id = $vaccince->id;
+            $event->medicine_id = $vaccince->id;
+            $event->time_stamp = Carbon::now();
+            $event->e_id = $an->e_id;
+            $event->v_id = $an->v_id;
+            $event->medicine_quantity = $quantity;
+            $event->session_id = $session->id;
+            $event->save();
+            $i++;
+        }
+
+        $session->status = 'Conducted';
+        $session->save();
+
+        //message to the farmer
+        $owner = $session->owner();
+        if ($owner != null) {
+            $msg = "Vaccinated $i animals with $quantity Mills of " . $drug_category_text . ". Open the App to see more details.";
+            $title = "VACCINATION SESSION - {$session->vaccination_type}";
+            Utils::sendNotification(
+                $msg,
+                $owner->id . "",
+                $headings =  $title,
+                $data = [$session->id]
+            );
+            $owenr_phone = Utils::prepare_phone_number($session->applicant_contact);
+            if (Utils::phone_number_is_valid($owenr_phone)) {
+                Utils::send_message($owenr_phone, $msg);
+            }
+        }
+
+        try {
+            $vaccince->current_quantity = $vaccince->current_quantity - ($quantity * $i);
+            $vaccince->save();
+        } catch (\Throwable $e) {
+        }
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "{$i} Vaccination records have been created successfully.",
         ]);
     }
 
@@ -1920,6 +2155,38 @@ class ApiAnimalController extends Controller
         ]);
     }
 
+    public function animals_small(Request $request)
+    {
+        //start time
+        $start = microtime(true);
+
+        $sql = "SELECT id,e_id,v_id,photo,lhc FROM animals";
+        $animals = DB::select($sql);
+
+        /* $animals =
+            Animal::where([])
+            ->get()
+            ->map(function ($animal) {
+                $d['id'] = $animal->id;
+                $d['e_id'] = $animal->e_id;
+                $d['v_id'] = $animal->v_id;
+                $d['photo'] = $animal->photo;
+                $d['lhc'] = $animal->lhc;
+                return $d;
+            });  */
+
+        //end time
+        $end = microtime(true);
+        $time = number_format(($end - $start), 2);
+        //die($time); 
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success.",
+            'data' => $animals
+        ]);
+
+        die('');
+    }
     public function index(Request $request)
     {
 

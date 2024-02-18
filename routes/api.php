@@ -44,6 +44,7 @@ Route::get('manifest', [ApiResurceController::class, 'manifest']);
 Route::get('daily-milk-records', [ApiResurceController::class, 'dialy_milk_records']);
 Route::get('api/{model}', [ApiResurceController::class, 'index']);
 Route::POST('drug-dosages', [ApiResurceController::class, 'save_new_drug_dosage']);
+Route::POST('send-verification-code', [ApiResurceController::class, 'send_verification_code']);
 Route::POST('api/{model}', [ApiResurceController::class, 'store']);
 Route::put('api/{model}', [ApiResurceController::class, 'update']);
 Route::delete('api/{model}', [ApiResurceController::class, 'delete']);
@@ -94,6 +95,7 @@ Route::get('slaughter-distributions', [ApiAnimalController::class, 'slaughter_di
 Route::get('slaughter-houses', [ApiAnimalController::class, 'slaughter_houses']);
 
 Route::get('animals', [ApiAnimalController::class, 'index']);
+Route::get('animals-small', [ApiAnimalController::class, 'animals_small']);
 Route::get('transporters-v2', [ApiAnimalController::class, 'transporters']);
 Route::get('animals-v2', [ApiAnimalController::class, 'index_v2']);
 Route::get('images-v2', [ApiAnimalController::class, 'images_v2']);
@@ -102,7 +104,9 @@ Route::get('photos-downloads', [ApiAnimalController::class, 'photo_downloads']);
 Route::POST('create-slaughter', [ApiAnimalController::class, 'create_slaughter']);
 Route::POST('create-slaughter-single', [ApiAnimalController::class, 'create_slaughter_single']);
 Route::POST('create-vaccination-schedules', [ApiAnimalController::class, 'create_vaccination_schedules']);
+Route::POST('vaccination-session-submit', [ApiAnimalController::class, 'vaccination_session_submit']);
 Route::get('vaccination-schedules-list', [ApiAnimalController::class, 'vaccination_schedules_list']);
+Route::get('district-vaccine-stocks', [ApiAnimalController::class, 'district_vaccine_stocks']);
 Route::POST('create-slaughter-distribution-record', [
     ApiAnimalController::class,
     'create_slaughter_distribution_record'
