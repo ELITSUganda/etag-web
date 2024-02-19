@@ -327,7 +327,7 @@ Route::get('districts', function (Request $r) {
         }
         $data[] = [
             'id' => $v->id,
-            'text' => "$v->name - #".$v->id
+            'text' => "$v->name - #" . $v->id
         ];
     }
 

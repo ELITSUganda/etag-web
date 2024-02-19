@@ -5,6 +5,7 @@
 * {
     margin: 0;
     padding: 0;
+    
 }
 
 article {
@@ -16,7 +17,8 @@ article:last-child {
 
 body {
     display: table-cell;
-    vertical-align: middle;
+    vertical-align: top;
+    
 }
 
 .title-2 {
@@ -148,3 +150,8 @@ body {
     border: 4px solid black;
     margin: 10px;
 }
+
+td{
+    font-size: 12px;
+    padding: 5px;
+} 

@@ -845,6 +845,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'App\\Admin\\Controllers\\TransactionController' => __DIR__ . '/../..' . '/app/Admin/Controllers/TransactionController.php',
         'App\\Admin\\Controllers\\TreatmentEventController' => __DIR__ . '/../..' . '/app/Admin/Controllers/TreatmentEventController.php',
         'App\\Admin\\Controllers\\TripController' => __DIR__ . '/../..' . '/app/Admin/Controllers/TripController.php',
+        'App\\Admin\\Controllers\\VaccinationScheduleController' => __DIR__ . '/../..' . '/app/Admin/Controllers/VaccinationScheduleController.php',
         'App\\Admin\\Controllers\\VaccineCategoryController' => __DIR__ . '/../..' . '/app/Admin/Controllers/VaccineCategoryController.php',
         'App\\Admin\\Controllers\\VaccineController' => __DIR__ . '/../..' . '/app/Admin/Controllers/VaccineController.php',
         'App\\Admin\\Controllers\\VaccineEventController' => __DIR__ . '/../..' . '/app/Admin/Controllers/VaccineEventController.php',

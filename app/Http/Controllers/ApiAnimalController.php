@@ -2460,6 +2460,11 @@ class ApiAnimalController extends Controller
     public function show($id)
     {
         $item = Animal::find($id);
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success",
+            'data' => $item
+        ]);
 
         $item->owner_name  = "";
         if ($item->farm != null) {

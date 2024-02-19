@@ -480,6 +480,7 @@ Route::post('market/register', [MarketController::class, 'register_post'])
 Route::match(['get', 'post'], '/process_thumbnails', [PrintController::class, 'prepareThumbnails']);
 Route::match(['get', 'post'], '/print2', [PrintController::class, 'index']);
 Route::match(['get', 'post'], '/print', [PrintController::class, 'index']);
+Route::get('vaccination/{id}', [PrintController::class, 'print_vaccination']);
 
 
 Route::match(['get'], '/register', [MainController::class, 'create_account_page']);

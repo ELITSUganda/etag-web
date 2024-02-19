@@ -139,6 +139,14 @@ class Animal extends Model
         return $this->hasMany(Event::class, 'animal_id');
     }
 
+    public function vaccinations()
+    {
+        return Event::where('type', 'vaccination')
+            ->where('animal_id', $this->id)
+            ->limit(5)
+            ->get();
+    }
+
     public function district()
     {
         return $this->belongsTo(Location::class);

@@ -1,0 +1,138 @@
+<?php
+use App\Models\Location;
+use App\Models\Utils;
+
+$sub = Location::find($m->sub_county_from);
+$sub_county_from = '-';
+if ($sub != null) {
+    $sub_county_from = $sub->name . " ($sub->code)";
+    if ($sub->district != null) {
+        $district_from = $sub->district->name;
+    }
+}
+$sub = Location::find($m->sub_county_to);
+$sub_county_to = '-';
+if ($sub != null) {
+    $sub_county_to = $sub->name . " ($sub->code)";
+    if ($sub->district != null) {
+        $district_to = $sub->district->name;
+    }
+}
+$district_to = '-';
+$sub = Location::find($m->sub_county_to);
+$sub_county_to = '-';
+
+if ($sub != null) {
+    $sub_county_to = $sub->name . " ($sub->code)";
+    if ($sub->district != null) {
+        $district_to = $sub->district->name;
+    }
+}
+
+$district_from = '-';
+
+$d = Location::find($m->district_to);
+$district_to = '-';
+
+$sub = Location::find($m->sub_county_from);
+$sub_county_from = '-';
+if ($sub != null) {
+    $sub_county_from = $sub->name . " ($sub->code)";
+    if ($sub->district != null) {
+        $district_from = $sub->district->name;
+    }
+}
+
+?>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link rel="stylesheet" href="{{ public_path('css/bootstrap-print.css') }}">
+    <link type="text/css" href="{{ public_path('css/print.css') }}" rel="stylesheet" />
+
+</head>
+
+<body class="pt-3 pl-5 pr-5 m-3" style="
+padding-left: 20px!important;
+padding-right: 20px!important; 
+">
+
+    <p class="text-center">
+        <img style="width: 120px" src="{{ public_path('assets/images/coat_of_arms-min.png') }}">
+    </p>
+
+    <p class="text-center mt-2" style="font-size: 18px"><b>MINISTRY OF AGRICULTURE, ANIMAL INDUSTRY AND
+            FISHERIES.</b></p>
+    <p class="text-center" style="font-size: 18px"><b>DEPARTMENT OF ANIMAL HEALTH</b></p>
+    <p class="text-center mt-1" style="font-size: 12px">E-MAIL: animalhealth@agriculture.co.ug</p>
+    <p class="text-center mt-1" style="font-size: 12px">TELEPHONE: +256 0414 320 627, 320166, 320376</p>
+
+
+    <p class="text-center my-4 text-dark text-uppercase" style="font-size: 20px; font-weight: 800"><u>Livestock
+            Vaccination Certificate</u></p>
+
+    <p class="text-justified" style="text-align: justify;">This certificate serves as comprehensive documentation
+        attesting to the vaccination history of the specified
+        livestock listed below. To verify the authenticity of this document and access detailed vaccination information,
+        kindly scan the QR Code located at the bottom.</p>
+
+    <h5 class="mb-2 mt-3"><u class="m-0 p-0">i. Livestock identification</u></h5>
+    <table style="width: 100%">
+        <tr>
+            <td>
+                <p class="mb-1">LIVESTOCK V-ID: <b class="m-0 p-0">{{ $m->v_id }}</b></p>
+                <p class="mb-1">LIVESTOCK E-ID: <b class="m-0 p-0">{{ $m->e_id }}</b></p>
+                <p class="mb-1">LIVESTOCK LHC: <b class="m-0 p-0">{{ $m->lhc }}</b></p>
+                <p class="mb-1">SPECIES: <b class="m-0 p-0">{{ $m->type }}</b></p>
+                <p class="mb-1">SEX: <b class="m-0 p-0">{{ $m->sex }}</b></p>
+            </td>
+            <td style="text-align: right;">
+                <p style="border: 2px solid black; padding: 5px!important; display: inline-block">
+                    <img width="190" src="{{ public_path('storage/images/956000011635981-(2).JPG') }}">
+                </p>
+            </td>
+        </tr>
+    </table>
+
+    <h5 class="mb-2 mt-3"><u class="m-0 p-0">ii. Identification vaccination history</u></h5>
+
+    <table class="table table-bordered p-0 m-0">
+        <thead>
+            <tr>
+                <td class="">Sn.</td>
+                <td class="text-uppercase p-1"><b class="m-0">Date</b></td>
+                <td class="text-uppercase p-1"><b class="m-0">Vaccine</b></td>
+                <td class="text-uppercase p-1"><b class="m-0">Quantity</b></td>
+                <td class="text-uppercase p-1"><b class="m-0">Authority</b></td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($m->vaccinations() as $key => $v) 
+                <tr>
+                    <th class="p-1" style="width: 5%">{{ $key + 1 }}</th>
+                    <td class="p-1" style="width: 15%">{{ Utils::my_date($v->created_at) }}</td>
+                    <td class="p-1" style="width: 45%">{{ $v->detail }}</td>
+                    <td class="p-1">{{ $v->vaccination }} Mills</td>
+                    <td class="p-1">-</td>
+                </tr>
+            @endforeach
+
+        </tbody>
+    </table>
+
+    <br>
+{{--     <p class="text-center"><i>"Your commitment to ensuring the health and well-being of your
+            livestock is exemplified through this meticulously recorded vaccination record."</i></p> --}}
+
+    <hr style="color: black; background-color: black;">
+    <small>(c) Generated by U-LITS System as on - {{ Utils::my_date(now()) }}</small>
+
+</body>
+
+
+</html>
