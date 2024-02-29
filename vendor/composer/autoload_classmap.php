@@ -147,6 +147,7 @@ return array(
     'App\\Models\\TripRecord' => $baseDir . '/app/Models/TripRecord.php',
     'App\\Models\\User' => $baseDir . '/app/Models/User.php',
     'App\\Models\\Utils' => $baseDir . '/app/Models/Utils.php',
+    'App\\Models\\VaccinationProgram' => $baseDir . '/app/Models/VaccinationProgram.php',
     'App\\Models\\VaccinationSchedule' => $baseDir . '/app/Models/VaccinationSchedule.php',
     'App\\Models\\Vaccine' => $baseDir . '/app/Models/Vaccine.php',
     'App\\Models\\VaccineCategory' => $baseDir . '/app/Models/VaccineCategory.php',

@@ -75,6 +75,7 @@ Route::POST('products-create-request', [ApiProductController::class, 'products_c
 
 
 Route::get('districts', [DistrictController::class, 'index']);
+Route::get('parishes', [DistrictController::class, 'parishes']);
 Route::get('districts/{id}', [DistrictController::class, 'show']);
 Route::POST('districts', [DistrictController::class, 'store']);
 Route::put('districts/{id}', [DistrictController::class, 'update']);
@@ -107,6 +108,7 @@ Route::POST('create-vaccination-schedules', [ApiAnimalController::class, 'create
 Route::POST('vaccination-session-submit', [ApiAnimalController::class, 'vaccination_session_submit']);
 Route::get('vaccination-schedules-list', [ApiAnimalController::class, 'vaccination_schedules_list']);
 Route::get('district-vaccine-stocks', [ApiAnimalController::class, 'district_vaccine_stocks']);
+Route::get('vaccination-programs', [ApiAnimalController::class, 'vaccination_programs']);
 Route::POST('create-slaughter-distribution-record', [
     ApiAnimalController::class,
     'create_slaughter_distribution_record'

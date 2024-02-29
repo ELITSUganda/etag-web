@@ -19,6 +19,7 @@ use App\Models\SlaughterHouse;
 use App\Models\SlaughterRecord;
 use App\Models\User;
 use App\Models\Utils;
+use App\Models\VaccinationProgram;
 use App\Models\VaccinationSchedule;
 use Carbon\Carbon;
 use Dflydev\DotAccessData\Util;
@@ -328,6 +329,59 @@ class ApiAnimalController extends Controller
             'status' => 1,
             'message' => "Success.",
             'data' => DistrictVaccineStock::where($conds)->get()
+        ]);
+    }
+
+
+    public function vaccination_programs(Request $r)
+    {
+        $user_id = Utils::get_user_id($r);
+
+        /* if ($user_id < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Slaugter house ID not found.",
+            ]);
+        }
+        $adminRole = AdminRoleUser::where([
+            'user_id' => $user_id,
+            'role_type' => 'dvo'
+        ])->first();
+
+        $conds = [];
+        if ($adminRole != null) {
+            $conds =  [
+                'district_id' => $adminRole->type_id_1,
+            ];
+        }
+
+        if (count($conds) == 0) {
+            $adminRole = AdminRoleUser::where([
+                'user_id' => $user_id,
+                'role_type' => 'scvo'
+            ])->first();
+            if ($adminRole != null) {
+                $sub = Location::find($adminRole->type_id_2);
+                if ($sub != null) {
+                    $conds =  [
+                        'district_id' => $sub->parent_id,
+                    ];
+                }
+            }
+        }
+
+        if (count($conds) == 0) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "District not found.",
+            ]);
+        } */
+
+        $conds = [];
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success.",
+            'data' => VaccinationProgram::where($conds)->get()
         ]);
     }
 

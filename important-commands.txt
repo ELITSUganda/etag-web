@@ -144,6 +144,7 @@ php artisan make:model WholesaleDrugStock
 php artisan make:model Product
 php artisan make:model NotificationModel -m
 php artisan make:model VaccinationSchedule -m
+php artisan make:model VaccinationProgram -m
 
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs

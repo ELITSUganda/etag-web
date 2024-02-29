@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\District;
+use App\Models\Parish;
 use Illuminate\Http\Request;
 
 class DistrictController extends Controller
@@ -10,6 +11,11 @@ class DistrictController extends Controller
     public function index()
     {
         return District::paginate(1000)->withQueryString()->items();
+    }
+
+    public function parishes()
+    {
+        return Parish::paginate(10000)->withQueryString()->items();
     }
  
     public function show($id)
