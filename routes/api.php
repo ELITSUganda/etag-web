@@ -105,6 +105,7 @@ Route::get('photos-downloads', [ApiAnimalController::class, 'photo_downloads']);
 Route::POST('create-slaughter', [ApiAnimalController::class, 'create_slaughter']);
 Route::POST('create-slaughter-single', [ApiAnimalController::class, 'create_slaughter_single']);
 Route::POST('create-vaccination-schedules', [ApiAnimalController::class, 'create_vaccination_schedules']);
+Route::POST('create-vaccination-programs', [ApiAnimalController::class, 'create_vaccination_programs']);
 Route::POST('vaccination-session-submit', [ApiAnimalController::class, 'vaccination_session_submit']);
 Route::get('vaccination-schedules-list', [ApiAnimalController::class, 'vaccination_schedules_list']);
 Route::get('district-vaccine-stocks', [ApiAnimalController::class, 'district_vaccine_stocks']);

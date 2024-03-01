@@ -628,6 +628,161 @@ class ApiAnimalController extends Controller
         ]);
     }
 
+
+    public function create_vaccination_programs(Request $r)
+    {
+        if ($r->task == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Task not specified.",
+            ]);
+        }
+        if (
+            ($r->task != 'Create') &&
+            ($r->task != 'Edit')
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Task not specified.",
+            ]);
+        }
+
+        $user_id = Utils::get_user_id($r);
+
+        if ($user_id < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User account not found.",
+            ]);
+        }
+
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
+        }
+        //VaccinationProgram::where([])->delete();
+
+        $rec = null;
+        if ($r->task == 'Create') {
+            $rec = new VaccinationProgram();
+        } else if (trim($r->task) == 'Edit') {
+            $rec = VaccinationProgram::find($r->id);
+            if ($rec == null) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Record not found.",
+                ]);
+            }
+        } else {
+            return Utils::response([
+                'data' => null,
+                'status' => 0,
+                'message' => " Type not found.",
+            ]);
+        }
+
+        $rec->sub_district_id = $r->sub_district_id;
+        $sub = Location::find($r->sub_district_id);
+        if ($sub == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Subcounty not found.",
+            ]);
+        }
+
+        $dist = Location::find($sub->parent);
+        if ($dist == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "District not found.",
+            ]);
+        }
+        $rec->district_id = $dist->id;
+        $rec->parish_id = 1;
+
+
+        $rec->title = $r->title ? $r->title : $rec->title;
+        $rec->dose_per_animal = $r->dose_per_animal ? $r->dose_per_animal : $rec->dose_per_animal;
+        $rec->status = $r->status ? $r->status : $rec->status;
+        $rec->description = $r->description ? $r->description : $rec->description;
+        $rec->district_vaccine_stock_id = 1;
+        $rec->sub_district_id = $r->sub_district_id;
+        $rec->start_date = $r->start_date ? $r->start_date : $rec->start_date;
+        $rec->end_date = $r->end_date ? $r->end_date : $rec->end_date;
+
+
+        $farms = [];
+        if ($r->task == 'Create') {
+            $rec->status = 'Upcoming';
+            //farms in a selected subcounty
+            $farms = Farm::where('sub_county_id', $rec->sub_district_id)->get();
+            $rec->total_target_farms = count($farms);
+            $total_target_animals = 0;
+            foreach ($farms as $key => $farm) {
+                $total_target_animals += count(Animal::where('farm_id', $farm->id)->get());
+            }
+            $rec->total_target_animals = $total_target_animals;
+            $rec->total_target_doses = $total_target_animals * ((int)($rec->dose_per_animal));
+        }
+
+
+        try {
+            $rec->save();
+
+            foreach ($farms as $key => $f) {
+                $schedule = new VaccinationSchedule();
+                $schedule->vaccination_program_id = $rec->id;
+                $schedule->farm_id = $f->id;
+                $schedule->applicant_id = $f->administrator_id;
+                $schedule->approver_id = $user_id;
+                $schedule->veterinary_officer_id = $user_id;
+                $schedule->district_id = $f->district_id;
+                $schedule->sub_county_id = $f->sub_county_id;
+                $schedule->gps_latitute = $f->latitude;
+                $schedule->gps_longitude = $f->longitude;
+                $schedule->schedule_date = $rec->start_date;
+                $schedule->applicant_address = $f->village;
+                $schedule->actual_date = null;
+                $schedule->verification_code = null;
+                $schedule->status = 'Pending';
+                $schedule->vaccination_type = 'FMD';
+                $owner = $f->owner();
+                if ($owner != null) {
+                    $schedule->applicant_name = $owner->name;
+                    $schedule->applicant_contact = $f->owner()->phone_number;
+                }
+                try {
+                    $schedule->save();
+                    //send notification to farmer
+                    $msg = "Your farm has been scheduled for vaccination between {$rec->start_date} and {$rec->end_date}. Open the App to see more details.";
+                    $title = "VACCINATION SCHEDULE - {$f->holding_code}";
+                    Utils::sendNotification(
+                        $msg,
+                        $owner->id . "",
+                        $headings =  $title,
+                        $data = [$f->id]
+                    );
+                } catch (\Throwable $e) {
+                    continue;
+                }
+            }
+
+            return Utils::response([
+                'data' => $rec,
+                'status' => 1,
+                'message' => "Record saved successfully.",
+            ]);
+        } catch (\Throwable $e) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Failed to save record. {$e->getMessage()}",
+            ]);
+        }
+    }
+
     public function vaccination_session_submit(Request $r)
     {
         if ($r->session_id == null) {

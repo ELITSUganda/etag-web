@@ -74,4 +74,5 @@ Route::group([
     $router->resource('district-vaccine-stocks', DistrictVaccineStockController::class);
     $router->resource('vaccine-events', VaccineEventController::class);
     $router->resource('vaccination-schedules', VaccinationScheduleController::class);
+    $router->resource('vaccination-programs', VaccinationProgramController::class);
 });
