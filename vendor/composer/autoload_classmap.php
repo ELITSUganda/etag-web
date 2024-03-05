@@ -54,6 +54,7 @@ return array(
     'App\\Admin\\Controllers\\TransactionController' => $baseDir . '/app/Admin/Controllers/TransactionController.php',
     'App\\Admin\\Controllers\\TreatmentEventController' => $baseDir . '/app/Admin/Controllers/TreatmentEventController.php',
     'App\\Admin\\Controllers\\TripController' => $baseDir . '/app/Admin/Controllers/TripController.php',
+    'App\\Admin\\Controllers\\VaccinationProgramController' => $baseDir . '/app/Admin/Controllers/VaccinationProgramController.php',
     'App\\Admin\\Controllers\\VaccinationScheduleController' => $baseDir . '/app/Admin/Controllers/VaccinationScheduleController.php',
     'App\\Admin\\Controllers\\VaccineCategoryController' => $baseDir . '/app/Admin/Controllers/VaccineCategoryController.php',
     'App\\Admin\\Controllers\\VaccineController' => $baseDir . '/app/Admin/Controllers/VaccineController.php',
