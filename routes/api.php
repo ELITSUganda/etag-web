@@ -46,7 +46,7 @@ Route::get('api/{model}', [ApiResurceController::class, 'index']);
 Route::POST('drug-dosages', [ApiResurceController::class, 'save_new_drug_dosage']);
 Route::POST('send-verification-code', [ApiResurceController::class, 'send_verification_code']);
 Route::POST('api/{model}', [ApiResurceController::class, 'store']);
-Route::put('api/{model}', [ApiResurceController::class, 'update']);
+Route::put('api/{model}', [ApiResurceController::class, 'update']); 
 Route::delete('api/{model}', [ApiResurceController::class, 'delete']);
 
 

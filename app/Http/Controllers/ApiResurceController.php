@@ -660,6 +660,9 @@ class ApiResurceController extends Controller
         if (isset($_POST['online_id'])) {
             unset($_POST['online_id']);
         }
+        if (isset($_POST['temp_worker_id'])) {
+            unset($_POST['temp_worker_id']);
+        }
         if (isset($_POST['user_id'])) {
             unset($_POST['user_id']);
         }
@@ -675,6 +678,10 @@ class ApiResurceController extends Controller
         if (isset($_POST['User-Id'])) {
             unset($_POST['User-Id']);
         }
+
+        if (isset($_POST['temp_worker_id'])) {
+            unset($_POST['temp_worker_id']);
+        } 
 
         foreach ($_POST as $key => $value) {
             $obj->$key = $value;

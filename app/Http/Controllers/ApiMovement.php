@@ -787,6 +787,10 @@ class ApiMovement extends Controller
         $permits = [];
         $done_ids = [];
 
+        if (isset($_POST['temp_worker_id'])) {
+            unset($_POST['temp_worker_id']);
+        } 
+
         foreach ($user->user_roles as $_role) {
             if ($_role->role_id == 3) {
                 //farmer---
