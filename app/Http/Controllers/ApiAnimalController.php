@@ -1071,18 +1071,48 @@ class ApiAnimalController extends Controller
         }
 
 
-        $sr->post_animal = $r->post_animal;
-        $sr->post_age = $r->post_age;
-        $sr->post_dentition = $r->post_dentition;
-        $sr->post_weight = $r->post_weight;
-        $sr->available_weight = $r->post_weight;
-        $sr->post_fat = $r->post_fat;
-        $sr->post_other = $r->post_other;
-        $sr->has_post_info = $r->has_post_info;
-        $sr->post_grade = $r->post_grade;
 
+        if ($r->post_animal != null && strlen($r->post_animal) > 0) {
+            $sr->post_animal = $r->post_animal;
+        }
+
+        if ($r->post_age != null && strlen($r->post_age) > 0) {
+            $sr->post_age = $r->post_age;
+        }
+
+
+        //forpost_dentition
+        if ($r->post_dentition != null && strlen($r->post_dentition) > 0) {
+            $sr->post_dentition = $r->post_dentition;
+        }
+
+        //for post_weight
+        if ($r->post_weight != null && strlen($r->post_weight) > 0) {
+            $sr->post_weight = $r->post_weight;
+        }
+        //available_weight
+        if ($r->available_weight != null && strlen($r->available_weight) > 0) {
+            $sr->available_weight = $r->available_weight;
+        }
+        if ($r->post_fat != null && strlen($r->post_fat) > 0) {
+            $sr->post_fat = $r->post_fat;
+        }
+        if ($r->post_other != null && strlen($r->post_other) > 0) {
+            $sr->post_other = $r->post_other;
+        }
+        if ($r->has_post_info != null && strlen($r->has_post_info) > 0) {
+            $sr->has_post_info = $r->has_post_info;
+        }
+        if ($r->post_grade != null && strlen($r->post_grade) > 0) {
+            $sr->post_grade = $r->post_grade;
+        }
+        if ($r->breed != null && strlen($r->breed) > 0) {
+            $sr->breed = $r->breed;
+        }
 
         $sr->save();
+
+        $sr = SlaughterRecord::find($sr->id);
         return Utils::response([
             'data' => $sr,
             'status' => 1,

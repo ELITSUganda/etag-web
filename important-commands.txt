@@ -102,7 +102,7 @@ php artisan admin:make VetServiceCategoryController --model=App\Models\VetServic
 php artisan admin:make GroupController --model=App\Models\Group
 php artisan admin:make TripController --model=App\Models\Trip
 php artisan admin:make BatchSessionController --model=App\\Models\\BatchSession
-php artisan admin:make VaccinationProgramController --model=App\\Models\\VaccinationProgram
+php artisan admin:make SlaughterRecordController --model=App\\Models\\SlaughterRecord
 
 
 php artisan make:model SlaughterDistributionRecord -m
@@ -143,8 +143,8 @@ php artisan make:model Trip
 php artisan make:model WholesaleDrugStock
 php artisan make:model Product
 php artisan make:model NotificationModel -m
-php artisan make:model VaccinationProgram -m
-php artisan make:model VaccinationProgram -m
+php artisan make:model SlaughterRecord -m
+php artisan make:model SlaughterRecord -m
 
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs
