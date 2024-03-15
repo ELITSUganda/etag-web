@@ -92,8 +92,7 @@ class ApiFarmController extends Controller
         $user_id = Utils::get_user_id($request);
 
         foreach (DrugStockBatch::where([
-         /*    'administrator_id' => $user_id */
-        ])
+            /*    'administrator_id' => $user_id */])
             ->where('current_quantity', '>', 0)
             ->get() as $key => $v) {
 
@@ -101,7 +100,7 @@ class ApiFarmController extends Controller
             if ($v->category != null) {
                 $unit = " - {$v->category->unit}";
             }
-            
+
             $v->name_text =  $v->name . " - Available QTY: {$v->current_quantity} {$unit}";
             $drugs[] = $v;
         }
@@ -249,6 +248,10 @@ class ApiFarmController extends Controller
         $f->sub_county_id = $request->sub_county_id;
         $f->size = $request->size;
         $f->village = $request->village;
+        //cattle_count is 
+        if (isset($request->cattle_count)) {
+            $f->cattle_count = $request->cattle_count;
+        }
 
         $f->save();
         return Utils::response([
