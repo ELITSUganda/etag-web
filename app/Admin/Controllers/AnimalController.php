@@ -440,7 +440,7 @@ parent_id
                         'Artificial Insemination' => "Artificial Insemination (AI)",
                     ]);
 
-                $f->select('genetic_donor', 'Genetic farther/Donor')
+                /* $f->select('genetic_donor', 'Genetic farther/Donor')
                     ->options(function ($id) {
                         $parent = Animal::find($id);
                         if ($parent != null) {
@@ -450,7 +450,7 @@ parent_id
                     ->ajax(
                         url('/api/ajax-animals?'
                             . "&administrator_id={$u->id}")
-                    );
+                    ); */
 
 
                 $f->radio('was_purchases', __('Was this animal purchased?'))

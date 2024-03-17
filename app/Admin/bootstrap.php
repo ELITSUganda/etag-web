@@ -188,9 +188,7 @@ foreach ($mvs as $key => $v) {
     if ($v->destination != 'To slaughter') {
         continue;
     }
-    $s = SlaughterHouse::where([
-        'id' => $v->destination_slaughter_house
-    ])->first();
+  
     if ($s == null) {
         continue;
     }
@@ -221,11 +219,7 @@ foreach ($mvs as $key => $v) {
     if ($v->destination != 'To slaughter') {
         continue;
     }
-    $s = SlaughterHouse::where([
-        'id' => $v->destination_slaughter_house
-    ])->first();
-    if ($s == null) {
-        continue;
+   continue;
     }
     if ($v->animals == null) {
         continue;
