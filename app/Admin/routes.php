@@ -17,6 +17,7 @@ Route::group([
     /* END OF SHOP ENDPOINTS */
 
     $router->get('/', 'HomeController@index')->name('home');
+    $router->get('vaccination-stats', 'HomeController@vaccination')->name('vaccination-stats');
     $router->get('/become-farmer', 'HomeController@become_farmer');
     $router->resource('product-orders', ProductOrderController::class);
     $router->resource('requests', VendorController::class);

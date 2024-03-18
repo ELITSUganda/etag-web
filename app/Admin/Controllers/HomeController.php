@@ -59,40 +59,13 @@ class HomeController extends Controller
         $role->save();
         return redirect(admin_url('/'));
     }
+
     public function index(Content $content)
     {
-        /* set_time_limit('-1');
-        foreach (Animal::where([])->get() as $key => $a) {
-            if(count($a->events) < 1){
-                continue;
-            }
-            foreach ($a->events as $ev) {
-                $ev->district_id = $a->district_id;
-                $ev->sub_county_id = $a->sub_county_id;
-                $ev->save();
-                echo "==> $ev->id<hr>";
-            }
-        }
-        dd("done"); */
-
-        /* set_time_limit('-1');
-        foreach (Event::where([])->get() as $key => $a) {
-            if ($a->animal == null) {
-                $a->delete();
-                echo $a->id."<hr>";
-                continue;
-            }
-            $a->import_file .= '1'; 
-            $a->district_id = $a->animal->district_id;
-            $a->sub_county_id = $a->animal->sub_county_id;
-            echo ($a->e_id . "<hr>");
-            $a->save();  
-        } 
-        die('done'); */
         $u = Admin::user();
         $content
             ->title('U-LITS - Dashboard')
-            ->description('Hello ' . $u->name . "!" . " - " . Carbon::now()->format('l jS \\of F Y h:i:s A'));
+            /* ->description('Hello ' . $u->name . "!" . " - " . Carbon::now()->format('l jS \\of F Y h:i:s A')) */;
 
         if ($u->isRole('drugs-wholesaler')) {
             $content->row(function (Row $row) {
@@ -318,7 +291,7 @@ class HomeController extends Controller
 
             $content
                 ->title('U-LITS - Dashboard')
-                ->description('Hello ' . $u->name . "!" . " - " . Carbon::now()->format('l jS \\of F Y h:i:s A')); 
+                /* ->description('Hello ' . $u->name . "!" . " - " . Carbon::now()->format('l jS \\of F Y h:i:s A')) */;
 
             $content->row(function (Row $row) {
                 $row->column(4, function (Column $column) {
@@ -484,41 +457,90 @@ class HomeController extends Controller
                 ));
             });
         }
-        /*
-	
-id
-created_at
-updated_at
 
-vehicle
-reason
-status
-trader_nin
-trader_name
-trader_phone Ascending 1
-transporter_name
-transporter_nin
-transporter_Phone
-district_from
-sub_county_from
-village_from
-district_to
-sub_county_to
-village_to
-transportation_route
-permit_Number
-valid_from_Date
-valid_to_Date
-status_comment
-destination
-destination_slaughter_house
-details
-destination_farm
-is_paid
-paid_id
-paid_method
-*/
+        return $content;
+    }
 
+
+    public function vaccination(Content $content)
+    {
+        $u = Admin::user();
+        $content
+            ->title('U-LITS - Dashboard');
+
+
+
+        $content->row(function ($row) {
+            $row->column(3, function (Column $column) {
+                $column->append(view('widgets.box-5', [
+                    'is_dark' => false,
+                    'title' => 'Vaccinated Cattle',
+                    'sub_title' => 'Total number of cattle vaccinated in last 6 months ago.',
+                    'number' => number_format(Animal::where([
+                        'type' => 'Cattle',
+                        'genetic_donor' => 'Not Vaccinated'
+                    ])->count()),
+                    'link' => admin_url('vaccination-stats')
+                ]));
+            });
+
+            $row->column(3, function (Column $column) {
+                $column->append(view('widgets.box-5', [
+                    'is_dark' => false,
+                    'title' => 'Pending For Vaccination',
+                    'sub_title' => 'Total number of cattle pending for vaccination.',
+                    'number' => number_format(Animal::where([
+                        'type' => 'Cattle',
+                        'genetic_donor' => 'Pending for vaccination'
+                    ])->count()),
+                    'link' => admin_url('vaccination-stats')
+                ]));
+            });
+
+            $row->column(3, function (Column $column) {
+                $column->append(view('widgets.box-5', [
+                    'is_dark' => false,
+                    'title' => 'Vaccinated Cattle',
+                    'sub_title' => 'Total number of cattle pending for vaccination.',
+                    'number' => number_format(Animal::where([
+                        'type' => 'Cattle',
+                        'genetic_donor' => 'Vaccinated'
+                    ])->count()),
+                    'link' => admin_url('vaccination-stats')
+                ]));
+            });
+
+            $row->column(3, function (Column $column) {
+                $column->append(view('widgets.box-5', [
+                    'is_dark' => true,
+                    'title' => 'Registered Cattle',
+                    'sub_title' => 'Total number of all cattle registered.',
+                    'number' => number_format(Animal::where([
+                        'type' => 'Cattle',
+                    ])->count()),
+                    'link' => admin_url('vaccination-stats')
+                ]));
+            });
+        });
+        return $content;
+        Admin::js('/vendor/laravel-admin-ext/chartjs/Chart.bundle.min.js');
+        $content->title('Main Dashboard');
+
+        $content->row(function ($row) {
+            $box = new Box('Livestock Species', view('admin.dashboard.chart-animal-types'));
+            $box->removable();
+            $box->collapsable();
+            $box->style('success');
+            $box->solid();
+            $row->column(6, $box);
+
+            $box = new Box('Events', view('admin.dashboard.chart-animal-status'));
+            $box->removable();
+            $box->collapsable();
+            $box->style('success');
+            $box->solid();
+            $row->column(6, $box);
+        });
         return $content;
     }
 }
