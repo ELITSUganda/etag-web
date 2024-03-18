@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::resource('vaccination-schedules', VaccinationScheduleController::class);
 
+Route::POST('vaccination-order-create', [ApiMovement::class, 'vaccination_order_create']);
 Route::POST('drug-product-create', [ApiMovement::class, 'drug_product_create']);
 Route::POST('become-vendor', [ApiMovement::class, 'become_vendor']);
 Route::POST('workers-register', [ApiMovement::class, 'workers_register']);

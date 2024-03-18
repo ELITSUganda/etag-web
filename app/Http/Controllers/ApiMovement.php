@@ -23,6 +23,7 @@ use App\Models\Trip;
 use App\Models\TripRecord;
 use App\Models\User;
 use App\Models\Utils;
+use App\Models\VaccinationOrder;
 use App\Models\VetHasService;
 use App\Traits\ApiResponser;
 use Carbon\Carbon;
@@ -172,6 +173,100 @@ class ApiMovement extends Controller
             'data' => $cats,
             'message' => 'Success'
         ]);
+    }
+    public function vaccination_order_create(Request $r)
+    {
+        $user_id = ((int)(Utils::get_user_id($r)));
+        $u = Administrator::find($user_id);
+
+        if ($r->task != 'Edit') {
+            if ($r->task != 'Create') {
+                return Utils::response([
+                    'status' => 0,
+                    'data' => null,
+                    'message' => 'Invalid task'
+                ]);
+            }
+        }
+        if ($r->task == 'Create') {
+            $order = new VaccinationOrder();
+            $order->order_status = 'Pending';
+            $order->order_is_paid = 'Not Paid';
+            $order->customer_id = $u->id;
+            $order->customer_text = $u->name;
+            if ($r->animals_data == null || strlen($r->animals_data) < 2) {
+                return Utils::response([
+                    'status' => 0,
+                    'data' => null,
+                    'message' => 'Animals data is missing'
+                ]);
+            }
+            $animals_data = [];
+            $animals_temp = null;
+            try {
+                $animals_temp = json_decode($r->animals_data);
+            } catch (\Throwable $th) {
+                $animals_temp = null;
+            }
+            if ($animals_temp == null) {
+                return Utils::response([
+                    'status' => 0,
+                    'data' => null,
+                    'message' => 'Invalid animals data'
+                ]);
+            }
+            $animals_data = [];
+            foreach ($animals_temp as $key => $val) {
+                $an = Animal::find($val);
+                if ($an == null) {
+                    continue;
+                }
+                $animals_data[] = [
+                    'id' => $an->id,
+                    'v_id' => $an->v_id,
+                    'e_id' => $an->e_id,
+                    'photo' => $an->photo,
+                ];
+            }
+            $order->animals_data = json_encode($animals_data);
+            $order->note = $r->note;
+            $order->customer_data = json_encode([
+                'id' => $u->name,
+                'name' => $u->name,
+                'phone_number' => $u->phone_number,
+                'email' => $u->email,
+                'address' => $u->address,
+            ]);
+            $order->farmer_name = $u->name;
+            $order->phone_number = $u->phone_number;
+            $order->total_price = $r->total_price;
+            try {
+                $order->save();
+                $order = VaccinationOrder::find($order->id); 
+                return Utils::response([
+                    'status' => 1,
+                    'data' => $order,
+                    'message' => 'Success'
+                ]);
+            } catch (\Throwable $th) {
+                return Utils::response([
+                    'status' => 0,
+                    'data' => null,
+                    'message' => 'Failed to create order because ' . $th->getMessage()
+                ]);
+            }
+        }
+        /* 
+ 
+   String  = "";
+  String  = "";
+  String  = "";
+  String phone_number_2 = "";
+  String latitude = "";
+  String longitude = "";
+  String payment_link = "";
+  String  = "";
+*/
     }
     public function drug_product_create(Request $r)
     {
@@ -789,7 +884,7 @@ class ApiMovement extends Controller
 
         if (isset($_POST['temp_worker_id'])) {
             unset($_POST['temp_worker_id']);
-        } 
+        }
 
         foreach ($user->user_roles as $_role) {
             if ($_role->role_id == 3) {
