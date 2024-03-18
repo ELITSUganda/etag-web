@@ -104,6 +104,7 @@ php artisan admin:make BatchSessionController --model=App\\Models\\BatchSession
 php artisan admin:make SlaughterRecordController --model=App\\Models\\SlaughterRecord
 
 
+php artisan make:model VaccinationOrder -m
 php artisan make:model SlaughterDistributionRecord -m
 php artisan make:model Product -m
 php artisan make:model MovementRoute
