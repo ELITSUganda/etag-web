@@ -176,6 +176,7 @@ class ApiMovement extends Controller
     }
     public function vaccination_order_create(Request $r)
     {
+        
         $user_id = ((int)(Utils::get_user_id($r)));
         $u = Administrator::find($user_id);
 
@@ -188,12 +189,27 @@ class ApiMovement extends Controller
                 ]);
             }
         }
+        
         if ($r->task == 'Create') {
+            
+
+            //check if has existing unpaid order
+            $existing_order = VaccinationOrder::where([
+                'customer_id' => $u->id,
+                'order_is_paid' => 'Not Paid',
+            ])->first();
+            if ($existing_order != null) {
+                return Utils::response([
+                    'status' => 1,
+                    'data' => $existing_order,
+                    'message' => 'You have an existing unpaid order'
+                ]);
+            }
+
             $order = new VaccinationOrder();
             $order->order_status = 'Pending';
             $order->order_is_paid = 'Not Paid';
             $order->customer_id = $u->id;
-            $order->customer_text = $u->name;
             if ($r->animals_data == null || strlen($r->animals_data) < 2) {
                 return Utils::response([
                     'status' => 0,
@@ -201,6 +217,65 @@ class ApiMovement extends Controller
                     'message' => 'Animals data is missing'
                 ]);
             }
+
+            //if is set customer_data
+            if ($r->note == null || strlen($r->note) < 2) {
+                $order->note = '';
+            } else {
+                $order->note = $r->note;
+            }
+
+            //farmer_name
+            if ($r->farmer_name == null || strlen($r->farmer_name) < 2) {
+                $order->farmer_name = $r->farmer_name;
+            } else {
+                $order->farmer_name = '';
+            }
+
+            //farme_address
+            if ($r->farme_address == null || strlen($r->farme_address) < 2) {
+                $order->farme_address = '';
+            } else {
+                $order->farme_address = $r->farme_address;
+            }
+
+            //phone_number
+            if ($r->phone_number == null || strlen($r->phone_number) < 2) {
+                $order->phone_number = '';
+            } else {
+                $order->phone_number = $r->phone_number;
+            }
+            //phone_number_2
+            if ($r->phone_number_2 == null || strlen($r->phone_number_2) < 2) {
+                $order->phone_number_2 = '';
+            } else {
+                $order->phone_number_2 = $r->phone_number_2;
+            }
+            //latitude
+            if ($r->latitude == null || strlen($r->latitude) < 2) {
+                $order->latitude = '';
+            } else {
+                $order->latitude = $r->latitude;
+            }
+            //longitude
+            if ($r->longitude == null || strlen($r->longitude) < 2) {
+                $order->longitude = '';
+            } else {
+                $order->longitude = $r->longitude;
+            }
+            //payment_link
+            if ($r->payment_link == null || strlen($r->payment_link) < 2) {
+                $order->payment_link = '';
+            } else {
+                $order->payment_link = $r->payment_link;
+            }
+            //total_price
+            if ($r->total_price == null || strlen($r->total_price) < 2) {
+                $order->total_price = '';
+            } else {
+                $order->total_price = $r->total_price;
+            }
+
             $animals_data = [];
             $animals_temp = null;
             try {
@@ -221,6 +296,12 @@ class ApiMovement extends Controller
                 if ($an == null) {
                     continue;
                 }
+                $order->farm_id = $an->farm_id;
+                $order->farme_address = $an->lhc;
+                if ($order->farm != null) {
+                    $order->farme_address = "(" . $an->lhc . ") " . $order->farm->village;
+                }
+
                 $animals_data[] = [
                     'id' => $an->id,
                     'v_id' => $an->v_id,
@@ -229,7 +310,6 @@ class ApiMovement extends Controller
                 ];
             }
             $order->animals_data = json_encode($animals_data);
-            $order->note = $r->note;
             $order->customer_data = json_encode([
                 'id' => $u->name,
                 'name' => $u->name,
@@ -239,10 +319,9 @@ class ApiMovement extends Controller
             ]);
             $order->farmer_name = $u->name;
             $order->phone_number = $u->phone_number;
-            $order->total_price = $r->total_price;
             try {
                 $order->save();
-                $order = VaccinationOrder::find($order->id); 
+                $order = VaccinationOrder::find($order->id);
                 return Utils::response([
                     'status' => 1,
                     'data' => $order,

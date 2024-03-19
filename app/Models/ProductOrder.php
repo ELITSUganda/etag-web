@@ -87,10 +87,10 @@ class ProductOrder extends Model
         $phone_number,
         $phone_number_type
     ) {
-
+        $this->total_price = 500;
         $ip = $_SERVER['REMOTE_ADDR'];
-        $data['tx_ref'] = 'ULITS-' . $this->id;
-        $data['voucher'] = 'ULITS-' . $this->id;
+        $data['tx_ref'] = 'ULITS-PRO-' . $this->id;
+        $data['voucher'] = 'ULITS-PRO-' . $this->id;
         $data['amount'] = $this->total_price;
         $data['currency'] = 'UGX';
         $data['network'] = $phone_number_type;
@@ -154,8 +154,8 @@ class ProductOrder extends Model
     public function is_order_paid()
     {
 
-        //$tx_ref = 'ULITS-' . $this->id;
-        $tx_ref = 'ULITS-28';
+        $tx_ref = 'ULITS-PRO-' . $this->id;
+        //$tx_ref = 'ULITS-28';
 
         // Create a new Guzzle client instance
         $client = new Client();

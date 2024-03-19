@@ -47,7 +47,7 @@ Route::get('api/{model}', [ApiResurceController::class, 'index']);
 Route::POST('drug-dosages', [ApiResurceController::class, 'save_new_drug_dosage']);
 Route::POST('send-verification-code', [ApiResurceController::class, 'send_verification_code']);
 Route::POST('api/{model}', [ApiResurceController::class, 'store']);
-Route::put('api/{model}', [ApiResurceController::class, 'update']); 
+Route::put('api/{model}', [ApiResurceController::class, 'update']);
 Route::delete('api/{model}', [ApiResurceController::class, 'delete']);
 
 
@@ -62,7 +62,9 @@ Route::POST('product-drugs-upload', [ApiProductController::class, 'product_drugs
 Route::get('product-drugs', [ApiProductController::class, 'product_drugs_list']);
 Route::POST('product-order', [ApiProductController::class, 'product_order_create']);
 Route::POST('product-order-payment-link-create', [ApiProductController::class, 'product_order_payment_link_create']);
+Route::POST('vaccination-product-order-payment-link-create', [ApiProductController::class, 'vaccination_product_order_payment_link_create']);
 Route::POST('product-order-verify', [ApiProductController::class, 'product_order_verify']);
+Route::POST('vaccination-order-verify', [ApiProductController::class, 'vaccination_order_verify']);
 Route::POST('drugs-order', [ApiProductController::class, 'drugs_order_create']);
 Route::get('order', [ApiProductController::class, 'orders']);
 Route::get('orders', [ApiProductController::class, 'get_orders']);
