@@ -374,6 +374,60 @@ class ApiResurceController extends Controller
 
 
 
+    public function reset_password(Request $r)
+    {
+        if (!isset($r->phone)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Phone number is required.'
+            ]);
+        }
+        $phone = Utils::prepare_phone_number($r->phone);
+        if (!Utils::phone_number_is_valid($phone)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Invalid phone number.'
+            ]);
+        }
+
+        $password = $r->get('password');
+
+        if ($password == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Password is required.'
+            ]);
+        }
+
+        if (strlen($password) < 4) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Password must be at least 6 characters.'
+            ]);
+        }
+
+        $u = User::where([
+            'phone_number' => $phone
+        ])->first();
+
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'User account not found.'
+            ]);
+        }
+        $u->password = bcrypt($password);
+
+        return Utils::response([
+            'data' => $u,
+            'status' => 1,
+            'code' => 1,
+            'message' => 'Password reset successfully. You can now login with your new password.'
+        ]);
+    }
+
+
+
     public function send_verification_code(Request $r)
     {
         if (!isset($r->phone)) {
@@ -406,6 +460,9 @@ class ApiResurceController extends Controller
             'message' => 'Verification code sent successfully.'
         ]);
     }
+
+
+
     public function save_new_drug_dosage(Request $r)
     {
         $_items = $r->items;
@@ -681,7 +738,7 @@ class ApiResurceController extends Controller
 
         if (isset($_POST['temp_worker_id'])) {
             unset($_POST['temp_worker_id']);
-        } 
+        }
 
         foreach ($_POST as $key => $value) {
             $obj->$key = $value;

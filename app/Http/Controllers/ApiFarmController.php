@@ -240,7 +240,6 @@ class ApiFarmController extends Controller
         $f->animals_count = 0;
         $f->dfm = '1-1-2020';
         $f->farm_type = $request->farm_type;
-        $f->cattle_count = 0;
         $f->sheep_count = 0;
         $f->goats_count = 0;
         $f->latitude = $request->latitude;
@@ -248,10 +247,7 @@ class ApiFarmController extends Controller
         $f->sub_county_id = $request->sub_county_id;
         $f->size = $request->size;
         $f->village = $request->village;
-        //cattle_count is 
-        if (isset($request->cattle_count)) {
-            $f->cattle_count = $request->cattle_count;
-        }
+        $f->cattle_count = ((int)($request->cattle_count));
 
         $f->save();
         return Utils::response([
