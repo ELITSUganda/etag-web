@@ -27,6 +27,11 @@ class V2ApiMainController extends Controller
                 $isNew = true;
             }
         }
+
+        if ($farm != null) {
+            $owner = User::find($farm->administrator_id);
+        }
+
         $registerd_by = User::find($r->registered_id);
         if ($registerd_by == null) {
             return $this->error("Registered by not found.");
@@ -39,7 +44,6 @@ class V2ApiMainController extends Controller
         $owner = null;
         if ($isNew) {
             if ($r->farm_owner_is_new == 'Yes') {
-
                 $owner = User::where([
                     'phone_number' => $phone
                 ])->first();
@@ -74,6 +78,7 @@ class V2ApiMainController extends Controller
                     $owner = User::find($new_farmer->id);
                 } else {
                     $farm->administrator_id = $owner->id;
+                    $owner = User::find($owner->id);
                 }
             }
         }
