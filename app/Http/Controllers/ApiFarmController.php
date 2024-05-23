@@ -116,10 +116,24 @@ class ApiFarmController extends Controller
 
         $user_id = Utils::get_user_id($request);
         $user_role = Utils::is_admin($request);
-
-        $data = Farm::where([
+        $u = Administrator::find($user_id);
+        $where = [
             'administrator_id' => $user_id
-        ])->get();
+        ];
+
+        if ($u != null) {
+            if (
+                $u->isRole('dvo') ||
+                $u->isRole('administrator') ||
+                $u->isRole('scvo') ||
+                $u->isRole('clo') ||
+                $u->isRole('admin')
+            ) {
+                $where = [];
+            }
+        }
+
+        $data = Farm::where($where)->get();
 
         return Utils::response([
             'status' => 1,
