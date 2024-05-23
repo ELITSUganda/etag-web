@@ -80,6 +80,11 @@ class V2ApiMainController extends Controller
                     $farm->administrator_id = $owner->id;
                     $owner = User::find($owner->id);
                 }
+            }else{
+                $owner = User::find($r->administrator_id);
+                if ($owner == null) {
+                    return $this->error("Farm Owner not found.");
+                }
             }
         }
 
