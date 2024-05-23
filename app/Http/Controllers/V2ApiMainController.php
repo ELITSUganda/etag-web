@@ -16,6 +16,7 @@ class V2ApiMainController extends Controller
     public function v2_farms_create(Request $r)
     {
         $farm = Farm::find($r->id);
+        $owner = null;
         $isNew = false;
         if ($farm == null) {
             $farm = Farm::where([
@@ -23,8 +24,11 @@ class V2ApiMainController extends Controller
                 'local_id' => $r->local_id,
             ])->first();
             if ($farm == null) {
-                $farm = new Farm();
-                $isNew = true;
+                $farm = Farm::find($r->id);
+                if ($farm == null) {
+                    $farm = new Farm();
+                    $isNew = true;
+                }
             }
         }
 
@@ -41,45 +45,66 @@ class V2ApiMainController extends Controller
         if (!Utils::phone_number_is_valid($phone)) {
             return $this->error("Invalid phone number.");
         }
+
         $owner = null;
+        if (strlen($r->farm_owner_nin) > 4) {
+            $owner = User::where([
+                'nin' => $r->farm_owner_nin
+            ])->first();
+        }
+
+        if ($owner == null) {
+            $owner = User::where([
+                'phone_number' => $phone
+            ])->first();
+        }
+
+        if ($owner == null) {
+            $owner = User::where([
+                'username' => $phone
+            ])->first();
+        }
+        if ($owner == null) {
+            $owner = User::where([
+                'email' => $phone
+            ])->first();
+        }
+
+        if ($owner == null) {
+            $new_farmer = new User();
+            $new_farmer->username = $phone;
+            $new_farmer->phone_number = $phone;
+            $new_farmer->email = $phone;
+            $new_farmer->address = $r->village;
+            $new_farmer->nin = $r->farm_owner_nin;
+            $new_farmer->sub_county_id = $r->sub_county_id;
+            $new_farmer->user_type = 'Farmer';
+            $new_farmer->status = 1;
+            $new_farmer->first_name = $r->farm_owner_name;
+            $new_farmer->last_name = $r->farm_owner_name;
+            $pass = '1234';
+            $new_farmer->password = password_hash($pass, PASSWORD_DEFAULT);
+            $new_farmer->name = $r->farm_owner_name;
+            $new_farmer->save();
+            $farm->administrator_id = $new_farmer->id;
+            $owner = User::find($new_farmer->id);
+        } else {
+            $farm->administrator_id = $owner->id;
+
+            $owner->address = $r->village;
+            $owner->nin = $r->farm_owner_nin;
+            $owner->sub_county_id = $r->sub_county_id;
+            $owner->save();
+            $owner = User::find($owner->id);
+            $farm->administrator_id = $owner->id;
+        }
+
+        if ($owner == null) {
+            return $this->error("Owner not found.");
+        }
+
         if ($isNew) {
             if ($r->farm_owner_is_new == 'Yes') {
-                $owner = User::where([
-                    'phone_number' => $phone
-                ])->first();
-                if ($owner == null) {
-                    $owner = User::where([
-                        'username' => $phone
-                    ])->first();
-                }
-                if ($owner == null) {
-                    $owner = User::where([
-                        'email' => $phone
-                    ])->first();
-                }
-
-                if ($owner == null) {
-                    $new_farmer = new User();
-                    $new_farmer->username = $phone;
-                    $new_farmer->phone_number = $phone;
-                    $new_farmer->email = $phone;
-                    $new_farmer->address = $r->village;
-                    $new_farmer->nin = $r->farm_owner_nin;
-                    $new_farmer->sub_county_id = $r->sub_county_id;
-                    $new_farmer->user_type = 'Farmer';
-                    $new_farmer->status = 1;
-                    $new_farmer->first_name = $r->farm_owner_name;
-                    $new_farmer->last_name = $r->farm_owner_name;
-                    $pass = '1234';
-                    $new_farmer->password = password_hash($pass, PASSWORD_DEFAULT);
-                    $new_farmer->name = $r->farm_owner_name;
-                    $new_farmer->save();
-                    $farm->administrator_id = $new_farmer->id;
-                    $owner = User::find($new_farmer->id);
-                } else {
-                    $farm->administrator_id = $owner->id;
-                    $owner = User::find($owner->id);
-                }
             } else {
                 $owner = User::find($r->administrator_id);
                 if ($owner == null) {
@@ -88,9 +113,6 @@ class V2ApiMainController extends Controller
             }
         }
 
-        if ($owner == null) {
-            return $this->error("Owner not found.");
-        }
         $sub = Location::find($r->sub_county_id);
         if ($sub == null) {
             return $this->error("Sub county not found.");
