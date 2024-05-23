@@ -13,6 +13,7 @@ use App\Http\Controllers\ApiShopController;
 use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\UtilsController;
 use App\Http\Controllers\ApiUserController;
+use App\Http\Controllers\V2ApiMainController;
 use App\Models\Animal;
 use App\Models\Disease;
 use App\Models\Location;
@@ -20,6 +21,11 @@ use App\Models\Utils;
 use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+
+Route::POST('v2-farms-create', [V2ApiMainController::class, 'v2_farms_create']);
+
+
 
 Route::resource('vaccination-schedules', VaccinationScheduleController::class);
 

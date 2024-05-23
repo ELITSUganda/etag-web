@@ -149,4 +149,5 @@ php artisan make:model SlaughterRecord -m
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs
 
-php artisan make:migration add_more_info_to_notification_models --table=notification_models 
+php artisan make:migration add_registered_by_to_farms --table=farms 
+

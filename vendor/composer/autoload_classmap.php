@@ -84,6 +84,7 @@ return array(
     'App\\Http\\Controllers\\PrintController' => $baseDir . '/app/Http/Controllers/PrintController.php',
     'App\\Http\\Controllers\\PrintController2' => $baseDir . '/app/Http/Controllers/PrintController2.php',
     'App\\Http\\Controllers\\UtilsController' => $baseDir . '/app/Http/Controllers/UtilsController.php',
+    'App\\Http\\Controllers\\V2ApiMainController' => $baseDir . '/app/Http/Controllers/V2ApiMainController.php',
     'App\\Http\\Controllers\\WebController' => $baseDir . '/app/Http/Controllers/WebController.php',
     'App\\Http\\Kernel' => $baseDir . '/app/Http/Kernel.php',
     'App\\Http\\Middleware\\Authenticate' => $baseDir . '/app/Http/Middleware/Authenticate.php',

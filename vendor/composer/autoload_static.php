@@ -875,6 +875,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'App\\Http\\Controllers\\PrintController' => __DIR__ . '/../..' . '/app/Http/Controllers/PrintController.php',
         'App\\Http\\Controllers\\PrintController2' => __DIR__ . '/../..' . '/app/Http/Controllers/PrintController2.php',
         'App\\Http\\Controllers\\UtilsController' => __DIR__ . '/../..' . '/app/Http/Controllers/UtilsController.php',
+        'App\\Http\\Controllers\\V2ApiMainController' => __DIR__ . '/../..' . '/app/Http/Controllers/V2ApiMainController.php',
         'App\\Http\\Controllers\\WebController' => __DIR__ . '/../..' . '/app/Http/Controllers/WebController.php',
         'App\\Http\\Kernel' => __DIR__ . '/../..' . '/app/Http/Kernel.php',
         'App\\Http\\Middleware\\Authenticate' => __DIR__ . '/../..' . '/app/Http/Middleware/Authenticate.php',
