@@ -342,6 +342,7 @@ class V2ApiMainController extends Controller
             $img->thumbnail =  null;
             $img->parent_endpoint =  $request->parent_endpoint;
             $img->parent_id =  $request->parent_id;
+            $img->local_id =  $request->local_id;
             $img->size = 0;
             $img->note = $request->note;
             if (
