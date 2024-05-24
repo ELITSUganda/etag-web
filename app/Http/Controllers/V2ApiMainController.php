@@ -343,6 +343,11 @@ class V2ApiMainController extends Controller
             $img->parent_endpoint =  $request->parent_endpoint;
             $img->parent_id =  $request->parent_id;
             $img->local_id =  $request->local_id;
+
+            if($img->local_id == null || strlen($img->local_id)<3){
+                $img->local_id =  $request->parent_id;
+            }
+            $img->registered_by_id =  $request->local_id;
             $img->size = 0;
             $img->note = $request->note;
             if (
