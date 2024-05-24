@@ -253,24 +253,30 @@ class V2ApiMainController extends Controller
             return $this->error("Failed to save animal because " . $e->getMessage());
         }
 
-        //profile photo
-        $img = Image::where([
-            'local_id' => $r->local_id,
-            'type' => 'Animal',
-            'registered_by_id' => $r->registered_by_id,
-        ])->first();
-        if ($img != null) {
-            if (strlen($img->thumbnail) < 3) {
-                $animal->photo = $img->src;
-            } else {
-                $animal->photo = $img->thumbnail;
+
+
+        if ($animal != null) {
+            //profile photo
+            $img = Image::where([
+                'local_id' => $r->local_id,
+                'type' => 'Animal',
+                'registered_by_id' => $r->registered_by_id,
+            ])->first();
+            if ($img != null) {
+                if (strlen($img->thumbnail) < 3) {
+                    $animal->photo = $img->src;
+                } else {
+                    $animal->photo = $img->thumbnail;
+                }
+                $animal->save();
+                $img->parent_id = $animal->id;
+                $img->product_id = $animal->id;
+                $img->administrator_id = $animal->administrator_id;
+                $img->parent_endpoint = 'Animal';
+                $img->note = 'Profile photo';
+                $img->save();
             }
             $animal->save();
-            $img->parent_id = $animal->id;
-            $img->product_id = $animal->id;
-            $img->parent_endpoint = 'Animal';
-            $img->note = 'Profile photo';
-            $img->save();
         }
 
         $animal  = Animal::find($animal->id);
@@ -344,10 +350,10 @@ class V2ApiMainController extends Controller
             $img->parent_id =  $request->parent_id;
             $img->local_id =  $request->local_id;
 
-            if($img->local_id == null || strlen($img->local_id)<3){
+            if ($img->local_id == null || strlen($img->local_id) < 3) {
                 $img->local_id =  $request->parent_id;
             }
-            $img->registered_by_id =  $request->local_id;
+            $img->registered_by_id =  $request->registered_by_id;
             $img->size = 0;
             $img->note = $request->note;
             if (
