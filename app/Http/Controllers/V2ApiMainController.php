@@ -2,6 +2,7 @@
 //rominah P
 namespace App\Http\Controllers;
 
+use App\Models\Animal;
 use App\Models\Farm;
 use App\Models\Location;
 use App\Models\User;
@@ -151,6 +152,93 @@ class V2ApiMainController extends Controller
             return $this->success("Farm saved successfully.");
         } catch (\Exception $e) {
             return $this->error("Failed to save farm because " . $e->getMessage());
+        }
+    }
+
+
+    public function v2_animals_create(Request $r)
+    {
+        if ($r->task != 'Update' && $r->task != 'New') {
+            return $this->error("Invalid task.");
+        }
+
+        //local_id
+        if ($r->local_id == null || strlen($r->local_id) < 3) {
+            return $this->error("Invalid local id.");
+        }
+
+        $isNew = false;
+        if ($r->task == 'Update') {
+            $animal = Animal::find($r->id);
+            if ($animal == null) {
+                return $this->error("Animal not found.");
+            }
+            $isNew = false;
+        } else {
+            $animal = new Animal();
+            $isNew = true;
+        }
+
+        $registered_by = User::find($r->registered_by_id);
+        if ($registered_by == null) {
+            return $this->error("Registered by not found.");
+        }
+
+        if ($animal == null) {
+            $animal = Animal::where([
+                'registered_by_id' => $r->registered_by_id,
+                'local_id' => $r->local_id,
+            ])->first();
+            if ($animal == null) {
+                $animal = Animal::find($r->id);
+                if ($animal == null) {
+                    $animal = new Animal();
+                    $isNew = true;
+                }
+            }
+        }
+
+        if ($animal == null) {
+            return $this->error("Animal not created.");
+        }
+        $farm = Farm::find($r->farm_id);
+        if ($farm == null) {
+            return $this->error("Farm not found.");
+        }
+        $animal->administrator_id = $farm->administrator_id;
+        $animal->district_id = $farm->district_id;
+        $animal->sub_county_id = $farm->sub_county_id;
+        $animal->parish_id = $farm->sub_county_id;
+        $animal->status = 1;
+        $animal->type = $r->type;
+        $animal->e_id = $r->e_id;
+        $animal->v_id = $r->v_id;
+        $animal->lhc = $farm->holding_code;
+        $animal->origin_latitude = $farm->latitude;
+        $animal->origin_longitude = $farm->longitude;
+        $animal->breed = $r->breed;
+        $animal->sex = $r->sex;
+        $animal->dob = $r->dob;
+        $animal->color = $r->color;
+        $animal->local_id = $r->local_id;
+        $animal->farm_id = $r->farm_id;
+        $animal->fmd = $r->fmd;
+        $animal->details = $r->details;
+        $animal->has_parent = $r->has_parent;
+        $animal->parent_id = $r->parent_id;
+        $animal->parent_id = $r->parent_id;
+        $animal->photo = null;
+        $animal->stage = $r->stage;
+        try {
+            $animal->save();
+            $resp_msg = 'Animal updated successfully.';
+            if ($isNew) {
+                $resp_msg = 'Animal created successfully.';
+            }
+            $animal  = Animal::find($animal->id);
+            return $this->success($animal, $resp_msg);
+        } catch (\Exception $e) {
+            return $this->error("Failed to save animal because " . $e->getMessage());
         }
     }
 }
