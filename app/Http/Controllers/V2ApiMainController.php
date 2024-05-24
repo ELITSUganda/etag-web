@@ -181,9 +181,10 @@ class V2ApiMainController extends Controller
                 'registered_by_id' => $r->registered_by_id,
                 'local_id' => $r->local_id,
             ])->first();
+
             if ($animal == null) {
                 $animal = new Animal();
-                $isNew = true;//new changes
+                $isNew = true; //new changes
             }
         }
 
@@ -237,6 +238,9 @@ class V2ApiMainController extends Controller
         $animal->parent_id = $r->parent_id;
         $animal->photo = null;
         $animal->stage = $r->stage;
+        $animal->registered_by_id = $r->registered_by_id;
+        $animal->local_id = $r->local_id;
+
         $resp_msg = 'Animal updated successfully.';
         try {
             $animal->save();
