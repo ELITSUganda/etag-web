@@ -35,6 +35,8 @@ use Encore\Admin\Facades\Admin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+// Utils::send_message('+256703602669', 'Withdraw 5k from my mtn, 0783204665. muhindo mubaraka.');
+// dd("done");
 /* $ev = Event::where([
      
 ])->orderBy('id','desc')->first();

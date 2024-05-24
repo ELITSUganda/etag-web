@@ -140,6 +140,14 @@ class V2ApiMainController extends Controller
         $farm->is_processed = 'Yes';
         try {
             $farm->save();
+            if ($isNew) {
+                $download_ulits_app_url = url('/app');
+                $message_to_farmer = "Dear " . $owner->name . ", your farm has been successfully registered. Your LHC is " . $farm->id . ". Download the ULITS app to access your farm data. LINK: " . $download_ulits_app_url . " Thank you.";
+                try {
+                    Utils::send_message($phone, $message_to_farmer);
+                } catch (\Exception $e) {
+                }
+            }
             return $this->success("Farm saved successfully.");
         } catch (\Exception $e) {
             return $this->error("Failed to save farm because " . $e->getMessage());
