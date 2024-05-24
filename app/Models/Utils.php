@@ -135,11 +135,8 @@ class Utils extends Model
                 ],
             ]));
             if (str_contains($result, 'Send ok')) {
-                echo "success";
-                dd($result);
                 $my_response = "";
             } else {
-                echo "failed";
                 $my_response = "Failed to send sms because " . ((string)$result);
             }
         } catch (\Throwable $th) {
