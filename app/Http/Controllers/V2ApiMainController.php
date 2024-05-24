@@ -183,7 +183,7 @@ class V2ApiMainController extends Controller
             ])->first();
             if ($animal == null) {
                 $animal = new Animal();
-                $isNew = true;
+                $isNew = true;//new changes
             }
         }
 
