@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Animal;
 use App\Models\Farm;
+use App\Models\Image;
 use App\Models\Location;
 use App\Models\User;
 use App\Models\Utils;
@@ -229,16 +230,38 @@ class V2ApiMainController extends Controller
         $animal->parent_id = $r->parent_id;
         $animal->photo = null;
         $animal->stage = $r->stage;
+        $resp_msg = 'Animal updated successfully.';
         try {
             $animal->save();
-            $resp_msg = 'Animal updated successfully.';
             if ($isNew) {
                 $resp_msg = 'Animal created successfully.';
             }
             $animal  = Animal::find($animal->id);
-            return $this->success($animal, $resp_msg);
         } catch (\Exception $e) {
             return $this->error("Failed to save animal because " . $e->getMessage());
         }
+
+        //profile photo
+        $img = Image::where([
+            'local_id' => $r->local_id,
+            'type' => 'Animal',
+            'registered_by_id' => $r->registered_by_id,
+        ])->first();
+        if ($img != null) {
+            if (strlen($img->thumbnail) < 3) {
+                $animal->photo = $img->src;
+            } else {
+                $animal->photo = $img->thumbnail;
+            }
+            $animal->save();
+            $img->parent_id = $animal->id;
+            $img->product_id = $animal->id;
+            $img->parent_endpoint = 'Animal';
+            $img->note = 'Profile photo';
+            $img->save();
+        }
+
+        $animal  = Animal::find($animal->id);
+        return $this->success($animal, $resp_msg);
     }
 }
