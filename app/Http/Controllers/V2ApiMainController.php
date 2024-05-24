@@ -176,8 +176,15 @@ class V2ApiMainController extends Controller
             }
             $isNew = false;
         } else {
-            $animal = new Animal();
-            $isNew = true;
+
+            $animal = Animal::where([
+                'registered_by_id' => $r->registered_by_id,
+                'local_id' => $r->local_id,
+            ])->first();
+            if ($animal == null) {
+                $animal = new Animal();
+                $isNew = true;
+            }
         }
 
         $registered_by = User::find($r->registered_by_id);
