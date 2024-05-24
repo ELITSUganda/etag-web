@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::POST('v2-farms-create', [V2ApiMainController::class, 'v2_farms_create']);
 Route::POST('v2-animals-create', [V2ApiMainController::class, 'v2_animals_create']);
+Route::POST('v2-post-media-upload', [V2ApiMainController::class, 'v2_post_media_upload']);
 
 
 

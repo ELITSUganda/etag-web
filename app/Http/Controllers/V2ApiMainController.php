@@ -9,6 +9,7 @@ use App\Models\Location;
 use App\Models\User;
 use App\Models\Utils;
 use App\Traits\ApiResponser;
+use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Http\Request;
 
 class V2ApiMainController extends Controller
@@ -274,5 +275,121 @@ class V2ApiMainController extends Controller
 
         $animal  = Animal::find($animal->id);
         return $this->success($animal, $resp_msg);
+    }
+
+
+
+    public function v2_post_media_upload(Request $request)
+    {
+
+        $administrator_id = $request->registered_by_id;
+        $u = Administrator::find($administrator_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
+        }
+
+        if (
+            !isset($request->local_id) ||
+            $request->local_id == null ||
+            strlen($request->local_id) < 3
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Local ID is missing.",
+            ]);
+        }
+
+        if (
+            !isset($request->parent_endpoint) ||
+            $request->parent_endpoint == null ||
+            (strlen(($request->parent_endpoint))) < 2
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Local parent ID endpoint is missing.",
+            ]);
+        }
+
+        if (
+            empty($_FILES)
+        ) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Files not found.",
+            ]);
+        }
+
+        $images = Utils::upload_images_1($_FILES, false);
+        $_images = [];
+
+        if (empty($images)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Failed to upload files.',
+                'data' => null
+            ]);
+        }
+
+        $msg = "";
+        foreach ($images as $src) {
+
+            $img = new Image();
+            $img->administrator_id =  $administrator_id;
+            $img->src =  $src;
+            $img->thumbnail =  null;
+            $img->parent_endpoint =  $request->parent_endpoint;
+            $img->parent_id =  $request->parent_id;
+            $img->size = 0;
+            $img->note = $request->note;
+            if (
+                isset($request->note)
+            ) {
+                $img->note =  $request->note;
+                $msg .= "Note not set. ";
+            }
+            $img->save();
+
+            $type = strtolower($img->type);
+            $parent_endpoint = strtolower($img->parent_endpoint);
+
+            if (
+                $type == 'animal' ||
+                $parent_endpoint == 'animal'
+            ) {
+                $animal = Animal::find($img->parent_id);
+                if ($animal == null) {
+                    $animal = Animal::find($img->online_parent_id);
+                }
+                if ($animal == null) {
+                    $animal = Animal::where([
+                        'local_id' => $request->local_id,
+                        'registered_by_id' => $administrator_id,
+                    ])->first();
+                    $animal = Animal::where([
+                        'local_id' => $request->local_parent_id,
+                        'registered_by_id' => $administrator_id,
+                    ])->first();
+                }
+                if ($animal != null) {
+                    $img->product_id = $animal->id;
+                    $img->parent_id = $animal->id;
+                    $img->save();
+                    if ($animal->photo == null || strlen($animal->photo) < 3) {
+                        $animal->photo = $img->src;
+                        $animal->save();
+                    }
+                }
+            }
+            $_images[] = $img;
+        }
+        //Utils::process_images_in_backround();
+        return Utils::response([
+            'status' => 1,
+            'data' => json_encode($_POST),
+            'message' => "File uploaded successfully.",
+        ]);
     }
 }
