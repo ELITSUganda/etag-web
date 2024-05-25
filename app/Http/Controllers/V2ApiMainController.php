@@ -263,9 +263,9 @@ class V2ApiMainController extends Controller
             ])->first();
             if ($img != null) {
                 if (strlen($img->thumbnail) < 3) {
-                    $animal->photo = $img->src;
+                    $animal->photo = 'storage/images/' . $img->src;
                 } else {
-                    $animal->photo = $img->thumbnail;
+                    $animal->photo = 'storage/images/' . $img->thumbnail;
                 }
                 $animal->save();
                 $img->parent_id = $animal->id;
@@ -389,7 +389,7 @@ class V2ApiMainController extends Controller
                     $img->parent_id = $animal->id;
                     $img->save();
                     if ($animal->photo == null || strlen($animal->photo) < 3) {
-                        $animal->photo = $img->src;
+                        $animal->photo = 'storage/images/' . $img->thumbnail;
                         $animal->save();
                     }
                 }
