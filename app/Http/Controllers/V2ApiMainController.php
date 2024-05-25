@@ -384,7 +384,7 @@ class V2ApiMainController extends Controller
                         'registered_by_id' => $administrator_id,
                     ])->first();
                 }
-                if ($animal != null) {
+                if (($animal != null) && ($img->note == 'ProfilePhoto')) {
                     $img->product_id = $animal->id;
                     $img->parent_id = $animal->id;
                     $img->save();
