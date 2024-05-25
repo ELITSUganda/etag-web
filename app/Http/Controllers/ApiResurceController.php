@@ -457,7 +457,7 @@ class ApiResurceController extends Controller
             'data' => $code,
             'status' => 1,
             'code' => 1,
-            'message' => 'Verification code sent successfully.'
+            'message' => 'Verification code sent successfully!'
         ]);
     }
 
