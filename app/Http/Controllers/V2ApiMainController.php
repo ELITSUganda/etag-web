@@ -259,7 +259,6 @@ class V2ApiMainController extends Controller
             //profile photo
             $img = Image::where([
                 'local_id' => $r->local_id,
-                'type' => 'Animal',
                 'registered_by_id' => $r->registered_by_id,
             ])->first();
             if ($img != null) {
