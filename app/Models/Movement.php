@@ -26,7 +26,9 @@ class Movement extends Model
 
         $sub_county_from = Location::find($model->sub_county_from);
         if ($sub_county_from == null) {
-            throw new Exception("Subcounty from not found.", 1);
+            $model->sub_county_from = 0;
+            $sub_county_from = Location::find($model->sub_county_from);
+            //throw new Exception("Subcounty from not found.", 1);
         }
         $model->district_from = $sub_county_from->parent;
 
@@ -46,6 +48,7 @@ class Movement extends Model
                 throw new Exception("Slaughter house not fouassnd.", 1);
             }
             if ($house->subcounty == null) {
+                
                 throw new Exception("Slaughter house subcounty not found.", 1);
             }
 
@@ -347,6 +350,11 @@ class Movement extends Model
 
     public function owner()
     {
+        $u = User::find($this->administrator_id);
+        if ($u == null) {
+            $this->administrator_id = 1;
+            $this->save(); 
+        }
         return $this->belongsTo(Administrator::class, 'administrator_id');
     }
 

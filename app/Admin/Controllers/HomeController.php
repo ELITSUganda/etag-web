@@ -210,16 +210,24 @@ class HomeController extends Controller
             return $content;
         }
 
-        if ($u->isRole('dvo')) {
+        $u = Admin::user();
+        $r = AdminRoleUser::where([
+            'user_id' => $u->id,
+            'role_id' => 7,
+            'role_type' => 'dvo'
+        ])->first();
+        $dis = null;
+        if ($r != null) {
+            $dis = Location::find($r->type_id);
+        }
 
+        if ($u->isRole('dvo') && ($r != null) && ($dis != null)) {
 
-            $u = Auth::user();
-            $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
 
             if ($r == null) {
                 return 'District role not found.';
             }
-            $dis = Location::find($r->type_id);
+
             if ($dis == null) {
                 return 'District not found.';
             }

@@ -38,6 +38,11 @@ class SlaughterHouse extends Model
     }
     public function subcounty()
     {
+        $sub = Location::find($this->subcounty_id);
+        if ($sub == null) {
+            $this->subcounty_id = 0;
+            $this->save();
+        }
         return $this->belongsTo(Location::class);
     }
 
