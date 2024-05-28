@@ -82,6 +82,19 @@ class Animal extends Model
                 $num = "" . $num;
             }
 
+            $model->has_fmd = "No";
+            //check if fmd is not null
+            if ($model->fmd != null && strlen($model->fmd) > 3) {
+                try {
+                    $fmd = Carbon::parse($model->fmd);
+                    if ($fmd != null) {
+                        $model->fmd = $fmd->format('Y-m-d');
+                        $model->has_fmd = "Yes";
+                    }
+                } catch (\Throwable $th) {
+                }
+            }
+
 
 
 
@@ -106,6 +119,21 @@ class Animal extends Model
             $model->district_id = $f->district_id;
             $model->sub_county_id = $f->sub_county_id;
             $model->lhc = $f->holding_code;
+
+            $model->has_fmd = "No";
+            //check if fmd is not null
+            if ($model->fmd != null && strlen($model->fmd) > 3) {
+                try {
+                    $fmd = Carbon::parse($model->fmd);
+                    if ($fmd != null) {
+                        $model->fmd = $fmd->format('Y-m-d');
+                        $model->has_fmd = "Yes";
+                    }
+                } catch (\Throwable $th) {
+                }
+            }
+
+
             return $model;
         });
 

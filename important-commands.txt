@@ -149,5 +149,5 @@ php artisan make:model SlaughterRecord -m
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs
 
-php artisan make:migration add_local_id_to_images --table=images 
+php artisan make:migration add_has_fmd_to_animals --table=animals 
 
