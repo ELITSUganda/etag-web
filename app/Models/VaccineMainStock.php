@@ -50,6 +50,7 @@ class VaccineMainStock extends Model
     }
     public   function getDrugPackagingTypeTextAttribute()
     {
+        return $this->drug_packaging_type_pieces . " " . $this->drug_packaging_type;
         $val = $this->current_quantity / $this->drug_packaging_unit_quantity;
 
         $val = $val / $this->drug_packaging_type_pieces;
@@ -59,6 +60,7 @@ class VaccineMainStock extends Model
 
     public function getDrugPackagingUnitQuantityTextAttribute()
     {
+
         return number_format($this->current_quantity) . " Doses";
         $val = $this->current_quantity / $this->drug_packaging_unit_quantity;
         $unit = "";

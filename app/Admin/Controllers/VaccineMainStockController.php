@@ -125,7 +125,7 @@ class VaccineMainStockController extends AdminController
         $form->text('manufacturer', __('Manufacturer'))->rules('required');
         $form->text('batch_number', __('Batch number'))->rules('required');
         $form->date('expiry_date', __('Expiry date'))->rules('required');
-        $form->image('image', __('Photo'));
+        $form->image('image', __('Image'));
         $form->textarea('description', __('Drug Description'))->rules('required');
 
         $form->divider("Drug/Vaccine Quantity");
