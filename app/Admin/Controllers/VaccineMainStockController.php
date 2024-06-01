@@ -20,7 +20,7 @@ class VaccineMainStockController extends AdminController
      *
      * @var string
      */
-    protected $title = 'Main Vaccine Stock';
+    protected $title = 'Central Vaccine Stock';
 
     /**
      * Make a grid builder.
@@ -31,6 +31,8 @@ class VaccineMainStockController extends AdminController
     {
         $grid = new Grid(new VaccineMainStock());
         $grid->disableBatchActions();
+        $grid->quickSearch('batch_number', 'description', 'manufacturer')
+            ->placeholder('Search by batch number, description, manufacturer'); 
         /* $s = VaccineMainStock::find(1);
         $s->description .= "1";
         $s->original_quantity_temp = 10;
@@ -41,32 +43,28 @@ class VaccineMainStockController extends AdminController
         $grid->model()->orderBy('id', 'Desc');
         $grid->column('created_at', __('Added'))->display(function ($t) {
             return Utils::my_date($t);
-        })->sortable();
+        })->sortable()
+            ->width('100'); 
         $grid->column('drug_category_id', __('Drug'))
             ->display(function ($t) {
                 return $this->drug_category->name_of_drug;
             })->sortable();
-        $grid->column('manufacturer', __('Manufacturer'));
+        $grid->column('manufacturer', __('Manufacturer'))->hide(); 
         $grid->column('batch_number', __('Batch number'))->sortable();
         $grid->column('expiry_date', __('Expiry date'))->sortable();
-        $grid->column('original_quantity', __('Original quantity'))
+        $grid->column('original_quantity', __('Original QTY (Doses)'))
             ->display(function ($t) {
+                return  number_format($t);
                 return  Utils::quantity_convertor($t, $this->drug_state);
-            })->sortable();
-        $grid->column('current_quantity', __('Current quantity'))
+            })->sortable()
+            ->width('120');
+
+        $grid->column('current_quantity', __('Current QTY (Doses)'))
             ->display(function ($t) {
+                return  number_format($t);
                 return  Utils::quantity_convertor($t, $this->drug_state);
-            })->sortable();
-
-        $grid->column('by_pieces', __('Current quantity (by pieces)'))
-            ->display(function () {
-                return  $this->drug_packaging_unit_quantity_text;
-            });
-        $grid->column('by_packaging', __('Current quantity (by packaging)'))
-            ->display(function () {
-                return  $this->drug_packaging_type_text;
-            });
-
+            })->sortable()
+            ->width('120'); 
 
 
         $grid->disableActions();
@@ -130,7 +128,18 @@ class VaccineMainStockController extends AdminController
         $form->textarea('description', __('Drug Description'))->rules('required');
 
         $form->divider("Drug quantity & Packaging");
+        $form->hidden('drug_state')->default('Liquid');
+        $form->hidden('drug_packaging_type')->default('Bottle');
 
+        $form->decimal('drug_packaging_type_pieces', 'Number of deses')
+            ->rules('required');
+
+        $form->decimal('drug_packaging_unit_quantity', 'Single dose quantity (in Milliliters - ml)')
+            ->rules('required')
+            ->help('in Milliliters - (ml)');
+
+
+        return $form;
         $form->radio('drug_state', 'Drug state')
             ->options([
                 'Solid' => 'Solid',

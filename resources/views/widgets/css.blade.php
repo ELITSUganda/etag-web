@@ -1,7 +1,8 @@
 <?php
 $primt_color = '#6B3B00';
-?><style>
-    .sidebar {
+?>
+<style>
+    /*     .sidebar {
         background-color: #FFFFFF;
     }
 
@@ -61,5 +62,5 @@ $primt_color = '#6B3B00';
     * {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         font-size: 1.8rem;
-     }
+     } */
 </style>

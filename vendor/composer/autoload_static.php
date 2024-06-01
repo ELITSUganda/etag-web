@@ -907,6 +907,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'App\\Models\\DrugStockBatchRecord' => __DIR__ . '/../..' . '/app/Models/DrugStockBatchRecord.php',
         'App\\Models\\Event' => __DIR__ . '/../..' . '/app/Models/Event.php',
         'App\\Models\\Farm' => __DIR__ . '/../..' . '/app/Models/Farm.php',
+        'App\\Models\\FarmVaccinationRecord' => __DIR__ . '/../..' . '/app/Models/FarmVaccinationRecord.php',
         'App\\Models\\FinanceCategory' => __DIR__ . '/../..' . '/app/Models/FinanceCategory.php',
         'App\\Models\\FormDrugSeller' => __DIR__ . '/../..' . '/app/Models/FormDrugSeller.php',
         'App\\Models\\FormDrugStockApproval' => __DIR__ . '/../..' . '/app/Models/FormDrugStockApproval.php',

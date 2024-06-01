@@ -139,7 +139,7 @@ class DistrictVaccineStockController extends AdminController
             if ($stock->current_quantity < 1) {
                 continue;
             }
-            $stocks[$stock->id] = $stock->drug_category->name_of_drug . " - Batch #" .
+            $stocks[$stock->id] = $stock->drug_category->name_of_drug . " - Batch No.: " .
                 $stock->batch_number . ", Available Quantity: " . $stock->current_quantity_text;
         }
 
@@ -161,8 +161,13 @@ class DistrictVaccineStockController extends AdminController
         $form->hidden('created_by', __('Created by'))->default(Auth::user()->id);
 
         $form->divider();
-        $form->decimal('original_quantity_temp', 'Drug quantity (in Killograms for solids, in Litters for Liquids)')
-            ->rules('required');
+
+        if($form->isCreating()){
+            $form->decimal('original_quantity', 'Number of Doses Supplied')
+                ->rules('required');
+        }else{
+            $form->display('original_quantity', 'Number of Doses Supplied');
+        }
 
 
 

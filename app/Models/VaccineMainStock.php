@@ -17,28 +17,28 @@ class VaccineMainStock extends Model
             die("Ooops! You cannot delete this item.");
         });
         self::creating(function ($m) {
-            VaccineMainStock::my_update($m);
+            $m = VaccineMainStock::my_update($m);
             return $m;
         });
         self::updating(function ($m) {
-            VaccineMainStock::my_update($m);
+            $m = VaccineMainStock::my_update($m);
             return $m;
         });
     }
 
     public static function my_update($m)
     {
-        if (isset($m->original_quantity_temp)) {
-            if ($m->drug_state == 'Solid') {
-                $m->original_quantity = ($m->original_quantity_temp * 1000000);
-                $m->current_quantity = $m->original_quantity;
-            } else  if ($m->drug_state == 'Liquid') {
-                $m->original_quantity = ($m->original_quantity_temp * 1000);
-                $m->current_quantity = $m->original_quantity;
-            }
-            unset($m->original_quantity_temp);
-        }
+        //return $m;
 
+        /* if ($m->drug_state == 'Solid') {
+            $m->original_quantity = (((int)($m->drug_packaging_unit_quantity)) *  (int)($m->drug_packaging_type_pieces));
+            $m->current_quantity = $m->original_quantity;
+        } else  if ($m->drug_state == 'Liquid') {
+            $m->current_quantity = $m->original_quantity;
+        } else {
+            throw new Exception("Invalid drug state");
+        } */
+        $m->original_quantity =   (int)($m->drug_packaging_type_pieces);
         return $m;
     }
 
@@ -58,6 +58,7 @@ class VaccineMainStock extends Model
 
     public function getDrugPackagingUnitQuantityTextAttribute()
     {
+        return number_format($this->current_quantity) . " Doses";
         $val = $this->current_quantity / $this->drug_packaging_unit_quantity;
         $unit = "";
         if ($this->drug_state == 'Solid') {
@@ -69,6 +70,7 @@ class VaccineMainStock extends Model
     }
     public function getCurrentQuantityTextAttribute()
     {
+        return number_format($this->current_quantity) . " Doses";
         return  Utils::quantity_convertor($this->current_quantity, $this->drug_state);
     }
 

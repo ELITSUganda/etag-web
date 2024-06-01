@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Admin\Controllers\FarmController;
 use Encore\Admin\Auth\Database\Administrator;
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -18,7 +20,13 @@ class DistrictVaccineStock extends Model
             die("Ooops! You cannot delete this item.");
         });
         self::creating(function ($m) {
-            DistrictVaccineStock::my_update($m);
+            //DistrictVaccineStock::my_update($m);
+
+            $mainStock = VaccineMainStock::find($m->drug_stock_id);
+            if ($mainStock == null) {
+                throw new Exception("Stock not found.");
+            }
+
             return $m;
         });
         self::updating(function ($m) {
@@ -30,9 +38,10 @@ class DistrictVaccineStock extends Model
     public static function my_update($m)
     {
 
+        return $m;
         $mainStock = VaccineMainStock::find($m->drug_stock_id);
         if ($mainStock == null) {
-            die("Stock not found.");
+            throw new Exception("Stock not found.");
         }
         $m->drug_category_id = $mainStock->drug_category_id;
         if (isset($used_quantity)) {
@@ -56,8 +65,19 @@ class DistrictVaccineStock extends Model
         return $m;
     }
 
+    public function new_update_balance()
+    {
+        //total doses used by farm
+        $used_quantity = FarmVaccinationRecord::where('district_vaccine_stock_id', $this->id)->sum('number_of_doses');
+        //original quantity
+        $original_quantity = $this->original_quantity;
+        $diff = $original_quantity - $used_quantity;
+        $this->current_quantity = $diff;
+        $this->save(); 
+    }
     public static function update_balance($m)
     {
+        return $m;
         $mainStock = DistrictVaccineStock::find($m->drug_stock_id);
         if ($mainStock == null) {
             die("Stock not found.");
@@ -111,16 +131,16 @@ class DistrictVaccineStock extends Model
     public function getDrugCategoryTextAttribute()
     {
         return $this->drug_category->name_of_drug;
-    } 
+    }
 
     //getter for district_text
     public function getDistrictTextAttribute()
     {
         return $this->district->name_text;
-    } 
+    }
 
 
     protected $appends = [
-        'current_quantity_text','drug_category_text','district_text'
+        'current_quantity_text', 'drug_category_text', 'district_text'
     ];
 }

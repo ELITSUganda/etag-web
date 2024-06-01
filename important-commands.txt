@@ -72,6 +72,7 @@ php artisan admin:make FormSr4Controller --model=App\FormSr4
 php artisan admin:make MovementRouteController --model=App\MovementRoute
 php artisan admin:make MovementRouteController --model=App\Models\MovementRoute
 php artisan admin:make ProductController --model=App\Models\Product
+php artisan admin:make FarmVaccinationRecordController --model=App\Models\FarmVaccinationRecord
 
 
 php artisan admin:make ContractController --model=App\\Models\\ContractRecords
@@ -102,6 +103,7 @@ php artisan admin:make GroupController --model=App\Models\Group
 php artisan admin:make TripController --model=App\Models\Trip
 php artisan admin:make BatchSessionController --model=App\\Models\\BatchSession
 php artisan admin:make SlaughterRecordController --model=App\\Models\\SlaughterRecord
+php artisan admin:make FarmVaccinationRecordController --model=App\\Models\\FarmVaccinationRecord
 
 
 php artisan make:model VaccinationOrder -m
@@ -144,7 +146,7 @@ php artisan make:model WholesaleDrugStock
 php artisan make:model Product
 php artisan make:model NotificationModel -m
 php artisan make:model SlaughterRecord -m
-php artisan make:model SlaughterRecord -m
+php artisan make:model FarmVaccinationRecord -m
 
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs

@@ -10,6 +10,7 @@ use App\Models\DistrictVaccineStock;
 use App\Models\DrugStockBatch;
 use App\Models\Event;
 use App\Models\Farm;
+use App\Models\FarmVaccinationRecord;
 use App\Models\Group;
 use App\Models\Image;
 use App\Models\Location;
@@ -21,6 +22,7 @@ use App\Models\User;
 use App\Models\Utils;
 use App\Models\VaccinationProgram;
 use App\Models\VaccinationSchedule;
+use App\Models\VaccineMainStock;
 use Carbon\Carbon;
 use Dflydev\DotAccessData\Util;
 use Encore\Admin\Auth\Database\Administrator;
@@ -629,6 +631,97 @@ class ApiAnimalController extends Controller
     }
 
 
+    public function farm_vaccination_records_create(Request $r)
+    {
+        $user_id = Utils::get_user_id($r);
+        if ($user_id < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User account not found.",
+            ]);
+        }
+
+        $farm = Farm::find($r->farm_id);
+        if ($farm == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Farm not found.",
+            ]);
+        }
+
+        $vaccine_main_stock = VaccineMainStock::find($r->vaccine_main_stock_id);
+        if ($vaccine_main_stock == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Vaccine not found.",
+            ]);
+        }
+
+        $vaccine_main_stock = DistrictVaccineStock::find($r->district_vaccine_stock_id);
+        if ($vaccine_main_stock == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Vaccine not found.",
+            ]);
+        }
+        $number_of_doses = ((int)(($r->number_of_doses)));
+        $number_of_animals_vaccinated = ((int)(($r->number_of_animals_vaccinated)));
+        if ($number_of_doses < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Number of doses not specified.",
+            ]);
+        }
+        if ($number_of_animals_vaccinated < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Number of animals vaccinated not specified.",
+            ]);
+        }
+        if ($number_of_doses > $vaccine_main_stock->current_quantity) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Insufficient stock.",
+            ]);
+        }
+
+        $record = new FarmVaccinationRecord();
+        $record->farm_id = $r->farm_id;
+        $record->vaccine_main_stock_id = $r->vaccine_main_stock_id;
+        $record->remarks = $r->remarks;
+        $record->gps_location = $r->gps_location;
+        $record->district_vaccine_stock_id = $r->district_vaccine_stock_id;
+        $record->number_of_doses = $r->number_of_doses;
+        $record->district_id = $farm->district_id;
+        $record->created_by_id = $user_id;
+        $record->updated_by_id = $user_id;
+        $record->number_of_animals_vaccinated = $number_of_animals_vaccinated;
+        $record->vaccination_batch_number = $vaccine_main_stock->drug_stock->batch_number;
+        $record->lhc = $farm->holding_code;
+        $owner = $farm->owner();
+        if ($owner == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Owner not found.",
+            ]);
+        }
+        $record->farmer_name = $owner->name;
+        $record->farmer_phone_number = $owner->phone_number;
+        try {
+            $record->save();
+        } catch (\Throwable $e) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Failed to save record. {$e->getMessage()}",
+            ]);
+        }
+        $record = FarmVaccinationRecord::find($record->id);
+        return Utils::response([
+            'status' => 1,
+            'message' => "Record saved successfully.",
+            'data' => $record,
+        ]);
+    }
     public function create_vaccination_programs(Request $r)
     {
         if ($r->task == null) {
