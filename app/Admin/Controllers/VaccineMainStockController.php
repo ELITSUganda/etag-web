@@ -132,7 +132,7 @@ class VaccineMainStockController extends AdminController
         $form->hidden('drug_state')->default('Liquid');
         $form->hidden('drug_packaging_type')->default('Bottle');
 
-        $form->decimal('drug_packaging_type_pieces', 'Number of deses')
+        $form->decimal('original_quantity', 'Number of deses')
             ->rules('required');
 
         $form->decimal('drug_packaging_unit_quantity', 'Single dose quantity (in Milliliters - ml)')
