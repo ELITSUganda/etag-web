@@ -27,6 +27,7 @@ class DistrictVaccineStock extends Model
                 throw new Exception("Stock not found.");
             }
             $m->drug_category_id = $mainStock->drug_category_id; 
+            $m->current_quantity = $m->original_quantity; 
 
             return $m;
         });
