@@ -649,16 +649,10 @@ class ApiAnimalController extends Controller
             ]);
         }
 
-        $vaccine_main_stock = VaccineMainStock::find($r->vaccine_main_stock_id);
-        if ($vaccine_main_stock == null) {
-            return Utils::response([
-                'status' => 0,
-                'message' => "Vaccine not found.",
-            ]);
-        }
 
-        $vaccine_main_stock = DistrictVaccineStock::find($r->district_vaccine_stock_id);
-        if ($vaccine_main_stock == null) {
+
+        $district_vaccine = DistrictVaccineStock::find($r->district_vaccine_stock_id);
+        if ($district_vaccine == null) {
             return Utils::response([
                 'status' => 0,
                 'message' => "Vaccine not found.",
@@ -678,16 +672,25 @@ class ApiAnimalController extends Controller
                 'message' => "Number of animals vaccinated not specified.",
             ]);
         }
-        if ($number_of_doses > $vaccine_main_stock->current_quantity) {
+        if ($number_of_doses > $district_vaccine->current_quantity) {
             return Utils::response([
                 'status' => 0,
                 'message' => "Insufficient stock.",
             ]);
         }
 
+        $main_vaccine = VaccineMainStock::find($district_vaccine->drug_stock_id);
+
+        if ($main_vaccine == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Vaccine not found.",
+            ]);
+        }
+
         $record = new FarmVaccinationRecord();
         $record->farm_id = $r->farm_id;
-        $record->vaccine_main_stock_id = $r->vaccine_main_stock_id;
+        $record->vaccine_main_stock_id = $main_vaccine->id;
         $record->remarks = $r->remarks;
         $record->gps_location = $r->gps_location;
         $record->district_vaccine_stock_id = $r->district_vaccine_stock_id;
