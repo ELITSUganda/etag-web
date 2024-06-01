@@ -699,7 +699,7 @@ class ApiAnimalController extends Controller
         $record->created_by_id = $user_id;
         $record->updated_by_id = $user_id;
         $record->number_of_animals_vaccinated = $number_of_animals_vaccinated;
-        $record->vaccination_batch_number = $vaccine_main_stock->drug_stock->batch_number;
+        $record->vaccination_batch_number = $district_vaccine->drug_stock->batch_number;
         $record->lhc = $farm->holding_code;
         $owner = $farm->owner();
         if ($owner == null) {
