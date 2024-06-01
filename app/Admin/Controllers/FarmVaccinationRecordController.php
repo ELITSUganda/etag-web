@@ -2,8 +2,12 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\DistrictVaccineStock;
+use App\Models\Farm;
 use App\Models\FarmVaccinationRecord;
+use App\Models\Utils;
 use Encore\Admin\Controllers\AdminController;
+use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
@@ -15,7 +19,7 @@ class FarmVaccinationRecordController extends AdminController
      *
      * @var string
      */
-    protected $title = 'FarmVaccinationRecord';
+    protected $title = 'Vaccination Records';
 
     /**
      * Make a grid builder.
@@ -25,25 +29,60 @@ class FarmVaccinationRecordController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new FarmVaccinationRecord());
+        $grid->disableBatchActions();
+        $grid->model()->orderBy('id', 'Desc');
+        $grid->column('created_at', __('Date'))
+            ->display(function ($t) {
+                return Utils::my_date($t);
+            })->sortable();
+        $grid->column('updated_at', __('Updated at'))
+            ->display(function ($t) {
+                return Utils::my_date($t);
+            })->sortable()->hide();
+        $grid->column('lhc', __('FARM'))->display(function ($t) {
+            return $this->farm->holding_code;
+        })->sortable()->hide();
 
-        $grid->column('id', __('Id'));
-        $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('Updated at'));
-        $grid->column('farm_id', __('Farm id'));
-        $grid->column('vaccine_main_stock_id', __('Vaccine main stock id'));
-        $grid->column('district_vaccine_stock_id', __('District vaccine stock id'));
-        $grid->column('district_id', __('District id'));
-        $grid->column('created_by_id', __('Created by id'));
-        $grid->column('updated_by_id', __('Updated by id'));
-        $grid->column('number_of_doses', __('Number of doses'));
-        $grid->column('number_of_animals_vaccinated', __('Number of animals vaccinated'));
-        $grid->column('vaccination_batch_number', __('Vaccination batch number'));
-        $grid->column('remarks', __('Remarks'));
+        $grid->column('farm_id', __('Farm'))
+            ->display(function ($t) {
+                return $this->farm->holding_code;
+            })->sortable();
+
+        $grid->column('district_id', __('Sub-county'))
+            ->display(function ($t) {
+                return $this->farm->sub_county_text;
+            })->sortable();
+        $grid->column('vaccine_main_stock_id', __('Vaccine'))
+            ->display(function ($t) {
+                return $this->vaccine_main_stock->drug_category->name_of_drug;
+            })->sortable();
+
+        $grid->column('vaccination_batch_number', __('Vaccine Batch Number'))->sortable();
+        $grid->column('district_vaccine_stock_id', __('District vaccine stock id'))->hide();
+
+
+        $grid->column('number_of_doses', __('Number of doses'))
+            ->display(function ($t) {
+                return number_format($this->number_of_doses);
+            })->sortable();
+        $grid->column('number_of_animals_vaccinated', __('Animals Vaccinated'))
+            ->display(function ($t) {
+                return number_format($this->number_of_animals_vaccinated);
+            })->sortable()
+            ->width('100');
+
+        $grid->column('remarks', __('Remarks'))->hide();
+        $grid->column('farmer_name', __('Farmer name'))->sortable();
+        $grid->column('farmer_phone_number', __('Farmer Contact'))
+            ->display(function ($t) {
+                return $this->farmer_phone_number;
+            })->sortable();
+
+        $grid->column('created_by_id', __('Created by'))
+            ->display(function ($t) {
+                return $this->created_by->name;
+            })->sortable();
         $grid->column('gps_location', __('Gps location'));
-        $grid->column('lhc', __('Lhc'));
-        $grid->column('farmer_name', __('Farmer name'));
-        $grid->column('farmer_phone_number', __('Farmer phone number'));
-
         return $grid;
     }
 
@@ -87,20 +126,31 @@ class FarmVaccinationRecordController extends AdminController
     {
         $form = new Form(new FarmVaccinationRecord());
 
-        $form->number('farm_id', __('Farm id'));
-        $form->number('vaccine_main_stock_id', __('Vaccine main stock id'));
-        $form->number('district_vaccine_stock_id', __('District vaccine stock id'));
-        $form->number('district_id', __('District id'));
-        $form->number('created_by_id', __('Created by id'));
-        $form->number('updated_by_id', __('Updated by id'));
-        $form->number('number_of_doses', __('Number of doses'));
-        $form->number('number_of_animals_vaccinated', __('Number of animals vaccinated'));
-        $form->text('vaccination_batch_number', __('Vaccination batch number'));
-        $form->textarea('remarks', __('Remarks'));
-        $form->textarea('gps_location', __('Gps location'));
-        $form->text('lhc', __('Lhc'));
-        $form->textarea('farmer_name', __('Farmer name'));
-        $form->textarea('farmer_phone_number', __('Farmer phone number'));
+        $items = [];
+        foreach (Farm::all() as $key => $f) {
+            $items[$f->id] = $f->holding_code;
+        }
+
+        $district_vaccine_stocks = [];
+        foreach (DistrictVaccineStock::all() as $stock) {
+            $district_vaccine_stocks[$stock->id] = $stock->district->name . " - " . $stock->drug_stock->batch_number . " Available: " . $stock->current_quantity;
+        }
+        $form->select('farm_id', __('Farm'))
+            ->options($items)
+            ->required();
+        $form->select('district_vaccine_stock_id', __('Select Vaccine Stock'))
+            ->options($district_vaccine_stocks)
+            ->required();
+
+        $u = Admin::user();
+        $form->hidden('created_by_id', __('Created by id'))->default($u->id);
+        $form->hidden('updated_by_id', __('Updated by id'))->default($u->id);
+
+        $form->decimal('number_of_doses', __('Number of doses'))->required();
+        $form->decimal('number_of_animals_vaccinated', __('Number of animals vaccinated'))->required();
+        $form->text('remarks', __('Remarks'));
+        $form->text('gps_location', __('Gps Location'))->default('0.0000,0.0000');
+
 
         return $form;
     }
