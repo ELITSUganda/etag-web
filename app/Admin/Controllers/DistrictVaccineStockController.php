@@ -54,24 +54,28 @@ class DistrictVaccineStockController extends AdminController
 
         $grid->column('original_quantity', __('Original quantity'))
             ->display(function ($t) {
+                return number_format($t) . " Doses";
                 return  Utils::quantity_convertor($t, $this->drug_stock->drug_state);
-            })->sortable();
+            })->sortable()
+            ->totalRow(function ($amount) {
+                return "<span class='text-success'>" . number_format($amount) . " Doses</span>";
+            });  
 
 
         $grid->column('current_quantity', __('Current quantity'))
             ->display(function ($t) {
+                return number_format($t) . " Doses";
                 return  Utils::quantity_convertor($t, $this->drug_stock->drug_state);
-            })->sortable();
+            })->sortable()
+            ->totalRow(function ($amount) {
+                return "<span class='text-danger'>" . number_format($amount) . " Doses</span>";
+            }); 
 
-        $grid->column('current_quantity', __('Current quantity (By Packaging)'))
-            ->display(function ($t) {
-                return Utils::quantity_convertor_2($this->current_quantity, $this->drug_stock);
-            })->sortable();
 
         $grid->column('created_by', __('Created by'))
             ->display(function ($t) {
                 return $this->creator->name;
-            })->sortable();
+            })->sortable()->hide();
 
 
 
@@ -81,10 +85,10 @@ class DistrictVaccineStockController extends AdminController
 
 
 
-        $grid->column('packaging', __('Action'))
+/*         $grid->column('packaging', __('Action'))
             ->display(function () {
                 return '<a href="' . admin_url('health-centre-drug-stocks/create?district_stock_id=' . $this->id) . '" >SUPPLY TO HEALTH CENTRE</a>';
-            });
+            }); */
 
 
 
@@ -162,10 +166,10 @@ class DistrictVaccineStockController extends AdminController
 
         $form->divider();
 
-        if($form->isCreating()){
+        if ($form->isCreating()) {
             $form->decimal('original_quantity', 'Number of Doses Supplied')
                 ->rules('required');
-        }else{
+        } else {
             $form->display('original_quantity', 'Number of Doses Supplied');
         }
 

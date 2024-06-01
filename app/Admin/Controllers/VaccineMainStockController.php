@@ -30,9 +30,10 @@ class VaccineMainStockController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new VaccineMainStock());
-        $grid->disableBatchActions();
+        //$grid->disableBatchActions();
         $grid->quickSearch('batch_number', 'description', 'manufacturer')
-            ->placeholder('Search by batch number, description, manufacturer'); 
+            ->placeholder('Search by batch number, description, manufacturer');
+        $grid->disableBatchActions();
         /* $s = VaccineMainStock::find(1);
         $s->description .= "1";
         $s->original_quantity_temp = 10;
@@ -44,12 +45,12 @@ class VaccineMainStockController extends AdminController
         $grid->column('created_at', __('Added'))->display(function ($t) {
             return Utils::my_date($t);
         })->sortable()
-            ->width('100'); 
+            ->width('100');
         $grid->column('drug_category_id', __('Drug'))
             ->display(function ($t) {
                 return $this->drug_category->name_of_drug;
             })->sortable();
-        $grid->column('manufacturer', __('Manufacturer'))->hide(); 
+        $grid->column('manufacturer', __('Manufacturer'))->hide();
         $grid->column('batch_number', __('Batch number'))->sortable();
         $grid->column('expiry_date', __('Expiry date'))->sortable();
         $grid->column('original_quantity', __('Original QTY (Doses)'))
@@ -64,7 +65,7 @@ class VaccineMainStockController extends AdminController
                 return  number_format($t);
                 return  Utils::quantity_convertor($t, $this->drug_state);
             })->sortable()
-            ->width('120'); 
+            ->width('120');
 
 
         $grid->disableActions();
@@ -117,7 +118,7 @@ class VaccineMainStockController extends AdminController
         $form = new Form(new VaccineMainStock());
 
 
-        $form->divider("Drug information");
+        $form->divider("Drug/Vaccine information");
         $form->select('drug_category_id', 'Select drug cateogry')
             ->options(VaccineCategory::all()->pluck('name_of_drug', 'id'))
             ->rules('required');
@@ -127,7 +128,7 @@ class VaccineMainStockController extends AdminController
         $form->image('image', __('Photo'));
         $form->textarea('description', __('Drug Description'))->rules('required');
 
-        $form->divider("Drug quantity & Packaging");
+        $form->divider("Drug/Vaccine Quantity");
         $form->hidden('drug_state')->default('Liquid');
         $form->hidden('drug_packaging_type')->default('Bottle');
 

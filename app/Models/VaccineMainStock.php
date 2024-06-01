@@ -17,11 +17,12 @@ class VaccineMainStock extends Model
             die("Ooops! You cannot delete this item.");
         });
         self::creating(function ($m) {
-            $m = VaccineMainStock::my_update($m);
+            $m->current_quantity = $m->original_quantity;
             return $m;
         });
         self::updating(function ($m) {
-            $m = VaccineMainStock::my_update($m);
+            $sum_suplied = DistrictVaccineStock::where('drug_stock_id', $m->id)->sum('original_quantity');
+            $m->current_quantity = $m->original_quantity - $sum_suplied;
             return $m;
         });
     }
@@ -73,6 +74,14 @@ class VaccineMainStock extends Model
         return number_format($this->current_quantity) . " Doses";
         return  Utils::quantity_convertor($this->current_quantity, $this->drug_state);
     }
+
+    //update_self 
+    public function update_self()
+    {
+        $sum_suplied = DistrictVaccineStock::where('drug_stock_id', $this->id)->sum('original_quantity');
+        $this->current_quantity = $this->original_quantity - $sum_suplied;
+        $this->save(); 
+    } 
 
     protected $appends = [
         'drug_packaging_type_text',

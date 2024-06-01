@@ -33,7 +33,17 @@ class DistrictVaccineStock extends Model
             DistrictVaccineStock::my_update($m);
             return $m;
         });
+
+        //created
+        self::created(function ($m) {
+            $mainStock = VaccineMainStock::find($m->drug_stock_id);
+            if ($mainStock == null) {
+                throw new Exception("Stock not found.");
+            }
+            $mainStock->update_self();
+        });
     }
+
 
     public static function my_update($m)
     {
@@ -73,7 +83,7 @@ class DistrictVaccineStock extends Model
         $original_quantity = $this->original_quantity;
         $diff = $original_quantity - $used_quantity;
         $this->current_quantity = $diff;
-        $this->save(); 
+        $this->save();
     }
     public static function update_balance($m)
     {
