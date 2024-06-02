@@ -411,7 +411,7 @@ class ApiAnimalController extends Controller
         if ($user_id < 1) {
             return Utils::response([
                 'status' => 0,
-                'message' => "Slaugter house ID not found.",
+                'message' => "User not set.",
             ]);
         }
 
@@ -456,10 +456,12 @@ class ApiAnimalController extends Controller
             $rec = new VaccinationSchedule();
             $rec->farm_id = $farm->id;
             $rec->vaccination_type = $r->vaccination_type;
+            $rec->schedule_date = $r->schedule_date;
             $rec->applicant_message = $r->applicant_message;
             $rec->applicant_name = $owner->name;
             $rec->applicant_id = $owner->id;
             $rec->district_id = $farm->district_id;
+            $rec->veterinary_officer_id = $u->id;
             $district = Location::find($farm->district_id);
             if ($district == null) {
                 return Utils::response([
@@ -480,7 +482,14 @@ class ApiAnimalController extends Controller
             $rec->applicant_address = $farm->village;
             $rec->gps_latitute = $farm->latitude;
             $rec->gps_longitude = $farm->longitude;
+            $rec->farm_id = $r->farm_id;
+            $rec->applicant_message = $r->applicant_message;
+            $rec->veterinary_officer_message = $r->veterinary_officer_message;
+            $rec->dvo_message = $r->dvo_message;
+            $rec->reason_for_rejection = $r->reason_for_rejection;
+            $rec->details = $r->details;
             $rec->status = 'Pending';
+            $rec->vaccination_type = 'FMD';
 
             try {
                 $rec->save();
@@ -491,8 +500,8 @@ class ApiAnimalController extends Controller
                 ]);
             }
 
-            //send notification farmer how we have received the request
-            $msg = "We have received your request for vaccination. We will contact you about the schedule soon. Open the App to see more details.";
+            //send notification farmer how we have received the request 
+            $msg = "Your farm {$farm->holding_code} has been scheduled for vaccination on {$rec->schedule_date}. Open the App to see more details.";
             $title = "VACCINATION REQUEST - {$farm->holding_code}";
             Utils::sendNotification(
                 $msg,
@@ -510,6 +519,7 @@ class ApiAnimalController extends Controller
                 'type_id_1' => $farm->district_id
             ])->get();
             foreach ($user_roles as $key => $value) {
+                break;
                 $admin = Administrator::find($value->user_id);
                 if ($admin == null) {
                     continue;
