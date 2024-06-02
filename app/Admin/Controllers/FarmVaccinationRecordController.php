@@ -30,6 +30,27 @@ class FarmVaccinationRecordController extends AdminController
     {
         $grid = new Grid(new FarmVaccinationRecord());
         $grid->disableBatchActions();
+
+        $grid->filter(function ($filter) {
+            $filter->disableIdFilter();
+
+            $items = [];
+            foreach (Farm::all() as $key => $f) {
+                $items[$f->id] = $f->holding_code;
+            }
+
+            $district_vaccine_stocks = [];
+            foreach (DistrictVaccineStock::all() as $stock) {
+                $district_vaccine_stocks[$stock->id] = $stock->district->name . " - " . $stock->drug_stock->batch_number . " Available: " . $stock->current_quantity;
+            }
+
+            $filter->equal('district_vaccine_stock_id', __('Select Vaccine Stock'))->select($district_vaccine_stocks);
+            $filter->equal('farm_id', __('Farm'))->select($items);
+            $filter->equal('created_by_id', __('Created by'))->select(Admin::user()->pluck('name', 'id'));
+            $filter->like('vaccination_batch_number', 'Batch number');
+            $filter->between('created_at', 'Entry date')->date();
+        });
+
         $grid->model()->orderBy('id', 'Desc');
         $grid->column('created_at', __('Date'))
             ->display(function ($t) {
@@ -83,6 +104,9 @@ class FarmVaccinationRecordController extends AdminController
                 return $this->created_by->name;
             })->sortable();
         $grid->column('gps_location', __('Gps location'));
+        //track
+      
+
         return $grid;
     }
 

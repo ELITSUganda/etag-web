@@ -6,6 +6,7 @@ use App\Models\DistrictVaccineStock;
 use App\Models\DrugCategory;
 use App\Models\DrugStock;
 use App\Models\Utils;
+use App\Models\VaccineCategory;
 use App\Models\VaccineMainStock;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
@@ -34,7 +35,38 @@ class DistrictVaccineStockController extends AdminController
         $grid->disableCreateButton();
         $grid->disableBatchActions();
         $grid->disableExport();
+        $grid->filter(function ($filter) {
+            $filter->disableIdFilter();
+            $stocks = [];
+            foreach (VaccineMainStock::all() as $stock) {
+                if ($stock->current_quantity < 1) {
+                    continue;
+                }
+                $stocks[$stock->id] = $stock->drug_category->name_of_drug . " - Batch No.: " .
+                    $stock->batch_number . ", Available Quantity: " . $stock->current_quantity_text;
+            }
+            $filter->equal('drug_stock_id', 'Drug stock')->select($stocks);
+            $cats = VaccineCategory::all()->pluck('name_of_drug', 'id');
+            //drug_category_id
+            $filter->where(function ($query) {
+                $query->whereHas('drug_category', function ($query) {
+                    $query->where('name_of_drug', 'like', "%{$this->input}%");
+                });
+            }, 'Drug')->select($cats);
+
+            //district_id
+            $district_ajax_url = url('/api/districts');
+            $filter->equal('district_id', 'District')->select()->ajax($district_ajax_url);
+            //between original_quantity
+            $filter->between('original_quantity', 'Original quantity')->integer();
+            //current_quantity
+            $filter->between('current_quantity', 'Current quantity')->integer(); 
+            $filter->between('created_at', 'Entry date')->date();
+        });
+
+
         $grid->model()->orderBy('id', 'Desc');
+
 
         $grid->column('created_at', __('Date'))->display(function ($t) {
             return Utils::my_date($t);
@@ -59,7 +91,7 @@ class DistrictVaccineStockController extends AdminController
             })->sortable()
             ->totalRow(function ($amount) {
                 return "<span class='text-success'>" . number_format($amount) . " Doses</span>";
-            });  
+            });
 
 
         $grid->column('current_quantity', __('Current quantity'))
@@ -69,7 +101,7 @@ class DistrictVaccineStockController extends AdminController
             })->sortable()
             ->totalRow(function ($amount) {
                 return "<span class='text-danger'>" . number_format($amount) . " Doses</span>";
-            }); 
+            });
 
 
         $grid->column('created_by', __('Created by'))
@@ -85,7 +117,7 @@ class DistrictVaccineStockController extends AdminController
 
 
 
-/*         $grid->column('packaging', __('Action'))
+        /*         $grid->column('packaging', __('Action'))
             ->display(function () {
                 return '<a href="' . admin_url('health-centre-drug-stocks/create?district_stock_id=' . $this->id) . '" >SUPPLY TO HEALTH CENTRE</a>';
             }); */

@@ -34,6 +34,31 @@ class VaccineMainStockController extends AdminController
         $grid->quickSearch('batch_number', 'description', 'manufacturer')
             ->placeholder('Search by batch number, description, manufacturer');
         $grid->disableBatchActions();
+        $grid->filter(function ($filter) {
+            $filter->disableIdFilter();
+            $filter->like('batch_number', 'Batch number');
+            $filter->like('manufacturer', 'Manufacturer');
+            $filter->between('created_at', 'Entry date')->date();
+            $filter->between('expiry_date', 'Expiry date')->date();
+            $cats = VaccineCategory::all()->pluck('name_of_drug', 'id');
+            //drug_category_id
+            $filter->where(function ($query) {
+                $query->whereHas('drug_category', function ($query) {
+                    $query->where('name_of_drug', 'like', "%{$this->input}%");
+                });
+            }, 'Drug')->select($cats);
+            //original_quantity
+            $filter->between('original_quantity', 'Original quantity');
+            $filter->between('current_quantity', 'Current quantity');
+
+            /* 
+
+        $show->field('', __('Original quantity'));
+        $show->field('', __('Current quantity'));
+        $show->field('image', __('Image'));
+        $show->field('description', __('Description'));
+            */
+        });
         /* $s = VaccineMainStock::find(1);
         $s->description .= "1";
         $s->original_quantity_temp = 10;
@@ -79,6 +104,16 @@ class VaccineMainStockController extends AdminController
 
 
         $grid->column('description', __('Description'))->hide();
+
+        $grid->column('track', __('Track'))->display(function () {
+            $dis_url = admin_url('district-vaccine-stocks?drug_stock_id%3F%3Fdistrict_vaccine_stock_id=8&drug_stock_id=' . $this->id . '');
+            $farm_url = admin_url('farm-vaccination-records??district_vaccine_stock_id=' . $this->id . '');
+
+            $gen_link_text = '<a href="' . $dis_url . '" >District Distribution</a> | <a href="' . $farm_url . '" >Farm Distribution</a>';
+            return $gen_link_text;
+
+            //$dis_url = "<a href='$url'>District </a>";
+        });
 
         return $grid;
     }
