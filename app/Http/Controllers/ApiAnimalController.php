@@ -698,6 +698,7 @@ class ApiAnimalController extends Controller
             ]);
         }
 
+
         $record = new FarmVaccinationRecord();
         $record->farm_id = $r->farm_id;
         $record->vaccine_main_stock_id = $main_vaccine->id;
@@ -722,6 +723,37 @@ class ApiAnimalController extends Controller
         $record->farmer_phone_number = $owner->phone_number;
         try {
             $record->save();
+
+            if (isset($r->vaccine_schedule_id)) {
+                $schedule = VaccinationSchedule::find($r->vaccine_schedule_id);
+                if ($schedule == null) {
+                    return Utils::response([
+                        'status' => 0,
+                        'message' => "Vaccination schedule not found.",
+                    ]);
+                }
+                if ($schedule->status == 'Conducted') {
+                    return Utils::response([
+                        'status' => 0,
+                        'message' => "Vaccination schedule already conducted.",
+                    ]);
+                }
+                $schedule->status = 'Conducted';
+                $schedule->save();
+            }
+            //sms to famrer, vaccination vaccinator has been conducted at 
+            $msg = "Vaccination has been conducted at your farm {$farm->holding_code}. Open the App to see more details.";
+            $title = "VACCINATION CONDUCTED - {$farm->holding_code}";
+            Utils::sendNotification(
+                $msg,
+                $owner->id . "",
+                $headings =  $title,
+                $data = [$farm->id]
+            );
+            $owenr_phone = Utils::prepare_phone_number($owner->phone_number);
+            if (Utils::phone_number_is_valid($owenr_phone)) {
+                Utils::send_message($owenr_phone, $msg);
+            }
         } catch (\Throwable $e) {
             return Utils::response([
                 'status' => 0,
