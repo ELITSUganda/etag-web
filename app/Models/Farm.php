@@ -148,7 +148,7 @@ class Farm extends Model
         $dis = Location::find($sub->parent);
 
         //echo $m->owner()->name.". <b>District:</b>" . $dis->name . " <b>Subcounty: </b>" . $sub->name . " Holding: " . $m->holding_code . "<br>";
-        
+
 
         return $m;
     }
@@ -187,5 +187,18 @@ class Farm extends Model
         return $u;
 
         //return Administrator::findOrFail();
+    }
+
+    //getter for farm_owner_phone_number
+    public function getFarmOwnerPhoneNumberAttribute($x)
+    {
+        if ($x != null && strlen($x) > 4) {
+            return $x;
+        }
+        $u = $this->owner();
+        if ($u == null) {
+            return $x;
+        }
+        return $u->phone_number;
     }
 }
