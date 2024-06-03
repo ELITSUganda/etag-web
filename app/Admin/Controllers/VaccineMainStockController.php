@@ -106,10 +106,15 @@ class VaccineMainStockController extends AdminController
         $grid->column('description', __('Description'))->hide();
 
         $grid->column('track', __('Track'))->display(function () {
-            $dis_url = admin_url('district-vaccine-stocks?drug_stock_id%3F%3Fdistrict_vaccine_stock_id=8&drug_stock_id=' . $this->id . '');
-            $farm_url = admin_url('farm-vaccination-records??district_vaccine_stock_id=' . $this->id . '');
+            //3Fdistrict_vaccine_stock_id
 
-            $gen_link_text = '<a href="' . $dis_url . '" >District Distribution</a> | <a href="' . $farm_url . '" >Farm Distribution</a>';
+            $dis_url = admin_url('district-vaccine-stocks?drug_stock_id=' . $this->id . '');
+            $farm_url = admin_url('farm-vaccination-records?district_vaccine_stock_id=' . $this->id . '');
+            $dis_count = \App\Models\DistrictVaccineStock::where('drug_stock_id', $this->id)->count();
+            $farm_count = \App\Models\FarmVaccinationRecord::where('district_vaccine_stock_id', $this->id)->count();
+
+            $gen_link_text = '<a target="_blank" href="' . $dis_url . '" >District Distribution (' . $dis_count . ') </a><br>
+            <a target="_blank"  href="' . $farm_url . '" >Farm Distribution (' . $farm_count . ')</a>';
             return $gen_link_text;
 
             //$dis_url = "<a href='$url'>District </a>";
@@ -153,7 +158,7 @@ class VaccineMainStockController extends AdminController
         $form = new Form(new VaccineMainStock());
 
 
-        $form->divider("Drug/Vaccine information");
+        $form->divider("Vaccine information");
         $form->select('drug_category_id', 'Select drug cateogry')
             ->options(VaccineCategory::all()->pluck('name_of_drug', 'id'))
             ->rules('required');
@@ -163,11 +168,11 @@ class VaccineMainStockController extends AdminController
         $form->image('image', __('Image'));
         $form->textarea('description', __('Drug Description'))->rules('required');
 
-        $form->divider("Drug/Vaccine Quantity");
+        $form->divider("Vaccine Quantity");
         $form->hidden('drug_state')->default('Liquid');
         $form->hidden('drug_packaging_type')->default('Bottle');
 
-        $form->decimal('original_quantity', 'Number of deses')
+        $form->decimal('original_quantity', 'Number of doses')
             ->rules('required');
 
         $form->decimal('drug_packaging_unit_quantity', 'Single dose quantity (in Milliliters - ml)')

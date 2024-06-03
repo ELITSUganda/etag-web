@@ -60,7 +60,7 @@ class DistrictVaccineStockController extends AdminController
             //between original_quantity
             $filter->between('original_quantity', 'Original quantity')->integer();
             //current_quantity
-            $filter->between('current_quantity', 'Current quantity')->integer(); 
+            $filter->between('current_quantity', 'Current quantity')->integer();
             $filter->between('created_at', 'Entry date')->date();
         });
 
@@ -110,6 +110,17 @@ class DistrictVaccineStockController extends AdminController
             })->sortable()->hide();
 
 
+        $grid->column('track', __('Track'))->display(function () {
+            //3Fdistrict_vaccine_stock_id
+
+            $farm_url = admin_url('farm-vaccination-records?district_vaccine_stock_id=' . $this->id . '');
+            $farm_count = \App\Models\FarmVaccinationRecord::where('district_vaccine_stock_id', $this->id)->count();
+
+            $gen_link_text = '<a target="_blank" href="' . $farm_url . '" >Farm Distribution (' . $farm_count . ')</a>';
+            return $gen_link_text;
+
+            //$dis_url = "<a href='$url'>District </a>";
+        });
 
 
         $grid->disableActions();

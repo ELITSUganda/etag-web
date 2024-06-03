@@ -19,7 +19,7 @@ class FarmVaccinationRecordController extends AdminController
      *
      * @var string
      */
-    protected $title = 'Vaccination Records';
+    protected $title = 'Farm Vaccine Distribution Records';
 
     /**
      * Make a grid builder.
@@ -105,7 +105,7 @@ class FarmVaccinationRecordController extends AdminController
             })->sortable();
         $grid->column('gps_location', __('Gps location'));
         //track
-      
+
 
         return $grid;
     }
