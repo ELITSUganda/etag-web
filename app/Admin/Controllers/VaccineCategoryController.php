@@ -29,10 +29,10 @@ class VaccineCategoryController extends AdminController
         $grid->disableBatchActions();
         $grid->column('id', __('ID'))->sortable();
         $grid->column('name_of_drug', __('Name of vaccine'));
-        $grid->column('generic_name_of_drug', __('Generic name of drug'));
+        $grid->column('generic_name_of_drug', __('Generic name of vaccine'));
         $grid->column('nda_registration_number', __('NDA registration number'));
         $grid->column('license_holder', __('License holder'));
-        $grid->column('strength_of_drug', __('Strength of drug'));
+        $grid->column('strength_of_drug', __('Strength of vaccine'));
         $grid->column('manufacturer', __('Manufacturer'));
         $grid->column('country_of_manufacturer', __('Country of manufacturer'));
         $grid->column('dosage_form', __('Dosage form'));
@@ -56,9 +56,9 @@ class VaccineCategoryController extends AdminController
         $show->field('updated_at', __('Updated at'));
         $show->field('nda_registration_number', __('Nda registration number'));
         $show->field('license_holder', __('License holder'));
-        $show->field('name_of_drug', __('Name of drug'));
-        $show->field('generic_name_of_drug', __('Generic name of drug'));
-        $show->field('strength_of_drug', __('Strength of drug'));
+        $show->field('name_of_drug', __('Name of vaccine'));
+        $show->field('generic_name_of_drug', __('Generic name of vaccine'));
+        $show->field('strength_of_drug', __('Strength of vaccine'));
         $show->field('manufacturer', __('Manufacturer'));
         $show->field('country_of_manufacturer', __('Country of manufacturer'));
         $show->field('dosage_form', __('Dosage form'));
@@ -78,9 +78,9 @@ class VaccineCategoryController extends AdminController
 
         $form->text('nda_registration_number', __('Nda registration number'))->rules('required');
         $form->text('license_holder', __('License holder'))->rules('required');
-        $form->text('name_of_drug', __('Name of drug'))->rules('required');
-        $form->text('generic_name_of_drug', __('Generic name of drug'))->rules('required');
-        $form->text('strength_of_drug', __('Strength of drug'))->rules('required');
+        $form->text('name_of_drug', __('Name of vaccine'))->rules('required');
+        $form->text('generic_name_of_drug', __('Generic name of vaccine'))->rules('required');
+        $form->text('strength_of_drug', __('Strength of vaccine'))->rules('required');
         $form->text('manufacturer', __('Manufacturer'))->rules('required');
         $form->text('country_of_manufacturer', __('Country of manufacturer'))->rules('required');
         $form->text('dosage_form', __('Dosage form'))->rules('required');
