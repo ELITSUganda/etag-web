@@ -45,7 +45,7 @@ class DistrictVaccineStockController extends AdminController
                 $stocks[$stock->id] = $stock->drug_category->name_of_drug . " - Batch No.: " .
                     $stock->batch_number . ", Available Quantity: " . $stock->current_quantity_text;
             }
-            $filter->equal('drug_stock_id', 'Drug stock')->select($stocks);
+            $filter->equal('drug_stock_id', 'Vaccine stock')->select($stocks);
             $cats = VaccineCategory::all()->pluck('name_of_drug', 'id');
             //drug_category_id
             $filter->where(function ($query) {
@@ -76,7 +76,7 @@ class DistrictVaccineStockController extends AdminController
             return $this->district->name;
         })->sortable();
 
-        $grid->column('drug_category_id', __('Drug'))->display(function ($t) {
+        $grid->column('drug_category_id', __('Vaccine'))->display(function ($t) {
             return $this->drug_category->name_of_drug;
         })->sortable();
 
@@ -153,8 +153,8 @@ class DistrictVaccineStockController extends AdminController
         $show->field('id', __('Id'));
         $show->field('created_at', __('Created at'));
         $show->field('updated_at', __('Updated at'));
-        $show->field('drug_category_id', __('Drug category id'));
-        $show->field('drug_stock_id', __('Drug stock id'));
+        $show->field('drug_category_id', __('Vaccine category id'));
+        $show->field('drug_stock_id', __('Vaccine stock id'));
         $show->field('district_id', __('District id'));
         $show->field('created_by', __('Created by'));
         $show->field('original_quantity', __('Original quantity'));
@@ -192,7 +192,7 @@ class DistrictVaccineStockController extends AdminController
 
         $district_ajax_url = url('/api/districts');
 
-        $form->select('drug_stock_id', 'Drug stock')
+        $form->select('drug_stock_id', 'Vaccine stock')
             ->options($stocks)
             ->default($drug_id)
             ->readOnly()
