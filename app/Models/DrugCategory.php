@@ -22,7 +22,7 @@ class DrugCategory extends Model
         parent::boot();
         self::deleting(function ($m) {
             if ($m->id == 1) {
-                throw new Exception('You cannot delete this item.');
+                //throw new Exception('You cannot delete this item.');
             }
             DB::update("update wholesale_drug_stocks set drug_category_id = 1 where drug_category_id = ?", [$this->id]);
         });
