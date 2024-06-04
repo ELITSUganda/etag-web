@@ -73,6 +73,10 @@ class VaccineMainStockController extends AdminController
             ->width('100');
         $grid->column('drug_category_id', __('Vaccine'))
             ->display(function ($t) {
+                if($this->drug_category == null){
+                    $this->delete(); 
+                    return "N/A";
+                }
                 return $this->drug_category->name_of_drug;
             })->sortable();
         $grid->column('manufacturer', __('Manufacturer'))->hide();
