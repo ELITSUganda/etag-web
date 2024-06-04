@@ -159,7 +159,7 @@ class VaccineMainStockController extends AdminController
 
 
         $form->divider("Vaccine information");
-        $form->select('drug_category_id', 'Select drug cateogry')
+        $form->select('drug_category_id', 'Select vaccine cateogry')
             ->options(VaccineCategory::all()->pluck('name_of_drug', 'id'))
             ->rules('required');
         $form->text('manufacturer', __('Manufacturer'))->rules('required');
