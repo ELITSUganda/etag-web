@@ -46,7 +46,7 @@ class VaccineMainStockController extends AdminController
                 $query->whereHas('drug_category', function ($query) {
                     $query->where('name_of_drug', 'like', "%{$this->input}%");
                 });
-            }, 'Drug')->select($cats);
+            }, 'Filter by Vaccine category')->select($cats);
             //original_quantity
             $filter->between('original_quantity', 'Original quantity');
             $filter->between('current_quantity', 'Current quantity');
@@ -71,7 +71,7 @@ class VaccineMainStockController extends AdminController
             return Utils::my_date($t);
         })->sortable()
             ->width('100');
-        $grid->column('drug_category_id', __('Drug'))
+        $grid->column('drug_category_id', __('Vaccine Category'))
             ->display(function ($t) {
                 return $this->drug_category->name_of_drug;
             })->sortable();
@@ -166,7 +166,7 @@ class VaccineMainStockController extends AdminController
         $form->text('batch_number', __('Batch number'))->rules('required');
         $form->date('expiry_date', __('Expiry date'))->rules('required');
         $form->image('image', __('Image'));
-        $form->textarea('description', __('Drug Description'))->rules('required');
+        $form->textarea('description', __('Vaccine Description'))->rules('required');
 
         $form->divider("Vaccine Quantity");
         $form->hidden('drug_state')->default('Liquid');
