@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdminRoleUser;
 use App\Models\DrugStockBatch;
 use App\Models\Farm;
 use App\Models\Location;
@@ -129,7 +130,19 @@ class ApiFarmController extends Controller
                 $u->isRole('clo') ||
                 $u->isRole('admin')
             ) {
-                $where = [];
+                $dov_roles = AdminRoleUser::where('user_id', $user_id)->get();
+                foreach ($dov_roles as $key => $value) {
+                    $dis = Location::find($value->type_id);
+                    if ($dis != null) {
+                        $dis_id = $dis->id;
+                        if ($dis->isSubCounty()) {
+                            $dis_id = $dis->parent;
+                        }
+                        $where = [];
+                        $where['district_id'] = $dis_id;
+                        break;
+                    }
+                }
             }
         }
 

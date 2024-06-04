@@ -6,6 +6,7 @@ use App\Models\DistrictVaccineStock;
 use App\Models\Farm;
 use App\Models\FarmVaccinationRecord;
 use App\Models\Utils;
+use App\Models\VaccineMainStock;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
@@ -41,10 +42,16 @@ class FarmVaccinationRecordController extends AdminController
 
             $district_vaccine_stocks = [];
             foreach (DistrictVaccineStock::all() as $stock) {
-                $district_vaccine_stocks[$stock->id] = $stock->district->name . " - " . $stock->drug_stock->batch_number . " Available: " . $stock->current_quantity;
+                $district_vaccine_stocks[$stock->id] = $stock->district->name . " - " . $stock->drug_stock->batch_number . ", Available: " . $stock->current_quantity." Doses";
             }
+            $main_vaccines = [];
+            foreach (VaccineMainStock::all() as $stock) {
+                $main_vaccines[$stock->id] = $stock->drug_category->name_of_drug. " - Batch No.: " . $stock->batch_number . ", Available: " . $stock->current_quantity." Doses";
+            } 
 
-            $filter->equal('district_vaccine_stock_id', __('Select Vaccine Stock'))->select($district_vaccine_stocks);
+            //vaccine_main_stock_id
+            $filter->equal('vaccine_main_stock_id', __('Filter by Central Vaccine'))->select($main_vaccines);
+            $filter->equal('district_vaccine_stock_id', __('Filter by District stock'))->select($district_vaccine_stocks);
             $filter->equal('farm_id', __('Farm'))->select($items);
             $filter->equal('created_by_id', __('Created by'))->select(Admin::user()->pluck('name', 'id'));
             $filter->like('vaccination_batch_number', 'Batch number');

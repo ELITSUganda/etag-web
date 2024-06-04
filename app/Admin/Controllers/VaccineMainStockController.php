@@ -109,9 +109,9 @@ class VaccineMainStockController extends AdminController
             //3Fdistrict_vaccine_stock_id
 
             $dis_url = admin_url('district-vaccine-stocks?drug_stock_id=' . $this->id . '');
-            $farm_url = admin_url('farm-vaccination-records?district_vaccine_stock_id=' . $this->id . '');
+            $farm_url = admin_url('farm-vaccination-records?vaccine_main_stock_id=' . $this->id . '');
             $dis_count = \App\Models\DistrictVaccineStock::where('drug_stock_id', $this->id)->count();
-            $farm_count = \App\Models\FarmVaccinationRecord::where('district_vaccine_stock_id', $this->id)->count();
+            $farm_count = \App\Models\FarmVaccinationRecord::where('vaccine_main_stock_id', $this->id)->count();
 
             $gen_link_text = '<a target="_blank" href="' . $dis_url . '" >District Distribution (' . $dis_count . ') </a><br>
             <a target="_blank"  href="' . $farm_url . '" >Farm Distribution (' . $farm_count . ')</a>';

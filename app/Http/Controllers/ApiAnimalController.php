@@ -269,10 +269,34 @@ class ApiAnimalController extends Controller
             $conds['applicant_id'] = $user_id;
         } else if (
             $u->isRole('dvo') ||
+            $u->isRole('admin') ||
+            $u->isRole('admininistrator') ||
             $u->isRole('scvo')
         ) {
-            $conds['applicant_id'] = $user_id;
             $conds = [];
+            if ($u != null) {
+                if (
+                    $u->isRole('dvo') ||
+                    $u->isRole('administrator') ||
+                    $u->isRole('scvo') ||
+                    $u->isRole('clo') ||
+                    $u->isRole('admin')
+                ) {
+                    $dov_roles = AdminRoleUser::where('user_id', $user_id)->get();
+                    foreach ($dov_roles as $key => $value) {
+                        $dis = Location::find($value->type_id);
+                        if ($dis != null) {
+                            $dis_id = $dis->id;
+                            if ($dis->isSubCounty()) {
+                                $dis_id = $dis->parent;
+                            }
+                            $conds = [];
+                            $conds['district_id'] = $dis_id;
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         return Utils::response([
@@ -281,56 +305,103 @@ class ApiAnimalController extends Controller
             'data' => VaccinationSchedule::where($conds)->get()
         ]);
     }
-
-    public function district_vaccine_stocks(Request $r)
+    public function farm_vaccination_records(Request $r)
     {
         $user_id = Utils::get_user_id($r);
 
-        /* if ($user_id < 1) {
+        if ($user_id < 1) {
             return Utils::response([
                 'status' => 0,
                 'message' => "Slaugter house ID not found.",
             ]);
         }
-        $adminRole = AdminRoleUser::where([
-            'user_id' => $user_id,
-            'role_type' => 'dvo'
-        ])->first();
 
-        $conds = [];
-        if ($adminRole != null) {
-            $conds =  [
-                'district_id' => $adminRole->type_id_1,
-            ];
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
         }
-
-        if (count($conds) == 0) {
-            $adminRole = AdminRoleUser::where([
-                'user_id' => $user_id,
-                'role_type' => 'scvo'
-            ])->first();
-            if ($adminRole != null) {
-                $sub = Location::find($adminRole->type_id_2);
-                if ($sub != null) {
-                    $conds =  [
-                        'district_id' => $sub->parent_id,
-                    ];
+        $conds = [];
+        if ($u->isRole('farmer')) {
+            $conds['applicant_id'] = $user_id;
+        } else if (
+            $u->isRole('dvo') ||
+            $u->isRole('admin') ||
+            $u->isRole('admininistrator') ||
+            $u->isRole('scvo')
+        ) {
+            $conds = [];
+            if ($u != null) {
+                if (
+                    $u->isRole('dvo') ||
+                    $u->isRole('administrator') ||
+                    $u->isRole('scvo') ||
+                    $u->isRole('clo') ||
+                    $u->isRole('admin')
+                ) {
+                    $dov_roles = AdminRoleUser::where('user_id', $user_id)->get();
+                    foreach ($dov_roles as $key => $value) {
+                        $dis = Location::find($value->type_id);
+                        if ($dis != null) {
+                            $dis_id = $dis->id;
+                            if ($dis->isSubCounty()) {
+                                $dis_id = $dis->parent;
+                            }
+                            $conds = [];
+                            $conds['district_id'] = $dis_id;
+                            break;
+                        }
+                    }
                 }
             }
         }
 
-        if (count($conds) == 0) {
-            return Utils::response([
-                'status' => 0,
-                'message' => "District not found.",
-            ]);
-        } */
-
-        $conds = [];
         return Utils::response([
             'status' => 1,
             'message' => "Success.",
-            'data' => DistrictVaccineStock::where($conds)->get()
+            'data' => FarmVaccinationRecord::where($conds)->get()
+        ]);
+    }
+
+    public function district_vaccine_stocks(Request $r)
+    {
+        $user_id = Utils::get_user_id($r);
+
+        $u = Administrator::find($user_id);
+        $where = [
+            'district_id' => 0
+        ];
+
+        if ($u != null) {
+            if (
+                $u->isRole('dvo') ||
+                $u->isRole('administrator') ||
+                $u->isRole('scvo') ||
+                $u->isRole('clo') ||
+                $u->isRole('admin')
+            ) {
+                $dov_roles = AdminRoleUser::where('user_id', $user_id)->get();
+                foreach ($dov_roles as $key => $value) {
+                    $dis = Location::find($value->type_id);
+                    if ($dis != null) {
+                        $dis_id = $dis->id;
+                        if ($dis->isSubCounty()) {
+                            $dis_id = $dis->parent;
+                        }
+                        $where = [];
+                        $where['district_id'] = $dis_id;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success.",
+            'data' => DistrictVaccineStock::where($where)->get()
         ]);
     }
 

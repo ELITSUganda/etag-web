@@ -52,7 +52,7 @@ class DistrictVaccineStockController extends AdminController
                 $query->whereHas('drug_category', function ($query) {
                     $query->where('name_of_drug', 'like', "%{$this->input}%");
                 });
-            }, 'Drug')->select($cats);
+            }, 'Filter by vaccine')->select($cats);
 
             //district_id
             $district_ajax_url = url('/api/districts');

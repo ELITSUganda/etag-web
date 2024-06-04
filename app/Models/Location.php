@@ -84,5 +84,21 @@ class Location extends Model
         return $this->name;
     }
 
+    //is sub county
+    public function isSubCounty()
+    {
+        if (((int)($this->parent)) > 0) {
+            $p = Location::find($this->parent);
+            if ($p != null) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+        return false; 
+    }
+
     protected $appends = ['name_text'];
 }
