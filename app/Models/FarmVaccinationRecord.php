@@ -15,7 +15,7 @@ class FarmVaccinationRecord extends Model
     {
         parent::boot();
         self::deleting(function ($m) {
-            die("Ooops! You cannot delete this item.");
+           // die("Ooops! You cannot delete this item.");
         });
         self::creating(function ($m) {
             //FarmVaccinationRecord::my_update($m);
