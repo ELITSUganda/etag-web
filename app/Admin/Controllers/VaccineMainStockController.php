@@ -46,7 +46,7 @@ class VaccineMainStockController extends AdminController
                 $query->whereHas('drug_category', function ($query) {
                     $query->where('name_of_drug', 'like', "%{$this->input}%");
                 });
-            }, 'Filter by Vaccine category')->select($cats);
+            }, 'Filter by Vaccine')->select($cats);
             //original_quantity
             $filter->between('original_quantity', 'Original quantity');
             $filter->between('current_quantity', 'Current quantity');
@@ -71,7 +71,7 @@ class VaccineMainStockController extends AdminController
             return Utils::my_date($t);
         })->sortable()
             ->width('100');
-        $grid->column('drug_category_id', __('Vaccine Category'))
+        $grid->column('drug_category_id', __('Vaccine'))
             ->display(function ($t) {
                 return $this->drug_category->name_of_drug;
             })->sortable();
