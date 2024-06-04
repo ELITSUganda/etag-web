@@ -93,7 +93,7 @@ class VaccineMainStockController extends AdminController
             ->width('120');
 
 
-        $grid->disableActions();
+        //$grid->disableActions();
         $u = Auth::user();
 
 

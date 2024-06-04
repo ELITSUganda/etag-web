@@ -123,7 +123,7 @@ class DistrictVaccineStockController extends AdminController
         });
 
 
-        $grid->disableActions();
+        //$grid->disableActions();
         $u = Auth::user();
 
 

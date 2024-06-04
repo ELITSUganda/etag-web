@@ -129,7 +129,7 @@ class FarmController extends AdminController
 
 
         $grid = new Grid(new Farm());
-        $grid->disableActions();
+        //$grid->disableActions();
         if (Admin::user()->isRole('farmer')) {
             $grid->model()->where('administrator_id', '=', Admin::user()->id);
             $grid->actions(function ($actions) {
