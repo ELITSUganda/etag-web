@@ -45,7 +45,7 @@ class VaccineMainStock extends Model
 
     public   function drug_category()
     {
-        $this->drug_category_id = 1;
+        //$this->drug_category_id = 1;
         return $this->belongsTo(VaccineCategory::class, 'drug_category_id', 'id');
     }
     public   function getDrugPackagingTypeTextAttribute()
