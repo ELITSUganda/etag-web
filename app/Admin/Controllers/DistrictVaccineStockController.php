@@ -33,7 +33,10 @@ class DistrictVaccineStockController extends AdminController
         $grid = new Grid(new DistrictVaccineStock());
         $grid->disableActions();
         $grid->disableCreateButton();
-        $grid->disableBatchActions();
+        $grid->actions(function ($actions) {
+            $actions->disableView();
+            $actions->disableDelete();
+        });
         $grid->disableExport();
         $grid->filter(function ($filter) {
             $filter->disableIdFilter();
@@ -133,6 +136,7 @@ class DistrictVaccineStockController extends AdminController
                 return '<a href="' . admin_url('health-centre-drug-stocks/create?district_stock_id=' . $this->id) . '" >SUPPLY TO HEALTH CENTRE</a>';
             }); */
 
+        //is eding
 
 
 
@@ -192,11 +196,23 @@ class DistrictVaccineStockController extends AdminController
 
         $district_ajax_url = url('/api/districts');
 
-        $form->select('drug_stock_id', 'Vaccine stock')
-            ->options($stocks)
-            ->default($drug_id)
-            ->readOnly()
-            ->rules('required');
+
+        //creating
+        if ($form->isCreating()) {
+
+            $form->select('drug_stock_id', 'Vaccine stock')
+                ->options($stocks)
+                ->default($drug_id)
+                ->readOnly()
+                ->rules('required');
+        } else {
+            //display
+            $form->display('drug_stock_id', 'Vaccine stock')
+                ->with(function ($val) {
+                    return $val . " - " . $this->drug_stock->batch_number;
+                }); 
+        }
+
 
 
         $form->select('district_id', 'Select District')
@@ -215,6 +231,7 @@ class DistrictVaccineStockController extends AdminController
         } else {
             $form->display('original_quantity', 'Number of Doses Supplied');
         }
+
 
 
 

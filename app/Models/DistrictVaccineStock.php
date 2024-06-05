@@ -17,7 +17,8 @@ class DistrictVaccineStock extends Model
     {
         parent::boot();
         self::deleting(function ($m) {
-            die("Ooops! You cannot delete this item.");
+            //throw
+            throw new Exception("You can't delete this item."); 
         });
         self::creating(function ($m) {
             //DistrictVaccineStock::my_update($m);
@@ -38,6 +39,15 @@ class DistrictVaccineStock extends Model
 
         //created
         self::created(function ($m) {
+            $mainStock = VaccineMainStock::find($m->drug_stock_id);
+            if ($mainStock == null) {
+                throw new Exception("Stock not found.");
+            }
+            $mainStock->update_self();
+        });
+
+        //updated
+        self::updated(function ($m) {
             $mainStock = VaccineMainStock::find($m->drug_stock_id);
             if ($mainStock == null) {
                 throw new Exception("Stock not found.");

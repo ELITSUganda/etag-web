@@ -14,7 +14,8 @@ class VaccineMainStock extends Model
     {
         parent::boot();
         self::deleting(function ($m) {
-            //die("Ooops! You cannot delete this item.");
+            //throw
+            throw new Exception("You can't delete this item.");
         });
         self::creating(function ($m) {
             $m->current_quantity = $m->original_quantity;
@@ -82,8 +83,8 @@ class VaccineMainStock extends Model
     {
         $sum_suplied = DistrictVaccineStock::where('drug_stock_id', $this->id)->sum('original_quantity');
         $this->current_quantity = $this->original_quantity - $sum_suplied;
-        $this->save(); 
-    } 
+        $this->save();
+    }
 
     protected $appends = [
         'drug_packaging_type_text',
