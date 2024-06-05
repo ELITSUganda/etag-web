@@ -97,8 +97,14 @@ class Location extends Model
         } else {
             return false;
         }
-        return false; 
+        return false;
     }
 
     protected $appends = ['name_text'];
+
+    //belongs to district
+    public function district()
+    {
+        return $this->belongsTo(Location::class, 'parent', 'id');
+    }
 }

@@ -29,13 +29,49 @@ class LocationController extends AdminController
 
         $grid->disableBatchActions();
         $grid->disableExport();
-        $grid->disableFilter();
-        $grid->disableActions();
+        $grid->filter(function ($filter) {
+            $filter->disableIdFilter();
+            $filter->like('name', 'Name');
+            $districts = [];
+            foreach (Location::get_districts() as $key => $value) {
+                $districts[$value->id] = $value->name . " - #" . $value->id;
+            }
+
+            $filter->equal('parent', 'Parent')->select($districts);
+        });
+        $grid->actions(function ($actions) {
+            $actions->disableView();
+            $actions->disableDelete();
+        });
         $grid->quickSearch('name')->placeholder("Search by name...");
-        $grid->column('id', __('ID'))->hide()->sortable();
-        $grid->column('name', __('Name'))->display(function () {
-            return $this->name_text;
+        $grid->column('id', __('ID'))->sortable()->width(55);
+        $grid->column('name', __('District'))->display(function () {
+            if ($this->parent == 0) {
+                return $this->name;
+            }
+            $district = $this->district;
+            if ($district == null) {
+                return 'N/A';
+            }
+            return $district->name;
         })->sortable();
+
+        //sub county
+        $grid->column('Sub-County', __('Sub-County'))->display(function () {
+            if ($this->parent == 0) {
+                return 'N/A';
+            }
+            return $this->name;
+        });
+
+        $grid->column('type', __('Type'))->display(function () {
+            if ($this->parent == 0) {
+                return "District";
+            } else {
+                return "Sub-County";
+            }
+        });
+
 
         return $grid;
     }
@@ -71,10 +107,15 @@ class LocationController extends AdminController
         $form = new Form(new Location());
 
         $form->text('name', __('Location Name'))->required();
+        $districts = [];
+        foreach (Location::get_districts() as $key => $value) {
+            $districts[$value->id] = $value->name . " - #" . $value->id;
+        }
+
         $form->select('parent', __('Parent district'))
             ->default(0)
             ->help('Leave this field empty if you are creating a new district.')
-            ->options(Location::get_districts()->pluck('name_text', 'id'));
+            ->options($districts);
 
 
 
@@ -87,7 +128,7 @@ class LocationController extends AdminController
         }
 
 
- 
+
 
         $form->radio('locked_down', 'Quarantine')->options([
             0 => 'Opened',
