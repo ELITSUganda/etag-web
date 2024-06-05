@@ -15,12 +15,13 @@ class FarmVaccinationRecord extends Model
     {
         parent::boot();
         self::deleting(function ($m) {
-           // die("Ooops! You cannot delete this item.");
+            //throw
+            throw new Exception("You can't delete this item.");
         });
         self::creating(function ($m) {
             //FarmVaccinationRecord::my_update($m);
 
-          
+
             $district_vaccine = DistrictVaccineStock::find($m->district_vaccine_stock_id);
             if ($district_vaccine == null) {
                 throw new Exception("Stock not found.");
@@ -76,23 +77,23 @@ class FarmVaccinationRecord extends Model
     public function farm()
     {
         return $this->belongsTo(Farm::class);
-    } 
+    }
 
     //belongs to vaccine_main_stock_id
     public function vaccine_main_stock()
     {
         return $this->belongsTo(VaccineMainStock::class);
-    } 
+    }
 
     //belongs to district
     public function district()
     {
         return $this->belongsTo(Location::class);
-    } 
+    }
 
     //created_by_id
     public function created_by()
     {
         return $this->belongsTo(User::class, 'created_by_id');
-    } 
+    }
 }
