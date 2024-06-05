@@ -210,7 +210,7 @@ class DistrictVaccineStockController extends AdminController
             $form->display('drug_stock_id', 'Vaccine stock')
                 ->with(function ($val) {
                     return $val . " - " . $this->drug_stock->batch_number;
-                }); 
+                });
         }
 
 
