@@ -31,7 +31,7 @@ class DistrictVaccineStockController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new DistrictVaccineStock());
-        $grid->disableActions();
+        $grid->disableBatchActions();
         $grid->disableCreateButton();
         $grid->actions(function ($actions) {
             $actions->disableView();
