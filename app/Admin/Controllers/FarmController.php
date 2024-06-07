@@ -189,7 +189,7 @@ class FarmController extends AdminController
                     url('/api/sub-counties')
                 );
             //between created_at date
-            $filter->between('created_at', 'Created at')->date(); 
+            $filter->between('created_at', 'Created at')->date();
         });
 
         $grid->disableBatchActions();
@@ -203,12 +203,21 @@ class FarmController extends AdminController
             })->sortable();
 
 
- 
+
         $grid->column('holding_code', __('Holding code'))->sortable();
         $grid->column('size', __('Size (Ha)'))->sortable();
-        $grid->column('cattle_count', __('Cattle'))->sortable();
-        $grid->column('goats_count', __('Goats'))->sortable();
-        $grid->column('sheep_count', __('Sheep'))->sortable();
+        $grid->column('cattle_count', __('Cattle'))->sortable()
+            ->display(function ($id) {
+                return number_format($this->cattle_count);
+            });
+        $grid->column('goats_count', __('Goats'))->sortable()
+            ->display(function ($id) {
+                return number_format($this->goats_count);
+            });
+        $grid->column('sheep_count', __('Sheep'))->sortable()
+            ->display(function ($id) {
+                return number_format($this->sheep_count);
+            });
         $grid->column('longitude', __('GPS'))->display(function ($id) {
             return $this->longitude . "," . $this->longitude;
         })->sortable();
