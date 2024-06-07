@@ -26,7 +26,7 @@ class Dashboard
             'title' => 'Holdings',
             'sub_title' => 'All registered farms.',
             'number' => number_format(Farm::where([])->count()),
-            'link' => admin_url('animals')
+            'link' => admin_url('farms')
         ]);
     }
     public static function maaif_users_widget()
