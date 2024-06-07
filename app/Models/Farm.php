@@ -43,28 +43,28 @@ class Farm extends Model
             'farm_id' => $this->id
         ])->count();
     }
-
+/* 
     public function getSheepCountAttribute()
     {
         return Animal::where([
             'farm_id' => $this->id,
             'type' => 'Sheep'
         ])->count();
-    }
-    public function getGoatCountAttribute()
+    } */
+   /*  public function getGoatCountAttribute()
     {
         return Animal::where([
             'farm_id' => $this->id,
             'type' => 'Goat'
         ])->count();
-    }
-    public function getCattleCountAttribute()
+    } */
+    /*  public function getCattleCountAttribute()
     {
         return Animal::where([
             'farm_id' => $this->id,
             'type' => 'Cattle'
         ])->count();
-    }
+    } */
 
     public function getAdministratorTextAttribute()
     {
