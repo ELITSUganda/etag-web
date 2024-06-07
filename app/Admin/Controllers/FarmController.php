@@ -209,14 +209,23 @@ class FarmController extends AdminController
         $grid->column('cattle_count', __('Cattle'))->sortable()
             ->display(function ($id) {
                 return number_format($this->cattle_count);
+            })
+            ->totalRow(function ($amount) {
+                return "<span class='text-success'>" . number_format($amount) . "</span>";
             });
         $grid->column('goats_count', __('Goats'))->sortable()
             ->display(function ($id) {
                 return number_format($this->goats_count);
+            })
+            ->totalRow(function ($amount) {
+                return "<span class='text-success'>" . number_format($amount) . "</span>";
             });
         $grid->column('sheep_count', __('Sheep'))->sortable()
             ->display(function ($id) {
                 return number_format($this->sheep_count);
+            })
+            ->totalRow(function ($amount) {
+                return "<span class='text-success'>" . number_format($amount) . "</span>";
             });
         $grid->column('longitude', __('GPS'))->display(function ($id) {
             return $this->longitude . "," . $this->longitude;
