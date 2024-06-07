@@ -188,6 +188,8 @@ class FarmController extends AdminController
                 ->ajax(
                     url('/api/sub-counties')
                 );
+            //between created_at date
+            $filter->between('created_at', 'Created at')->date(); 
         });
 
         $grid->disableBatchActions();
