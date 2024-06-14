@@ -335,7 +335,7 @@ class ApiLoginController extends Controller
             if ($u->status == 5) {
                 return Utils::response([
                     'status' => 0,
-                    'message' => "Account is disabled. Please contact us on +256783204665 to re-activate your account."
+                    'message' => "Account is disabled. Please contact us on +256 775 679505 to re-activate your account."
                 ]);
             }
         }
@@ -346,7 +346,7 @@ class ApiLoginController extends Controller
             if ($u->status == 5) {
                 return Utils::response([
                     'status' => 0,
-                    'message' => "Account is disabled. Please contact us on +256783204665 to re-activate your account."
+                    'message' => "Account is disabled. Please contact us on +256 775 679505 to re-activate your account."
                 ]);
             }
 
@@ -362,7 +362,7 @@ class ApiLoginController extends Controller
             if ($u->status == 5) {
                 return Utils::response([
                     'status' => 0,
-                    'message' => "Account is disabled. Please contact us on +256783204665 to re-activate your account."
+                    'message' => "Account is disabled. Please contact us on +256 775 679505 to re-activate your account."
                 ]);
             }
 
@@ -377,7 +377,7 @@ class ApiLoginController extends Controller
             if ($u->status == 5) {
                 return Utils::response([
                     'status' => 0,
-                    'message' => "Account is disabled. Please contact us on +256783204665 to re-activate your account."
+                    'message' => "Account is disabled. Please contact us on +256 775 679505 to re-activate your account."
                 ]);
             }
 
@@ -478,14 +478,14 @@ class ApiLoginController extends Controller
         if ($user == null) {
             return Utils::response([
                 'status' => 0,
-                'message' => "You provided wrong credentials. Please contact us on +256783204665 to re-set your password."
+                'message' => "You provided wrong credentials. Please contact us on +256 775 679505 to re-set your password."
             ]);
         }
 
         if ($user->status == 5) {
             return Utils::response([
                 'status' => 0,
-                'message' => "Account is disabled. Please contact us on +256783204665 to re-activate your account."
+                'message' => "Account is disabled. Please contact us on +256 775 679505 to re-activate your account."
             ]);
         }
                                                              
