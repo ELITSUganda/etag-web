@@ -10,7 +10,7 @@
                 style="border-top-left-radius: 20px; border-top-right-radius: 20px!important;">
                 <h3 class="modal-title"><b>Livestock Holding Details</b></h3>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true" >&times;</span>
+                    <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body" id="modal-body">
@@ -21,7 +21,7 @@
         </div>
     </div>
 </div>
-<div id="map" style="width: 100%; height: 700px;"></div>
+<div id="map" style="width: 100%; height: 650px;"></div>
 <script>
     //document ready
 
@@ -45,14 +45,6 @@
                 position: google.maps.ControlPosition.LEFT_CENTER,
             },
             scaleControl: true,
-            streetViewControl: true,
-            streetViewControlOptions: {
-                position: google.maps.ControlPosition.LEFT_TOP,
-            },
-            fullscreenControl: true,
-            fullscreenControlOptions: {
-                position: google.maps.ControlPosition.RIGHT_TOP,
-            },
         });
 
 
