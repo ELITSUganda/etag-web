@@ -1,53 +1,51 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-    <title>Random Markers in Uganda</title>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC9Mdls_ETVjOb_u5bjcqavSI4E8S1D2Vs&callback=initMap" async></script>
-</head>
-
-<body>
-    <div id="map" style="width: 100%; height: 400px;"></div>
+    <title>Random GPS Markers in Uganda</title>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC9Mdls_ETVjOb_u5bjcqavSI4E8S1D2Vs&callback=initMap&libraries=marker&loading=async"></script>
     <script>
+        // Function to initialize the map
         function initMap() {
-            // Uganda's approximate latitude and longitude ranges
-            const minLat = -0.375;
-            const maxLat = 4.22;
-            const minLng = 29.63;
-            const maxLng = 35.01;
-
-            // Create an array to store markers
-            const markers = [];
-
-            // Generate 10 random markers within Uganda's borders
-            for (let i = 0; i < 10; i++) {
-                const lat = Math.random() * (maxLat - minLat) + minLat;
-                const lng = Math.random() * (maxLng - minLng) + minLng;
-
-                const marker = new google.maps.Marker({
-                    position: {
-                        lat,
-                        lng
-                    },
-                    map: map,
-                });
-
-                markers.push(marker);
-            }
-
-            // Replace 'YOUR_API_KEY' with your actual Google Maps API key
-            const map = new google.maps.Map(document.getElementById("map"), {
-                zoom: 7,
-                center: {
-                    lat: 1.37,
-                    lng: 32.4
-                }, // Center on Uganda
+            // Center the map on Uganda
+            var uganda = {lat: 1.3733, lng: 32.2903};
+            var map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 6,
+                center: uganda
             });
 
-            // Add markers to the map
-            markers.forEach((marker) => marker.setMap(map));
+            // Generate and place 10 random markers within Uganda
+            for (var i = 0; i < 10; i++) {
+                var lat = getRandomInRange(-1.5, 4, 6);
+                var lng = getRandomInRange(29.5, 35, 6);
+
+                var markerElement = document.createElement('div');
+                markerElement.style.backgroundImage = 'url("https://maps.gstatic.com/intl/en_us/mapfiles/marker_green.png")';
+                markerElement.style.backgroundSize = 'contain';
+                markerElement.style.width = '20px';
+                markerElement.style.height = '34px';
+
+                new google.maps.marker.AdvancedMarkerElement({
+                    map: map,
+                    position: {lat: lat, lng: lng},
+                    content: markerElement
+                });
+            }
+        }
+
+        // Function to get a random number within a range
+        function getRandomInRange(from, to, fixed) {
+            return (Math.random() * (to - from) + from).toFixed(fixed) * 1;
         }
     </script>
+    <style>
+        .custom-marker {
+            position: absolute;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+<body>
+    <h1>Random GPS Markers in Uganda</h1>
+    <div id="map" style="height: 500px; width: 100%;"></div>
 </body>
-
 </html>
