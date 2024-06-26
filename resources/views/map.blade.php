@@ -8,7 +8,7 @@
         function initMap() {
             // Center the map on Uganda
             var uganda = {lat: 1.3733, lng: 32.2903};
-            var map = new google.maps.Map(document.getElementById('map'), {
+            var map = new google.maps.Map(document.getElementById('my_map'), {
                 zoom: 6,
                 center: uganda
             });
@@ -46,6 +46,6 @@
 </head>
 <body>
     <h1>Random GPS Markers in Uganda</h1>
-    <div id="map" style="height: 500px; width: 100%;"></div>
+    <div id="my_map" style="height: 500px; width: 100%;"></div>
 </body>
 </html>
