@@ -2,7 +2,9 @@
 <html>
 <head>
     <title>Random GPS Markers in Uganda</title>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC9Mdls_ETVjOb_u5bjcqavSI4E8S1D2Vs&callback=initMap"></script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC9Mdls_ETVjOb_u5bjcqavSI4E8S1D2Vs&callback=Function.prototype"></script>
+    
+
     <script>
         // Function to initialize the map
         function initMap() {
