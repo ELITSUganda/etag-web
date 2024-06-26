@@ -125,10 +125,16 @@ class FarmController extends AdminController
     protected function grid()
     {
 
-
-
-
         $grid = new Grid(new Farm());
+
+        //add button view on map
+        $url_view_farm_on_map = admin_url('maps');
+        $grid->header(function ($query) use ($url_view_farm_on_map) {
+            return <<<HTML
+            <a target="_blank" href="{$url_view_farm_on_map}" class="btn btn-sm btn-primary">View farms on map</a>
+            HTML;
+        });
+
         //$grid->disableActions();
         if (Admin::user()->isRole('farmer')) {
             $grid->model()->where('administrator_id', '=', Admin::user()->id);
@@ -193,6 +199,7 @@ class FarmController extends AdminController
         });
 
         $grid->disableBatchActions();
+        $grid->quickSearch('holding_code')->placeholder("Search by LHC..."); 
         $grid->model()->orderBy('id', 'DESC');
         $grid->column('id', __('Id'))->sortable();
 

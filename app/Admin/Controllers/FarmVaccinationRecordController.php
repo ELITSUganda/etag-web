@@ -29,6 +29,10 @@ class FarmVaccinationRecordController extends AdminController
      */
     protected function grid()
     {
+
+        Utils::check_duplicates();
+
+
         $grid = new Grid(new FarmVaccinationRecord());
         $grid->disableBatchActions();
 
@@ -68,16 +72,28 @@ class FarmVaccinationRecordController extends AdminController
                 return Utils::my_date($t);
             })->sortable()->hide();
         $grid->column('lhc', __('FARM'))->display(function ($t) {
+            if($this->farm == null){
+                $this->delete();
+                return 'DELETED FARM RECORD';
+            }
             return $this->farm->holding_code;
         })->sortable()->hide();
 
         $grid->column('farm_id', __('Farm'))
             ->display(function ($t) {
+                if($this->farm == null){
+                    $this->delete();
+                    return 'DELETED FARM RECORD';
+                } 
                 return $this->farm->holding_code;
             })->sortable();
 
         $grid->column('district_id', __('Sub-county'))
             ->display(function ($t) {
+                if($this->farm == null){
+                    $this->delete();
+                    return 'DELETED FARM RECORD';
+                } 
                 return $this->farm->sub_county_text;
             })->sortable();
         $grid->column('vaccine_main_stock_id', __('Vaccine'))

@@ -16,8 +16,20 @@ class FarmVaccinationRecord extends Model
         parent::boot();
         self::deleting(function ($m) {
             //throw
-            throw new Exception("You can't delete this item.");
+            //throw new Exception("You can't delete this item.");
         });
+
+        //deleted
+        self::deleted(function ($m) {
+            $vaccine_main_stock = DistrictVaccineStock::find($m->district_vaccine_stock_id);
+            if ($vaccine_main_stock == null) {
+                return false;
+                //throw new Exception("Stock not found.");
+            }
+            $vaccine_main_stock->new_update_balance();
+            return $m;
+        });
+
         self::creating(function ($m) {
             //FarmVaccinationRecord::my_update($m);
 
@@ -51,6 +63,18 @@ class FarmVaccinationRecord extends Model
             }
             $m->farmer_name = $owner->name;
             $m->farmer_phone_number = $owner->phone_number;
+
+            $dupe = FarmVaccinationRecord::where([
+                'farm_id' => $m->farm_id,
+                'vaccine_main_stock_id' => $m->vaccine_main_stock_id,
+                'district_vaccine_stock_id' => $m->district_vaccine_stock_id,
+                'vaccination_batch_number' => $m->vaccination_batch_number,
+                'number_of_doses' => $m->number_of_doses,
+            ])->first();
+
+            if ($dupe != null) {
+                throw false;
+            }
 
             return $m;
         });
@@ -95,5 +119,15 @@ class FarmVaccinationRecord extends Model
     public function created_by()
     {
         return $this->belongsTo(User::class, 'created_by_id');
+    }
+
+    //do_reverse
+    public function do_reverse()
+    {
+        $district_vaccine = DistrictVaccineStock::find($this->district_vaccine_stock_id);
+        if ($district_vaccine == null) {
+            return;
+        }
+        $this->delete();
     }
 }

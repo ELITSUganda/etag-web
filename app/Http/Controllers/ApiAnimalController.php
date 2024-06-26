@@ -784,6 +784,8 @@ class ApiAnimalController extends Controller
         $record->vaccination_batch_number = $district_vaccine->drug_stock->batch_number;
         $record->lhc = $farm->holding_code;
         $owner = $farm->owner();
+
+
         if ($owner == null) {
             return Utils::response([
                 'status' => 0,
@@ -792,6 +794,22 @@ class ApiAnimalController extends Controller
         }
         $record->farmer_name = $owner->name;
         $record->farmer_phone_number = $owner->phone_number;
+
+        //check if the record already exists
+        $dupe = FarmVaccinationRecord::where([
+            'farm_id' => $record->farm_id,
+            'vaccine_main_stock_id' => $record->vaccine_main_stock_id,
+            'district_vaccine_stock_id' => $record->district_vaccine_stock_id,
+            'vaccination_batch_number' => $record->vaccination_batch_number,
+            'number_of_doses' => $record->number_of_doses,
+        ])->first();
+        if ($dupe != null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Record already exists.",
+            ]);
+        }
+
         try {
             $record->save();
 
@@ -831,6 +849,13 @@ class ApiAnimalController extends Controller
                 'message' => "Failed to save record. {$e->getMessage()}",
             ]);
         }
+
+        try {
+            Utils::check_duplicates();
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+
         $record = FarmVaccinationRecord::find($record->id);
         return Utils::response([
             'status' => 1,

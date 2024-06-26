@@ -17,6 +17,36 @@ use Milon\Barcode\DNS2D;
 class Utils extends Model
 {
 
+    public static function check_duplicates()
+    {
+        //change time
+        set_time_limit(0);
+        //change memory
+        ini_set('memory_limit', '1024M');
+        $recs = FarmVaccinationRecord::where('duplicate_checked', '!=', 'Yes')->get();
+
+        foreach ($recs as $key => $val) {
+            $val2 = FarmVaccinationRecord::where([
+                'farm_id' => $val->farm_id,
+                'vaccine_main_stock_id' => $val->vaccine_main_stock_id,
+                'district_vaccine_stock_id' => $val->district_vaccine_stock_id,
+                'vaccination_batch_number' => $val->vaccination_batch_number,
+                'number_of_doses' => $val->number_of_doses,
+                'number_of_animals_vaccinated' => $val->number_of_animals_vaccinated,
+                'lhc' => $val->lhc,
+            ])->get();
+
+            foreach ($val2 as $key => $v) {
+                if ($val->id == $v->id) {
+                    $val->duplicate_checked = 'Yes';
+                    $val->save();
+                    continue;
+                }
+                $v->do_reverse();
+            }
+        }
+    }
+
     public static function generate_qrcode($data)
     {
         $obj = new DNS2D();
@@ -201,7 +231,7 @@ class Utils extends Model
     {
         $val = $qty / $stock->drug_packaging_unit_quantity;
         $unit = "";
-        if ($stock->drug_state == 'Solid') { 
+        if ($stock->drug_state == 'Solid') {
             $unit = "Tablets";
         } else {
             $unit = "Bottoles";
@@ -240,6 +270,12 @@ class Utils extends Model
             $query->select('administrator_id')
                 ->from('groups');
         })->get();
+
+        try {
+            Utils::check_duplicates();
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
 
         //loop and create a group for each admin, make is_main_group = Yes
         foreach ($admins as $key => $admin) {
@@ -1240,7 +1276,7 @@ class Utils extends Model
 
         if ($params['receiver_id'] == null) {
             throw new Exception("Receiver ID is required.");
-        } 
+        }
         if ($params['type'] == null) {
             throw new Exception("Type is required.");
         }
@@ -1250,7 +1286,7 @@ class Utils extends Model
         if ($params['title'] == null) {
             throw new Exception("Title is required.");
         }
-        if($params['title'] == ""){
+        if ($params['title'] == "") {
             throw new Exception("Title is required.");
         }
         if ($params['message'] == null) {
@@ -1306,7 +1342,7 @@ class Utils extends Model
         } catch (\Throwable $th) {
             throw $th;
         }
- 
+
         try {
             \OneSignal::addParams(
                 [
@@ -1317,7 +1353,7 @@ class Utils extends Model
             )
                 ->sendNotificationToExternalUser(
                     $noti->message,
-                    $noti->reciever_id."",
+                    $noti->reciever_id . "",
                     $url = null,
                     $data = null,
                     $buttons = [],
@@ -1431,7 +1467,7 @@ class Utils extends Model
                     $headings = $headings
                 );
         } catch (\Throwable $th) {
-            throw $th; 
+            throw $th;
         }
 
 
