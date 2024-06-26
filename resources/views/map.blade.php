@@ -3,9 +3,7 @@
 
 <head>
     <title>Random Markers in Uganda</title>
-    <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAGqQQw3iwaaUOVXXkKTBZeLk0CEYHHhzg&callback=initMap&v=weekly">
-    </script>
+    
 </head>
 
 <body>
