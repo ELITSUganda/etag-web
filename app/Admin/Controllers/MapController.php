@@ -3,6 +3,8 @@
 namespace App\Admin\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Farm;
+use App\Models\Utils;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Layout\Content;
 
@@ -11,8 +13,34 @@ class MapController extends Controller
 {
     public function index(Content $content)
     {
-        $content->title('Farm maps');
-        $content->row(view('map'));
+
+        $farms = [];
+        foreach (Farm::get() as $farm) {
+            if ($farm->latitude == null || $farm->longitude == null) {
+                continue;
+            }
+            //check length of lat and long
+            if (strlen($farm->latitude) < 3 || strlen($farm->longitude) < 3) {
+                continue;
+            }
+            $farms[] = [
+                'id' => $farm->id,
+                'lhc' => $farm->holding_code,
+                'lat' => $farm->latitude,
+                'long' => $farm->longitude,
+                'registered' => Utils::my_date_time($farm->created_at),
+                'size' => $farm->size,
+                'sub' => $farm->sub_county_text,
+                'farm_type' => $farm->farm_type,
+
+            ];
+        }
+
+        $data = json_encode($farms);
+        $content->title('Farms (' . number_format(count($farms)) . ')');
+        $content->row(view('map', [
+            'farms' => $data
+        ]));
         return $content;
 
         //get all enterprises
@@ -38,7 +66,7 @@ class MapController extends Controller
                         })}).addTo(mymap).bindPopup("<a href=\"/admin/farms/' . $farm->id . '\">' . $farm->name . '</a><br>' . $status . '").openPopup();';
             }
         }
-        $content->title('Farm maps');
+        $content->title('Farm maps (' . count($farms) . ')');
         $content->row('<div id="mapid" style="width: 100%; height: 500px;"></div>');
 
         Admin::script(
