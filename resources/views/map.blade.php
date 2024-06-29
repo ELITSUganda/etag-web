@@ -31,20 +31,12 @@
                 lat: 1.37,
                 lng: 32.4
             },
-            zoom: 7,
+            zoom: 6,
             fullscreenControl: true,
             streetViewControl: true,
-            mapId: "DEMO_MAP_ID",
+            mapId: "map",
             mapTypeControl: true,
-            mapTypeControlOptions: {
-                style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
-                position: google.maps.ControlPosition.TOP_CENTER,
-            },
             zoomControl: true,
-            zoomControlOptions: {
-                position: google.maps.ControlPosition.LEFT_CENTER,
-            },
-            scaleControl: true,
         });
 
 
@@ -58,7 +50,7 @@
         var max = farmList.length;
 
         //Loop through the farm list and add markers to the map
-        for (let i = 0; i < max; i++) { 
+        for (let i = 0; i < max; i++) {
 
             var farm = farmList[i];
             const marker = new google.maps.Marker({
@@ -90,4 +82,4 @@
         // // Add markers to the map
         markers.forEach((marker) => marker.setMap(map));
     }
-</script> 
+</script>
