@@ -60,7 +60,7 @@
         var max = farmList.length;
 
         //Loop through the farm list and add markers to the map
-        for (let i = 0; i < max; i++) { 
+        for (let i = 0; i < max; i++) {
 
             var farm = farmList[i];
             const marker = new google.maps.Marker({
@@ -69,7 +69,7 @@
                     lng: parseFloat(farm.long)
                 },
                 map: map,
-                title: `LHC: ${farm.lhc}`,
+                title: `LHC: ${farm.lhc}, Subcounty: ${farm.sub}, Registered: ${farm.registered}, Farm Type: ${farm.farm_type}, Farm Size: ${farm.size} Ha. `,
                 data: farm,
             });
             marker.addListener('click', function() {
@@ -92,4 +92,4 @@
         // // Add markers to the map
         markers.forEach((marker) => marker.setMap(map));
     }
-</script> 
+</script>
