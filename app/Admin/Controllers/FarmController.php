@@ -199,7 +199,7 @@ class FarmController extends AdminController
         });
 
         $grid->disableBatchActions();
-        $grid->quickSearch('holding_code')->placeholder("Search by LHC..."); 
+        $grid->quickSearch('holding_code')->placeholder("Search by LHC...");
         $grid->model()->orderBy('id', 'DESC');
         $grid->column('id', __('Id'))->sortable();
 
@@ -235,7 +235,7 @@ class FarmController extends AdminController
                 return "<span class='text-success'>" . number_format($amount) . "</span>";
             });
         $grid->column('longitude', __('GPS'))->display(function ($id) {
-            return $this->longitude . "," . $this->longitude;
+            return $this->latitude . "," . $this->longitude;
         })->sortable();
         $grid->column('village', __('Village'))->sortable();
         $grid->column('administrator_id', __('Owner'))

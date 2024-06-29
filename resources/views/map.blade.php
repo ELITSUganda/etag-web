@@ -58,25 +58,7 @@
         var max = farmList.length;
 
         //Loop through the farm list and add markers to the map
-        for (let i = 0; i < max; i++) {
-
-
-            /* 
-            id
-            : 
-            3848
-            lat
-            : 
-            "0.9616817"
-            lhc
-            : 
-            "UG-221-16-94"
-            long
-            : 
-            "34.0530417"
-            */
-
-
+        for (let i = 0; i < max; i++) { 
 
             var farm = farmList[i];
             const marker = new google.maps.Marker({
@@ -89,6 +71,7 @@
                 data: farm,
             });
             marker.addListener('click', function() {
+                const farm = this.data;
                 $('#myModal').modal('show');
                 $('#modal-body').html(`
                     <h3 class="my-0 ">FARM: <b>${farm.lhc}</b></h3>
@@ -107,31 +90,4 @@
         // // Add markers to the map
         markers.forEach((marker) => marker.setMap(map));
     }
-</script>
-{{-- 
-
-district_id	
-sub_county_id		
-holding_code	
-	
-latitude	
-longitude	
-dfm	
-name	
-village	
-animals_count	
-sheep_count	
-goats_count	
-cattle_count	
-farm_owner_is_new	
-is_processed	
-has_fmd	
-farm_owner_name	
-farm_owner_nin	
-farm_owner_phone_number	
-pigs_count	
-local_id	
-registered_id	
-	
- 
---}}
+</script> 
