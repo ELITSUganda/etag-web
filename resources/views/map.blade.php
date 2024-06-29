@@ -33,7 +33,7 @@
             },
             zoom: 7,
             //type of map to be setellite
-            mapTypeId: google.maps.MapTypeId.SATELLITE, // HYBRID, ROADMAP, SATELLITE, TERRAIN
+            mapTypeId: google.maps.MapTypeId.HYBRID, // HYBRID, ROADMAP, SATELLITE, TERRAIN
             fullscreenControl: true,
             streetViewControl: true,
             mapId: "DEMO_MAP_ID",
