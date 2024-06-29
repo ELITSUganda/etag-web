@@ -331,8 +331,8 @@ class Utils extends Model
                 ->from('groups');
         })->get();
 
-        Utils::check_duplicates();
         try {
+            // Utils::check_duplicates();
         } catch (\Throwable $th) {
             //throw $th;
         }
