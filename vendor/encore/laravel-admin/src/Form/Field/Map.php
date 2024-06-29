@@ -28,15 +28,10 @@ class Map extends Field
         switch (config('admin.map_provider')) {
             case 'tencent':
                 $js = '//map.qq.com/api/js?v=2.exp&key='.env('TENCENT_MAP_API_KEY');
-                break;
-            case 'google':
-                $js = '//maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&key='.env('GOOGLE_API_KEY');
-                break;
+                break; 
             case 'yandex':
                 $js = '//api-maps.yandex.ru/2.1/?lang=ru_RU';
-                break;
-            default:
-                $js = '//maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&key='.env('GOOGLE_API_KEY');
+                break; 
         }
 
         return compact('js');

@@ -258,7 +258,7 @@ return [
     | Supported: "tencent", "google", "yandex".
     |
     */
-    'map_provider' => 'tencent',
+    'map_provider' => 'none',
 
     /*
     |--------------------------------------------------------------------------
@@ -466,9 +466,9 @@ return [
             // According to the selected provider above, fill in the corresponding api_key
             'providers' => [
 
-                /*                 'google' => [
-                    'api_key' => 'AIzaSyAcctJQgkbQQI37Ae_2rAeck-l6nyDRQj0',
-                ], */
+                'google' => [
+                    'api_key' => 'AIzaSyAGqQQw3iwaaUOVXXkKTBZeLk0CEYHHhzg',
+                ],
 
                 'yandex' => [
                     'api_key' => '',
