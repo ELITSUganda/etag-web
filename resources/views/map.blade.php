@@ -21,7 +21,7 @@
         </div>
     </div>
 </div>
-<div id="map" style="width: 100%; height: 600px;"></div>
+<div id="map" style="width: 100%; height: 650px;"></div>
 <script>
     //document ready
 
@@ -31,12 +31,22 @@
                 lat: 1.37,
                 lng: 32.4
             },
-            zoom: 6,
+            zoom: 7,
+            //type of map to be setellite
+            mapTypeId: google.maps.MapTypeId.SATELLITE, // HYBRID, ROADMAP, SATELLITE, TERRAIN
             fullscreenControl: true,
             streetViewControl: true,
-            mapId: "map",
+            mapId: "DEMO_MAP_ID",
             mapTypeControl: true,
+            mapTypeControlOptions: {
+                style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+                position: google.maps.ControlPosition.TOP_CENTER,
+            },
             zoomControl: true,
+            zoomControlOptions: {
+                position: google.maps.ControlPosition.LEFT_CENTER,
+            },
+            scaleControl: true,
         });
 
 
@@ -50,7 +60,7 @@
         var max = farmList.length;
 
         //Loop through the farm list and add markers to the map
-        for (let i = 0; i < max; i++) {
+        for (let i = 0; i < max; i++) { 
 
             var farm = farmList[i];
             const marker = new google.maps.Marker({
@@ -82,4 +92,4 @@
         // // Add markers to the map
         markers.forEach((marker) => marker.setMap(map));
     }
-</script>
+</script> 
