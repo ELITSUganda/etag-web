@@ -17,12 +17,72 @@ use Milon\Barcode\DNS2D;
 class Utils extends Model
 {
 
+    public static function get_next_lhc($sub)
+    {
+        if (!$sub->isSubCounty()) {
+            $first_sub = Location::where([
+                'parent' => $sub->id
+            ])
+                ->orderBy('id', 'asc')->first();
+            if ($first_sub != null) {
+                $sub = $first_sub;
+            }
+        }
+
+        if (!$sub->isSubCounty()) {
+            $last_farm = Farm::where([])
+                ->orderBy('id', 'desc')
+                ->first();
+        } else {
+            $last_farm = Farm::where(['sub_county_id' => $sub->id])
+                ->orderBy('id', 'desc')->first();
+        }
+        $num = 0;
+
+        if ($last_farm != null) {
+            $exp = explode('-', $last_farm->holding_code);
+            if (is_array($exp)) {
+                if (isset($exp[count($exp) - 1])) {
+                    $num = (int)($exp[count($exp) - 1]);
+                }
+            }
+        }
+        $num++;
+        $holding_code = $sub->code . "-" . $num;
+        return $holding_code;
+    }
     public static function check_duplicates()
     {
         //change time
         set_time_limit(0);
         //change memory
         ini_set('memory_limit', '1024M');
+        $farms = Farm::where('duplicate_checked', '!=', 'Yes')->get();
+        foreach ($farms as $key => $f1) {
+            $dups = Farm::where('holding_code', $f1->holding_code)->get();
+            if ($dups->count() < 1) {
+                continue;
+            }
+            foreach ($dups as $key2 => $f2) {
+                $f1->duplicate_checked  = 'Yes';
+                if ($f2->id == $f1->id) {
+                    $f1->save();
+                    continue;
+                }
+                $sub = Location::find($f2->id);
+                if ($sub == null) {
+                    $f2->sub_county_id = 1002007;
+                    $sub = Location::find($f2->sub_county_id);
+                    $f2->duplicate_results = "Sub county not found.";
+                }
+                $next_lhc = self::get_next_lhc($sub);
+                $f2->holding_code = $next_lhc;
+                $f2->duplicate_checked = 'Yes';
+                $f2->save();
+            }
+        }
+
+
         $recs = FarmVaccinationRecord::where('duplicate_checked', '!=', 'Yes')->get();
 
         foreach ($recs as $key => $val) {
@@ -271,8 +331,8 @@ class Utils extends Model
                 ->from('groups');
         })->get();
 
+        Utils::check_duplicates();
         try {
-            Utils::check_duplicates();
         } catch (\Throwable $th) {
             //throw $th;
         }

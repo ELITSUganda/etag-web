@@ -151,5 +151,6 @@ php artisan make:model FarmVaccinationRecord -m
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs
 
-php artisan make:migration add_logic_to_farm_vaccination_records --table=farm_vaccination_records 
+
+php artisan make:migration add_duplicate_results --table=farms 
 
