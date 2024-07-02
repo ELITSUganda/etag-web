@@ -95,7 +95,7 @@ class FarmVaccinationRecordController extends AdminController
                     return 'DELETED FARM RECORD';
                 } 
                 return $this->farm->sub_county_text;
-            })->sortable();
+            })->sortable()->hide(); 
         $grid->column('vaccine_main_stock_id', __('Vaccine'))
             ->display(function ($t) {
                 return $this->vaccine_main_stock->drug_category->name_of_drug;
