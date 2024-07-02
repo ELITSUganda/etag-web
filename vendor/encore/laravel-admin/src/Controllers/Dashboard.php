@@ -186,7 +186,10 @@ class Dashboard
         if ($r == null) {
             return 'District role not found.';
         }
-        $dis = Location::find($r->type_id);
+        $dis = null;
+        if($r != null){
+            $dis = Location::find($r->type_id);
+        }
         if ($dis == null) {
             return 'District not found.';
         }

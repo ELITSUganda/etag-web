@@ -98,7 +98,10 @@ class EventController extends AdminController
 
         $u = Auth::user();
         $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
-        $dis = Location::find($r->type_id);
+        $dis = null;
+        if($r != null){
+            $dis = Location::find($r->type_id);
+        }
         if ($dis != null) {
             $grid->model()->where('district_id', '=', $dis->id); 
         } else if (Admin::user()->isRole('farmer')) {
