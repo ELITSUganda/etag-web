@@ -53,10 +53,12 @@ class Location extends Model
             die("You can't delete this item.");
         });
         self::updating(function ($m) {
-            Location::my_update($m);
+            $m = Location::my_update($m);
+            return $m;
         });
         self::creating(function ($m) {
-            Location::my_update($m);
+            $m = Location::my_update($m);
+            return $m;
         });
     }
 
@@ -70,16 +72,25 @@ class Location extends Model
             $dis = Location::find($m->parent);
             if ($dis == null) {
                 throw new \Exception("Invalid district");
-                $num = (int) (Location::where(['parent' => $dis->id])->count());
-                $num++;
-                $m->code = $dis->code . "-" . $num;
+            }
+
+            if ($m->code == null || $m->code == "" || strlen($m->code) < 4) {
+                if ($dis->code == null || $dis->code == "" || strlen($dis->code) < 2) {
+                    throw new \Exception("Invalid district code for the subcounty.");
+                }
+                $code = Location::generate_sub_county_code($dis->id);
+                $m->code = $code;
+                if ($m->code == null || $m->code == "" || strlen($m->code) < 4) {
+                    throw new \Exception("Invalid subcounty code.");
+                }
+            }
+        } else if ($m->type == 'District') {
+            $m->parent = 0;
+            if ($m->code == null || $m->code == "" || strlen($m->code) < 4) {
+                throw new \Exception("Invalid district code.");
             }
         }
-
-        if ($m->code == null || $m->code == "" || strlen($m->code) < 2) {
-            throw new \Exception("Invalid district code");
-        }
-
+        $m->processed = 'Yes'; 
         return $m;
     }
     public function getNameTextAttribute()
@@ -116,5 +127,34 @@ class Location extends Model
     public function district()
     {
         return $this->belongsTo(Location::class, 'parent', 'id');
+    }
+
+    //generate subcount code
+    public static function generate_sub_county_code($district_id)
+    {
+        $dis = Location::find($district_id);
+        if ($dis == null) {
+            throw new \Exception("Invalid district");
+        }
+        $subs = Location::where([
+            'parent' => $dis->id,
+            'type' => 'Sub-County',
+            'processed' => 'Yes'
+        ])->orderBy('id', 'asc')->get();
+        $max_num = 0;
+
+        foreach ($subs as $key => $value) {
+            $explodes =   (explode("-", $value->code));
+            if (count($explodes) > 1) {
+                //get last
+                $last = $explodes[count($explodes) - 1];
+                $last = (int)($last); 
+                if ($last > $max_num) {
+                    $max_num = $last;
+                }
+            }
+        }
+        $max_num++;
+        return $dis->code . "-" . $max_num;
     }
 }

@@ -23,6 +23,98 @@ use Milon\Barcode\DNS1D;
 
 use function PHPUnit\Framework\fileExists;
 
+Route::get('/process-sub-counties', function () {
+
+
+    $hasPorcessed = Location::where('processed', 'Yes')
+    ->where('type', 'Sub-County')
+    ->count();
+    if ($hasPorcessed < 30) {
+        //set where type != District to be Sub-county
+        $sql = "UPDATE locations SET type = 'Sub-County' WHERE type != 'District'";
+        DB::select($sql); 
+
+        //set all sub counties to not processed
+        $sql = "UPDATE locations SET processed = 'No' WHERE type = 'Sub-County'";
+        DB::select($sql);  
+        //set all code be null
+        $sql = "UPDATE locations SET code = null WHERE type = 'Sub-County'";
+        DB::select($sql);
+        //die('reset');
+    } 
+
+    /* $s = Location::find(1000017);
+    $dis = Location::find($s->parent);
+    $code = Location::generate_sub_county_code($dis->id);
+    $s->code = $code;
+    dd($s->code);
+    dd($s);
+ */
+    //Location::where('type', 'Sub-County')->update(['processed' => 'No']); 
+    $locs = Location::where('processed', '!=', 'District')->where('processed', '!=', 'Yes')
+    ->orderBy('id', 'asc')
+    ->get();
+
+    $i = 0;
+    foreach ($locs as $key => $loc) {
+        if ($loc->type == 'District') {
+            continue;
+        }
+        $loc->processed = 'Yes';
+        //check if name contains word Default
+        if (str_contains(strtolower($loc->name), 'default')) {
+            $loc->processed = 'FAILED';
+            $loc->save();
+            echo "<br>$i. $loc->name => $loc->code - Failed <br>";
+            continue;
+        }
+
+
+        $i++; 
+        if($i > 4000){
+            break;
+        }
+        $loc->type == 'Sub-County';
+ 
+        if (((int)($loc->parent)) == 0) {
+            if ($loc->processed != 'FAILED') {
+                $loc->processed = 'FAILED';
+                $loc->save();
+            }
+            echo "<br>$i. $loc->name => $loc->code - Failed <br>";
+            continue;
+        } 
+        $dis = Location::where([
+            'id' => $loc->parent,
+            'type' => 'District', 
+        ])->first();
+        if ($dis == null) {
+            echo "<br>$i. District not found for <code>$loc->name</code><br>";
+            continue;
+        }
+
+        //check if district name is default
+        if (str_contains(strtolower($dis->name), 'default')) {
+            $loc->processed = 'FAILED';
+            $loc->save();
+            echo "<br>$i. $loc->name => $loc->code - Failed <br>";
+            continue;
+        } 
+
+        $loc->detail = 'Sub-County';
+        $code = Location::generate_sub_county_code($dis->id);
+        $loc->code = $code;
+        $loc->save();
+      
+        $loc = Location::find($loc->id);
+        echo "<br>$loc->id. $loc->name => $dis->name - CODE: $loc->code success<br>";
+        //die(); 
+    }
+    die("done");
+});
+
+
+
 Route::get('/process-locations', function () {
     $locs = Location::where('type', 'District')->get();
     $i = 0;
@@ -180,9 +272,9 @@ Route::get('/process-locations', function () {
         ) {
             continue;
         } */
-       $loc->processed = 'Yes';
+        /* $loc->processed = 'Yes';
        $loc->save();
-       continue; 
+       continue;  */
         $code_found = false;
         foreach ($cods as $code => $name) {
             if ($loc->name == 'Luweero') {
