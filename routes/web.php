@@ -37,7 +37,11 @@ Route::get('/process-sub-counties', function () {
          
         Location::update_counts($loc->id); 
         $sub = Location::find($loc->id);
-        if($sub->farm_count < 5){
+        $max = 1;
+        if(isset($_GET['max'])){
+            $max = $_GET['max'];
+        }
+        if($sub->farm_count < $max){
             continue;
         }
 
