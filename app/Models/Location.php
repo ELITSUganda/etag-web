@@ -41,7 +41,7 @@ class Location extends Model
         return Location::where(
             'type',
             'District'
-        )->where('id', '>', 0)
+        )
             ->orderBy('name', 'asc')
             ->get();
     }

@@ -84,13 +84,22 @@ class SubCountyController extends AdminController
         $grid->disableActions();
 
         //farm_count
-        $grid->column('farm_count', __('Farms'))->sortable();
+        $grid->column('farm_count', __('Farms'))->sortable()->totalRow(function ($amount) {
+            return "<span class='text-success'>" . number_format($amount) . "</span>";
+        });
         //cattle_count
-        $grid->column('cattle_count', __('Cattle'))->sortable();
+        $grid->column('cattle_count', __('Cattle'))->sortable()->totalRow(function ($amount) {
+            return "<span class='text-success'>" . number_format($amount) . "</span>";
+        });
         //goat_count
-        $grid->column('goat_count', __('Goats'))->sortable();
+        $grid->column('goat_count', __('Goats'))->sortable()->totalRow(function ($amount) {
+            return "<span class='text-success'>" . number_format($amount) . "</span>";
+        });
         //sheep_count
-        $grid->column('sheep_count', __('Sheep'))->sortable();
+        $grid->column('sheep_count', __('Sheep'))->sortable()
+            ->totalRow(function ($amount) {
+                return "<span class='text-success'>" . number_format($amount) . "</span>";
+            });
 
         return $grid;
     }

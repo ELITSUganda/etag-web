@@ -69,17 +69,29 @@ class LocationController extends AdminController
         $grid->disableActions();
 
         //farm_count
-        $grid->column('farm_count', __('Farms'))->sortable();
+        $grid->column('farm_count', __('Farms'))->sortable()
+            ->totalRow(function ($amount) {
+                return "<span class='text-success'>" . number_format($amount) . "</span>";
+            });
         //cattle_count
-        $grid->column('cattle_count', __('Cattle'))->sortable();
+        $grid->column('cattle_count', __('Cattle'))->sortable()
+            ->totalRow(function ($amount) {
+                return "<span class='text-success'>" . number_format($amount) . "</span>";
+            });
         //goat_count
-        $grid->column('goat_count', __('Goats'))->sortable();
+        $grid->column('goat_count', __('Goats'))->sortable()
+            ->totalRow(function ($amount) {
+                return "<span class='text-success'>" . number_format($amount) . "</span>";
+            });
         //sheep_count
-        $grid->column('sheep_count', __('Sheep'))->sortable();
+        $grid->column('sheep_count', __('Sheep'))->sortable()
+            ->totalRow(function ($amount) {
+                return "<span class='text-success'>" . number_format($amount) . "</span>";
+            });
         //subcounty_count
         $grid->column('subcounty_count', __('Sub-Counties'))
             ->display(function ($id) {
-                return Location::where('parent', $id)->count();
+                return Location::where('parent', $this->id)->count();
             });
 
         return $grid;
@@ -116,12 +128,12 @@ class LocationController extends AdminController
         $form = new Form(new Location());
 
         $form->text('name', __('Location Name'))->rules('required')->required();
-         
+
 
         $form->hidden('type')->default('District');
 
 
-/* 
+        /* 
         $form->radio('locked_down', 'Quarantine')->options([
             0 => 'Opened',
             1 => 'Lock down',

@@ -26,22 +26,35 @@ use function PHPUnit\Framework\fileExists;
 Route::get('/process-sub-counties', function () {
 
 
+    //sete max execution time to unlimited
+    set_time_limit(0); 
+    foreach (Location::where([])->get() as $key => $loc) {
+         
+        Location::update_counts($loc->id); 
+   
+        $loc->save();
+        echo "$loc->name => $loc->code - Done <br>";
+ 
+
+    }
+    die("done");
+
     $hasPorcessed = Location::where('processed', 'Yes')
-    ->where('type', 'Sub-County')
-    ->count();
+        ->where('type', 'Sub-County')
+        ->count();
     if ($hasPorcessed < 30) {
         //set where type != District to be Sub-county
         $sql = "UPDATE locations SET type = 'Sub-County' WHERE type != 'District'";
-        DB::select($sql); 
+        DB::select($sql);
 
         //set all sub counties to not processed
         $sql = "UPDATE locations SET processed = 'No' WHERE type = 'Sub-County'";
-        DB::select($sql);  
+        DB::select($sql);
         //set all code be null
         $sql = "UPDATE locations SET code = null WHERE type = 'Sub-County'";
         DB::select($sql);
         //die('reset');
-    } 
+    }
 
     /* $s = Location::find(1000017);
     $dis = Location::find($s->parent);
@@ -52,8 +65,8 @@ Route::get('/process-sub-counties', function () {
  */
     //Location::where('type', 'Sub-County')->update(['processed' => 'No']); 
     $locs = Location::where('processed', '!=', 'District')->where('processed', '!=', 'Yes')
-    ->orderBy('id', 'asc')
-    ->get();
+        ->orderBy('id', 'asc')
+        ->get();
 
     $i = 0;
     foreach ($locs as $key => $loc) {
@@ -70,12 +83,12 @@ Route::get('/process-sub-counties', function () {
         }
 
 
-        $i++; 
-        if($i > 4000){
+        $i++;
+        if ($i > 4000) {
             break;
         }
         $loc->type == 'Sub-County';
- 
+
         if (((int)($loc->parent)) == 0) {
             if ($loc->processed != 'FAILED') {
                 $loc->processed = 'FAILED';
@@ -83,10 +96,10 @@ Route::get('/process-sub-counties', function () {
             }
             echo "<br>$i. $loc->name => $loc->code - Failed <br>";
             continue;
-        } 
+        }
         $dis = Location::where([
             'id' => $loc->parent,
-            'type' => 'District', 
+            'type' => 'District',
         ])->first();
         if ($dis == null) {
             echo "<br>$i. District not found for <code>$loc->name</code><br>";
@@ -99,13 +112,13 @@ Route::get('/process-sub-counties', function () {
             $loc->save();
             echo "<br>$i. $loc->name => $loc->code - Failed <br>";
             continue;
-        } 
+        }
 
         $loc->detail = 'Sub-County';
         $code = Location::generate_sub_county_code($dis->id);
         $loc->code = $code;
         $loc->save();
-      
+
         $loc = Location::find($loc->id);
         echo "<br>$loc->id. $loc->name => $dis->name - CODE: $loc->code success<br>";
         //die(); 
