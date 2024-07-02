@@ -23,33 +23,141 @@ use Milon\Barcode\DNS1D;
 
 use function PHPUnit\Framework\fileExists;
 
+Route::get('/process-farms', function () {
+
+    //set max execution time to unlimited
+    set_time_limit(0);
+    //set all farms to not processed
+    $reset = false;
+    //check if GET is reset 
+    if (isset($_GET['reset']) && $_GET['reset'] == 'true') {
+        $reset = true;
+    }
+    if ($reset) {
+        $sql = "UPDATE farms SET is_processed = 'No', holding_code = ''";
+        DB::select($sql);
+        //set is_processed to Default where sub_county_id = 1002007
+        $sql = "UPDATE farms SET is_processed = 'DEFAULT' WHERE sub_county_id = 1002007";
+        DB::select($sql);
+    }
+
+    $farms = Farm::where([
+        'is_processed' => 'No'
+    ])
+        ->orderBy('id', 'asc')
+        ->get();
+    $max = 10;
+    if (isset($_GET['max'])) {
+        $max = $_GET['max'];
+    }
+
+
+    $i = 0;
+    foreach ($farms as $key => $f) {
+        $i++;
+        if ($i > $max) {
+            break;
+        }
+        echo '<hr>';
+        echo "<h2>$f->id</h2>";
+        $sub = Location::where([
+            'id' => $f->sub_county_id,
+            'processed' => 'Yes'
+        ])->first();
+        $failed = false;
+        if ($sub == null) {
+            $f->is_processed = 'FAILED';
+            $f->duplicate_results = 'Sub-County not found id ' . $f->sub_county_id;
+            try {
+                $f->save();
+            } catch (\Throwable $th) {
+            }
+            echo "<br>$f->holding_code => $f->id ->111<. Failed to find sub-county # $f->sub_county_id <br>";
+            continue;
+            $failed = true;
+        }
+        if ($sub->type == 'District') {
+            $f->is_processed = 'FAILED';
+            $f->duplicate_results = 'Sub-County IS District ' . $f->sub_county_id;
+            try {
+                $f->save();
+            } catch (\Throwable $th) {
+            }
+            echo "<br>$f->holding_code => $f->id. ->222<. Failed to find sub-county # $f->sub_county_id <br>";
+            continue;
+            $failed = true;
+        }
+
+        //check if subcounty id is 1002007, say it failed because it is default
+        if ($f->sub_county_id == 1002007) {
+            $failed = true;
+            echo "<br>$f->holding_code => $f->id - Failed to find # $f->sub_county_id <br>";
+            $f->is_processed = 'FAILED';
+            try {
+                $f->save();
+            } catch (\Throwable $th) {
+            }
+            continue;
+        }
+
+
+        if ($sub == null) {
+            $f->is_processed = 'FAILED';
+            $f->duplicate_results = 'Sub-County not found id ' . $f->sub_county_id;
+            try {
+                $f->save();
+            } catch (\Throwable $th) {
+            }
+            echo "<br>$f->holding_code => $f->id - Failed to find sub-county # $f->sub_county_id <br>";
+            die('sub not found');
+            continue;
+        }
+
+        $code = null;
+        try {
+            $code = Location::generate_farm_code($sub->id);
+        } catch (\Exception $e) {
+            $msg = $e->getMessage();
+            $f->is_processed = 'FAILED';
+            $f->duplicate_results = $msg;
+            $f->save();
+            echo "<br>$f->holding_code => $f->id - Failed <br>";
+            dd($msg);
+            continue;
+        }
+        $f->holding_code = $code;
+        $f->duplicate_results = '';
+        $f->is_processed = 'Yes';
+        $f->save();
+        echo "<br>$f->id. $f->holding_code => $f->id - SUCCESSSS <br>";
+    }
+    die("done");
+});
 Route::get('/process-sub-counties', function () {
 
 
+
     //sete max execution time to unlimited
-    set_time_limit(0); 
+    set_time_limit(0);
     foreach (Location::where([])->get() as $key => $loc) {
 
-        if($loc->type != 'Sub-County'){
+        if ($loc->type != 'Sub-County') {
             continue;
         }
 
-         
-        Location::update_counts($loc->id); 
+
+        Location::update_counts($loc->id);
         $sub = Location::find($loc->id);
         $max = 1;
-        if(isset($_GET['max'])){
+        if (isset($_GET['max'])) {
             $max = $_GET['max'];
         }
-        if($sub->farm_count < $max){
+        if ($sub->farm_count < $max) {
             continue;
         }
 
-   
-        echo "$loc->farm_count => $loc->name - Done <br>";
-        die();
- 
 
+        echo "$loc->farm_count => $loc->name - Done <br>";
     }
     die("done");
 
@@ -120,13 +228,7 @@ Route::get('/process-sub-counties', function () {
             continue;
         }
 
-        //check if district name is default
-        if (str_contains(strtolower($dis->name), 'default')) {
-            $loc->processed = 'FAILED';
-            $loc->save();
-            echo "<br>$i. $loc->name => $loc->code - Failed <br>";
-            continue;
-        }
+
 
         $loc->detail = 'Sub-County';
         $code = Location::generate_sub_county_code($dis->id);

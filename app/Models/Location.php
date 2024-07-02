@@ -159,6 +159,46 @@ class Location extends Model
         return $dis->code . "-" . $max_num;
     }
 
+    public static function generate_farm_code($sub_county_id)
+    {
+        $sub = Location::where([
+            'id' => $sub_county_id,
+            'type' => 'Sub-County',
+        ])->first();
+        if ($sub == null) {
+            throw new \Exception("Invalid sub-county. $sub_county_id");
+        }
+
+        if ($sub->parent == 0) {
+            throw new \Exception("Invalid sub-county with ID #. $sub_county_id");
+        }
+
+        $dist = Location::find($sub->parent);
+        if ($dist == null) {
+            throw new \Exception("Invalid district");
+        }
+
+        $farms = Farm::where([
+            'is_processed' => 'Yes',
+            'sub_county_id' => $sub->id
+        ])->orderBy('id', 'asc')->get();
+        $max_num = 0;
+
+        foreach ($farms as $key => $value) {
+            $explodes =   (explode("-", $value->holding_code));
+            if (count($explodes) > 1) {
+                //get last
+                $last = $explodes[count($explodes) - 1];
+                $last = (int)($last);
+                if ($last > $max_num) {
+                    $max_num = $last;
+                }
+            }
+        }
+        $max_num++;
+        return $sub->code . "-" . $max_num;
+    }
+
     public static function update_counts($lcoation_id)
     {
         /* 

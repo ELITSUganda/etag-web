@@ -90,12 +90,15 @@ class Farm extends Model
         parent::boot();
 
         self::creating(function ($model) {
-            return Farm::my_update($model);
+            $model = Farm::my_update($model);
+            return $model;
         });
 
 
         self::updating(function ($model) {
-            return Farm::my_update($model);
+            return true; 
+            $model = Farm::my_update($model);
+            return $model;
         });
 
 
@@ -145,30 +148,21 @@ class Farm extends Model
     {
         $sub = Location::find($m->sub_county_id);
         if ($sub == null) {
-            $m->sub_county_id = 1002007;
-            $sub = Location::find($m->sub_county_id);
+            throw new Exception("Sub-county not found");
         }
-        if ($sub == null) {
-            throw new Exception("Subcounty not found.", 1);
+        if ($sub->type != 'Sub-County') {
+            throw new Exception("Invalid sub-county.");
         }
+        $holding_code = $m->holding_code;
 
-        if ($m->holding_code == null || strlen($m->holding_code) < 3) {
-            $num = (int) (Farm::where(['sub_county_id' => $m->sub_county_id])->count());
-            $num++;
-            $m->holding_code = $sub->code . "-" . $num;
+        if ($holding_code == null || strlen($holding_code) < 4) {
+            try {
+                $holding_code = Location::generate_farm_code($m->sub_county_id);
+            } catch (\Throwable $th) {
+                throw new Exception("Invalid holding code. " . $th->getMessage());
+            }
+            $m->holding_code = $holding_code;
         }
-
-        if ($sub->parent != null) {
-            $m->district_id = $sub->parent;
-        }
-
-
-        $sub = Location::find($m->sub_county_id);
-        $dis = Location::find($sub->parent);
-
-        //echo $m->owner()->name.". <b>District:</b>" . $dis->name . " <b>Subcounty: </b>" . $sub->name . " Holding: " . $m->holding_code . "<br>";
-
-
         return $m;
     }
 

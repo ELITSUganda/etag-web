@@ -138,7 +138,7 @@ class FarmController extends AdminController
         $u = Auth::user();
         $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
         $dis = null;
-        if($r != null){
+        if ($r != null) {
             $dis = Location::find($r->type_id);
         }
         if ($dis != null) {
@@ -155,7 +155,7 @@ class FarmController extends AdminController
             $u = Auth::user();
             $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
             $dis = null;
-            if($r != null){
+            if ($r != null) {
                 $dis = Location::find($r->type_id);
             }
             $grid->model()->where([
@@ -268,6 +268,28 @@ class FarmController extends AdminController
                 return Utils::get_object(Location::class, $id)->name_text;
             })->sortable();
 
+        //is_processed
+        $grid->column('is_processed', __('Processed'))->sortable()
+            ->filter([
+                'Yes' => 'Yes',
+                'No' => 'No',
+                'FAILED' => 'Failed',
+            ])->label([
+                'Yes' => 'success',
+                'No' => 'danger',
+                'FAILED' => 'warning',
+            ])->hide();
+        //duplicate_results
+        $grid->column('duplicate_results', __('Duplicate'))->sortable()
+            ->filter([
+                'Yes' => 'Yes',
+                'No' => 'No',
+                'FAILED' => 'Failed',
+            ])->label([
+                'Yes' => 'success',
+                'No' => 'danger',
+                'FAILED' => 'warning',
+            ])->hide(); 
 
         return $grid;
     }
