@@ -29,11 +29,21 @@ Route::get('/process-sub-counties', function () {
     //sete max execution time to unlimited
     set_time_limit(0); 
     foreach (Location::where([])->get() as $key => $loc) {
+
+        if($loc->type != 'Sub-County'){
+            continue;
+        }
+
          
         Location::update_counts($loc->id); 
+        $sub = Location::find($loc->id);
+        if($sub->farm_count < 5){
+            continue;
+        }
+
    
-        $loc->save();
-        echo "$loc->name => $loc->code - Done <br>";
+        echo "$loc->farm_count => $loc->name - Done <br>";
+        die();
  
 
     }
