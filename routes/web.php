@@ -170,6 +170,7 @@ Route::get('/process-locations', function () {
         'Test Location' =>    'Test Location',
         'Other locations' =>    'Other locations',
         'Default location' =>    'Default location',
+        'Default subcounty' =>    'Default location',
     ];
     foreach ($locs as $key => $loc) {
         /* if (
@@ -179,6 +180,9 @@ Route::get('/process-locations', function () {
         ) {
             continue;
         } */
+       $loc->processed = 'Yes';
+       $loc->save();
+       continue; 
         $code_found = false;
         foreach ($cods as $code => $name) {
             if ($loc->name == 'Luweero') {

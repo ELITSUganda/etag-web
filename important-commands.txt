@@ -152,5 +152,5 @@ composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs
 
 
-php artisan make:migration add_TYPE_TO_locations --table=locations 
+php artisan make:migration add_processed_to_locations --table=locations 
 
