@@ -91,7 +91,9 @@ class LocationController extends AdminController
         //subcounty_count
         $grid->column('subcounty_count', __('Sub-Counties'))
             ->display(function ($id) {
-                return Location::where('parent', $this->id)->count();
+                return Location::where('parent', $this->id)
+                    ->where('type', 'Sub-County')
+                    ->count();
             });
 
         return $grid;
