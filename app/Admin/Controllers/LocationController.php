@@ -16,7 +16,7 @@ class LocationController extends AdminController
      *
      * @var string
      */
-    protected $title = 'Location';
+    protected $title = 'Locations';
 
     /**
      * Make a grid builder.
@@ -25,7 +25,7 @@ class LocationController extends AdminController
      */
     protected function grid()
     {
-        $grid = new Grid(new Location()); 
+        $grid = new Grid(new Location());
         /* foreach (Location::all() as $key => $val) {
             //type
             if($val->isSubCounty()){
@@ -95,6 +95,17 @@ class LocationController extends AdminController
         $grid->column('code', __('ISO CODE'))->sortable()
             ->editable();
 
+        //processed
+        $grid->column('processed', __('Processed'))->sortable()
+            ->filter([
+                'Yes' => 'Yes',
+                'No' => 'No',
+                'Failed' => 'Failed',
+            ])->label([
+                'Yes' => 'success',
+                'No' => 'danger',
+                'Failed' => 'warning',
+            ]);
 
         return $grid;
     }
