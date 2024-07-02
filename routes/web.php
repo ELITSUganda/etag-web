@@ -42,7 +42,8 @@ Route::get('/process-farms', function () {
     }
 
     $farms = Farm::where([
-        'is_processed' => 'No'
+        // 'is_processed' => 'No'
+        'sub_county_id' => 1002007,
     ])
         ->orderBy('id', 'asc')
         ->get();
@@ -58,8 +59,61 @@ Route::get('/process-farms', function () {
         if ($i > $max) {
             break;
         }
+        if($f->district_id == 0){
+            $f->is_processed = 'FAILURE';
+            $f->duplicate_results = 'District not found';
+            $f->save();
+            echo "<br>$f->holding_code => $f->id - Failed to find district # $f->district_id <br>";
+            continue;
+        }
         echo '<hr>';
         echo "<h2>$f->id</h2>";
+        $dis = Location::where([
+            'id' => $f->district_id,
+            'type' => 'District',
+        ])->first();
+
+        if ($dis == null) {
+            $f->is_processed = 'FAILED';
+            $f->duplicate_results = 'District not found';
+            $f->save();
+            echo "<br>$f->holding_code => $f->id - Failed to find district # $f->district_id <br>";
+            continue;
+        }
+        $sub = Location::where([
+            'parent' => $dis->id,
+            'type' => 'Sub-County',
+            'processed' => 'Yes'
+        ])->orderBy('id', 'asc')->first();
+        if ($sub == null) {
+            $f->is_processed = 'FAILED';
+            $f->duplicate_results = 'Sub-County not found';
+            $f->save();
+            echo "<br>$f->holding_code => $f->id - Failed to find sub-county # $f->sub_county_id <br>";
+            continue;
+        }
+        $code = null;
+        try {
+            $code = Location::generate_farm_code($sub->id);
+        } catch (\Exception $e) {
+            dd($sub);
+            dd($e->getMessage()); 
+            $msg = $e->getMessage();
+            $f->is_processed = 'FAILED';
+            $f->duplicate_results = $msg;
+            $f->save();
+            echo "<br>$f->holding_code => $f->id - Failed <br>";
+            dd($msg);
+            continue;
+        }
+        $f->holding_code = $code;
+        $f->duplicate_results = '';
+        $f->is_processed = 'Yes';
+        $f->sub_county_id = $sub->id;
+        $f->save();
+        echo "<br>$f->holding_code => $f->id - SUCCESSSS FIX <br>";
+        
+        continue;
         $sub = Location::where([
             'id' => $f->sub_county_id,
             'processed' => 'Yes'
