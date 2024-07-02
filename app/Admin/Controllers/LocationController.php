@@ -26,7 +26,7 @@ class LocationController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new Location()); 
-        foreach (Location::all() as $key => $val) {
+        /* foreach (Location::all() as $key => $val) {
             //type
             if($val->isSubCounty()){
                 if($val->type == 'Sub-County'){
@@ -41,7 +41,7 @@ class LocationController extends AdminController
                 $val->type = 'District';
                 $val->save(); 
             } 
-        }
+        } */
 
         $grid->disableBatchActions();
         $grid->disableExport();
