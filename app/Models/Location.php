@@ -62,14 +62,24 @@ class Location extends Model
 
     public static function my_update($m)
     {
-        $dis = Location::find($m->parent);
-        if ($dis == null) {
-            $m->code = 'UG-001-1';
-            return;
+        if ($m->type != 'District' && $m->type != 'Sub-County') {
+            throw new \Exception("Invalid location type");
         }
-        $num = (int) (Location::where(['parent' => $dis->id])->count());
-        $num++;
-        $m->code = $dis->code . "-" . $num;
+
+        if ($m->type == 'Sub-County') {
+            $dis = Location::find($m->parent);
+            if ($dis == null) {
+                throw new \Exception("Invalid district");
+                $num = (int) (Location::where(['parent' => $dis->id])->count());
+                $num++;
+                $m->code = $dis->code . "-" . $num;
+            }
+        }
+
+        if ($m->code == null || $m->code == "" || strlen($m->code) < 2) {
+            throw new \Exception("Invalid district code");
+        }
+
         return $m;
     }
     public function getNameTextAttribute()

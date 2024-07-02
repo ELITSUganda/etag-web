@@ -13,6 +13,7 @@ use App\Models\Gen;
 use App\Models\Image;
 use App\Models\Image as ModelsImage;
 use App\Models\ImageModel;
+use App\Models\Location;
 use App\Models\Utils;
 use Carbon\Carbon;
 use Encore\Admin\Grid\Tools\Header;
@@ -22,6 +23,207 @@ use Milon\Barcode\DNS1D;
 
 use function PHPUnit\Framework\fileExists;
 
+Route::get('/process-locations', function () {
+    $locs = Location::where('type', 'District')->get();
+    $i = 0;
+    $cods = [
+        'UG-314' =>    'Abim',
+        'UG-301' =>    'Adjumani',
+        'UG-322' =>    'Agago',
+        'UG-323' =>    'Alebtong',
+        'UG-315' =>    'Amolatar',
+        'UG-324' =>    'Amudat',
+        'UG-216' =>    'Amuria',
+        'UG-316' =>    'Amuru',
+        'UG-302' =>    'Apac',
+        'UG-303' =>    'Arua',
+        'UG-217' =>    'Budaka',
+        'UG-218' =>    'Bududa',
+        'UG-201' =>    'Bugiri',
+        'UG-235' =>    'Bugweri',
+        'UG-420' =>    'Buhweju',
+        'UG-117' =>    'Buikwe',
+        'UG-219' =>    'Bukedea',
+        'UG-118' =>    'Bukomansimbi',
+        'UG-220' =>    'Bukwo',
+        'UG-225' =>    'Bulambuli',
+        'UG-416' =>    'Buliisa',
+        'UG-401' =>    'Bundibugyo',
+        'UG-430' =>    'Bunyangabu',
+        'UG-402' =>    'Bushenyi',
+        'UG-202' =>    'Busia',
+        'UG-221' =>    'Butaleja',
+        'UG-119' =>    'Butambala',
+        'UG-233' =>    'Butebo',
+        'UG-120' =>    'Buvuma',
+        'UG-226' =>    'Buyende',
+        'UG-317' =>    'Dokolo',
+        'UG-121' =>    'Gomba',
+        'UG-304' =>    'Gulu',
+        'UG-403' =>    'Hoima',
+        'UG-417' =>    'Ibanda',
+        'UG-203' =>    'Iganga',
+        'UG-418' =>    'Isingiro',
+        'UG-204' =>    'Jinja',
+        'UG-318' =>    'Kaabong',
+        'UG-404' =>    'Kabale',
+        'UG-405' =>    'Kabarole',
+        'UG-213' =>    'Kaberamaido',
+        'UG-427' =>    'Kagadi',
+        'UG-428' =>    'Kakumiro',
+        'UG-237' =>    'Kalaki',
+        'UG-101' =>    'Kalangala',
+        'UG-222' =>    'Kaliro',
+        'UG-122' =>    'Kalungu',
+        'UG-102' =>    'Kampala',
+        'UG-205' =>    'Kamuli',
+        'UG-413' =>    'Kamwenge',
+        'UG-414' =>    'Kanungu',
+        'UG-206' =>    'Kapchorwa',
+        'UG-236' =>    'Kapelebyong',
+        'UG-335' =>    'Karenga',
+        'UG-126' =>    'Kassanda',
+        'UG-406' =>    'Kasese',
+        'UG-207' =>    'Katakwi',
+        'UG-112' =>    'Kayunga',
+        'UG-433' =>    'Kazo',
+        'UG-407' =>    'Kibaale',
+        'UG-103' =>    'Kiboga',
+        'UG-227' =>    'Kibuku',
+        'UG-432' =>    'Kikuube',
+        'UG-419' =>    'Kiruhura',
+        'UG-421' =>    'Kiryandongo',
+        'UG-408' =>    'Kisoro',
+        'UG-434' =>    'Kitagwenda',
+        'UG-305' =>    'Kitgum',
+        'UG-319' =>    'Koboko',
+        'UG-325' =>    'Kole',
+        'UG-306' =>    'Kotido',
+        'UG-208' =>    'Kumi',
+        'UG-333' =>    'Kwania',
+        'UG-228' =>    'Kween',
+        'UG-123' =>    'Kyankwanzi',
+        'UG-422' =>    'Kyegegwa',
+        'UG-415' =>    'Kyenjojo',
+        'UG-125' =>    'Kyotera',
+        'UG-326' =>    'Lamwo',
+        'UG-307' =>    'Lira',
+        'UG-229' =>    'Luuka',
+        'UG-104' =>    'Luwero',
+        'UG-124' =>    'Lwengo',
+        'UG-114' =>    'Lyantonde',
+        'UG-336' =>    'Madi-Okollo',
+        'UG-223' =>    'Manafwa',
+        'UG-320' =>    'Maracha',
+        'UG-105' =>    'Masaka',
+        'UG-409' =>    'Masindi',
+        'UG-214' =>    'Mayuge',
+        'UG-209' =>    'Mbale',
+        'UG-410' =>    'Mbarara',
+        'UG-423' =>    'Mitooma',
+        'UG-115' =>    'Mityana',
+        'UG-308' =>    'Moroto',
+        'UG-309' =>    'Moyo',
+        'UG-106' =>    'Mpigi',
+        'UG-107' =>    'Mubende',
+        'UG-108' =>    'Mukono',
+        'UG-334' =>    'Nabilatuk',
+        'UG-311' =>    'Nakapiripirit',
+        'UG-116' =>    'Nakaseke',
+        'UG-109' =>    'Nakasongola',
+        'UG-230' =>    'Namayingo',
+        'UG-234' =>    'Namisindwa',
+        'UG-224' =>    'Namutumba',
+        'UG-327' =>    'Napak',
+        'UG-310' =>    'Nebbi',
+        'UG-231' =>    'Ngora',
+        'UG-424' =>    'Ntoroko',
+        'UG-411' =>    'Ntungamo',
+        'UG-328' =>    'Nwoya',
+        'UG-337' =>    'Obongi',
+        'UG-331' =>    'Omoro',
+        'UG-329' =>    'Otuke',
+        'UG-321' =>    'Oyam',
+        'UG-312' =>    'Pader',
+        'UG-332' =>    'Pakwach',
+        'UG-210' =>    'Pallisa',
+        'UG-110' =>    'Rakai',
+        'UG-429' =>    'Rubanda',
+        'UG-425' =>    'Rubirizi',
+        'UG-431' =>    'Rukiga',
+        'UG-412' =>    'Rukungiri',
+        'UG-435' =>    'Rwampara',
+        'UG-111' =>    'Sembabule',
+        'UG-232' =>    'Serere',
+        'UG-426' =>    'Sheema',
+        'UG-215' =>    'Sironko',
+        'UG-211' =>    'Soroti',
+        'UG-212' =>    'Tororo',
+        'UG-113' =>    'Wakiso',
+        'UG-313' =>    'Yumbe',
+        'UG-330' =>    'Zombo',
+        'Terego' =>    'Terego',
+        'Bwaka' =>    'Bwaka',
+        'Test' =>    'Test',
+        'Test Location 3' =>    'Test Location 3',
+        'Test Location 2' =>    'Test Location 2',
+        'Test Location' =>    'Test Location',
+        'Other locations' =>    'Other locations',
+        'Default location' =>    'Default location',
+    ];
+    foreach ($locs as $key => $loc) {
+        /* if (
+            $loc->id == 0 ||
+            $loc->name == 'Test Location' ||
+            $loc->name == 'Test Location 2'
+        ) {
+            continue;
+        } */
+        $code_found = false;
+        foreach ($cods as $code => $name) {
+            if ($loc->name == 'Luweero') {
+                $loc->name = 'Luwero';
+            }
+            if ($loc->name == 'Default subcounty') {
+                $loc->name = 'Default subcounty';
+                $loc->parent = 0;
+                $loc->type = 'Sub-County';
+                $loc->save();
+                continue;
+            }
+            if ($loc->name == 'Kibuube') {
+                $loc->name = 'Kikuube';
+            }
+            if ($loc->name == 'Ssembabule') {
+                $loc->name = 'Sembabule';
+            }
+            if ($loc->name == 'Kabong') {
+                $loc->name = 'Kaabong';
+            }
+            if ($loc->name == 'Kitegwenda') {
+                $loc->name = 'Kitagwenda';
+            }
+            if (strtolower($loc->name) == strtolower($name)) {
+                $i++;
+                $code_found = true;
+                $loc->name = $name;
+                if ($loc->code != $code) {
+                    $loc->code = $code;
+                    $loc->save();
+                    echo "$i. $loc->name => $loc->code - Done <br>";
+                    continue;
+                }
+                echo "$i. $loc->name => $loc->code - Processed <br>";
+                break;
+            }
+        }
+        if (!$code_found) {
+            echo "$i. $loc->name => $loc->code - Not Found <br>";
+            die();
+        }
+    }
+    die("done");
+});
 Route::get('/process-vaccination-status', function () {
     $SQL = 'SELECT * FROM `animals` WHERE `type` = "Cattle"';
     $cattle = DB::select($SQL);
