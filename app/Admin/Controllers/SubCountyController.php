@@ -2,8 +2,7 @@
 
 namespace App\Admin\Controllers;
 
-use App\Models\SubCounty;
-use App\Models\District;
+use App\Models\Location;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
@@ -17,7 +16,7 @@ class SubCountyController extends AdminController
      *
      * @var string
      */
-    protected $title = 'SubCounty';
+    protected $title = 'Subcounties';
 
     /**
      * Make a grid builder.
@@ -26,59 +25,72 @@ class SubCountyController extends AdminController
      */
     protected function grid()
     {
-        $grid = new Grid(new SubCounty());
+        $grid = new Grid(new Location());
+        $grid->model()->where('type', 'Sub-County');
 
-        /*$d[] = 'Adjumani Tc';
-        $d[] = 'Adropi';
-        $d[] = 'Ciforo';
-        $d[] = 'Dzaipi';
-        $d[] = 'Ofua';
-        $d[] = 'Pakelle';
-        foreach ($d as $key => $value) {
-            $sub = new SubCounty();
-            $sub->name = $value;
-            $sub->district_id = 2;
-            $sub->administrator_id = 2;
-            $sub->save();
-        }
-        dd($d);*/
-
-
+        $grid->disableBatchActions();
+        $grid->disableExport();
         $grid->filter(function ($filter) {
+            $filter->disableIdFilter();
+            $filter->like('name', 'Name');
             $districts = [];
-            foreach (District::all() as $key => $p) {
-                $districts[$p->id] = $p->name . " - " . $p->code;
+            foreach (Location::get_districts() as $key => $value) {
+                $districts[$value->id] = $value->name . " - #" . $value->id;
             }
-            $filter->equal('district_id', "District")->select($districts);
+
+            $filter->equal('parent', 'Parent')->select($districts);
         });
-
-        $grid->column('id', __('Id'))->sortable()->width(40);
-        $grid->column('name', __('Name'))->sortable()->width(100);
-        $grid->column('code', __('CODE'))->sortable()->width(80);
-        $grid->column('locked_down', __('Quarantine'))
-            ->display(function ($l) {
-                if ($l) {
-                    return "Locked down";
-                } else {
-                    return "Open";
-                }
-            })
-            ->sortable()->width(120);
-        $grid->column('district_id', __('District'))->display(function ($district_id) {
-            $d = District::find($district_id);
-            if (!$d) {
-                return "-";
+        $grid->actions(function ($actions) {
+            $actions->disableView();
+            $actions->disableDelete();
+        });
+        $grid->quickSearch('name')->placeholder("Search by name...");
+        $grid->column('id', __('ID'))->sortable()->width(100);
+        $grid->column('parent', __('District'))->display(function () {
+            if ($this->parent == 0) {
+                return $this->name;
             }
-            return $d->name;
-        })->sortable()->width(100);
-
-        $grid->column('administrator_id', __('S.V.O'))->display(function ($user) {
-            $_user = Administrator::find($user);
-            if (!$_user) {
-                return "-";
+            $district = $this->district;
+            if ($district == null) {
+                return 'N/A';
             }
-            return $_user->name;
+            return $district->name;
         })->sortable();
+
+        //sub county
+        $grid->column('name', __('Sub-County'))->display(function () {
+            if ($this->parent == 0) {
+                return 'N/A';
+            }
+            return $this->name;
+        })->sortable();
+
+
+
+        //code
+        $grid->column('code', __('ISO CODE'))->sortable();
+
+        //processed
+        $grid->column('processed', __('Processed'))->sortable()
+            ->filter([
+                'Yes' => 'Yes',
+                'No' => 'No',
+                'FAILED' => 'Failed',
+            ])->label([
+                'Yes' => 'success',
+                'No' => 'danger',
+                'FAILED' => 'warning',
+            ])->hide();
+        $grid->disableActions();
+
+        //farm_count
+        $grid->column('farm_count', __('Farms'))->sortable();
+        //cattle_count
+        $grid->column('cattle_count', __('Cattle'))->sortable();
+        //goat_count
+        $grid->column('goat_count', __('Goats'))->sortable();
+        //sheep_count
+        $grid->column('sheep_count', __('Sheep'))->sortable();
 
         return $grid;
     }
@@ -91,14 +103,15 @@ class SubCountyController extends AdminController
      */
     protected function detail($id)
     {
-        $show = new Show(SubCounty::findOrFail($id));
+        $show = new Show(Location::findOrFail($id));
 
         $show->field('id', __('Id'));
         $show->field('created_at', __('Created at'));
         $show->field('updated_at', __('Updated at'));
         $show->field('name', __('Name'));
-        $show->field('detail', __('Detail'));
-        $show->field('administrator_id', __('Administrator id'));
+        $show->field('parent', __('Parent'));
+        $show->field('photo', __('Photo'));
+        $show->field('order', __('Order'));
 
         return $show;
     }
@@ -110,28 +123,20 @@ class SubCountyController extends AdminController
      */
     protected function form()
     {
+        $form = new Form(new Location());
 
-        $form = new Form(new SubCounty());
-        $form->setWidth(8, 4);
-        $admins = [];
-        foreach (Administrator::all() as $key => $v) {
-            if (!$v->isRole('scvo')) {
-                continue;
-            }
-            $admins[$v->id] = $v->name . " - " . $v->id;
+        $form->text('name', __('Location Name'))->rules('required')->required();
+        $districts = [];
+        foreach (Location::get_districts() as $key => $value) {
+            $districts[$value->id] = $value->name . " - #" . $value->id;
         }
 
+        $form->select('parent', __('Parent District'))
+            ->options($districts)->rules('required')->required();
 
-        $form->text('name', __('Subcounty Name'))->required();
-        $form->text('code', __('CODE'))->readonly();
-        $form->select('district_id', __('District'))
-            ->options(District::all()->pluck("name", 'id'))
-            ->required(); 
 
-        $form->select('administrator_id', __('SubCounty veterinary officer'))
-            ->options($admins)
-            ->required();
-        $form->textarea('detail', __('Detail'));
+
+        $form->hidden('type')->default('Sub-County');
 
         $form->radio('locked_down', 'Quarantine')->options([
             0 => 'Opened',

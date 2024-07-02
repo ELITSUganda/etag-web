@@ -39,10 +39,11 @@ class Location extends Model
     public static function get_districts()
     {
         return Location::where(
-            'parent',
-            '<',
-            1
-        )->get();
+            'type',
+            'District'
+        )->where('id', '>', 0)
+            ->orderBy('name', 'asc')
+            ->get();
     }
 
 
@@ -90,7 +91,7 @@ class Location extends Model
                 throw new \Exception("Invalid district code.");
             }
         }
-        $m->processed = 'Yes'; 
+        $m->processed = 'Yes';
         return $m;
     }
     public function getNameTextAttribute()
@@ -148,7 +149,7 @@ class Location extends Model
             if (count($explodes) > 1) {
                 //get last
                 $last = $explodes[count($explodes) - 1];
-                $last = (int)($last); 
+                $last = (int)($last);
                 if ($last > $max_num) {
                     $max_num = $last;
                 }
@@ -156,5 +157,50 @@ class Location extends Model
         }
         $max_num++;
         return $dis->code . "-" . $max_num;
+    }
+
+    public static function update_counts($lcoation_id)
+    {
+        /* 
+        $table->integer('farm_count')->nullable()->default(0);
+        $table->integer('')->nullable()->default(0);
+        $table->integer('')->nullable()->default(0);
+        $table->integer('')->nullable()->default(0);
+
+        
+ */
+        $location = Location::find($lcoation_id);
+        if ($location == null) {
+            return;
+        }
+        if ($location->type == 'District') {
+            $location->farm_count = Farm::where([
+                'district_id' => $location->id
+            ])->count();
+            $location->cattle_count = Farm::where([
+                'district_id' => $location->id
+            ])->sum('cattle_count');
+            $location->goat_count = Farm::where([
+                'district_id' => $location->id
+            ])->sum('goats_count');
+            $location->sheep_count = Farm::where([
+                'district_id' => $location->id
+            ])->sum('sheep_count');
+            $location->save();
+        } else if ($location->type == 'Sub-County') {
+            $location->farm_count = Farm::where([
+                'sub_county_id' => $location->id
+            ])->count();
+            $location->cattle_count = Farm::where([
+                'sub_county_id' => $location->id
+            ])->sum('cattle_count');
+            $location->goat_count = Farm::where([
+                'sub_county_id' => $location->id
+            ])->sum('goats_count');
+            $location->sheep_count = Farm::where([
+                'sub_county_id' => $location->id
+            ])->sum('sheep_count');
+            $location->save();
+        }
     }
 }

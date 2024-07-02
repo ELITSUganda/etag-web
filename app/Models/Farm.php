@@ -43,7 +43,7 @@ class Farm extends Model
             'farm_id' => $this->id
         ])->count();
     }
-/* 
+    /* 
     public function getSheepCountAttribute()
     {
         return Animal::where([
@@ -51,7 +51,7 @@ class Farm extends Model
             'type' => 'Sheep'
         ])->count();
     } */
-   /*  public function getGoatCountAttribute()
+    /*  public function getGoatCountAttribute()
     {
         return Animal::where([
             'farm_id' => $this->id,
@@ -100,6 +100,14 @@ class Farm extends Model
 
 
 
+        //created
+        self::created(function ($model) {
+            try {
+                Location::update_counts($model->sub_county_id);
+                Location::update_counts($model->district_id);
+            } catch (Exception $e) {
+            }
+        });
 
         self::updated(function ($model) {
             if ($model->animals != null) {
@@ -108,7 +116,11 @@ class Farm extends Model
                     $animal->save();
                 }
             }
-            // ... code here
+            try {
+                Location::update_counts($model->sub_county_id);
+                Location::update_counts($model->district_id);
+            } catch (Exception $e) {
+            }
         });
 
 
@@ -118,7 +130,14 @@ class Farm extends Model
 
         self::deleted(function ($model) {
             // ... code here
+            try {
+                Location::update_counts($model->sub_county_id);
+                Location::update_counts($model->district_id);
+            } catch (Exception $e) {
+            }
         });
+        //created
+
     }
 
 

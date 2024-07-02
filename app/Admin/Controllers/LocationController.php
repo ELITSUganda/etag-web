@@ -16,7 +16,7 @@ class LocationController extends AdminController
      *
      * @var string
      */
-    protected $title = 'Locations';
+    protected $title = 'Districts';
 
     /**
      * Make a grid builder.
@@ -26,22 +26,7 @@ class LocationController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new Location());
-        /* foreach (Location::all() as $key => $val) {
-            //type
-            if($val->isSubCounty()){
-                if($val->type == 'Sub-County'){
-                    continue;
-                }
-                $val->type = 'Sub-County';
-                $val->save();
-            }else{
-                if($val->type == 'District'){
-                    continue;
-                }
-                $val->type = 'District';
-                $val->save(); 
-            } 
-        } */
+        $grid->model()->where('type', 'District');
 
         $grid->disableBatchActions();
         $grid->disableExport();
@@ -60,52 +45,42 @@ class LocationController extends AdminController
             $actions->disableDelete();
         });
         $grid->quickSearch('name')->placeholder("Search by name...");
-        $grid->column('id', __('ID'))->sortable()->width(55);
+        $grid->column('id', __('ID'))->sortable()->width(100);
         $grid->column('name', __('District'))->display(function () {
-            if ($this->parent == 0) {
-                return $this->name;
-            }
-            $district = $this->district;
-            if ($district == null) {
-                return 'N/A';
-            }
-            return $district->name;
+            return $this->name;
         })->sortable();
 
-        //sub county
-        $grid->column('Sub-County', __('Sub-County'))->display(function () {
-            if ($this->parent == 0) {
-                return 'N/A';
-            }
-            return $this->name;
-        });
 
-        $grid->column('type', __('Type'))
-            ->filter([
-                'District' => 'District',
-                'Sub-County' => 'Sub-County',
-            ])
-            ->label([
-                'District' => 'success',
-                'Sub-County' => 'info',
-            ])
-            ->sortable();
 
         //code
-        $grid->column('code', __('ISO CODE'))->sortable()
-            ->editable();
+        $grid->column('code', __('ISO CODE'))->sortable();
 
         //processed
         $grid->column('processed', __('Processed'))->sortable()
             ->filter([
                 'Yes' => 'Yes',
                 'No' => 'No',
-                'Failed' => 'Failed',
+                'FAILED' => 'Failed',
             ])->label([
                 'Yes' => 'success',
                 'No' => 'danger',
-                'Failed' => 'warning',
-            ]);
+                'FAILED' => 'warning',
+            ])->hide();
+        $grid->disableActions();
+
+        //farm_count
+        $grid->column('farm_count', __('Farms'))->sortable();
+        //cattle_count
+        $grid->column('cattle_count', __('Cattle'))->sortable();
+        //goat_count
+        $grid->column('goat_count', __('Goats'))->sortable();
+        //sheep_count
+        $grid->column('sheep_count', __('Sheep'))->sortable();
+        //subcounty_count
+        $grid->column('subcounty_count', __('Sub-Counties'))
+            ->display(function ($id) {
+                return Location::where('parent', $id)->count();
+            });
 
         return $grid;
     }
@@ -140,37 +115,20 @@ class LocationController extends AdminController
     {
         $form = new Form(new Location());
 
-        $form->text('name', __('Location Name'))->required();
-        $districts = [];
-        foreach (Location::get_districts() as $key => $value) {
-            $districts[$value->id] = $value->name . " - #" . $value->id;
-        }
+        $form->text('name', __('Location Name'))->rules('required')->required();
+         
 
-        $form->select('parent', __('Parent district'))
-            ->default(0)
-            ->help('Leave this field empty if you are creating a new district.')
-            ->options($districts);
+        $form->hidden('type')->default('District');
 
 
-
-        $admins = [];
-        foreach (Administrator::all() as $key => $v) {
-            if (!$v->isRole('scvo')) {
-                continue;
-            }
-            $admins[$v->id] = $v->name . " - " . $v->id;
-        }
-
-
-
-
+/* 
         $form->radio('locked_down', 'Quarantine')->options([
             0 => 'Opened',
             1 => 'Lock down',
         ])
             ->default(0)
             ->help('NOTE: Lock down means no movement of livestock will be allowed in that region  until opened.');
-
+ */
         $form->text('code', __('ISO CODE'))->required();
 
         return $form;
