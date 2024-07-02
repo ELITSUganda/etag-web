@@ -135,8 +135,12 @@ class FarmController extends AdminController
             HTML;
         });
 
-        //$grid->disableActions();
-        if (Admin::user()->isRole('farmer')) {
+        $u = Auth::user();
+        $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
+        $dis = Location::find($r->type_id);
+        if ($dis != null) {
+            $grid->model()->where('district_id', '=', $dis->id);
+        } else if (Admin::user()->isRole('farmer')) {
             $grid->model()->where('administrator_id', '=', Admin::user()->id);
             $grid->actions(function ($actions) {
                 $actions->disableDelete();
@@ -183,7 +187,7 @@ class FarmController extends AdminController
                 }
             })
                 ->ajax(
-                    url('/api/sub-counties?')
+                    url('/api/districts')
                 );
             $filter->equal('sub_county_id', 'Filter by sub-county')->select(function ($id) {
                 $a = Location::find($id);

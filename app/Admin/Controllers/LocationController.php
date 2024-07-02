@@ -25,7 +25,23 @@ class LocationController extends AdminController
      */
     protected function grid()
     {
-        $grid = new Grid(new Location());
+        $grid = new Grid(new Location()); 
+        foreach (Location::all() as $key => $val) {
+            //type
+            if($val->isSubCounty()){
+                if($val->type == 'Sub-County'){
+                    continue;
+                }
+                $val->type = 'Sub-County';
+                $val->save();
+            }else{
+                if($val->type == 'District'){
+                    continue;
+                }
+                $val->type = 'District';
+                $val->save(); 
+            } 
+        }
 
         $grid->disableBatchActions();
         $grid->disableExport();
@@ -64,13 +80,20 @@ class LocationController extends AdminController
             return $this->name;
         });
 
-        $grid->column('type', __('Type'))->display(function () {
-            if ($this->parent == 0) {
-                return "District";
-            } else {
-                return "Sub-County";
-            }
-        });
+        $grid->column('type', __('Type'))
+            ->filter([
+                'District' => 'District',
+                'Sub-County' => 'Sub-County',
+            ])
+            ->label([
+                'District' => 'success',
+                'Sub-County' => 'info',
+            ])
+            ->sortable();
+
+        //code
+        $grid->column('code', __('ISO CODE'))->sortable()
+            ->editable();
 
 
         return $grid;
@@ -137,7 +160,7 @@ class LocationController extends AdminController
             ->default(0)
             ->help('NOTE: Lock down means no movement of livestock will be allowed in that region  until opened.');
 
-        /*         $form->text('details', __('Location description')); */
+        $form->text('code', __('ISO CODE'))->required();
 
         return $form;
     }

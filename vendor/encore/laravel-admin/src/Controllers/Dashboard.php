@@ -158,7 +158,20 @@ class Dashboard
 
     public static function dvo_recent_events()
     {
-        $events = Event::where([])->orderBy('id', 'Desc')->limit(15)->get();
+        
+        $u = Auth::user();
+        $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
+
+        if ($r == null) {
+            return 'District role not found.';
+        }
+        $dis = Location::find($r->type_id);
+        $conds = [];
+        if ($dis != null) {
+            $conds['district_id'] = $dis->id;
+        }
+
+        $events = Event::where($conds)->orderBy('id', 'Desc')->limit(15)->get();
         return view('dashboard.recent-events', [
             'title' => 'Recent events',
             'items' => $events
@@ -177,7 +190,10 @@ class Dashboard
         if ($dis == null) {
             return 'District not found.';
         }
-        $events = Movement::where([])->orderBy('id', 'Desc')->limit(11)->get();
+        
+        $events = Movement::where([
+            'district_from' => $dis->id,
+        ])->orderBy('id', 'Desc')->limit(11)->get();
         //dd($events->first());
         return view('dashboard.recent-movements', [
             'title' => 'Recent movement permits',

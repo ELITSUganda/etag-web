@@ -2,9 +2,11 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\AdminRoleUser;
 use App\Models\DistrictVaccineStock;
 use App\Models\DrugCategory;
 use App\Models\DrugStock;
+use App\Models\Location;
 use App\Models\Utils;
 use App\Models\VaccineCategory;
 use App\Models\VaccineMainStock;
@@ -37,6 +39,15 @@ class DistrictVaccineStockController extends AdminController
             $actions->disableView();
             $actions->disableDelete();
         });
+
+        $u = Auth::user();
+        $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
+        $dis = Location::find($r->type_id);
+        if ($dis != null) {
+            $grid->model()->where('district_id', '=', $dis->id);
+        }
+
+
         $grid->disableExport();
         $grid->filter(function ($filter) {
             $filter->disableIdFilter();

@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\AdminRoleUser;
 use App\Models\Animal;
 use App\Models\Disease;
 use App\Models\District;
@@ -59,6 +60,7 @@ class EventController extends AdminController
 
         //Utils::display_alert_message();
         $grid = new Grid(new Event());
+        $grid->disableBatchActions();
 
         $grid->actions(function ($actions) {
             $actions->disableView();
@@ -94,14 +96,24 @@ class EventController extends AdminController
 
         $e->save(); */
 
-
-        if (Admin::user()->isRole('farmer')) {
-            $grid->model()->where('administrator_id', '=', Admin::user()->id);
+        $u = Auth::user();
+        $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
+        $dis = Location::find($r->type_id);
+        if ($dis != null) {
+            $grid->model()->where('district_id', '=', $dis->id); 
+        } else if (Admin::user()->isRole('farmer')) {
+            $grid->model()->where('administrator_id', '=', $dis->id);
             $grid->actions(function ($actions) {
                 //$actions->disableDelete();
                 $actions->disableEdit();
             });
             //$grid->disableCreateButton();
+        } else {
+            $grid->model()->where('administrator_id', '=', Admin::user()->id);
+            $grid->actions(function ($actions) {
+                //$actions->disableDelete();
+                $actions->disableEdit();
+            });
         }
 
 

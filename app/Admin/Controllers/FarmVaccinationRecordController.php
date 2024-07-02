@@ -2,9 +2,11 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\AdminRoleUser;
 use App\Models\DistrictVaccineStock;
 use App\Models\Farm;
 use App\Models\FarmVaccinationRecord;
+use App\Models\Location;
 use App\Models\Utils;
 use App\Models\VaccineMainStock;
 use Encore\Admin\Controllers\AdminController;
@@ -12,6 +14,7 @@ use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use Illuminate\Support\Facades\Auth;
 
 class FarmVaccinationRecordController extends AdminController
 {
@@ -46,12 +49,12 @@ class FarmVaccinationRecordController extends AdminController
 
             $district_vaccine_stocks = [];
             foreach (DistrictVaccineStock::all() as $stock) {
-                $district_vaccine_stocks[$stock->id] = $stock->district->name . " - " . $stock->drug_stock->batch_number . ", Available: " . $stock->current_quantity." Doses";
+                $district_vaccine_stocks[$stock->id] = $stock->district->name . " - " . $stock->drug_stock->batch_number . ", Available: " . $stock->current_quantity . " Doses";
             }
             $main_vaccines = [];
             foreach (VaccineMainStock::all() as $stock) {
-                $main_vaccines[$stock->id] = $stock->drug_category->name_of_drug. " - Batch No.: " . $stock->batch_number . ", Available: " . $stock->current_quantity." Doses";
-            } 
+                $main_vaccines[$stock->id] = $stock->drug_category->name_of_drug . " - Batch No.: " . $stock->batch_number . ", Available: " . $stock->current_quantity . " Doses";
+            }
 
             //vaccine_main_stock_id
             $filter->equal('vaccine_main_stock_id', __('Filter by Central Vaccine'))->select($main_vaccines);
@@ -63,6 +66,14 @@ class FarmVaccinationRecordController extends AdminController
         });
 
         $grid->model()->orderBy('id', 'Desc');
+
+        $u = Auth::user();
+        $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
+        $dis = Location::find($r->type_id);
+        if ($dis != null) {
+            $grid->model()->where('district_id', '=', $dis->id);
+        }
+
         $grid->column('created_at', __('Date'))
             ->display(function ($t) {
                 return Utils::my_date($t);
@@ -72,7 +83,7 @@ class FarmVaccinationRecordController extends AdminController
                 return Utils::my_date($t);
             })->sortable()->hide();
         $grid->column('lhc', __('FARM'))->display(function ($t) {
-            if($this->farm == null){
+            if ($this->farm == null) {
                 $this->delete();
                 return 'DELETED FARM RECORD';
             }
@@ -81,21 +92,21 @@ class FarmVaccinationRecordController extends AdminController
 
         $grid->column('farm_id', __('Farm'))
             ->display(function ($t) {
-                if($this->farm == null){
+                if ($this->farm == null) {
                     $this->delete();
                     return 'DELETED FARM RECORD';
-                } 
+                }
                 return $this->farm->holding_code;
             })->sortable();
 
         $grid->column('district_id', __('Sub-county'))
             ->display(function ($t) {
-                if($this->farm == null){
+                if ($this->farm == null) {
                     $this->delete();
                     return 'DELETED FARM RECORD';
-                } 
+                }
                 return $this->farm->sub_county_text;
-            })->sortable()->hide(); 
+            })->sortable()->hide();
         $grid->column('vaccine_main_stock_id', __('Vaccine'))
             ->display(function ($t) {
                 return $this->vaccine_main_stock->drug_category->name_of_drug;
@@ -112,7 +123,7 @@ class FarmVaccinationRecordController extends AdminController
             ->width('100')
             ->totalRow(function ($amount) {
                 return "<span class='label label-success'>" . number_format($amount) . "</span>";
-            }); 
+            });
         $grid->column('number_of_animals_vaccinated', __('Animals Vaccinated'))
             ->display(function ($t) {
                 return number_format($this->number_of_animals_vaccinated);
@@ -120,7 +131,7 @@ class FarmVaccinationRecordController extends AdminController
             ->width('100')
             ->totalRow(function ($amount) {
                 return "<span class='label label-success'>" . number_format($amount) . "</span>";
-            }); 
+            });
 
         $grid->column('remarks', __('Remarks'))->hide();
         $grid->column('farmer_name', __('Farmer name'))->sortable();
