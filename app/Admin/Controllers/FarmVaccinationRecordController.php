@@ -108,12 +108,19 @@ class FarmVaccinationRecordController extends AdminController
         $grid->column('number_of_doses', __('Number of doses'))
             ->display(function ($t) {
                 return number_format($this->number_of_doses);
-            })->sortable();
+            })->sortable()
+            ->width('100')
+            ->totalRow(function ($amount) {
+                return "<span class='label label-success'>" . number_format($amount) . "</span>";
+            }); 
         $grid->column('number_of_animals_vaccinated', __('Animals Vaccinated'))
             ->display(function ($t) {
                 return number_format($this->number_of_animals_vaccinated);
             })->sortable()
-            ->width('100');
+            ->width('100')
+            ->totalRow(function ($amount) {
+                return "<span class='label label-success'>" . number_format($amount) . "</span>";
+            }); 
 
         $grid->column('remarks', __('Remarks'))->hide();
         $grid->column('farmer_name', __('Farmer name'))->sortable();
