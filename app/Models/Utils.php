@@ -325,6 +325,7 @@ class Utils extends Model
 
     public static function systemBoot($u)
     {
+        return;
         //get administartors who don't have any group
         $admins = Administrator::whereNotIn('id', function ($query) {
             $query->select('administrator_id')
