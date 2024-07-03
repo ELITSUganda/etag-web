@@ -212,10 +212,14 @@ class V2ApiMainController extends Controller
             }
         }
 
+        
         if ($animal == null) {
             return $this->error("Animal not created.");
+            $farm = Farm::find($r->farm_id);
+        }else{
+            $farm = Farm::find($animal->farm_id);
         }
-        $farm = Farm::find($r->farm_id);
+        
         if ($farm == null) {
             return $this->error("Farm not found.");
         }
