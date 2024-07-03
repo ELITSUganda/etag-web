@@ -164,9 +164,13 @@ class V2ApiMainController extends Controller
             return $this->error("Invalid task.");
         }
 
-        //local_id
-        if ($r->local_id == null || strlen($r->local_id) < 3) {
-            return $this->error("Invalid local id.");
+        $animal = Animal::find($r->id);
+
+        if ($animal == null) {
+            //local_id
+            if ($r->local_id == null || strlen($r->local_id) < 3) {
+                return $this->error("Invalid local id.");
+            }
         }
 
         $isNew = false;
