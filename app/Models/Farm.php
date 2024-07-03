@@ -96,7 +96,6 @@ class Farm extends Model
 
 
         self::updating(function ($model) {
-            return true; 
             $model = Farm::my_update($model);
             return $model;
         });

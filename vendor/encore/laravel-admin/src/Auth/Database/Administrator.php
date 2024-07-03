@@ -38,7 +38,7 @@ class Administrator extends Model implements AuthenticatableContract
         if ($farm != null) {
             return $farm->name;
         }
-        return 'N/A'; 
+        return 'N/A';
     }
 
 
@@ -69,7 +69,9 @@ class Administrator extends Model implements AuthenticatableContract
 
             if (isset($m->sub_county_id)) {
                 $sub = Location::find($m->sub_county_id);
-                $m->district_id = $sub->parent;
+                if ($sub != null) {
+                    $m->district_id = $sub->parent;
+                }
             }
 
             $phone_number = Utils::prepare_phone_number($m->phone_number);
