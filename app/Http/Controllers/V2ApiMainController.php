@@ -249,6 +249,7 @@ class V2ApiMainController extends Controller
         $animal->stage = $r->stage;
         $animal->registered_by_id = $r->registered_by_id;
         $animal->local_id = $r->local_id;
+        $animal->group_id = $r->group_id ?? null; 
 
         $resp_msg = 'Animal updated successfully.';
         try {
