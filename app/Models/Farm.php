@@ -162,6 +162,7 @@ class Farm extends Model
             }
             $m->holding_code = $holding_code;
         }
+        $m->district_id = $sub->parent;
         return $m;
     }
 
