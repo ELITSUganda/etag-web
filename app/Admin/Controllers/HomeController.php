@@ -352,6 +352,7 @@ class HomeController extends Controller
         if (
             Admin::user()->isRole('administrator') ||
             Admin::user()->isRole('maaif') ||
+            Admin::user()->isRole('data-viewer') ||
             Admin::user()->isRole('admin')
         ) {
             $content->row(function ($row) {
