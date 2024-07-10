@@ -46,10 +46,7 @@ class AdminRoleUserController extends AdminController
         } */
         $grid = new Grid(new AdminRoleUser());
         $grid->disableBatchActions();
-
-
         $grid->model()->orderBy('id', 'DESC');
-
         $grid->filter(function ($filter) {
             // Remove the default id filter
             $filter->disableIdFilter();

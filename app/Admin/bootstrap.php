@@ -32,6 +32,7 @@ use App\Models\User;
 use App\Models\Utils;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Facades\Admin;
+use Encore\Admin\Grid;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -252,6 +253,17 @@ Encore\Admin\Form::forget(['map', 'editor']);
 
 
 Utils::systemBoot(Auth::user());
+
+$u = Auth::user();
+
+if ($u != null) {
+    if ($u->isRole('data-viewer')) {
+        Grid::init(function (Grid $grid) {
+            $grid->disableActions();
+            $grid->disableCreateButton();
+        });
+    }
+}
 /*
 foreach (SubCounty::all() as $key => $s) {
     $l = Location::where([

@@ -67,11 +67,18 @@ class AnimalController extends AdminController
         $grid->disableActions();
         $grid->quickSearch('v_id')->placeholder('Search by E-ID');
         $grid->disableBatchActions();
-        
+
         $u = Auth::user();
+
+
+        if ($u->isRole('data-viewer')) {
+            $grid->disableActions();
+            $grid->disableCreateButton();
+        }
+
         $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
         $dis = null;
-        if($r != null){
+        if ($r != null) {
             $dis = Location::find($r->type_id);
         }
         if ($dis != null) {
@@ -184,7 +191,6 @@ class AnimalController extends AdminController
                     url('/api/sub-counties')
                 );
 
-
             $filter->equal('status', "Status")->select(array(
                 'Diagonized' => 'Diagonized',
                 'Healed' => 'Healed',
@@ -199,15 +205,23 @@ class AnimalController extends AdminController
         });
 
 
-        $grid->column('updated_at', __('Last seen'))->sortable();
-        $grid->column('updated_at_text', __('Last Update'));
+        $grid->column('created_at', __('Created'))
+            ->sortable()
+            ->display(function ($c) {
+                return Utils::my_date($c);
+            });
+        if ($u->isRole('data-viewer')) {
+            $grid->disableActions();
+            $grid->disableCreateButton();
+        }
+        //$grid->column('updated_at_text', __('Last Update'));
         $grid->column(
             'id',
             __('ID')
         )->sortable()
             ->hide();
 
-        $grid->model()->orderBy('updated_at', 'DESC');
+        $grid->model()->orderBy('created_at', 'DESC');
         $grid->column('photo', __('Photo'))
             ->image(url(""), 60, 60)
             //->lightbox(['width' => 60, 'height' => 60])
@@ -226,7 +240,9 @@ class AnimalController extends AdminController
                 return "N/A";
             }
             return round($this->average_milk, 2) . " Litters";
-        })->sortable();
+        })
+            ->hide()
+            ->sortable();
         $grid->column('dob', __('Born'))->display(function ($y) {
             return Utils::my_date($y);
         })->sortable();
@@ -234,16 +250,8 @@ class AnimalController extends AdminController
         $grid->column('status', __('Status'))->sortable();
 
 
-        $grid->column('administrator_id', __('Owner'))
-            ->display(function ($id) {
-                $u = Administrator::find($id);
-                if (!$u) {
-                    return $id;
-                }
-                return $u->name;
-            })->sortable();
 
- /*        $grid->column('district_id', __('District'))
+        /*        $grid->column('district_id', __('District'))
             ->display(function ($id) {
                 return Utils::get_object(Location::class, $id)->name_text;
             })->sortable(); */
@@ -259,6 +267,16 @@ class AnimalController extends AdminController
                     return '<a class="btn btn-primary" href="' . admin_url('slaughter-records/create?id=' . $this->id) . '" >Create slaughter records</a>';
                 });
         }
+
+
+        $grid->column('administrator_id', __('Owner'))
+            ->display(function ($id) {
+                $u = Administrator::find($id);
+                if (!$u) {
+                    return $id;
+                }
+                return $u->name;
+            })->sortable();
 
         return $grid;
     }

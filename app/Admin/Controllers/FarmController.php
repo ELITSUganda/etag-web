@@ -127,6 +127,8 @@ class FarmController extends AdminController
 
         $grid = new Grid(new Farm());
 
+
+
         //add button view on map
         $url_view_farm_on_map = admin_url('maps');
         $grid->header(function ($query) use ($url_view_farm_on_map) {
@@ -162,6 +164,12 @@ class FarmController extends AdminController
                 'district_id' => $dis->id
             ])->orderBy('id', 'DESC');
         }
+
+        if($u->isRole('data-viewer')){
+            $grid->disableActions();
+            $grid->disableCreateButton();
+        }
+
 
         $grid->filter(function ($filter) {
 
