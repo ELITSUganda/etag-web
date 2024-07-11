@@ -32,7 +32,7 @@ class Animal extends Model
         parent::boot();
         self::creating(function ($model) {
 
-            if (strlen($model->e_id) > 4) {
+            if ($model->e_id != null && strlen($model->e_id) > 4) {
                 $animal = Animal::where('e_id', $model->e_id)->first();
                 if ($animal != null) {
                     throw new Exception("Animal with same elecetronic ID ($model->e_id) aready exist in the system.", 1);
