@@ -32,17 +32,18 @@ class Animal extends Model
         parent::boot();
         self::creating(function ($model) {
 
-            $animal = Animal::where('e_id', $model->e_id)->first();
-            if ($animal != null) {
-                throw new Exception("Animal with same elecetronic ID aready exist in the system.", 1);
-                return false;
+            if (strlen($model->e_id) > 4) {
+                $animal = Animal::where('e_id', $model->e_id)->first();
+                if ($animal != null) {
+                    throw new Exception("Animal with same elecetronic ID aready exist in the system.", 1);
+                    return false;
+                }
+                $animal = Animal::where('v_id', $model->v_id)->first();
+                if ($animal != null) {
+                    throw new Exception("Animal with same elecetronic ID aready exist in the system.");
+                    return false;
+                }
             }
-            $animal = Animal::where('v_id', $model->v_id)->first();
-            if ($animal != null) {
-                throw new Exception("Animal with same elecetronic ID aready exist in the system.");
-                return false;
-            }
-
             //$animal = Animal::where('v_id', $model->v_id)->first();
             /*  if ($animal != null) {
                 die("Animal with same Tag ID aready exist in the system.");
@@ -81,6 +82,12 @@ class Animal extends Model
             } else {
                 $num = "" . $num;
             }
+
+            if (strlen($model->e_id) < 5) {
+                $model->e_id = $num;
+                $model->v_id = $num;
+            }
+
 
             $model->has_fmd = "No";
             //check if fmd is not null
