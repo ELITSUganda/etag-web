@@ -26,6 +26,7 @@ class V2ApiMainController extends Controller
                 'registered_id' => $r->registered_id,
                 'local_id' => $r->local_id,
             ])->first();
+
             if ($farm == null) {
                 $farm = Farm::find($r->id);
                 if ($farm == null) {
@@ -34,6 +35,68 @@ class V2ApiMainController extends Controller
                 }
             }
         }
+
+        if ($r->created_at == 'UPDATE_FARM') {
+            $farm = Farm::find($r->updated_at);
+            if ($farm == null) {
+                return $this->error("Farm to update not found.");
+            }
+            $farm->is_processed = 'No';
+            $farm->sub_county_id = ($r->sub_county_id != null && (strlen($r->sub_county_id) > 0)) ? $r->sub_county_id : $farm->sub_county_id;
+            $farm->farm_type = ($r->farm_type != null && (strlen($r->farm_type) > 0)) ? $r->farm_type : $farm->farm_type;
+            $farm->size = ($r->size != null && (strlen($r->size) > 0)) ? $r->size : $farm->size;
+            $farm->latitude = ($r->latitude != null && (strlen($r->latitude) > 0)) ? $r->latitude : $farm->latitude;
+            $farm->longitude = ($r->longitude != null && (strlen($r->longitude) > 0)) ? $r->longitude : $farm->longitude;
+            $farm->dfm = ($r->dfm != null && (strlen($r->dfm) > 0)) ? $r->dfm : $farm->dfm;
+            //name
+            $farm->name = ($r->name != null && (strlen($r->name) > 0)) ? $r->name : $farm->name;
+            //village
+            $farm->village = ($r->village != null && (strlen($r->village) > 0)) ? $r->village : $farm->village;
+            //animals_count
+            $farm->animals_count = ($r->animals_count != null && (strlen($r->animals_count) > 0)) ? $r->animals_count : $farm->animals_count;
+            //sheep_count
+            $farm->sheep_count = ($r->sheep_count != null && (strlen($r->sheep_count) > 0)) ? $r->sheep_count : $farm->sheep_count;
+            //goats_count
+            $farm->goats_count = ($r->goats_count != null && (strlen($r->goats_count) > 0)) ? $r->goats_count : $farm->goats_count;
+            //cattle_count
+            $farm->cattle_count = ($r->cattle_count != null && (strlen($r->cattle_count) > 0)) ? $r->cattle_count : $farm->cattle_count;
+            //has_fmd
+            $farm->has_fmd = ($r->has_fmd != null && (strlen($r->has_fmd) > 0)) ? $r->has_fmd : $farm->has_fmd;
+            //farm_owner_name
+            $farm->farm_owner_name = ($r->farm_owner_name != null && (strlen($r->farm_owner_name) > 0)) ? $r->farm_owner_name : $farm->farm_owner_name;
+            //farm_owner_nin
+            $farm->farm_owner_nin = ($r->farm_owner_nin != null && (strlen($r->farm_owner_nin) > 0)) ? $r->farm_owner_nin : $farm->farm_owner_nin;
+            //farm_owner_phone_number
+            $farm->farm_owner_phone_number = ($r->farm_owner_phone_number != null && (strlen($r->farm_owner_phone_number) > 0)) ? $r->farm_owner_phone_number : $farm->farm_owner_phone_number;
+            //pigs_count
+            $farm->pigs_count = ($r->pigs_count != null && (strlen($r->pigs_count) > 0)) ? $r->pigs_count : $farm->pigs_count;
+            //local_id
+            $farm->local_id = ($r->local_id != null && (strlen($r->local_id) > 0)) ? $r->local_id : $farm->local_id;
+            //registered_id
+            $farm->registered_id = ($r->registered_id != null && (strlen($r->registered_id) > 0)) ? $r->registered_id : $farm->registered_id;
+            //duplicate_checked
+            $farm->duplicate_checked = ($r->duplicate_checked != null && (strlen($r->duplicate_checked) > 0)) ? $r->duplicate_checked : $farm->duplicate_checked;
+            //duplicate_results
+            $farm->duplicate_results = ($r->duplicate_results != null && (strlen($r->duplicate_results) > 0)) ? $r->duplicate_results : $farm->duplicate_results;
+            try {
+                $farm->save();
+                return $this->success("Farm updated successfully.");
+            } catch (\Exception $e) {
+                return $this->error("Failed to update farm because " . $e->getMessage());
+            } //end
+        }
+        /* 	
+			
+local_id	
+registered_id	
+duplicate_checked	
+duplicate_results	
+	
+Edit Edit
+Copy Copy
+
+        */
+
 
         if ($farm != null) {
             $owner = User::find($farm->administrator_id);
