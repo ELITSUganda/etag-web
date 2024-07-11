@@ -212,14 +212,17 @@ class V2ApiMainController extends Controller
             }
         }
 
-        $farm = null;        
+        $farm = null;
         if ($animal == null) {
             return $this->error("Animal not created.");
             $farm = Farm::find($r->farm_id);
-        }else{
+        } else {
             $farm = Farm::find($animal->farm_id);
+            if ($farm == null) {
+                $farm = Farm::find($r->farm_id);
+            }
         }
-        
+
         if ($farm == null) {
             return $this->error("Farm not found.");
         }
@@ -249,7 +252,7 @@ class V2ApiMainController extends Controller
         $animal->stage = $r->stage;
         $animal->registered_by_id = $r->registered_by_id;
         $animal->local_id = $r->local_id;
-        $animal->group_id = $r->group_id ?? null; 
+        $animal->group_id = $r->group_id ?? null;
 
         $resp_msg = 'Animal updated successfully.';
         try {
