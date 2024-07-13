@@ -45,8 +45,8 @@ class V2ApiMainController extends Controller
             $farm->sub_county_id = ($r->sub_county_id != null && (strlen($r->sub_county_id) > 0)) ? $r->sub_county_id : $farm->sub_county_id;
             $farm->farm_type = ($r->farm_type != null && (strlen($r->farm_type) > 0)) ? $r->farm_type : $farm->farm_type;
             $farm->size = ($r->size != null && (strlen($r->size) > 0)) ? $r->size : $farm->size;
-            $farm->latitude = ($r->latitude != null && (strlen($r->latitude) > 0)) ? $r->latitude : $farm->latitude;
-            $farm->longitude = ($r->longitude != null && (strlen($r->longitude) > 0)) ? $r->longitude : $farm->longitude;
+            // $farm->latitude = ($r->latitude != null && (strlen($r->latitude) > 0)) ? $r->latitude : $farm->latitude;
+            // $farm->longitude = ($r->longitude != null && (strlen($r->longitude) > 0)) ? $r->longitude : $farm->longitude;
             $farm->dfm = ($r->dfm != null && (strlen($r->dfm) > 0)) ? $r->dfm : $farm->dfm;
             //name
             $farm->name = ($r->name != null && (strlen($r->name) > 0)) ? $r->name : $farm->name;
