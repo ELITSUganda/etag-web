@@ -59,7 +59,7 @@ Route::get('/process-farms', function () {
         if ($i > $max) {
             break;
         }
-        if($f->district_id == 0){
+        if ($f->district_id == 0) {
             $f->is_processed = 'FAILURE';
             $f->duplicate_results = 'District not found';
             $f->save();
@@ -97,7 +97,7 @@ Route::get('/process-farms', function () {
             $code = Location::generate_farm_code($sub->id);
         } catch (\Exception $e) {
             dd($sub);
-            dd($e->getMessage()); 
+            dd($e->getMessage());
             $msg = $e->getMessage();
             $f->is_processed = 'FAILED';
             $f->duplicate_results = $msg;
@@ -112,7 +112,7 @@ Route::get('/process-farms', function () {
         $f->sub_county_id = $sub->id;
         $f->save();
         echo "<br>$f->holding_code => $f->id - SUCCESSSS FIX <br>";
-        
+
         continue;
         $sub = Location::where([
             'id' => $f->sub_county_id,
@@ -609,6 +609,7 @@ Route::get('/test', function () {
 
 //Route::get('/', [WebController::class, 'index']);
 Route::get('/', function () {
+    return view('index');
     header('Location: ' . admin_url());
     die();
 });

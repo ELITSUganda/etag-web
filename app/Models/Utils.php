@@ -11,12 +11,225 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Zebra_Image;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 use Milon\Barcode\DNS1D;
 use Milon\Barcode\DNS2D;
 
 class Utils extends Model
 {
 
+    public static function import_farms()
+    {
+        return;
+        $exel_path = public_path('storage/files/farms.xlsx');
+        //check if file exists
+        if (!file_exists($exel_path)) {
+            die("File not found.");
+        }
+        //load excel file
+        $data = Excel::toArray(null, $exel_path);
+        if ($data == null) {
+            die("No data found.");
+        }
+        //loop through data
+        /* excel data     
+    0 => "Farmer is New?"
+    1 => "Farmer name"
+    2 => "Farmer/N.O.K National Identification Number (NIN)"
+    3 => "Farmer/N.O.K phone number"
+    4 => "Has farm had FMD vacination before"
+    5 => "Date of last vaccination"
+    6 => "_GPS coordinates_latitude"
+    7 => "_GPS coordinates_longitude"
+    8 => "Farm name"
+    9 => "Sub county name"
+    10 => "Village name"
+    11 => "Farm space (in Ha)"
+    12 => "Farm type"
+    13 => "Number of cattle"
+    14 => "Number of goats"
+    15 => "Number of sheep"
+    16 => "Number of pigs"
+    17 => "Responsible officer name"
+    18 => "Contact of responsible officer"
+    
+    */
+        /* 
+
+nin	
+gender	
+phone_number_2	
+details	
+temp_id	
+sub_county_id	
+dvo	
+scvo	
+	
+status	
+first_name	
+last_name	
+milk_price	
+picked_roles	
+district_id	
+business_name	
+business_license_number	
+business_license_issue_authority	
+business_license_issue_date	
+business_license_validity	
+business_address	
+business_phone_number	
+business_whatsapp	
+business_email	
+business_logo	
+business_cover_photo	
+business_cover_details	
+vet_service	
+request_status	
+farm_id	
+language	
+    */  //set max execution time
+        set_time_limit(0);
+        //set max memory
+        ini_set('memory_limit', '1024M');
+        $isFirst = true;
+        foreach ($data[0] as $key => $val) {
+            if ($isFirst) {
+                $isFirst = false;
+                continue;
+            }
+            $phone = Utils::prepare_phone_number($val[3]);
+            if (!Utils::phone_number_is_valid($phone)) {
+                $phone = $val[3];
+            }
+            $nin = $val[2];
+            if (strlen($phone) > 3) {
+                $farmer = User::where([
+                    'phone_number' => $phone,
+                ])->first();
+                if ($farmer == null) {
+                    $farmer = User::where([
+                        'username' => $phone,
+                    ])->first();
+                }
+            }
+
+            if ($farmer == null) {
+                $farmer = User::where([
+                    'nin' => $nin,
+                ])->first();
+            }
+
+            if ($farmer == null) {
+                $farmer = new User();
+                $farmer->name = $val[1];
+                $names = explode(' ', $val[1]);
+                if (isset($names[1])) {
+                    $farmer->last_name = $names[1];
+                }
+                if (isset($names[1])) {
+                    $farmer->first_name = $names[0];
+                }
+                $farmer->phone_number = $phone;
+                if (strlen($phone) > 3) {
+                    $farmer->username = $phone;
+                } else {
+                    $farmer->username = $nin;
+                }
+                $farmer->nin = $nin;
+                $farmer->user_type = 'Farmer';
+                $farmer->business_cover_details = 'NEW';
+                $farmer->address = $val[10];
+                $farmer->password = password_hash('4321', PASSWORD_DEFAULT);
+                $farmer->save();
+                $farmer = User::find($farmer->id);
+            }
+
+            $subcount_text = $val[9];
+
+            if ($subcount_text == 'Busaana') {
+                $subcount_text = 'Busana';
+            }
+
+            $subcount = Location::where([
+                'name' => $subcount_text
+            ])->first();
+            $farm = Farm::where([
+                'farm_owner_nin' => $farmer->nin,
+                'village' => $val[10],
+            ])->first();
+            if ($farm != null) {
+                continue;
+            }
+            $farm = Farm::where([
+                'administrator_id' => $farmer->id,
+                'village' => $val[10],
+            ])->first();
+            if ($farm != null) {
+                continue;
+            }
+
+
+            $farm = new Farm();
+            $farm->administrator_id = $farmer->id;
+
+            if ($subcount != null) {
+                $farm->district_id = $subcount->parent;
+                $farm->sub_county_id = $subcount->id;
+            } else {
+                $farm->district_id = 1002007;
+                $farm->sub_county_id = 1002007;
+            }
+            if ($subcount->type == 'District') {
+                $firstSub = Location::where([
+                    'parent' => $subcount->id
+                ])->orderBy('id', 'asc')->first();
+                if($firstSub != null){
+                    $farm->sub_county_id = $firstSub->id;
+                }
+            }
+            $farm->village = $val[10];
+            $farm->farm_owner_name = $val[1];
+            $farm->farm_owner_nin = $val[2];
+            $farm->farm_owner_phone_number = $val[3];
+            $farm->pigs_count = $val[16];
+            $farm->sheep_count = $val[15];
+            $farm->goats_count = $val[14];
+            $farm->cattle_count = $val[13];
+            $farm->farm_type = $val[12];
+            $farm->latitude = $val[6];
+            $farm->longitude = $val[7];
+            $farm->has_fmd = $val[4];
+            $farm->dfm = $val[5];
+            $farm->village = $val[10];
+            $farm->duplicate_results = 'NEW';
+            $farm->animals_count = $val[13] + $val[14] + $val[15] + $val[16];
+            $farm->save();
+            echo $key . ". sAVED FARM: $val[8] belonging to $val[1] <br>";
+        }
+        /* 
+			
+	
+	
+	
+ 	
+	
+name	
+	
+	
+
+farm_owner_is_new	
+is_processed	
+	
+
+	
+local_id	
+registered_id	
+duplicate_checked	
+duplicate_results	
+	 
+*/
+        die("done.");
+    }
     public static function get_next_lhc($sub)
     {
         if (!$sub->isSubCounty()) {

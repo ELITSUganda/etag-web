@@ -15,7 +15,9 @@ class MapController extends Controller
     {
 
         $farms = [];
-        foreach (Farm::get() as $farm) {
+        foreach (Farm::where([
+            'duplicate_results' => 'NEW'
+        ])->get() as $farm) {
             if ($farm->latitude == null || $farm->longitude == null) {
                 continue;
             }
@@ -44,7 +46,9 @@ class MapController extends Controller
         return $content;
 
         //get all enterprises
-        $farms = \App\Models\Farm::get();
+        $farms = Farm::where([
+            'duplicate_results' => 'NEW'
+        ])->get();
         $markers = '';
         $icon_path = '';
         foreach ($farms as $farm) {
