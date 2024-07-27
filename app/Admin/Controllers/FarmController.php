@@ -40,8 +40,6 @@ class FarmController extends AdminController
 
 
 
-        $form->hidden('district_id', __('District id'))->default(1);
-
 
         if ($form->isCreating()) {
 
@@ -116,7 +114,7 @@ class FarmController extends AdminController
 
         $form->disableCreatingCheck();
         //$form->disableB
-
+        $form->decimal('cattle_count', __('Number of cattle'))->default(0)->required(); 
         return $form;
     }
 
@@ -298,6 +296,20 @@ class FarmController extends AdminController
                 'No' => 'danger',
                 'FAILED' => 'warning',
             ])->hide(); 
+            
+        //registered_id by 
+        $grid->column('registered_id', __('Registered by'))
+            ->display(function ($id) {
+                $u = Administrator::find($id);
+                if (!$u) {
+                    return $id;
+                } 
+                $phone_number = '';
+                if($u->phone_number != null && strlen($u->phone_number)>3){
+                    $phone_number = " - " . $u->phone_number;
+                }
+                return $u->name . $phone_number;
+            })->sortable();
 
         return $grid;
     }

@@ -19,6 +19,69 @@ use Illuminate\Support\Facades\Auth;
 class Dashboard
 {
 
+    public static function animals_by_farms($u)
+    {
+        $dis = Farm::where([])
+            ->orderBy('cattle_count', 'desc')
+            ->limit(30)
+            ->get();
+
+        $data = [];
+        $i = 0;
+        $total = $dis->sum('cattle_count');
+        foreach ($dis as $key => $value) {
+            $i++;
+            $percent = 0;
+            if ($total > 0) {
+                $percent = ($value->cattle_count / $total) * 100;
+            }
+            $percent = number_format($percent, 2);
+            $data[] = [
+                'label' => $i . ". " . $value->name . " - " . $value->holding_code,
+                'y' => $value->cattle_count,
+            ];
+        }
+
+        //reverse $data
+        $data = array_reverse($data);
+        return view('widgets.animals-by-farms', [
+            'data' => $data,
+            '_title' => 'Livestock Count by Farms',
+            '_subTitle' => 'Top 30 districts by number of farms.',
+        ]);
+    }
+
+    public static function to_districts($u)
+    {
+        $dis = Location::where(
+            'type',
+            'District'
+        )
+            ->orderBy('farm_count', 'desc')
+            ->limit(25)
+            ->get();
+
+        $data = [];
+        $i = 0;
+        $total = $dis->sum('farm_count');
+        foreach ($dis as $key => $value) {
+            $i++;
+            $percent = 0;
+            if ($total > 0) {
+                $percent = ($value->farm_count / $total) * 100;
+            }
+            $percent = number_format($percent, 2);
+            $data[] = [
+                'label' => $i . ". " . $value->name . " (" . $percent . "%)",
+                'y' => $value->farm_count,
+            ];
+        }
+
+        return view('widgets.top-districts', [
+            'data' => $data
+        ]);
+    }
+
     public static function maaif_fams_permits_widget()
     {
         return view('widgets.box-5', [
@@ -158,7 +221,7 @@ class Dashboard
 
     public static function dvo_recent_events()
     {
-        
+
         $u = Auth::user();
         $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
 
@@ -187,13 +250,13 @@ class Dashboard
             return 'District role not found.';
         }
         $dis = null;
-        if($r != null){
+        if ($r != null) {
             $dis = Location::find($r->type_id);
         }
         if ($dis == null) {
             return 'District not found.';
         }
-        
+
         $events = Movement::where([
             'district_from' => $dis->id,
         ])->orderBy('id', 'Desc')->limit(11)->get();

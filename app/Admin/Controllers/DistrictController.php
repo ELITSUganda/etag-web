@@ -16,7 +16,7 @@ class DistrictController extends AdminController
      *
      * @var string
      */
-    protected $title = 'District';
+    protected $title = 'Districts';
 
     /**
      * Make a grid builder.
@@ -28,8 +28,9 @@ class DistrictController extends AdminController
        
 
         $grid = new Grid(new District());
-        $grid->column('id', __('Id'))->sortable()->width(50);
-        $grid->column('name', __('Name'))->sortable()->width(100);
+        $grid->disableBatchActions();
+        $grid->column('id', __('Id'))->sortable()->width(50)->sortable();
+        $grid->column('name', __('Name'))->sortable()->width(150);
         $grid->column('code', __('CODE'))->sortable()->width(80);
         $grid->column('administrator_id', __('D.V.O'))->display(function ($user) {
             $_user = Administrator::find($user);

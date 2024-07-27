@@ -37,6 +37,8 @@ use Encore\Admin\Grid;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+//admin js jquery.canvasjs.min.js
+Admin::js(url('/assets/js/jquery.canvasjs.min.js'));
 //Utils::import_farms();
 
 // Utils::send_message('+256703602669', 'Withdraw 5k from my mtn, 0783204665. muhindo mubaraka.');

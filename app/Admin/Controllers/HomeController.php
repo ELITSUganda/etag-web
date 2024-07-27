@@ -65,7 +65,8 @@ class HomeController extends Controller
         $u = Admin::user();
         $content
             ->title('U-LITS - Dashboard')
-            /* ->description('Hello ' . $u->name . "!" . " - " . Carbon::now()->format('l jS \\of F Y h:i:s A')) */;
+            /* ->description('Hello ' . $u->name . "!" . " - " . Carbon::now()->format('l jS \\of F Y h:i:s A')) */;;
+
 
         if ($u->isRole('drugs-wholesaler')) {
             $content->row(function (Row $row) {
@@ -147,6 +148,8 @@ class HomeController extends Controller
                 }); */
             });
         }
+
+ 
 
         if ($u->isRole('slaughter')) {
 
@@ -332,6 +335,8 @@ class HomeController extends Controller
             }
         }
 
+        
+
         $f = FormDrugSeller::where('applicant_id', Admin::user()->id)->first();
         if ($f != null) {
             if ($f->status != 1) {
@@ -372,6 +377,12 @@ class HomeController extends Controller
             Admin::js('/vendor/laravel-admin-ext/chartjs/Chart.bundle.min.js');
             $content->title('Main Dashboard');
 
+            $content->row(function (Row $row) {
+                $u = Admin::user();
+                $row->column(6, Dashboard::to_districts($u));
+                $row->column(6, Dashboard::animals_by_farms($u));
+            });
+    
             $content->row(function ($row) {
                 $box = new Box('Livestock Species', view('admin.dashboard.chart-animal-types'));
                 $box->removable();
@@ -387,7 +398,11 @@ class HomeController extends Controller
                 $box->solid();
                 $row->column(6, $box);
             });
+
+            
         }
+
+        
 
 
         //Farmer

@@ -26,7 +26,8 @@ class LocationController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new Location());
-        $grid->model()->where('type', 'District');
+        $grid->model()->where('type', 'District')
+            ->orderBy('farm_count', 'desc');
 
         $grid->disableBatchActions();
         $grid->disableExport();
@@ -45,7 +46,7 @@ class LocationController extends AdminController
             $actions->disableDelete();
         });
         $grid->quickSearch('name')->placeholder("Search by name...");
-        $grid->column('id', __('ID'))->sortable()->width(100);
+        $grid->column('id', __('ID'))->sortable()->width(60);
         $grid->column('name', __('District'))->display(function () {
             return $this->name;
         })->sortable();
@@ -70,21 +71,33 @@ class LocationController extends AdminController
 
         //farm_count
         $grid->column('farm_count', __('Farms'))->sortable()
+            ->display(function ($id) {
+                return number_format($id);
+            })
             ->totalRow(function ($amount) {
                 return "<span class='text-success'>" . number_format($amount) . "</span>";
             });
         //cattle_count
         $grid->column('cattle_count', __('Cattle'))->sortable()
+            ->display(function ($id) {
+                return number_format($id);
+            })
             ->totalRow(function ($amount) {
                 return "<span class='text-success'>" . number_format($amount) . "</span>";
             });
         //goat_count
         $grid->column('goat_count', __('Goats'))->sortable()
+            ->display(function ($id) {
+                return number_format($id);
+            })
             ->totalRow(function ($amount) {
                 return "<span class='text-success'>" . number_format($amount) . "</span>";
             });
         //sheep_count
         $grid->column('sheep_count', __('Sheep'))->sortable()
+            ->display(function ($id) {
+                return number_format($id);
+            })
             ->totalRow(function ($amount) {
                 return "<span class='text-success'>" . number_format($amount) . "</span>";
             });

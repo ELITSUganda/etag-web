@@ -22,7 +22,7 @@ foreach ($data as $key => $d) {
 
 ?><div class="table-responsive">
     <p class="my-box-title">{{ $_title }}</p>
-    <canvas id="{{ $canvas_id }}" width="250px" height="250px"></canvas>
+    <canvas id="{{ $canvas_id }}"  height="250px"></canvas>
     <br>
     <p><a href="#">View All</a></p>
 </div>

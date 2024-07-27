@@ -12,8 +12,7 @@
                     </td>
                     <td class="text-right">
                         <a href="javascript:;" class="float-right text-primary">
-                            <i class="fa fa-play-circle-o"></i>
-                            Play video</a>
+                            <i class="fa fa-play-circle-o"></i> Play video</a>
                     </td>
                 </tr>
                 <tr>

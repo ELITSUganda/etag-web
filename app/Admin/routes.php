@@ -79,4 +79,5 @@ Route::group([
 
     $router->resource('farm-vaccination-records', FarmVaccinationRecordController::class);
     $router->get('maps', 'MapController@index')->name('maps');
+    $router->get('charts', 'MapController@charts')->name('charts');
 });

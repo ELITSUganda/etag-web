@@ -11,6 +11,13 @@ use Encore\Admin\Layout\Content;
 
 class MapController extends Controller
 {
+    public function charts(Content $content)
+    {
+
+        $content->row(view('charts'));
+        return $content;
+        return view('charts');
+    }
     public function index(Content $content)
     {
 
