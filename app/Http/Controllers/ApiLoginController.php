@@ -331,24 +331,10 @@ class ApiLoginController extends Controller
         $u = Administrator::where('phone_number', $phone_number)->first();
 
 
-        if ($u != null) {
-            if ($u->status == 5) {
-                return Utils::response([
-                    'status' => 0,
-                    'message' => "Account is disabled. Please contact us on +256 775 679505 to re-activate your account."
-                ]);
-            }
-        }
-
+        /*  */
 
         if ($u != null) {
 
-            if ($u->status == 5) {
-                return Utils::response([
-                    'status' => 0,
-                    'message' => "Account is disabled. Please contact us on +256 775 679505 to re-activate your account."
-                ]);
-            }
 
             return Utils::response([
                 'status' => 0,
@@ -359,12 +345,7 @@ class ApiLoginController extends Controller
         $u = Administrator::where('username', $phone_number)->first();
         if ($u != null) {
 
-            if ($u->status == 5) {
-                return Utils::response([
-                    'status' => 0,
-                    'message' => "Account is disabled. Please contact us on +256 775 679505 to re-activate your account."
-                ]);
-            }
+
 
             return Utils::response([
                 'status' => 0,
@@ -374,12 +355,6 @@ class ApiLoginController extends Controller
         $u = Administrator::where('email', $phone_number)->first();
         if ($u != null) {
 
-            if ($u->status == 5) {
-                return Utils::response([
-                    'status' => 0,
-                    'message' => "Account is disabled. Please contact us on +256 775 679505 to re-activate your account."
-                ]);
-            }
 
             return Utils::response([
                 'status' => 0,
@@ -482,13 +457,7 @@ class ApiLoginController extends Controller
             ]);
         }
 
-        if ($user->status == 5) {
-            return Utils::response([
-                'status' => 0,
-                'message' => "Account is disabled. Please contact us on +256 775 679505 to re-activate your account."
-            ]);
-        }
-                                                             
+
         if (password_verify(trim($request->password), $user->password)) {
             unset($user->password);
             $user->role =  Utils::get_role($user);
