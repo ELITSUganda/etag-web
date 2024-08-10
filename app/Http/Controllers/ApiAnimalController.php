@@ -2591,7 +2591,6 @@ class ApiAnimalController extends Controller
 
     public function store_event_2(Request $request)
     {
-
         $user_id = Utils::get_user_id($request);
         $u = Administrator::find($user_id);
         if ($u == null) {
@@ -2663,7 +2662,6 @@ class ApiAnimalController extends Controller
                 'message' => "Invalid event type.",
             ]);
         }
-
 
         $event = new Event();
         $event->session_id = $request->id;
@@ -2754,19 +2752,12 @@ class ApiAnimalController extends Controller
             $event->description = 'Vaccined against ' . $disease->name . ' using ' . $request->vaccination . ' Vaccine.';
             $event->disease_text = $disease->name;
             $event->disease_id = $request->disease_id;
-        } else {
-            return Utils::response([
-                'status' => 0,
-                'message' => "Event type not valid.",
-            ]);
         }
 
-        $event->animal_id = (int)($request->animal_id);
         $event->type = $request->type;
         $event->detail = $request->detail;
         $event->sub_county_id = $request->sub_county_id;
         $event->farm_id = $request->farm_id;
-        $event->animal_id = $request->animal_id;
         $event->approved_by = $request->approved_by;
         $event->animal_type = $request->animal_type;
         $event->vaccine_id = $request->vaccine_id;
