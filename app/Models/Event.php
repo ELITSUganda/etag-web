@@ -39,7 +39,7 @@ class Event extends Model
 
             $model->e_id = $animal->e_id;
             $model->v_id = $animal->v_id;
-            $model->status = 'success';
+            // $model->status = 'success';
             $model->short_description = $model->type;
 
 
@@ -92,7 +92,7 @@ class Event extends Model
                     throw new Exception("enter valid Pregnancy check parametters");
                 }
             } else if ($model->type == 'Disease test') {
-                if (isset($model->disease_id)) {
+                /* if (isset($model->disease_id)) {
                     if ($model->disease_id != null) {
                         if (isset($model->disease_test_results)) {
                             if ($model->disease_test_results != null) {
@@ -129,7 +129,7 @@ class Event extends Model
                             }
                         }
                     }
-                }
+                } */
             } else if ($model->type == 'Milking') {
                 $ok = false;
                 if (isset($model->milk)) {
@@ -195,10 +195,8 @@ class Event extends Model
                                 $model->medicine_manufacturer = $medicine->manufacturer;
                                 $model->medicine_expiry_date = $medicine->expiry_date;
                                 $model->medicine_image = $medicine->image;
-
-
-
-
+                                $worth = ($medicine_quantity / $medicine->original_quantity) * $medicine->selling_price;
+                                $model->drug_worth = $worth;
                                 $record->save();
                             }
                         }
@@ -227,7 +225,6 @@ class Event extends Model
 
 
 
-            unset($model->disease_id);
             unset($model->disease_test_results);
             unset($model->pregnancy_check_method);
             unset($model->pregnancy_check_results);

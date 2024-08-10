@@ -106,7 +106,7 @@ php artisan admin:make SlaughterRecordController --model=App\\Models\\SlaughterR
 php artisan admin:make FarmVaccinationRecordController --model=App\\Models\\FarmVaccinationRecord
 
 
-php artisan make:model VaccinationOrder -m
+php artisan make:model HealthReport -m
 php artisan make:model SlaughterDistributionRecord -m
 php artisan make:model Product -m
 php artisan make:model MovementRoute

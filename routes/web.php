@@ -7,9 +7,11 @@ use App\Http\Controllers\PrintController2;
 use App\Http\Controllers\WebController;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Models\Animal;
+use App\Models\DrugStockBatch;
 use App\Models\Event;
 use App\Models\Farm;
 use App\Models\Gen;
+use App\Models\HealthReport;
 use App\Models\Image;
 use App\Models\Image as ModelsImage;
 use App\Models\ImageModel;
@@ -546,6 +548,41 @@ Route::get('/process-vaccination-status', function () {
     exit;
 });
 Route::get('/test', function () {
+
+
+    foreach (
+        Event::where([
+            'type' => 'Treatment',
+        ])->get() as $key => $model
+    ) {
+        $medicine_quantity = (float)($model->medicine_quantity);
+        $medicine = DrugStockBatch::find($model->medicine_id);
+        if ($medicine == null) {
+            echo $model->id . ". Medicine not found<br>";
+            continue;
+        }
+        $worth = ($medicine_quantity / $medicine->original_quantity) * $medicine->selling_price;
+        $model->drug_worth = $worth;
+        try {
+            $model->save();
+        } catch (\Throwable $th) {
+            echo $model->id . ". " . $th->getmessage() . ". error <br>";
+        }
+        echo $model->id . ". $worth<br>";
+    }
+    die('done');
+
+
+
+    $report = new HealthReport();
+
+    echo '<pre>';
+    $report->setUserId(777);
+    $data = json_encode($report);
+    print_r(json_decode($data));
+    echo '</pre>';
+
+    die('done');
     //echo DNS1D::getBarcodeSVG('4445645656', 'PHARMA2T');
     //echo DNS1D::getBarcodeHTML('4445645656', 'PHARMA2T');
     //echo '<img src="data:image/png,' . DNS1D::getBarcodePNG('4', 'C39+') . '" alt="barcode"   />';
@@ -722,9 +759,11 @@ Route::match(['post'], '/register', [MainController::class, 'create_account_save
 
 Route::get('/compress', function () {
 
-    foreach (Image::where([
-        'administrator_id' => 873,
-    ])->get() as $key => $img) {
+    foreach (
+        Image::where([
+            'administrator_id' => 873,
+        ])->get() as $key => $img
+    ) {
         $img->create_thumbail();
         echo ($img->thumbnail . "<br>");
         die("done");
