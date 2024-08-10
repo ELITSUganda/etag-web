@@ -161,11 +161,11 @@ class Event extends Model
                 $ok = false;
                 if (isset($model->medicine_quantity)) {
                     if ($model->medicine_id != null) {
-                        if (((int)($model->medicine_quantity)) > 0) {
+                        if (((float)($model->medicine_quantity)) > 0) {
                             $medicine = DrugStockBatch::find($model->medicine_id);
                             if ($medicine != null) {
 
-                                $medicine_quantity = ((int)($model->medicine_quantity));
+                                $medicine_quantity = ((float)($model->medicine_quantity));
                                 if ($medicine->current_quantity < $medicine_quantity) {
                                     throw new Exception("Failed to created event because available drug quantity is less than what you have entered.");
                                 }
@@ -376,7 +376,7 @@ class Event extends Model
             throw new Exception("Vaccine not found.");
             return $m;
         }
-        $vaccination_quantity = (int)($m->vaccination);
+        $vaccination_quantity = (float)($m->vaccination);
         if ($vaccination_quantity < 1) {
             throw new Exception("Vaccination quantity must be greater than 0.");
             return $m;
@@ -521,5 +521,5 @@ class Event extends Model
     {
         return Carbon::parse($this->updated_at)->timestamp;
     }
-    protected $appends = ['updated_at_text'];
+    // protected $appends = ['updated_at_text'];
 }

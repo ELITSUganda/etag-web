@@ -6,6 +6,7 @@ use App\Models\AdminRoleUser;
 use App\Models\Animal;
 use App\Models\ArchivedAnimal;
 use App\Models\BatchSession;
+use App\Models\Disease;
 use App\Models\DistrictVaccineStock;
 use App\Models\DrugStockBatch;
 use App\Models\Event;
@@ -1974,10 +1975,12 @@ class ApiAnimalController extends Controller
 
 
             $absent = 0;
-            foreach (Animal::where([
-                'administrator_id' => $user_id,
-                'type' => $r->session_category,
-            ])->get() as $an) {
+            foreach (
+                Animal::where([
+                    'administrator_id' => $user_id,
+                    'type' => $r->session_category,
+                ])->get() as $an
+            ) {
                 if (in_array($an->id, $animal_ids_found)) {
                     continue;
                 }
@@ -2331,9 +2334,11 @@ class ApiAnimalController extends Controller
             $animal_ids_not_found = [];
             $animal_text_not_found = [];
             $absent = 0;
-            foreach (Animal::where([
-                'group_id' => $group_id,
-            ])->get() as $an) {
+            foreach (
+                Animal::where([
+                    'group_id' => $group_id,
+                ])->get() as $an
+            ) {
                 if (in_array($an->id, $animal_ids_found)) {
                     continue;
                 }
@@ -2584,6 +2589,252 @@ class ApiAnimalController extends Controller
     }
 
 
+    public function store_event_2(Request $request)
+    {
+
+        $user_id = Utils::get_user_id($request);
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
+        }
+
+        if ($request->id == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Unique ID not provided.",
+                'data' => null
+            ]);
+        }
+        if (strlen($request->id) < 3) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Unique ID is too short.",
+                'data' => null
+            ]);
+        }
+
+        $e =  Event::where([
+            'session_id' => $request->id,
+        ])->first();
+
+        if ($e != null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Event already created. ref: #$e->id",
+                'data' => null
+            ]);
+        }
+
+        if ($request->animal_id == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Animal ID must be provided.",
+            ]);
+        }
+
+        if ($request->type == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Event type must be provided.",
+            ]);
+        }
+
+        $animal = Animal::find(((int)($request->animal_id)));
+        if ($animal == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Animal not found on our database.",
+            ]);
+        }
+
+        $accepted_events = [
+            'Vaccination',
+            'Treatment',
+            'Disease test'
+        ];
+
+
+        if (!in_array($request->type, $accepted_events)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Invalid event type.",
+            ]);
+        }
+
+
+        $event = new Event();
+        $event->session_id = $request->id;
+        if ($request->created_at != null && strlen($request->created_at) > 3) {
+            try {
+                $event->created_at = Carbon::parse($request->created_at);
+            } catch (\Throwable $th) {
+                $event->created_at = Carbon::now();
+            }
+        }
+
+        if ($request->type == 'Disease test') {
+            $disease = Disease::find(((int)($request->disease_id)));
+            if ($disease == null) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Disease not found on our database.",
+                ]);
+            }
+            if ($request->status != 'Positive' && $request->status != 'Negative') {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Disease status must be either Positive or Negative. But found {$request->status}.",
+                ]);
+            }
+            $event->disease_id = $disease->id;
+            $event->status = $request->status;
+            $event->disease_text = $disease->name;
+            $test_results = $event->status;
+            $event->description = "Disease test for animal {$animal->v_id} and found it {$test_results}.";
+        } else if ($request->type == 'Treatment') {
+            $disease = Disease::find(((int)($request->disease_id)));
+            if ($disease == null) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Disease not found on our database.",
+                ]);
+            }
+            $stock = DrugStockBatch::find($request->medicine_id);
+            if ($stock == null) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Medicine not found on our database.",
+                ]);
+            }
+
+            //medicine_quantity
+            if ($request->medicine_quantity == null || strlen($request->medicine_quantity) < 1) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Medicine quantity must be provided.",
+                ]);
+            }
+            if (floatval($request->medicine_quantity) < 1) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Medicine quantity must be greater than 0.",
+                ]);
+            }
+            $event->disease_id = $disease->id;
+            $event->medicine_id = $stock->id;
+            $event->disease_text = $disease->name;
+            $event->medicine_quantity = $request->medicine_quantity;
+            if ($stock->drug_category_text != null) {
+                $event->medicine_text = $stock->drug_category_text;
+            }
+        } else if ($request->type == 'Vaccination') {
+            if ($request->vaccination == null || strlen($request->vaccination) < 1) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Vaccination must be provided.",
+                ]);
+            }
+            if ($request->disease_id == null || strlen($request->disease_id) < 1) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Disease must be provided.",
+                ]);
+            }
+            $disease = Disease::find(((int)($request->disease_id)));
+            if ($disease == null) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Disease not found on our database.",
+                ]);
+            }
+            //created description text that explain vaccine used and disease name vaccinated against
+            $event->description = 'Vaccined against ' . $disease->name . ' using ' . $request->vaccination . ' Vaccine.';
+            $event->disease_text = $disease->name;
+            $event->disease_id = $request->disease_id;
+        } else {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Event type not valid.",
+            ]);
+        }
+
+        $event->animal_id = (int)($request->animal_id);
+        $event->type = $request->type;
+        $event->detail = $request->detail;
+        $event->sub_county_id = $request->sub_county_id;
+        $event->farm_id = $request->farm_id;
+        $event->animal_id = $request->animal_id;
+        $event->approved_by = $request->approved_by;
+        $event->animal_type = $request->animal_type;
+        $event->vaccine_id = $request->vaccine_id;
+        $event->vaccination = $request->vaccination;
+        $event->time_stamp = $request->time_stamp;
+        $event->import_file = $request->import_file;
+
+        if ($event->description == null || (strlen($event->description) < 4)) {
+            $event->description = $request->description;
+        }
+        if ($event->medicine_quantity == null || (strlen($event->medicine_quantity) < 1)) {
+            $event->medicine_quantity = $request->medicine_quantity;
+        }
+        if ($event->disease_text == null || (strlen($event->disease_text) < 4)) {
+            $event->disease_text = $request->disease_text;
+        }
+
+        $event->detail = $request->detail;
+        if ($event->detail == null || strlen($event->detail) < 2) {
+            $event->detail = $request->description;
+        }
+
+        if ($event->disease_id == null || strlen($event->disease_id) < 1) {
+            $event->disease_id = $request->disease_id;
+        }
+        if ($event->medicine_id == null || strlen($event->medicine_id) < 1) {
+            $event->medicine_id = $request->medicine_id;
+        }
+        if ($event->medicine_text == null || strlen($event->medicine_text) < 1) {
+            $event->medicine_text = $request->medicine_text;
+        }
+
+        $event->temperature = $request->temperature;
+        $event->e_id = $animal->e_id;
+        $event->v_id = $animal->v_id;
+        $event->pregnancy_check_method = $request->pregnancy_check_method;
+        $event->pregnancy_check_results = $request->pregnancy_check_results;
+        $event->pregnancy_expected_sex = $request->pregnancy_expected_sex;
+        $event->pregnancy_fertilization_method = $request->pregnancy_fertilization_method;
+        $event->disease_test_results = $request->disease_test_results;
+        $event->milk = $request->milk;
+        $event->weight = $request->weight;
+
+
+
+        try {
+            $event->save();
+            $event = Event::find($event->id);
+            return Utils::response([
+                'status' => 1,
+                'message' => "Event was created successfully.",
+                'data' => $event
+            ]);
+        } catch (\Throwable $th) {
+            return Utils::response([
+                'status' => 2,
+                'message' => "Failed -  $th",
+            ]);
+        }
+
+
+        return Utils::response([
+            'status' => 0,
+            'message' => "Failed to save event on database.",
+        ]);
+    }
+
+
 
     public function photo_downloads(Request $request)
     {
@@ -2591,12 +2842,14 @@ class ApiAnimalController extends Controller
         $user_id = Utils::get_user_id($request);
         $data = [];
 
-        foreach (Animal::where([
-            'administrator_id' => $user_id
-        ])
-            ->orderBy('id', 'desc')
-            ->limit(1000)
-            ->get() as $animal) {
+        foreach (
+            Animal::where([
+                'administrator_id' => $user_id
+            ])
+                ->orderBy('id', 'desc')
+                ->limit(1000)
+                ->get() as $animal
+        ) {
 
             foreach ($animal->photos as $key => $pic) {
                 $path = $_SERVER['DOCUMENT_ROOT'] . "/public/storage/images/" . $pic->src;
@@ -2666,12 +2919,14 @@ class ApiAnimalController extends Controller
         $user_id = Utils::get_user_id($request);
         $data = [];
 
-        foreach (Animal::where([
-            'administrator_id' => $user_id
-        ])
-            ->orderBy('id', 'desc')
-            ->limit(1000)
-            ->get() as $animal) {
+        foreach (
+            Animal::where([
+                'administrator_id' => $user_id
+            ])
+                ->orderBy('id', 'desc')
+                ->limit(1000)
+                ->get() as $animal
+        ) {
             $animal->district_text = "-";
             if ($animal->district != null) {
                 $animal->district_text = $animal->district->name_text;
@@ -3342,11 +3597,33 @@ class ApiAnimalController extends Controller
     public function events_v2(Request $request)
     {
 
-        $user_id = Utils::get_user_id($request);
 
-        $query = Event::where([
+        $user_id = Utils::get_user_id($request);
+        $conds = [
             'administrator_id' => $user_id
-        ]);
+        ];
+
+
+
+        $per_page = 10000000;
+
+        $data = Event::where(
+            $conds
+        )
+            ->orderBy('id', 'desc')
+            ->limit($per_page)
+            ->get([
+                'id',
+                'animal_id',
+                'type',
+                'detail',
+                'description',
+                'created_at',
+                'weight',
+                'milk',
+                'v_id',
+                'short_description',
+            ]);
 
         /* if ($request->updated_at != null) {
             if (strlen($request->updated_at) > 2) {
@@ -3357,9 +3634,148 @@ class ApiAnimalController extends Controller
             }
         } */
 
-        $data = $query
-            ->orderBy('id', 'desc')
-            ->limit(10000000)->get();
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success.",
+            'data' => $data
+        ]);
+
+
+        $per_page = 10000000;
+        if (isset($request->per_page)) {
+            $per_page = $request->per_page;
+        }
+
+        $administrator_id = Utils::get_user_id($request);
+        $user_id = Utils::get_user_id($request);
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return [];
+        }
+        $role = Utils::get_role($u);
+
+        $is_search = false;
+        $items = [];
+        $s = $request->s;
+        if ($s != null) {
+            if (strlen($s) > 0) {
+                $is_search = true;
+
+                $an = Animal::where("e_id", $s)->first();
+                if ($an == null) {
+                    $an = Animal::where("v_id", $s)->first();
+                }
+                if ($an == null) {
+                    return [];
+                }
+                if (!isset($an->id)) {
+                    return [];
+                }
+
+                $items = Event::where("animal_id", $an->id)->get();
+                if (empty($items)) {
+                    return [];
+                }
+            }
+        }
+
+        if (!$is_search) {
+            $items = Event::paginate($per_page)->withQueryString()->items();
+        }
+
+
+        $_items = [];
+        foreach ($items as $key => $value) {
+
+            if ($role == 'farmer') {
+                if ($value->administrator_id != $administrator_id) {
+                    continue;
+                }
+            } else if ($role == 'scvo') {
+                if ($u->scvo != $value->sub_county_id) {
+                    continue;
+                }
+            }
+
+            $items[$key]->e_id  = "";
+            $items[$key]->v_id  = "";
+            $items[$key]->lhc  = "";
+            if ($items[$key]->animal != null) {
+                if ($items[$key]->animal->e_id != null) {
+                    $items[$key]->e_id  = $items[$key]->animal->e_id;
+                    $items[$key]->v_id  = $items[$key]->animal->v_id;
+                    $items[$key]->lhc  = $items[$key]->animal->lhc;
+                }
+                unset($items[$key]->animal);
+            }
+            $items[$key]->created = Carbon::parse($value->created)->toFormattedDateString();
+            $_items[] = $items[$key];
+        }
+        return $_items;
+    }
+
+
+
+    public function events_v3(Request $request)
+    {
+
+
+        $user_id = Utils::get_user_id($request);
+        $conds = [
+            'administrator_id' => $user_id
+        ];
+
+        $last_id = 0;
+        if ($request->last_id != null) {
+            $last_id = $request->last_id;
+            try {
+            } catch (\Throwable $th) {
+                $last_id = 0;
+            }
+        }
+
+        /* if ($last_id < 1) {
+            $lastEvent = Event::where([])->orderBy('id', 'desc')->first();
+            if ($lastEvent != null) {
+                $last_id = $lastEvent->id;
+            }
+        } */
+        $per_page = 3000;
+        // $last_update = $last_update->startOfDay();
+        if (isset($request->isHotReload)) {
+            if ($request->isHotReload == 'Yes') {
+                $conds = [];
+                $per_page = 10000000;
+            }
+        }
+
+        $data = Event::where(
+            $conds
+        )
+            ->where('id', '>', $last_id)
+            ->orderBy('id', 'asc')
+            ->limit($per_page)
+            ->get([
+                'id',
+                'animal_id',
+                'type',
+                'detail',
+                'description',
+                'created_at',
+                'weight',
+                'milk',
+                'v_id',
+                'short_description',
+            ]);
+
+        /* if ($request->updated_at != null) {
+            if (strlen($request->updated_at) > 2) {
+                $updated_at = Carbon::parse($request->updated_at);
+                if ($updated_at != null) {
+                    $query->whereDate('updated_at', '>', $updated_at);
+                }
+            }
+        } */
 
         return Utils::response([
             'status' => 1,
