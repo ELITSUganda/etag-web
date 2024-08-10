@@ -2659,6 +2659,7 @@ class ApiAnimalController extends Controller
             'Stolen',
             'Death',
             'Note',
+            'Milking',
             'Other',
         ];
 
