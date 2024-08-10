@@ -2652,7 +2652,14 @@ class ApiAnimalController extends Controller
         $accepted_events = [
             'Vaccination',
             'Treatment',
-            'Disease test'
+            'Disease test',
+            'Pregnancy check',
+            'Temperature check',
+            'Home slaughter',
+            'Stolen',
+            'Death',
+            'Note',
+            'Other',
         ];
 
 
