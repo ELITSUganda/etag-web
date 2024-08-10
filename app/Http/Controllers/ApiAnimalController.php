@@ -2659,6 +2659,7 @@ class ApiAnimalController extends Controller
             'Stolen',
             'Death',
             'Note',
+            'Weight check',
             'Milking',
             'Other',
         ];
@@ -2808,7 +2809,7 @@ class ApiAnimalController extends Controller
         $event->pregnancy_fertilization_method = $request->pregnancy_fertilization_method;
         $event->disease_test_results = $request->disease_test_results;
         $event->milk = $request->milk;
-        $event->weight = $request->weight;
+        $event->weight = $request->weight; 
 
         try {
             $event->save();
