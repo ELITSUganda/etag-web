@@ -2673,6 +2673,7 @@ class ApiAnimalController extends Controller
 
         $event = new Event();
         $event->session_id = $request->id;
+        $event->animal_id = $animal->id;
         if ($request->created_at != null && strlen($request->created_at) > 3) {
             try {
                 $event->created_at = Carbon::parse($request->created_at);
@@ -2808,8 +2809,6 @@ class ApiAnimalController extends Controller
         $event->disease_test_results = $request->disease_test_results;
         $event->milk = $request->milk;
         $event->weight = $request->weight;
-
-
 
         try {
             $event->save();
