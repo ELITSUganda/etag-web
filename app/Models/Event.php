@@ -249,12 +249,15 @@ class Event extends Model
 
 
 
+            $animal = Animal::find($model->animal_id);
+            if ($animal == null) {
+                return false;
+            }
             if ($model->type == 'Milking') {
-                $animal = Animal::find($model->animal_id);
-                if ($animal == null) {
-                    return false;
-                }
                 $animal->calculateAverageMilk();
+            } else if ($model->type == 'Weight check') {
+                $animal->weight = $model->weight;
+                $animal->save();
             }
             $type = trim($model->type);
             $events = ['Stolen', 'Home slaughter', 'Death'];
