@@ -117,8 +117,12 @@ class Animal extends Model
                 return false;
             }
             if ($f->holding_code == null) {
-                throw new Exception("Holding code  not found.", 1);
-                return false;
+                $sub = Location::find($f->sub_county_id);
+                if ($sub == null) {
+                    $f->sub_county_id = 1002007;
+                    $sub = Location::find($f->sub_county_id);
+                }
+                $f->holding_code = Utils::get_next_lhc($sub);
             }
 
             $model->status = "Active";
@@ -144,8 +148,7 @@ class Animal extends Model
             return $model;
         });
 
-        self::updated(function ($an) {
-        });
+        self::updated(function ($an) {});
 
         self::deleting(function ($model) {
             /* if ($model->events != null) {
@@ -357,10 +360,49 @@ class Animal extends Model
     }
 
     protected $appends = [
-        'images', 'photos', 'last_seen', 'phone_number', 'whatsapp', 'price_text', 'posted', 'age',
+        'images',
+        'photos',
+        'last_seen',
+        'phone_number',
+        'whatsapp',
+        'price_text',
+        'posted',
+        'age',
         'location',
         'parent_text',
         'updated_at_text',
         'group_text',
     ];
+
+    //process_weight_change
+    public function processWeightChange()
+    {
+        //most latest 2 weights
+        $weights = Event::where([
+            'type' => 'Weight check',
+            'animal_id' => $this->id,
+        ])->orderBy('id', 'Desc')->limit(2)->get();
+
+        //if no weight found, return
+        if ($weights == null || count($weights) < 1) {
+            $this->weight = 0;
+            $this->weight_change = 0;
+            $this->save();
+            return;
+        }
+        //if only one weight found, return
+        if (count($weights) < 2) {
+            $w1 = $weights[0];
+            $this->weight = $w1->weight;
+            $this->weight_change = 0;
+            $this->save();
+            return;
+        }
+        $w1 = $weights[0];
+        $w2 = $weights[1];
+        $this->weight = $w1->weight;
+        $change = $w1->weight - $w2->weight;
+        $this->weight_change = $change;
+        $this->save();
+    }
 }

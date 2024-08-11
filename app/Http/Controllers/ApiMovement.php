@@ -12,6 +12,7 @@ use App\Models\DrugStockBatch;
 use App\Models\Event;
 use App\Models\Farm;
 use App\Models\FinanceCategory;
+use App\Models\HealthReport;
 use App\Models\Location;
 use App\Models\Movement;
 use App\Models\MovementHasMovementAnimal;
@@ -110,6 +111,30 @@ class ApiMovement extends Controller
         ]);
     }
 
+    public function reports(Request $r)
+    {
+        $user_id = ((int)(Utils::get_user_id($r)));
+        $u = User::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Failed'
+            ]);
+        }
+
+        $HealthReport = new HealthReport();
+        $HealthReport->setUserId($u->id);
+        $data = [];
+        $d['id'] = 'HealthReport';
+        $d['data'] = json_encode($HealthReport);
+        $data[] = $d;
+        return Utils::response([
+            'status' => 1,
+            'data' => $data,
+            'message' => 'Success'
+        ]);
+    }
     public function fiance_report(Request $r)
     {
         $user_id = ((int)(Utils::get_user_id($r)));
@@ -176,7 +201,7 @@ class ApiMovement extends Controller
     }
     public function vaccination_order_create(Request $r)
     {
-        
+
         $user_id = ((int)(Utils::get_user_id($r)));
         $u = Administrator::find($user_id);
 
@@ -189,9 +214,9 @@ class ApiMovement extends Controller
                 ]);
             }
         }
-        
+
         if ($r->task == 'Create') {
-            
+
 
             //check if has existing unpaid order
             $existing_order = VaccinationOrder::where([

@@ -37,6 +37,7 @@ Route::POST('become-vendor', [ApiMovement::class, 'become_vendor']);
 Route::POST('workers-register', [ApiMovement::class, 'workers_register']);
 Route::POST('workers-delete', [ApiMovement::class, 'workers_delete']);
 Route::get('fiance-report', [ApiMovement::class, 'fiance_report']);
+Route::get('reports', [ApiMovement::class, 'reports']);
 Route::get('workers', [ApiMovement::class, 'workers']);
 Route::get('notifications', [ApiMovement::class, 'notifications']);
 Route::POST('notifications-read', [ApiMovement::class, 'notifications_read']);

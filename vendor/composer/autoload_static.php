@@ -916,6 +916,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'App\\Models\\FormDrugStockApprovalItem' => __DIR__ . '/../..' . '/app/Models/FormDrugStockApprovalItem.php',
         'App\\Models\\Gen' => __DIR__ . '/../..' . '/app/Models/Gen.php',
         'App\\Models\\Group' => __DIR__ . '/../..' . '/app/Models/Group.php',
+        'App\\Models\\HealthReport' => __DIR__ . '/../..' . '/app/Models/HealthReport.php',
         'App\\Models\\Image' => __DIR__ . '/../..' . '/app/Models/Image.php',
         'App\\Models\\ImageModel' => __DIR__ . '/../..' . '/app/Models/ImageModel.php',
         'App\\Models\\Location' => __DIR__ . '/../..' . '/app/Models/Location.php',

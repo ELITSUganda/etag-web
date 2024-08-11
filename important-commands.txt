@@ -152,5 +152,5 @@ composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs
 
 
-php artisan make:migration add_conuts_locations --table=locations 
+php artisan make:migration update_weight_change_to_animals_to_in --table=animals
 

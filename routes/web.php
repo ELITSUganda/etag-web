@@ -549,8 +549,24 @@ Route::get('/process-vaccination-status', function () {
 });
 Route::get('/test', function () {
 
+    $max = 100;
+    if (isset($_GET['max'])) {
+        $max = $_GET['max'];
+    }
 
-    foreach (
+    $ans = Animal::whereNull('weight_change')
+        // ->orWhere('weight_change', 0)
+        ->limit($max)
+        ->get();
+    foreach ($ans as $key => $an) {
+        $an->processWeightChange();
+        echo $an->id . ". => " . $an->weight_change . "<br>";
+    }
+    die("done");
+    dd($ans); 
+
+
+    /*  foreach (
         Event::where([
             'type' => 'Treatment',
         ])->get() as $key => $model
@@ -571,7 +587,7 @@ Route::get('/test', function () {
         echo $model->id . ". $worth<br>";
     }
     die('done');
-
+ */
 
 
     $report = new HealthReport();

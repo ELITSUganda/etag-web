@@ -256,6 +256,13 @@ class Event extends Model
                 $animal->weight = $model->weight;
                 $animal->save();
             }
+
+            try {
+                $animal->processWeightChange(); 
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
+
             $type = trim($model->type);
             $events = ['Stolen', 'Home slaughter', 'Death'];
             $user = Administrator::find($model->administrator_id);

@@ -125,6 +125,7 @@ return array(
     'App\\Models\\FormDrugStockApprovalItem' => $baseDir . '/app/Models/FormDrugStockApprovalItem.php',
     'App\\Models\\Gen' => $baseDir . '/app/Models/Gen.php',
     'App\\Models\\Group' => $baseDir . '/app/Models/Group.php',
+    'App\\Models\\HealthReport' => $baseDir . '/app/Models/HealthReport.php',
     'App\\Models\\Image' => $baseDir . '/app/Models/Image.php',
     'App\\Models\\ImageModel' => $baseDir . '/app/Models/ImageModel.php',
     'App\\Models\\Location' => $baseDir . '/app/Models/Location.php',
