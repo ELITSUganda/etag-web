@@ -114,11 +114,7 @@ class Animal extends Model
             $f = Farm::find($model->farm_id);
             if ($f == null) {
                 $model->farm_id = 1;
-                $f = Farm::find($model->farm_id);
-                if ($f == null) {
-                    throw new Exception("Farm not found.", 1);
-                    return false;
-                }
+                $f = Farm::find($model->farm_id); 
             }
             if ($f->holding_code == null) {
                 $sub = Location::find($f->sub_county_id);
