@@ -549,7 +549,7 @@ Route::get('/process-vaccination-status', function () {
 });
 Route::get('/test', function () {
 
-    $max = 100;
+    /* $max = 100;
     if (isset($_GET['max'])) {
         $max = $_GET['max'];
     }
@@ -557,18 +557,18 @@ Route::get('/test', function () {
     $ans = Animal::whereNull('weight_change')
         // ->orWhere('weight_change', 0)
         ->limit($max)
-        ->get();
+        ->get(); */
     //set max execution time to unlimited
     set_time_limit(0);
     //set max memory to unlimited
-    ini_set('memory_limit', '-1'); 
-    foreach ($ans as $key => $an) {
+    ini_set('memory_limit', '-1');
+    /* foreach ($ans as $key => $an) {
         $an->processWeightChange();
         echo $an->id . ". => " . $an->weight_change . "<br>";
     }
     die("done");
     dd($ans);
-
+ */
 
     /*  foreach (
         Event::where([

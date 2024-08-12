@@ -52,6 +52,7 @@ class HealthReport extends Model
             $a['id'] = $animal->id;
             $a['parent_id'] = $parent_id;
             $a['parent_vid'] = $parent_vid;
+            $a['dob'] = $animal->dob;
             $animals[] = $a;
         }
         return $animals;
@@ -299,8 +300,102 @@ class HealthReport extends Model
         return $data;
     }
 
+    //getter for lightest_animals
+    public function getLightestAnimalsAttribute()
+    {
+        //weight not null and not zero
+        $animals = Animal::where('administrator_id', $this->user_id)
+            ->whereNotNull('weight')
+            ->where('weight', '>', 0)
+            ->orderBy('weight', 'asc')
+            ->limit(10)
+            ->get();
+
+        $data = [];
+        foreach ($animals as $animal) {
+            $a['name'] = $animal->v_id;
+            $a['weight'] = $animal->weight;
+            $a['photo'] = $animal->photo;
+            $a['id'] = $animal->id;
+            $data[] = $a;
+        }
+        return $data;
+    }
+
+    //getter for animals_that_increase_weight
+    public function getAnimalsThatIncreaseWeightAttribute()
+    {
+        $animals = Animal::where('administrator_id', $this->user_id)
+            ->whereNotNull('weight_change')
+            ->where('weight_change', '>', 0)
+            ->orderBy('weight_change', 'desc')
+            ->limit(10)
+            ->get();
+        $data = [];
+        foreach ($animals as $animal) {
+            $a['name'] = $animal->v_id;
+            $a['weight_change'] = $animal->weight_change;
+            $a['photo'] = $animal->photo;
+            $a['id'] = $animal->id;
+            $data[] = $a;
+        }
+        return $data;
+    }
+
+    //getter for animals_that_reduced_weight
+    public function getAnimalsThatReducedWeightAttribute()
+    {
+        $animals = Animal::where('administrator_id', $this->user_id)
+            ->whereNotNull('weight_change')
+            ->where('weight_change', '<', 0)
+            ->orderBy('weight_change', 'asc')
+            ->limit(10)
+            ->get();
+        $data = [];
+        foreach ($animals as $animal) {
+            $a['name'] = $animal->v_id;
+            $a['weight_change'] = $animal->weight_change;
+            $a['photo'] = $animal->photo;
+            $a['id'] = $animal->id;
+            $data[] = $a;
+        }
+        return $data;
+    }
+
+    //getter for weight_ranges
+    public function getWeightRangesAttribute()
+    {
+        $ranges = [];
+        /* $ranges[] = $this->getWeightRange(0, 50);
+        $ranges[] = $this->getWeightRange(50, 100);
+        $ranges[] = $this->getWeightRange(100, 150);
+        $ranges[] = $this->getWeightRange(150, 200);
+        $ranges[] = $this->getWeightRange(200, 250);
+        $ranges[] = $this->getWeightRange(250, 300);
+        $ranges[] = $this->getWeightRange(300, 350);
+        $ranges[] = $this->getWeightRange(350, 400);
+        $ranges[] = $this->getWeightRange(400, 450);
+        $ranges[] = $this->getWeightRange(450, 500); */
+
+        for ($i = 0; $i <= 1000; $i += 50) {
+            $r['name'] = $i . '-' . ($i + 50);
+            $r['count'] = Animal::where('administrator_id', $this->user_id)
+                ->whereNotNull('weight')
+                ->where('weight', '>', 0)
+                ->whereBetween('weight', [$i, $i + 50])
+                ->count();
+            $ranges[] = $r;
+        }
+
+        return $ranges;
+    }
+
     //appends admin_id 
     protected $appends = [
+        'weight_ranges',
+        'animals_that_increase_weight',
+        'animals_that_reduced_weight',
+        'lightest_animals',
         'heaviest_animals',
         'heaviest_animal',
         'monthly_borns',
