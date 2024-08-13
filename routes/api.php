@@ -133,7 +133,7 @@ Route::get('animals/{id}', [ApiAnimalController::class, 'show']);
 
 Route::get('events', [ApiAnimalController::class, 'events']);
 Route::get('events-v2', [ApiAnimalController::class, 'events_v2']);
-Route::get('events-v', [ApiAnimalController::class, 'events_v3']);
+Route::get('events-v3', [ApiAnimalController::class, 'events_v3']);
 Route::POST('events-v2', [ApiAnimalController::class, 'store_event_2']);
 Route::POST('events', [ApiAnimalController::class, 'store_event']);
 Route::POST('batch-events', [ApiAnimalController::class, 'store_batch_event']);
