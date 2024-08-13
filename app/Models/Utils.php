@@ -234,7 +234,6 @@ duplicate_results
     {
         $SQL = 'SELECT holding_code, COUNT(holding_code) as count FROM `farms` GROUP BY holding_code HAVING count > 1';
         $farms = DB::select($SQL);
-        //display farms
         foreach ($farms as $key => $farm) {
             $dups = Farm::where('holding_code', $farm->holding_code)->get();
             foreach ($dups as $dup) {
@@ -250,15 +249,9 @@ duplicate_results
                     ])->first();
                 }
                 $new_lhc = Utils::get_next_lhc($sub);
-                echo "<hr>$dup->id. BEFORE: " . $dup->holding_code;
                 $dup->holding_code = $new_lhc;
                 $dup->save();
-                echo " <hr>AFTER: " . $dup->holding_code;
             }
-            echo "<hr>";
-            echo $farm->holding_code;
-            echo "<hr>";
-            dd($dups);
         }
     }
 

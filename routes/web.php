@@ -556,9 +556,9 @@ Route::get('/test', function () {
     $farms = DB::select($SQL);
     //display the list of farms
     foreach ($farms as $key => $farm) {
+        Utils::process_duplicate_farms();
         echo "$key. $farm->holding_code => $farm->count <br>";
     }
-    Utils::process_duplicate_farms();
     dd(count($farms));
 
 
