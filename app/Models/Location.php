@@ -109,6 +109,11 @@ class Location extends Model
     //is sub county
     public function isSubCounty()
     {
+        if ($this->type == 'Sub-County') {
+            return true;
+        } else {
+            return false;
+        } 
         if (((int)($this->parent)) > 0) {
             $p = Location::find($this->parent);
             if ($p != null) {

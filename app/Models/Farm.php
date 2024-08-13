@@ -105,13 +105,19 @@ class Farm extends Model
         //created
         self::created(function ($model) {
             try {
+                Utils::process_duplicate_farms();
+            } catch (Exception $e) {
+                //do nothing
+            }
+            try {
                 Location::update_counts($model->sub_county_id);
                 Location::update_counts($model->district_id);
             } catch (Exception $e) {
             }
         });
 
-        self::updated(function ($model) {
+        self::updated(function ($model) { 
+
             if ($model->animals != null) {
                 foreach ($model->animals as $key => $animal) {
                     $animal->administrator_id = $model->administrator_id;

@@ -549,6 +549,20 @@ Route::get('/process-vaccination-status', function () {
 });
 Route::get('/test', function () {
 
+    //get list of farms from farms table that have duplicate holding_code 
+
+    //first select group by holding_code
+    $SQL = 'SELECT holding_code, COUNT(holding_code) as count FROM `farms` GROUP BY holding_code HAVING count > 1';
+    $farms = DB::select($SQL);
+    //display the list of farms
+    foreach ($farms as $key => $farm) {
+        echo "$key. $farm->holding_code => $farm->count <br>";
+    }
+    Utils::process_duplicate_farms();
+    dd(count($farms));
+
+
+
     /* $max = 100;
     if (isset($_GET['max'])) {
         $max = $_GET['max'];

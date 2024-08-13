@@ -183,7 +183,7 @@ language
                 $firstSub = Location::where([
                     'parent' => $subcount->id
                 ])->orderBy('id', 'asc')->first();
-                if($firstSub != null){
+                if ($firstSub != null) {
                     $farm->sub_county_id = $firstSub->id;
                 }
             }
@@ -230,26 +230,57 @@ duplicate_results
 */
         die("done.");
     }
+    public static function process_duplicate_farms()
+    {
+        $SQL = 'SELECT holding_code, COUNT(holding_code) as count FROM `farms` GROUP BY holding_code HAVING count > 1';
+        $farms = DB::select($SQL);
+        //display farms
+        foreach ($farms as $key => $farm) {
+            $dups = Farm::where('holding_code', $farm->holding_code)->get();
+            foreach ($dups as $dup) {
+                $sub = Location::where([
+                    'id' => $dup->sub_county_id,
+                    'type' => 'Sub-County',
+                ])->first();
+                if ($sub == null) {
+                    $dup->sub_county_id = 1002007;
+                    $sub = Location::where([
+                        'id' => $dup->sub_county_id,
+                        'type' => 'Sub-County',
+                    ])->first();
+                }
+                $new_lhc = Utils::get_next_lhc($sub);
+                echo "<hr>$dup->id. BEFORE: " . $dup->holding_code;
+                $dup->holding_code = $new_lhc;
+                $dup->save();
+                echo " <hr>AFTER: " . $dup->holding_code;
+            }
+            echo "<hr>";
+            echo $farm->holding_code;
+            echo "<hr>";
+            dd($dups);
+        }
+    }
+
     public static function get_next_lhc($sub)
     {
-        if (!$sub->isSubCounty()) {
-            $first_sub = Location::where([
-                'parent' => $sub->id
-            ])
-                ->orderBy('id', 'asc')->first();
-            if ($first_sub != null) {
-                $sub = $first_sub;
-            }
+        //check if is string or int
+        if (is_string($sub) || is_int($sub)) {
+            $sub = Location::find([
+                'id' => $sub,
+                'type' => 'Sub-County',
+            ])->first();
         }
+        if ($sub == null) {
+            throw new Exception("Sub-county not found.");
+        }
+        if (!$sub->isSubCounty()) {
+            throw new Exception("Invalid sub-county.");
+        }
+        $last_farm =
+            Farm::where(['sub_county_id' => $sub->id])
+            ->orderBy('id', 'desc')->first();
 
-        if (!$sub->isSubCounty()) {
-            $last_farm = Farm::where([])
-                ->orderBy('id', 'desc')
-                ->first();
-        } else {
-            $last_farm = Farm::where(['sub_county_id' => $sub->id])
-                ->orderBy('id', 'desc')->first();
-        }
         $num = 0;
 
         if ($last_farm != null) {
@@ -260,8 +291,83 @@ duplicate_results
                 }
             }
         }
+
         $num++;
         $holding_code = $sub->code . "-" . $num;
+        $dup_farm = Farm::where([
+            'holding_code' => $holding_code
+        ])->first();
+        if ($dup_farm != null) {
+            $holding_code = $sub->code . "-" . ($num + 2);
+        }
+
+        if ($dup_farm != null) {
+            $dup_farm = Farm::where([
+                'holding_code' => $holding_code
+            ])->first();
+            $holding_code = $sub->code . "-" . ($num + 3);
+        }
+        if ($dup_farm != null) {
+            $dup_farm = Farm::where([
+                'holding_code' => $holding_code
+            ])->first();
+            $holding_code = $sub->code . "-" . ($num + 4);
+        }
+        if ($dup_farm != null) {
+            $dup_farm = Farm::where([
+                'holding_code' => $holding_code
+            ])->first();
+            $holding_code = $sub->code . "-" . ($num + 5);
+        }
+        if ($dup_farm != null) {
+            $dup_farm = Farm::where([
+                'holding_code' => $holding_code
+            ])->first();
+            $holding_code = $sub->code . "-" . ($num + 6);
+        }
+        if ($dup_farm != null) {
+            $dup_farm = Farm::where([
+                'holding_code' => $holding_code
+            ])->first();
+            $holding_code = $sub->code . "-" . ($num + 7);
+        }
+        if ($dup_farm != null) {
+            $dup_farm = Farm::where([
+                'holding_code' => $holding_code
+            ])->first();
+            $holding_code = $sub->code . "-" . ($num + 8);
+        }
+        if ($dup_farm != null) {
+            $dup_farm = Farm::where([
+                'holding_code' => $holding_code
+            ])->first();
+            $holding_code = $sub->code . "-" . ($num + 9);
+        }
+        if ($dup_farm != null) {
+            $dup_farm = Farm::where([
+                'holding_code' => $holding_code
+            ])->first();
+            $holding_code = $sub->code . "-" . ($num + 10);
+        }
+
+
+        $dup_farm = Farm::where([
+            'holding_code' => $holding_code
+        ])->first();
+        if ($dup_farm != null) {
+
+            for ($i = 0; $i < 10000; $i++) {
+                $dup_farm = Farm::where([
+                    'holding_code' => $holding_code
+                ])->first();
+                if ($dup_farm == null) {
+                    break;
+                }
+                $num++;
+                $holding_code = $sub->code . "-" . $num;
+            }
+        }
+
         return $holding_code;
     }
     public static function check_duplicates()
@@ -819,10 +925,12 @@ duplicate_results
 
     public static function prepareOrders()
     {
-        foreach (WholesaleOrder::where([
-            'status' => 'Processing',
-            'processed' => 'No',
-        ])->get() as $key => $order) {
+        foreach (
+            WholesaleOrder::where([
+                'status' => 'Processing',
+                'processed' => 'No',
+            ])->get() as $key => $order
+        ) {
 
             $status = $order->validate_order();
             if ($status != null) {
