@@ -114,7 +114,7 @@ class FarmController extends AdminController
 
         $form->disableCreatingCheck();
         //$form->disableB
-        $form->decimal('cattle_count', __('Number of cattle'))->default(0)->required(); 
+        $form->decimal('cattle_count', __('Number of cattle'))->default(0)->required();
         return $form;
     }
 
@@ -163,7 +163,7 @@ class FarmController extends AdminController
             ])->orderBy('id', 'DESC');
         }
 
-        if($u->isRole('data-viewer')){
+        if ($u->isRole('data-viewer')) {
             $grid->disableActions();
             $grid->disableCreateButton();
         }
@@ -175,16 +175,21 @@ class FarmController extends AdminController
 
 
 
-            $admins = [];
-            foreach (Administrator::all() as $key => $v) {
-                if (!$v->isRole('farmer')) {
-                    continue;
-                }
-                $admins[$v->id] = $v->name . " - " . $v->id . " - ({$v->username})";
-            }
+
 
             $filter->equal('holding_code', "LHC")->select(Farm::all()->pluck('holding_code', 'holding_code'));
-            $filter->equal('administrator_id', "Owner")->select($admins);
+
+
+            $filter->equal('administrator_id', 'Filter by farm owner')->select(function ($id) {
+                $a = User::find($id);
+                if ($a) {
+                    return [$a->id => $a->name];
+                }
+            })
+                ->ajax(
+                    url('api/ajax-users')
+                );
+
             $filter->equal('farm_type', "Farm type")->select([
                 'Beef' => 'Beef',
                 'Dairy' => 'Dairy',
@@ -295,17 +300,17 @@ class FarmController extends AdminController
                 'Yes' => 'success',
                 'No' => 'danger',
                 'FAILED' => 'warning',
-            ])->hide(); 
-            
+            ])->hide();
+
         //registered_id by 
         $grid->column('registered_id', __('Registered by'))
             ->display(function ($id) {
                 $u = Administrator::find($id);
                 if (!$u) {
                     return $id;
-                } 
+                }
                 $phone_number = '';
-                if($u->phone_number != null && strlen($u->phone_number)>3){
+                if ($u->phone_number != null && strlen($u->phone_number) > 3) {
                     $phone_number = " - " . $u->phone_number;
                 }
                 return $u->name . $phone_number;
