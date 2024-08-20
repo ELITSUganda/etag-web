@@ -22,6 +22,12 @@ use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+Route::get('test-1', function (Request $r) {
+    die("test GET #1");
+});
+Route::get('test-2', function (Request $r) {
+    die("test POST #1");
+});
 
 Route::POST('v2-farms-create', [V2ApiMainController::class, 'v2_farms_create']);
 Route::POST('v2-animals-create', [V2ApiMainController::class, 'v2_animals_create']);
