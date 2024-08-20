@@ -25,7 +25,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('test-1', function (Request $r) {
     die("test GET #1");
 });
-Route::get('test-2', function (Request $r) {
+Route::post('test-2', function (Request $r) {
     die("test POST #1");
 });
 
