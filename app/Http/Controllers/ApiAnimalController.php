@@ -2809,7 +2809,7 @@ class ApiAnimalController extends Controller
         $event->pregnancy_fertilization_method = $request->pregnancy_fertilization_method;
         $event->disease_test_results = $request->disease_test_results;
         $event->milk = $request->milk;
-        $event->weight = $request->weight; 
+        $event->weight = $request->weight;
 
         try {
             $event->save();
@@ -3747,6 +3747,7 @@ class ApiAnimalController extends Controller
                 $per_page = 10000000;
             }
         }
+        $conds['administrator_id'] = $user_id;
 
         $data = Event::where(
             $conds
