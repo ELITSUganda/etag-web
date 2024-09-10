@@ -289,6 +289,13 @@ class ApiResurceController extends Controller
                 'administrator_id' => $administrator_id,
             ])
             ->sum('milk');
+
+        $manifest['milk_prev_month_price'] = Event::whereBetween('created_at', [$min_prev_month, $min_this_month])
+            ->where([
+                'type' => 'Milking',
+                'administrator_id' => $administrator_id,
+            ])
+            ->sum('price');
         $manifest['milk_this_month_price'] = Event::whereBetween('created_at', [$min_prev_month, $min_this_month])
             ->where([
                 'type' => 'Milking',
