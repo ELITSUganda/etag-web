@@ -2084,8 +2084,15 @@ class ApiAnimalController extends Controller
             $session->save();
             $animal_ids_found = [];
             $litters = 0;
+            $price = 1000;
+            if (isset($r->milk_price)) {
+                if ($r->milk_price != null) {
+                    $price = (int)($r->milk_price);
+                }
+            }
 
 
+            $total_price = 0;
             foreach ($items as $v) {
 
                 $an = Animal::where([
@@ -2104,6 +2111,8 @@ class ApiAnimalController extends Controller
                 $ev->e_id =  $an->e_id;
                 $ev->v_id =  $an->v_id;
                 $ev->milk =  $v->milk;
+                $ev->price =  $price * $v->milk;
+                $total_price += $ev->price;
                 $ev->type = 'Milking';
                 $ev->is_batch_import =  0;
                 $ev->detail =  "$ev->milk litteres milked from $ev->v_id";
@@ -2116,7 +2125,8 @@ class ApiAnimalController extends Controller
             }
 
             $num = count($animal_ids_found);
-            $session->description = "Milked {$litters} litters from {$num} animals in a {$session->name} session. Open the App to see details.";
+            $total_price_text = number_format($total_price);
+            $session->description = "Milked {$litters} litters worth {$total_price_text} shs from {$num} animals in a {$session->name} session. Open the App to see details.";
             $session->save();
             try {
                 Utils::CreateNotification([
@@ -2961,7 +2971,7 @@ class ApiAnimalController extends Controller
             $x['district_text'] = $animal->district_text;
             $x['sub_county_text'] = $animal->sub_county_text;
             $images = [];
-            
+
             foreach ($animal->photos as $img) {
                 $image['id'] = $img->id;
                 $image['src'] = $img->src;
@@ -3803,6 +3813,7 @@ class ApiAnimalController extends Controller
                 'milk',
                 'v_id',
                 'short_description',
+                'price',
             ]);
 
         /* if ($request->updated_at != null) {

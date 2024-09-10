@@ -65,6 +65,13 @@ class ApiResurceController extends Controller
                 ])
                 ->sum('milk');
 
+            $price = Event::whereBetween('created_at', [$min, $max])
+                ->where([
+                    'type' => 'Milking',
+                    'administrator_id' => $administrator_id,
+                ])
+                ->sum('price');
+
             $count = Event::whereBetween('created_at', [$min, $max])
                 ->where([
                     'type' => 'Milking',
@@ -78,6 +85,7 @@ class ApiResurceController extends Controller
             $rec['day'] = Utils::my_date_1($min);
             $rec['animals'] = $count;
             $rec['milk'] = $milk;
+            $rec['price'] = $price;
             $rec['id'] = $id;
 
             $rec['progress'] = 0;
@@ -114,14 +122,18 @@ class ApiResurceController extends Controller
         }
 
         $data = [];
-        foreach (BatchSession::where([
-            'administrator_id' => $administrator_id,
-            'type' => 'Roll call'
-        ])->get() as $session) {
+        foreach (
+            BatchSession::where([
+                'administrator_id' => $administrator_id,
+                'type' => 'Roll call'
+            ])->get() as $session
+        ) {
             $events = [];
-            foreach (Event::where([
-                'session_id' => $session->id
-            ])->get() as $eve) {
+            foreach (
+                Event::where([
+                    'session_id' => $session->id
+                ])->get() as $eve
+            ) {
                 $event['animal_id'] = $eve->animal_id;
                 $event['e_id'] = $eve->e_id;
                 $event['v_id'] = $eve->v_id;
@@ -243,12 +255,26 @@ class ApiResurceController extends Controller
             ])
             ->sum('milk');
 
+        $manifest['milk_this_week_price'] = Event::whereBetween('created_at', [$min_week, $max])
+            ->where([
+                'type' => 'Milking',
+                'administrator_id' => $administrator_id,
+            ])
+            ->sum('price');
+
         $manifest['milk_prev_week_quantity'] = Event::whereBetween('created_at', [$min_prev_week, $min_week])
             ->where([
                 'type' => 'Milking',
                 'administrator_id' => $administrator_id,
             ])
             ->sum('milk');
+
+        $manifest['milk_prev_week_price'] = Event::whereBetween('created_at', [$min_prev_week, $min_week])
+            ->where([
+                'type' => 'Milking',
+                'administrator_id' => $administrator_id,
+            ])
+            ->sum('price');
 
         $manifest['milk_this_month_quantity'] = Event::whereBetween('created_at', [$min_this_month, $max])
             ->where([
@@ -263,6 +289,12 @@ class ApiResurceController extends Controller
                 'administrator_id' => $administrator_id,
             ])
             ->sum('milk');
+        $manifest['milk_this_month_price'] = Event::whereBetween('created_at', [$min_prev_month, $min_this_month])
+            ->where([
+                'type' => 'Milking',
+                'administrator_id' => $administrator_id,
+            ])
+            ->sum('price');
 
         $manifest['milk_this_year_quantity'] = Event::whereBetween('created_at', [$min_this_year, $max])
             ->where([
@@ -271,22 +303,37 @@ class ApiResurceController extends Controller
             ])
             ->sum('milk');
 
+        $manifest['milk_this_year_price'] = Event::whereBetween('created_at', [$min_this_year, $max])
+            ->where([
+                'type' => 'Milking',
+                'administrator_id' => $administrator_id,
+            ])
+            ->sum('price');
+
         $tot_milk = Event::where([
             'type' => 'Milking',
             'administrator_id' => $administrator_id,
         ])
             ->sum('milk');
 
+        $tot_price = Event::where([
+            'type' => 'Milking',
+            'administrator_id' => $administrator_id,
+        ])
+            ->sum('price');
+
         $tot_pros = Event::where([
             'type' => 'Milking',
             'administrator_id' => $administrator_id,
         ])
             ->count('id');
-
-
+        $manifest['average_price'] = 0;
         try {
             if ($tot_pros > 0) {
                 $manifest['average_production'] = round(($tot_milk / $tot_pros), 2);
+            }
+            if ($tot_pros > 0) {
+                $manifest['average_price'] = round(($tot_price / $tot_pros), 2);
             }
         } catch (\Throwable $th) {
             //throw $th;

@@ -25,6 +25,21 @@ use Milon\Barcode\DNS1D;
 
 use function PHPUnit\Framework\fileExists;
 
+Route::get('/process-milks', function () {
+    $tot_pros = Event::where([
+        'type' => 'Milking',
+    ])
+    ->where('price', '<', 1100)
+    ->get();
+    foreach ($tot_pros as $key => $pro) {
+        if($pro->milk == null){
+            $pro->milk = 5;
+        }
+        $pro->price = $pro->milk * 1000;
+        $pro->save();
+        echo $pro->id . ". => " . $pro->price . "<br>";
+    }
+});
 Route::get('/process-farms', function () {
 
     //set max execution time to unlimited
