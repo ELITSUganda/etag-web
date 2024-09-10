@@ -245,7 +245,7 @@ class WholesaleOrderController extends AdminController
                             return [$parent->id =>  $parent->drug_category->name . " - " . $parent->drug_packaging_type_text];
                         }
                     });
-                $form->decimal('quantity', 'Drug quantity (in Killograms for solids, in Litters for Liquids)')
+                $form->decimal('quantity', 'Drug quantity (in Killograms for solids, in liters for Liquids)')
                     ->readOnly();
                 $form->text('description', 'Description');
             })

@@ -239,7 +239,7 @@ class AnimalController extends AdminController
             if (((int)($this->average_milk)) < 1) {
                 return "N/A";
             }
-            return round($this->average_milk, 2) . " Litters";
+            return round($this->average_milk, 2) . " liters";
         })
             ->hide()
             ->sortable();
