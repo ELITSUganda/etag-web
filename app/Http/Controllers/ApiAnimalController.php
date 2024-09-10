@@ -2934,8 +2934,45 @@ class ApiAnimalController extends Controller
                 $animal->sub_county_text = $animal->sub_county->name_text;
             }
 
-            $x = $animal;
-
+            $x['id'] = $animal->id;
+            $x['administrator_id'] = $animal->administrator_id;
+            $x['type'] = $animal->type;
+            $x['e_id'] = $animal->e_id;
+            $x['v_id'] = $animal->v_id;
+            $x['lhc'] = $animal->lhc;
+            $x['breed'] = $animal->breed;
+            $x['sex'] = $animal->sex;
+            $x['dob'] = $animal->dob;
+            $x['color'] = $animal->color;
+            $x['farm_id'] = $animal->farm_id;
+            $x['fmd'] = $animal->fmd;
+            $x['trader'] = $animal->fmd;
+            $x['weight'] = $animal->weight;
+            $x['parent_id'] = $animal->parent_id;
+            $x['photo'] = $animal->photo;
+            $x['stage'] = $animal->stage;
+            $x['average_milk'] = $animal->average_milk;
+            $x['weight_text'] = $animal->weight_text;
+            $x['group_id'] = $animal->group_id;
+            $x['local_id'] = $animal->local_id;
+            $x['registered_by_id'] = $animal->registered_by_id;
+            $x['registered_id'] = $animal->registered_id;
+            $x['weight_change'] = $animal->weight_change;
+            $x['district_text'] = $animal->district_text;
+            $x['sub_county_text'] = $animal->sub_county_text;
+            $images = [];
+            
+            foreach ($animal->photos as $img) {
+                $image['id'] = $img->id;
+                $image['src'] = $img->src;
+                $image['thumbnail'] = $img->thumbnail;
+                $images[] = $image;
+            }
+            $x['images'] = json_encode($images);
+            $x['last_seen'] = $animal->last_seen;
+            $x['age'] = $animal->age;
+            // $x['location'] = $animal->location;
+            $x['group_text'] = $animal->group_text;
 
             $data[] = $x;
         }
