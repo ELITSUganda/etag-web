@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Animal extends Model
 {
@@ -102,14 +103,28 @@ class Animal extends Model
                 }
             }
 
-
-
+            //check if images isset and unset
+            if (isset($model->images)) {
+                unset($model->images);
+            }
+            //check if images isset and unset
+            if (isset($model->photos)) {
+                unset($model->photos);
+            }
 
             $model = self::do_prepare($model);
             return $model;
         });
 
         self::updating(function ($model) {
+            //check if images isset and unset
+            if (isset($model->images)) {
+                unset($model->images);
+            }
+            //check if images isset and unset
+            if (isset($model->photos)) {
+                unset($model->photos);
+            }
 
             $f = Farm::find($model->farm_id);
             if ($f == null) {
@@ -443,7 +458,8 @@ class Animal extends Model
         if ($val == null || strlen($val) < 4) {
             $val = Utils::get_unique_text();
             $this->local_id = $val;
-            $this->save();
+            $sql = "UPDATE animals SET local_id = '$val' WHERE id = $this->id";
+            DB::update($sql);
             return $val;
         }
         return $val;
@@ -476,9 +492,38 @@ class Animal extends Model
 
             $val = $dob->diffInMonths(Carbon::now());
             $this->age = $val;
-            $this->save();
+            $sql = "UPDATE animals SET age = $val WHERE id = $this->id";
+            DB::update($sql);
             return $val;
         }
         return $val;
+    }
+
+    //getter for profile_updated
+    public function getProfileUpdatedAttribute($val)
+    { 
+        $last_updated = null;
+        if ($this->last_profile_update_date != null) {
+            try {
+                $last_updated = Carbon::parse($this->last_profile_update_date);
+            } catch (\Throwable $th) {
+                $last_updated = null;
+            }
+        }
+        if ($last_updated == null) {
+            return "No";
+        }
+        try {
+            //updated 1 month ago
+            $days = $last_updated->diffInDays(Carbon::now());
+
+            if ($days < 30) {
+                return "Yes";
+            }
+            return "No";
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+        return "No";
     }
 }

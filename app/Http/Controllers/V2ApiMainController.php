@@ -9,6 +9,7 @@ use App\Models\Location;
 use App\Models\User;
 use App\Models\Utils;
 use App\Traits\ApiResponser;
+use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Http\Request;
 
@@ -315,67 +316,53 @@ Copy Copy
         $animal->details = $r->details;
         $animal->has_parent = $r->has_parent;
         $animal->parent_id = $r->parent_id ?? null;
-        $animal->parent_id = $r->parent_id ?? null;
-        $animal->photo = null;
         $animal->stage = $r->stage;
         $animal->registered_by_id = $r->registered_by_id;
         $animal->local_id = $r->local_id;
         $animal->group_id = $r->group_id ?? null;
         $animal->details = $r->details ?? null;
         $animal->has_parent = $r->has_parent ?? null;
+        $animal->has_more_info = $r->has_more_info ?? null;
+        $animal->was_purchases = $r->was_purchases ?? null;
+        $animal->purchase_date = $r->purchase_date ?? null;
+        $animal->purchase_from = $r->purchase_from ?? null;
+        $animal->purchase_price = $r->purchase_price ?? null;
+        $animal->current_price = $r->current_price ?? null;
+        $animal->weight_at_birth = $r->weight_at_birth ?? null;
+        $animal->conception = $r->conception ?? null;
+        $animal->genetic_donor = $r->genetic_donor ?? null;
+        $animal->group_id = $r->group_id ?? null;
+        $animal->has_produced_before = $r->has_produced_before ?? null;
+        $animal->age_at_first_calving = $r->age_at_first_calving ?? null;
+        $animal->weight_at_first_calving = $r->weight_at_first_calving ?? null;
+        $animal->has_been_inseminated = $r->has_been_inseminated ?? null;
+        $animal->age_at_first_insemination = $r->age_at_first_insemination ?? null;
+        $animal->weight_at_first_insemination = $r->weight_at_first_insemination ?? null;
+        $animal->is_a_calf = $r->is_a_calf ?? null;
+        $animal->is_weaned_off = $r->is_weaned_off ?? null;
+        $animal->wean_off_weight = $r->wean_off_weight ?? null;
+        $animal->wean_off_age = $r->wean_off_age ?? null;
+        $animal->birth_position = $r->birth_position ?? null;
 
-        /*
-      '': has_parent,
-      'parent_id': parent_id,
-      'parent_text': parent_text,
-      'photo': photo,
-      'stage': stage,
-      'average_milk': average_milk,
-      'weight_text': weight_text,
-      'slaughter_house_id': slaughter_house_id,
-      'slaughter_house_text': slaughter_house_text,
-      'movement_id': movement_id,
-      'movement_text': movement_text,
-      'has_more_info': has_more_info,
-      'was_purchases': was_purchases,
-      'purchase_date': purchase_date,
-      'purchase_from': purchase_from,
-      'purchase_price': purchase_price,
-      'current_price': current_price,
-      'weight_at_birth': weight_at_birth,
-      'conception': conception,
-      'genetic_donor': genetic_donor,
-      'group_id': group_id,
-      'group_text': group_text,
-      'comments': comments,
-      'images': images,
-      'last_seen': last_seen,
-      'ready_to_upload': ready_to_upload,
-      'task': task,
-      'failed': failed,
-      'fail_error': fail_error,
-      'has_fmd': has_fmd,
-      'registered_text': registered_text,
-      'weight_change': weight_change,
-      'has_produced_before': has_produced_before,
-      'age_at_first_calving': age_at_first_calving,
-      'weight_at_first_calving': weight_at_first_calving,
-      'has_been_inseminated': has_been_inseminated,
-      'age_at_first_insemination': age_at_first_insemination,
-      'weight_at_first_insemination': weight_at_first_insemination,
-      'inter_calving_interval': inter_calving_interval,
-      'calf_mortality_rate': calf_mortality_rate,
-      'weight_gain_per_day': weight_gain_per_day,
-      'number_of_isms_per_conception': number_of_isms_per_conception,
-      'is_a_calf': is_a_calf,
-      'is_weaned_off': is_weaned_off,
-      'wean_off_weight': wean_off_weight,
-      'wean_off_age': wean_off_age,
-      'last_profile_update_date': last_profile_update_date,
-      'profile_updated': profile_updated,
-      'birth_position': birth_position,
-        */
+        if ($r->last_profile_update_date != null) {
+            if (strlen($r->last_profile_update_date) > 3) {
+                $last_profile_update_date = null;
+                try {
+                    $last_profile_update_date = Carbon::parse($r->last_profile_update_date);
+                } catch (\Throwable $th) {
+                    $last_profile_update_date = null;
+                }
+                if ($last_profile_update_date != null) {
+                    $animal->last_profile_update_date = $last_profile_update_date;
+                    $animal->profile_updated = 'Yes';
+                }
+            }
+        }
+        $animal->last_profile_update_date = $r->last_profile_update_date ?? null;
 
+
+
+        // $animal->photo = null;
         $resp_msg = 'Animal updated successfully.';
         try {
             $animal->save();
@@ -397,9 +384,9 @@ Copy Copy
             ])->first();
             if ($img != null) {
                 if (strlen($img->thumbnail) < 3) {
-                    $animal->photo = 'storage/images/' . $img->src;
+                    $animal->photo = 'images/' . $img->src;
                 } else {
-                    $animal->photo = 'storage/images/' . $img->thumbnail;
+                    $animal->photo = 'images/' . $img->thumbnail;
                 }
                 $animal->save();
                 $img->parent_id = $animal->id;
@@ -505,35 +492,21 @@ Copy Copy
                 $parent_endpoint == 'animal'
             ) {
                 $animal = Animal::find($img->parent_id);
-                if ($animal == null) {
-                    $animal = Animal::find($img->online_parent_id);
-                }
-                if ($animal == null) {
-                    $animal = Animal::where([
-                        'local_id' => $request->local_id,
-                        'registered_by_id' => $administrator_id,
-                    ])->first();
-                    $animal = Animal::where([
-                        'local_id' => $request->local_parent_id,
-                        'registered_by_id' => $administrator_id,
-                    ])->first();
-                }
+
                 if (($animal != null) && ($img->note == 'ProfilePhoto')) {
                     $img->product_id = $animal->id;
                     $img->parent_id = $animal->id;
                     $img->save();
-                    if ($animal->photo == null || strlen($animal->photo) < 3) {
-                        $animal->photo = 'storage/images/' . $img->thumbnail;
-                        $animal->save();
-                    }
+                    $animal->photo = 'images/' . $img->src;
+                    $animal->save();
                 }
             }
             $_images[] = $img;
         }
-        //Utils::process_images_in_backround();
+
         return Utils::response([
             'status' => 1,
-            'data' => json_encode($_POST),
+            'data' => $images,
             'message' => "File uploaded successfully.",
         ]);
     }

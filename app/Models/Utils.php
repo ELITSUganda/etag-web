@@ -1670,6 +1670,7 @@ duplicate_results
 
     public static function docs_root()
     {
+        return public_path();
         $r = $_SERVER['DOCUMENT_ROOT'] . "";
 
         if (!str_contains($r, 'home/')) {
