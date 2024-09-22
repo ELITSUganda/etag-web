@@ -574,6 +574,7 @@ Route::get('/test', function () {
     foreach ($animals as $key => $animal) {
         echo ("$animal->id. saved => " . $animal->local_id . " " . "<br>");
     }
+    die('DONE!');
 
     //get list of farms from farms table that have duplicate holding_code 
 
