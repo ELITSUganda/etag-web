@@ -3128,10 +3128,10 @@ class ApiAnimalController extends Controller
             'administrator_id' => $user_id
         ])
             ->orderBy('id', 'desc')
-            ->limit(1000);
+            ->limit(5000);
 
         if ($request->updated_at != null) {
-            $query->whereDate('updated_at', '>', Carbon::parse($request->updated_at));
+            //$query->whereDate('updated_at', '>', Carbon::parse($request->updated_at));
         }
         $ans = $query->get();
         $data = [];

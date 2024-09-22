@@ -18,6 +18,16 @@ use Milon\Barcode\DNS2D;
 class Utils extends Model
 {
 
+    public static function get_unique_text()
+    {
+        //get uniqte text
+        $section_0 = uniqid();
+        $section_1 = time();
+        $section_2 = rand(1000000, 99999999);
+        $section_3 = rand(1000000, 99999999);
+        $unique_text = $section_0 . '-' . $section_1 . '-' . $section_2 . '-' . $section_3;
+        return $unique_text;
+    }
     public static function import_farms()
     {
         return;

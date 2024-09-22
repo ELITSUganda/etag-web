@@ -409,4 +409,16 @@ class Animal extends Model
         $this->weight_change = $change;
         $this->save();
     }
+
+    //getter for local_id
+    public function getLocalIdAttribute($val)
+    {
+        if ($val == null || strlen($val) < 4) {
+            $val = Utils::get_unique_text();
+            $this->local_id = $val;
+            $this->save();
+            return $val;
+        }
+        return $val;
+    }
 }

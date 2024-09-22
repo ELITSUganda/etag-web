@@ -29,10 +29,10 @@ Route::get('/process-milks', function () {
     $tot_pros = Event::where([
         'type' => 'Milking',
     ])
-    ->where('price', '<', 1100)
-    ->get();
+        ->where('price', '<', 1100)
+        ->get();
     foreach ($tot_pros as $key => $pro) {
-        if($pro->milk == null){
+        if ($pro->milk == null) {
             $pro->milk = 5;
         }
         $pro->price = $pro->milk * 1000;
@@ -563,6 +563,17 @@ Route::get('/process-vaccination-status', function () {
     exit;
 });
 Route::get('/test', function () {
+    //set max execution time to unlimited
+    set_time_limit(0);
+    //set max memory to unlimited
+    ini_set('memory_limit', '-1');
+    //local_id is null or empty
+    $animals = Animal::where('local_id', '')
+        ->orWhereNull('local_id')
+        ->get();
+    foreach ($animals as $key => $animal) {
+        echo ("$animal->id. saved => " . $animal->local_id . " " . "<br>");
+    }
 
     //get list of farms from farms table that have duplicate holding_code 
 
