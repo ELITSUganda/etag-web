@@ -105,7 +105,7 @@ class Animal extends Model
 
 
 
-
+            $model = self::do_prepare($model);
             return $model;
         });
 
@@ -148,7 +148,7 @@ class Animal extends Model
                 }
             }
 
-
+            $model = self::do_prepare($model);
             return $model;
         });
 
@@ -170,6 +170,38 @@ class Animal extends Model
         });
     }
 
+    //do_prepare
+    public static function do_prepare($model)
+    {
+        $stage = 'Unknown';
+        try {
+            $stage = Utils::get_cattle_stage($model->dob, $model->sex);
+        } catch (\Throwable $th) {
+            $stage = 'Unknown';
+        }
+        $model->stage = $stage;
+
+        //age
+        $age = 0;
+        try {
+            $age = Carbon::parse($model->dob)->diffInMonths(Carbon::now());
+        } catch (\Throwable $th) {
+            $age = 0;
+        }
+        $model->age = $age;
+
+        $w = Event::where([
+            'type' => 'Weight check',
+            'animal_id' => $model->id,
+        ])->orderBy('id', 'Desc')->first();
+
+        if ($w != null) {
+            $weight = $w->weight;
+            $model->weight = $weight;
+        }
+
+        return $model;
+    }
 
     public function farm()
     {
@@ -302,10 +334,6 @@ class Animal extends Model
             round($x, 2);
     }
 
-    public function getAgeAttribute()
-    {
-        return Utils::my_date($this->dob) . " - " . Carbon::parse($this->dob)->diffForHumans();
-    }
 
     public function getWeightTextAttribute($x)
     {
@@ -371,7 +399,6 @@ class Animal extends Model
         'whatsapp',
         'price_text',
         'posted',
-        'age',
         'location',
         'parent_text',
         'updated_at_text',
@@ -416,6 +443,39 @@ class Animal extends Model
         if ($val == null || strlen($val) < 4) {
             $val = Utils::get_unique_text();
             $this->local_id = $val;
+            $this->save();
+            return $val;
+        }
+        return $val;
+    }
+
+    //getter for age
+    public function getAgeAttribute($val)
+    {
+        $val = (int) $val;
+        if ($val == null || $val < 1) {
+            $dob = null;
+            try {
+                $dob = Carbon::parse($this->dob);
+            } catch (\Throwable $th) {
+                $dob = null;
+            }
+            if ($dob == null) {
+                try {
+                    $dob = Carbon::parse($this->created_at);
+                    $this->dob = $dob;
+                } catch (\Throwable $th) {
+                    //throw $th;
+                }
+            }
+
+            if ($dob == null) {
+                $dob = Carbon::now();
+                $this->dob = $dob;
+            }
+
+            $val = $dob->diffInMonths(Carbon::now());
+            $this->age = $val;
             $this->save();
             return $val;
         }

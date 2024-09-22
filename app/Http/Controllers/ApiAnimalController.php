@@ -3128,7 +3128,7 @@ class ApiAnimalController extends Controller
             'administrator_id' => $user_id
         ])
             ->orderBy('id', 'desc')
-            ->limit(5000);
+            ->limit(2000);
 
         if ($request->updated_at != null) {
             //$query->whereDate('updated_at', '>', Carbon::parse($request->updated_at));
@@ -3136,14 +3136,16 @@ class ApiAnimalController extends Controller
         $ans = $query->get();
         $data = [];
         foreach ($ans as $key => $v) {
+            $v->local_id = $v->local_id;
             $v->images = null;
             $v->photos = null;
             $v->district = null;
             $v->sub_county = null;
-            $data[] = $v;
+            $data[] = $v; 
         }
         return Utils::response([
             'status' => 1,
+            'code' => 1,
             'message' => "Success.",
             'data' => $data
         ]);

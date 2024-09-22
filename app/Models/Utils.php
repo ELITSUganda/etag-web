@@ -18,6 +18,50 @@ use Milon\Barcode\DNS2D;
 class Utils extends Model
 {
 
+    public static function get_cattle_stage($dob, $sex)
+    {
+        $sex = strtolower($sex);
+        $born = null;
+        try {
+            $born = Carbon::parse($dob);
+        } catch (\Throwable $e) {
+            return "Unknown";
+        }
+        if ($born == null) {
+            return "Unknown";
+        }
+        $now = Carbon::now();
+        $diff = $born->diffInMonths($now);
+        if ($diff < 6) {
+            return "Calf";
+        } else if ($diff < 12) {
+            if ($sex == 'male') {
+                return "Bull Calf";
+            } else {
+                return "Heifer";
+            }
+            return "Weaned Calf/Heifer or Bull Calf";
+        } else if ($diff < 18) {
+            return "Yearling";
+        } else if ($diff < 24) {
+            //Breeding Heifer
+            return "Breeding";
+        } else if ($diff < 72) {
+            if ($sex == 'male') {
+                return "Bull";
+            } else {
+                return "Cow";
+            }
+            return "Mature Cow/Bull";
+        } else {
+            if ($sex == 'male') {
+                return "Bull";
+            } else {
+                return "Cow";
+            }
+        }
+    }
+
     public static function get_unique_text()
     {
         //get uniqte text
@@ -1350,6 +1394,12 @@ duplicate_results
         if (isset($data['status'])) {
             $resp['status'] = $data['status'] . "";
         }
+        if ($resp['status'] == '1' || $resp['status'] == 1) {
+            $resp['code'] = "1";
+        } else {
+            $resp['code'] = "0";
+        }
+
         if (isset($data['message'])) {
             $resp['message'] = $data['message'];
         }

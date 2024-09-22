@@ -239,6 +239,11 @@ Copy Copy
         $isNew = false;
         if ($r->task == 'Update') {
             $animal = Animal::find($r->id);
+            if ($animal == null && $r->local_id != null && strlen($r->local_id) > 4) {
+                $animal = Animal::where([
+                    'local_id' => $r->local_id,
+                ])->first();
+            }
             if ($animal == null) {
                 return $this->error("Animal not found.");
             }
@@ -316,6 +321,60 @@ Copy Copy
         $animal->registered_by_id = $r->registered_by_id;
         $animal->local_id = $r->local_id;
         $animal->group_id = $r->group_id ?? null;
+        $animal->details = $r->details ?? null;
+        $animal->has_parent = $r->has_parent ?? null;
+
+        /*
+      '': has_parent,
+      'parent_id': parent_id,
+      'parent_text': parent_text,
+      'photo': photo,
+      'stage': stage,
+      'average_milk': average_milk,
+      'weight_text': weight_text,
+      'slaughter_house_id': slaughter_house_id,
+      'slaughter_house_text': slaughter_house_text,
+      'movement_id': movement_id,
+      'movement_text': movement_text,
+      'has_more_info': has_more_info,
+      'was_purchases': was_purchases,
+      'purchase_date': purchase_date,
+      'purchase_from': purchase_from,
+      'purchase_price': purchase_price,
+      'current_price': current_price,
+      'weight_at_birth': weight_at_birth,
+      'conception': conception,
+      'genetic_donor': genetic_donor,
+      'group_id': group_id,
+      'group_text': group_text,
+      'comments': comments,
+      'images': images,
+      'last_seen': last_seen,
+      'ready_to_upload': ready_to_upload,
+      'task': task,
+      'failed': failed,
+      'fail_error': fail_error,
+      'has_fmd': has_fmd,
+      'registered_text': registered_text,
+      'weight_change': weight_change,
+      'has_produced_before': has_produced_before,
+      'age_at_first_calving': age_at_first_calving,
+      'weight_at_first_calving': weight_at_first_calving,
+      'has_been_inseminated': has_been_inseminated,
+      'age_at_first_insemination': age_at_first_insemination,
+      'weight_at_first_insemination': weight_at_first_insemination,
+      'inter_calving_interval': inter_calving_interval,
+      'calf_mortality_rate': calf_mortality_rate,
+      'weight_gain_per_day': weight_gain_per_day,
+      'number_of_isms_per_conception': number_of_isms_per_conception,
+      'is_a_calf': is_a_calf,
+      'is_weaned_off': is_weaned_off,
+      'wean_off_weight': wean_off_weight,
+      'wean_off_age': wean_off_age,
+      'last_profile_update_date': last_profile_update_date,
+      'profile_updated': profile_updated,
+      'birth_position': birth_position,
+        */
 
         $resp_msg = 'Animal updated successfully.';
         try {

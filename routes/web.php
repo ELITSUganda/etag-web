@@ -568,11 +568,11 @@ Route::get('/test', function () {
     //set max memory to unlimited
     ini_set('memory_limit', '-1');
     //local_id is null or empty
-    $animals = Animal::where('local_id', '')
-        ->orWhereNull('local_id')
+    $animals = Animal::where('age', '')
+        ->orWhereNull('age')
         ->get();
     foreach ($animals as $key => $animal) {
-        echo ("$animal->id. saved => " . $animal->local_id . " " . "<br>");
+        echo ("$animal->id. || {$animal->dob} || => " . $animal->age . " " . "<br>");
     }
     die('DONE!');
 

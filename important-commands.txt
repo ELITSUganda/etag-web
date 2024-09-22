@@ -152,5 +152,5 @@ composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs
 
 
-php artisan make:migration add_birth_position_animals --table=animals
+php artisan make:migration add_age_to_animals --table=animals
 
