@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Encore\Admin\Auth\Database\Administrator;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -525,5 +526,11 @@ class Animal extends Model
             //throw $th;
         }
         return "No";
+    }
+
+    //ower
+    public function owner()
+    {
+        return $this->belongsTo(Administrator::class, 'administrator_id');
     }
 }

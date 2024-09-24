@@ -278,6 +278,12 @@ class AnimalController extends AdminController
                 return $u->name;
             })->sortable();
 
+        //view animal profile
+        $grid->column('view', __('View'))
+            ->display(function ($id) {
+                return '<a class="btn btn-primary" href="' . admin_url('animals/' . $this->id) . '" >View</a>';
+            });
+
         return $grid;
     }
 
@@ -289,8 +295,14 @@ class AnimalController extends AdminController
      */
     protected function detail($id)
     {
+        $animal = Animal::find($id);
+
+        return view('animal-profile', [
+            'animal' => $animal
+        ]);
+
         $show = new Show(Animal::findOrFail($id));
-        $show = new Show(Farm::findOrFail($id));
+        //$show = new Show(Farm::findOrFail($id));
         if (Admin::user()->isRole('farmer')) {
             $show->panel()
                 ->tools(function ($tools) {

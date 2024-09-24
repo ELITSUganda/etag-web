@@ -349,7 +349,7 @@ foreach (DrugStockBatchRecord::where(['batch_number' => NULL])->get() as $x) {
 }
 
 Admin::css('assets/css/jquery-confirm.min.css');
-Admin::js('https://maps.googleapis.com/maps/api/js?key=AIzaSyAGqQQw3iwaaUOVXXkKTBZeLk0CEYHHhzg&callback=initMap&v=weekly');
+// Admin::js('https://maps.googleapis.com/maps/api/js?key=AIzaSyAGqQQw3iwaaUOVXXkKTBZeLk0CEYHHhzg&callback=initMap&v=weekly');
 
 
 /* Admin::css('/assets/css/market-place.css'); */
