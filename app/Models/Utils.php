@@ -574,6 +574,7 @@ duplicate_results
 
     public static function send_message($phone_number, $message)
     {
+        return '';
         if (!Utils::validateUgandanPhoneNumber($phone_number)) {
             return "$phone_number is not a valid phone number.";
         }
