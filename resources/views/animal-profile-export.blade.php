@@ -62,7 +62,8 @@
                 <img style="width: {{ $width * 0.15 }}mm" src="{{ public_path('assets/images/coat_of_arms-min.png') }}">
             </td>
             <td colspan="3" class="text-center pt-0">
-                <p class="text-center py-0 my-0" style="font-size: 16px"><b>
+                <p class="text-center py-0 my-0" style="font-size: 16px"><b>MINISTRY OF AGRICULTURE, ANIMAL INDUSTRY AND
+                        FISHERIES
                     </b></p>
                 <p class="mb-0" class="text-center" style="font-size: 12px"><b>P.O. Box 513, ENTEBBE, UGANDA</b></p>
                 <p class="mb-0" class="text-center" style="font-size: 12px"><b>E-MAIL:</b>
