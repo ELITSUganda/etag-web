@@ -62,8 +62,8 @@
                 <img style="width: {{ $width * 0.15 }}mm" src="{{ public_path('assets/images/coat_of_arms-min.png') }}">
             </td>
             <td colspan="3" class="text-center pt-0">
-                <p class="text-center py-0 my-0" style="font-size: 16px"><b>MINISTRY OF AGRICULTURE, ANIMAL INDUSTRY AND
-                        FISHERIES.</b></p>
+                <p class="text-center py-0 my-0" style="font-size: 16px"><b>
+                    </b></p>
                 <p class="mb-0" class="text-center" style="font-size: 12px"><b>P.O. Box 513, ENTEBBE, UGANDA</b></p>
                 <p class="mb-0" class="text-center" style="font-size: 12px"><b>E-MAIL:</b>
                     animalhealth@agriculture.co.ug</p>
@@ -77,11 +77,28 @@
     </table>
 
     <hr style="
-height: 2px;
+height: 4px;
 padding-top: 0px;
 margin-top: 5px;
 margin-bottom: 0px;
-background-color: #6B3B01;
+background-color: black;
+ 
+">
+    <hr
+        style="
+height: 4px;
+padding-top: 0px;
+margin-top: 0px;
+margin-bottom: 0px;
+background-color: rgb(245, 216, 0);
+ 
+">
+    <hr style="
+height: 4px;
+padding-top: 0px;
+margin-top: 0px;
+margin-bottom: 0px;
+background-color: red;
  
 ">
 
@@ -356,47 +373,33 @@ background-color: #6B3B01;
         <div class="col-12 p-0">
 
             <h2 class="p-0 m-0 text-uppercase text-center" style="font-size: 18px;"><b>Recent Photos</b></h2>
-            <hr class="p-0 m-0 mt-1 mb-2"
+            <hr class="p-0 m-0 mt-1 mb-3"
                 style="
                         background-color: #6B3B01;
                         height: 2px;
                     ">
         </div>
     </div>
-    <div class="row">
-        <div class="col-12">
-            @php
-                $photos = $animal->getRecentPhotos();
-                $x = 0;
-            @endphp
 
-            @if (count($photos) == 0)
-                <div class="alert alert-dark text-center mt-2 mr-4">
-                    No recent photos.
-                </div>
-            @else
-                <div class="row">
-                    @foreach ($photos as $photo)
-                        @php
-                            $x++;
-                        @endphp
-                        <div class="col-md-3 p-0">
-                            <div class="border m-1">
-                                <img src="{{ Utils::img($photo->src, $is_export) }}" alt="Photo" class="w-100">
-                                <div class="card-body">
-                                    {{ $photo->src }}
-                                    <p class="card-text">
-                                        <b>{{ $x }}.</b>
-                                        <b>DATE: {{ Utils::my_date($photo->created_at) }}</b>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
+    @php
+        $photos = $animal->getRecentPhotos();
+        $x = 0;
+    @endphp
+
+    @if (count($photos) == 0)
+        <div class="alert alert-dark text-center mt-2 mr-4">
+            No recent photos.
         </div>
+    @else
+        @foreach ($photos as $photo)
+            @php
+                $x++;
+            @endphp
+            <img class="mt-2" src="{{ Utils::img($photo->src, $is_export) }}" alt="Photo" style="width: 220px;">
+        @endforeach
+    @endif
     </div>
+
 
 
 

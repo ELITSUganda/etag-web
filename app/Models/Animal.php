@@ -577,8 +577,8 @@ class Animal extends Model
     public function getRecentPhotos()
     {
         $imgs = Image::where([
-            'parent_id' => $this->id,
-            'parent_endpoint' => 'Animal',
+            /* 'parent_id' => $this->id,
+            'parent_endpoint' => 'Animal', */
         ])->orderBy('id', 'Desc')
             ->limit(10)
             ->get();
