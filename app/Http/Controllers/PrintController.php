@@ -28,6 +28,24 @@ class PrintController extends Controller
     {
         Utils::prepareThumbnails();
     }
+    public function animal_profile()
+    {
+        //animal-profile
+
+        $id = (int)(trim($_GET['id']));
+        $m =  Animal::find($id);
+        if ($m == null) {
+            dd("Movement not found.");
+        }
+
+        // dd($m->village_to);
+
+        $pdf = App::make('dompdf.wrapper');
+        $pdf->loadHTML(view('animal-profile-export', [
+            'animal' => $m
+        ]));
+        return $pdf->stream($m->permit_Number . ".pdf");
+    }
     public function index()
     {
 

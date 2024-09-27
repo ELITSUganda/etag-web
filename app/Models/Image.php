@@ -54,9 +54,10 @@ class Image extends Model
 
     public function getSrcAttribute($src)
     {
-
-        $source = Utils::docs_root() . "/storage/images/" . $src;
-        if (!file_exists($source)) {
+        $lastSeg = explode('/', $src);
+        $lastSeg = end($lastSeg);
+        $path = public_path('storage/images/' . $lastSeg);
+        if (!file_exists($path)) {
             return 'logo.png';
         }
         return $src;
@@ -94,9 +95,10 @@ class Image extends Model
         }
     }
 
-    
-    public function getUpdatedAtTextAttribute(){
+
+    public function getUpdatedAtTextAttribute()
+    {
         return Carbon::parse($this->updated_at)->timestamp;
-    } 
-    protected $appends = ['updated_at_text']; 
+    }
+    protected $appends = ['updated_at_text'];
 }

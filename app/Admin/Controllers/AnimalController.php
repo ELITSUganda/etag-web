@@ -279,9 +279,12 @@ class AnimalController extends AdminController
             })->sortable();
 
         //view animal profile
-        $grid->column('view', __('View'))
+        $grid->column('view', __('Profile'))
             ->display(function ($id) {
-                return '<a class="btn btn-primary" href="' . admin_url('animals/' . $this->id) . '" >View</a>';
+                $links =  '<a  target="_blank" class="btn btn-primary btn-sm" href="' . admin_url('animals/' . $this->id) . '" >View Profile</a>';
+                //download profile 
+                $links .=  ' <a  target="_blank" class="btn btn-primary btn-sm" href="' . url('/animal-profile?id=' . $this->id . '&export=true') . '" >Download Profile</a>';
+                return $links;
             });
 
         return $grid;

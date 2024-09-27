@@ -290,7 +290,7 @@ class Animal extends Model
         ])->get();
 
         if ($imgs == null || count($imgs) < 1) {
-            return null;
+            return 'logo.png';
         }
 
         foreach ($imgs as $img) {
@@ -502,7 +502,7 @@ class Animal extends Model
 
     //getter for profile_updated
     public function getProfileUpdatedAttribute($val)
-    { 
+    {
         $last_updated = null;
         if ($this->last_profile_update_date != null) {
             try {
@@ -532,5 +532,56 @@ class Animal extends Model
     public function owner()
     {
         return $this->belongsTo(Administrator::class, 'administrator_id');
+    }
+
+    //get recent events
+    public function getRecentSanitaryEvents()
+    {
+        $types = [
+            'Disease test',
+            'Vaccination',
+            'Batch Treatment',
+            'Temperature check',
+            'Treatment',
+            'Pregnancy check',
+        ];
+        $events = Event::where([
+            'animal_id' => $this->id,
+        ])->whereIn('type', $types)
+            ->orderBy('id', 'Desc')
+            ->limit(10)
+            ->get();
+        return $events;
+    }
+    //get recent events
+    public function getRecentProductionEvents()
+    {
+        $types = [
+            'Disease test',
+            'Vaccination',
+            'Batch Treatment',
+            'Temperature check',
+            'Treatment',
+            'Pregnancy check',
+        ];
+        $events = Event::where([
+            'animal_id' => $this->id,
+        ])->whereNotIn('type', $types)
+            ->orderBy('id', 'Desc')
+            ->limit(10)
+            ->get();
+        return $events;
+    }
+
+    //get recent photos
+    public function getRecentPhotos()
+    {
+        $imgs = Image::where([
+            'parent_id' => $this->id,
+            'parent_endpoint' => 'Animal',
+        ])->orderBy('id', 'Desc')
+            ->limit(10)
+            ->get();
+        return $imgs;
     }
 }

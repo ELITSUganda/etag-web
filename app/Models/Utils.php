@@ -18,6 +18,61 @@ use Milon\Barcode\DNS2D;
 class Utils extends Model
 {
 
+    public static function img($photo, $local)
+    {
+
+        $default_img_path = public_path('logo.jpg');
+        $default_img_url = url('logo.jpg');
+
+        if ($photo == null || strlen($photo) < 3) {
+            if ($local) {
+                return $default_img_path;
+            } else {
+                return $default_img_url;
+            }
+        }
+        //split $photo with /
+        $exp = explode('/', $photo);
+        if (count($exp) > 1) {
+            $photo = $exp[count($exp) - 1];
+        }
+
+        $local_path = public_path('storage/images/' . $photo);
+        if (!file_exists($local_path)) {
+            if ($local) {
+                return $default_img_path;
+            } else {
+                return $default_img_url;
+            }
+        }
+        if ($local) {
+            return $local_path;
+        } else {
+            return url('storage/images/' . $photo);
+        }
+    }
+    public static function get_cattle_age($dob)
+    {
+        //return age in months (in years if > 12)
+        $born = null;
+        try {
+            $born = Carbon::parse($dob);
+        } catch (\Throwable $e) {
+            return "N/A";
+        }
+        if ($born == null) {
+            return "N/A";
+        }
+        $now = Carbon::now();
+        $diff = $born->diffInMonths($now);
+        if ($diff < 12) {
+            return $diff . " Months";
+        } else {
+            $years = floor($diff / 12);
+            $months = $diff % 12;
+            return $years . " Years and " . $months . " Months.";
+        }
+    }
     public static function get_cattle_stage($dob, $sex)
     {
         $sex = strtolower($sex);
