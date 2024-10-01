@@ -25,10 +25,10 @@ class PregnantAnimalController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new PregnantAnimal());
+        $grid->model()->orderBy('id', 'desc');
 
-        $grid->column('id', __('Id'));
+        $grid->column('id', __('Id'))->sortable();
         $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('Updated at'));
         $grid->column('administrator_id', __('Administrator id'));
         $grid->column('animal_id', __('Animal id'));
         $grid->column('disease_id', __('Disease id'));

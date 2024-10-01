@@ -6,6 +6,7 @@ use App\Models\Animal;
 use App\Models\Farm;
 use App\Models\Image;
 use App\Models\Location;
+use App\Models\PregnantAnimal;
 use App\Models\User;
 use App\Models\Utils;
 use App\Traits\ApiResponser;
@@ -509,5 +510,92 @@ Copy Copy
             'data' => $images,
             'message' => "File uploaded successfully.",
         ]);
+    }
+
+    //v2-pregnant-animals GET
+    public function v2_pregnant_animals_list(Request $r)
+    {
+        $user_id = ((int)(Utils::get_user_id($r)));
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Failed'
+            ]);
+        }
+        $animal = Animal::find($r->animal_id);
+        if ($animal == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Animal not found'
+            ]);
+        }
+        $record = PregnantAnimal::find($r->id);
+        $isEdit = false;
+        if ($record == null) {
+            $record = new PregnantAnimal();
+        } else {
+            $isEdit = true;
+        }
+
+        if (!$isEdit) {
+            //check if animal is already pregnant
+            $pregnant = PregnantAnimal::where([
+                'animal_id' => $animal->id
+            ])->first();
+            if ($pregnant != null) {
+                return Utils::response([
+                    'status' => 0,
+                    'data' => null,
+                    'message' => 'Animal is already pregnant'
+                ]);
+            }
+        }
+
+        $record->administrator_id = $user_id;
+        $record->animal_id = $r->animal_id;
+        $record->district_id = $animal->district_id;
+        $record->sub_county_id = $animal->sub_county_id;
+        $record->original_status = $r->original_status;
+        $record->current_status = $r->current_status;
+        $record->fertilization_method = $r->fertilization_method;
+        $record->expected_sex = $r->expected_sex;
+        $record->details = $r->details;
+        $record->pregnancy_check_method = $r->pregnancy_check_method;
+
+        $msg = '';
+
+        try {
+            $record->save();
+            if ($isEdit) {
+                $msg = 'Pregnant animal updated successfully.';
+            } else {
+                $msg = 'Pregnant animal created successfully.';
+            }
+        } catch (\Exception $e) {
+            $msg = 'Failed because ' . $e->getMessage();
+        }
+
+        return $this->success($record, $msg);
+    }
+
+    public function v2_pregnant_animals_create(Request $r)
+    {
+        $user_id = ((int)(Utils::get_user_id($r)));
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Failed'
+            ]);
+        }
+
+        $pregnant_animals = PregnantAnimal::where([
+            'administrator_id' => $user_id
+        ])->get();
+        return $this->success($pregnant_animals);
     }
 }
