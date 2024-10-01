@@ -513,7 +513,7 @@ Copy Copy
     }
 
     //v2-pregnant-animals GET
-    public function v2_pregnant_animals_list(Request $r)
+    public function v2_pregnant_animals_create(Request $r)
     {
         $user_id = ((int)(Utils::get_user_id($r)));
         $u = Administrator::find($user_id);
@@ -578,10 +578,11 @@ Copy Copy
             $msg = 'Failed because ' . $e->getMessage();
         }
 
+        $record = PregnantAnimal::find($record->id); 
         return $this->success($record, $msg);
     }
 
-    public function v2_pregnant_animals_create(Request $r)
+    public function v2_pregnant_animals_list(Request $r)
     {
         $user_id = ((int)(Utils::get_user_id($r)));
         $u = Administrator::find($user_id);
