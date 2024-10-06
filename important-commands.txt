@@ -104,6 +104,7 @@ php artisan admin:make TripController --model=App\Models\Trip
 php artisan admin:make BatchSessionController --model=App\\Models\\BatchSession
 php artisan admin:make SlaughterRecordController --model=App\\Models\\SlaughterRecord
 php artisan admin:make FarmVaccinationRecordController --model=App\\Models\\FarmVaccinationRecord
+php artisan admin:make FarmReportController --model=App\\Models\\FarmReport
 
 
 php artisan make:model HealthReport -m
@@ -146,7 +147,7 @@ php artisan make:model WholesaleDrugStock
 php artisan make:model Product
 php artisan make:model NotificationModel -m
 php artisan make:model SlaughterRecord -m
-php artisan make:model FarmVaccinationRecord -m
+php artisan make:model FarmReport -m
 
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs

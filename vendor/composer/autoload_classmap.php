@@ -118,6 +118,7 @@ return array(
     'App\\Models\\DrugStockBatchRecord' => $baseDir . '/app/Models/DrugStockBatchRecord.php',
     'App\\Models\\Event' => $baseDir . '/app/Models/Event.php',
     'App\\Models\\Farm' => $baseDir . '/app/Models/Farm.php',
+    'App\\Models\\FarmReport' => $baseDir . '/app/Models/FarmReport.php',
     'App\\Models\\FarmVaccinationRecord' => $baseDir . '/app/Models/FarmVaccinationRecord.php',
     'App\\Models\\FinanceCategory' => $baseDir . '/app/Models/FinanceCategory.php',
     'App\\Models\\FormDrugSeller' => $baseDir . '/app/Models/FormDrugSeller.php',

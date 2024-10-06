@@ -10,6 +10,7 @@ use App\Models\Animal;
 use App\Models\DrugStockBatch;
 use App\Models\Event;
 use App\Models\Farm;
+use App\Models\FarmReport;
 use App\Models\Gen;
 use App\Models\HealthReport;
 use App\Models\Image;
@@ -25,6 +26,11 @@ use Milon\Barcode\DNS1D;
 
 use function PHPUnit\Framework\fileExists;
 
+Route::get('/test-report', function () {
+    $r = FarmReport::find(1);
+    return FarmReport::do_process($r);
+    die("stop");
+});
 Route::get('/process-milks', function () {
     $tot_pros = Event::where([
         'type' => 'Milking',
