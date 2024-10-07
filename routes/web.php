@@ -46,7 +46,7 @@ Route::get('/gen-dummy-data', function () {
     $sec_1 = $seconds % 60;
     echo "Time taken: $mins:$sec_1 minutes<hr>";
 
-
+/* 
     $start_time = Carbon::now();
     Utils::run_test();
     $end_time = Carbon::now();
@@ -68,7 +68,7 @@ Route::get('/gen-dummy-data', function () {
     //minutes diffe
     $mins = $seconds / 60;
     $sec_1 = $seconds % 60;
-    echo "Time taken: $mins:$sec_1 minutes<hr>";
+    echo "Time taken: $mins:$sec_1 minutes<hr>"; */
 
     die("<hr>Done");
 
