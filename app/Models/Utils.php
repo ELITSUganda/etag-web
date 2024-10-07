@@ -2131,7 +2131,7 @@ duplicate_results
     {
         $_100_animals = Animal::where([])
             ->latest()
-            ->limit(1000)
+            ->limit(500)
             ->get();
         foreach ($_100_animals as $key => $animal) {
             $animal->details .= ".";
