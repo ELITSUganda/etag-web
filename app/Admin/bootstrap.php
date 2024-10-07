@@ -37,7 +37,7 @@ use Encore\Admin\Grid;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-Utils::create_dummy_content();
+
 
 //admin js jquery.canvasjs.min.js
 Admin::js(url('/assets/js/jquery.canvasjs.min.js'));

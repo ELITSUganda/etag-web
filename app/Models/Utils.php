@@ -1984,15 +1984,147 @@ duplicate_results
         return Schema::getColumnListing($table);
     }
 
+    public static function is_local()
+    {
+        $url = $_SERVER['APP_URL'];
+        $segs = explode('/', strtolower($url));
+        if (in_array('u-lits.com', $segs)) {
+            return false;
+        }
+        return true;
+    }
     public static function create_dummy_content()
     {
-        $u = Admin::user();
-        if($u == null){
+        $u = User::find(709);
+        if ($u == null) {
             return;
         }
-        dd($u);
-        $count = 0;
+        $farm = Farm::find(128);
+        if ($farm == null) {
+            return;
+        }
 
+        $sex = [
+            'Female',
+            'Female',
+            'Female',
+            'Female',
+            'Male',
+        ];
+
+        $farm_group = Group::where([
+            'administrator_id' => $u->id
+        ])
+            ->latest()
+            ->first();
+        $latest_images = Image::latest()
+            ->limit(400)
+            ->get();
+        $faker = \Faker\Factory::create();
+        //set unlimited memory limit
+        ini_set('memory_limit', '-1');
+        set_time_limit(0);
+        for ($i = 1; $i <= 100; $i++) {
+            $e_id = str_pad($i, 10, '0', STR_PAD_LEFT);
+            $v_id = str_pad($i, 4, '0', STR_PAD_LEFT);
+
+            // Check if e_id already exists
+            if (Animal::where('e_id', $e_id)->exists()) {
+                continue;
+            }
+
+            $animal = new Animal();
+            $animal->administrator_id = 709;
+            $animal->district_id = $faker->numberBetween(1, 100);
+            $animal->sub_county_id = $faker->numberBetween(1, 100);
+            $animal->parish_id = $faker->numberBetween(1, 100);
+            $animal->status = 'Active';
+            $animal->type = 'Cattle';
+            $animal->e_id = $e_id;
+            $animal->v_id = $v_id;
+            $animal->lhc = $farm->holding_code;
+            $animal->breed = 'Anlole';
+            $animal->sex = $faker->randomElement($sex);
+            $now = Carbon::now();
+            $animal->dob = $now->subMonths(rand(5, 50))->format('Y-m-d');
+            $animal->color = $faker->colorName;
+            $animal->farm_id = 128;
+            $animal->fmd = $faker->randomElement(['Yes', 'No']);
+            // $animal->trader = $faker->name;
+            $animal->destination = $faker->address;
+            // $animal->destination_slaughter_house = $faker->address;
+            // $animal->destination_farm = $faker->address;
+            $animal->details = $faker->text;
+            $animal->for_sale = $faker->boolean;
+            $animal->price = rand(100, 5000) . '000';
+            $animal->weight = rand(50, 1000);
+            $animal->decline_reason = $faker->sentence;
+            $animal->origin_latitude = $faker->latitude;
+            $animal->origin_longitude = $faker->longitude;
+            $animal->address = $faker->address;
+            $animal->phone_number = $faker->phoneNumber;
+            $animal->has_parent = $faker->randomElement(['Yes', 'No']);
+            $females = Animal::where([
+                'sex' => 'Female'
+            ])->get();
+
+            if ($animal->has_parent == 'Yes' && count($females) > 1) {
+                $mom_index = rand(1, count($females));
+                $animal->parent_id = $females[$mom_index]->id;
+            }
+            $img_index = rand(1, count($latest_images));
+            $animal->photo = $latest_images[$img_index]->src;
+            $animal->stage = self::get_cattle_stage($animal->dob, $animal->sex);
+            $animal->average_milk = rand(3, 10);
+            $animal->weight_text = $faker->word;
+            $animal->slaughter_house_id = $faker->numberBetween(1, 100);
+            $animal->movement_id = $faker->numberBetween(1, 100);
+            $animal->has_more_info = $faker->randomElement(['Yes', 'No']);
+            $animal->was_purchases = $faker->randomElement(['Yes', 'No']);
+            $animal->purchase_date = $faker->date();
+            $animal->purchase_from = $faker->name;
+            $animal->purchase_price = rand(100, 5000) . '000';
+            $animal->current_price = rand(100, 5000) . '000';
+            $animal->weight_at_birth = rand(20, 60);
+            $animal->conception = $faker->randomElement(['Yes', 'No']);
+            $animal->genetic_donor = str_pad($i, 10, '0', STR_PAD_LEFT);
+            $animal->group_id = $farm_group->id;
+            $animal->comments = $faker->text;
+            $animal->local_id = self::get_unique_text();
+            $animal->registered_by_id = $u->id;
+            $animal->has_fmd = $faker->randomElement(['Yes', 'No']);
+            $animal->registered_id = $farm_group->id;
+            $animal->weight_change = $faker->randomFloat(2, -20, 20);
+            $animal->has_produced_before = $faker->randomElement(['Yes', 'No']);
+            if ($animal->sex == 'Male') {
+                $animal->has_produced_before = 'No';
+            }
+            $animal->age_at_first_calving = $faker->numberBetween(1, 10);
+            $animal->weight_at_first_calving = $faker->randomFloat(2, 100, 1000);
+            $animal->has_been_inseminated = $faker->randomElement(['Yes', 'No']);
+            $animal->age_at_first_insemination = $faker->numberBetween(1, 10);
+            $animal->weight_at_first_insemination = $faker->randomFloat(2, 100, 1000);
+            $animal->inter_calving_interval = $faker->numberBetween(1, 10);
+            $animal->calf_mortality_rate = $faker->randomFloat(2, 0, 1);
+            $animal->weight_gain_per_day = $faker->randomFloat(2, 0, 1);
+            $animal->number_of_isms_per_conception = $faker->numberBetween(1, 10);
+            $animal->is_a_calf = $faker->randomElement(['Yes', 'No']);
+            $animal->is_weaned_off = $faker->randomElement(['Yes', 'No']);
+            $animal->wean_off_weight = $faker->randomFloat(2, 50, 100);
+            $animal->wean_off_age = $faker->numberBetween(1, 10);
+            $animal->last_profile_update_date = $faker->date();
+            $animal->profile_updated = $faker->randomElement(['Yes', 'No']);
+            $animal->birth_position = $faker->numberBetween(1, 10);
+            $animal->age = $faker->numberBetween(1, 20);
+            try {
+                $animal->save();
+            } catch (\Throwable $th) {
+                echo "SKIPPED BECAUSE: " . $th->getMessage() . "<br>";
+            }
+            echo "Animal $i created successfully<br>";
+        }
+        die();
     }
-
 }
+
+//724

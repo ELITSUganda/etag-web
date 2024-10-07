@@ -17,6 +17,7 @@ use App\Models\Image;
 use App\Models\Image as ModelsImage;
 use App\Models\ImageModel;
 use App\Models\Location;
+use App\Models\PregnantAnimal;
 use App\Models\Utils;
 use Carbon\Carbon;
 use Encore\Admin\Grid\Tools\Header;
@@ -26,6 +27,130 @@ use Milon\Barcode\DNS1D;
 
 use function PHPUnit\Framework\fileExists;
 
+Route::get('/gen-dummy-data', function () {
+    $farm = Farm::find(128);
+    $animals = Animal::where([
+        'farm_id' => $farm->id
+    ])->get();
+
+    if ($animals->count() < 50) {
+        Utils::create_dummy_content();
+    }
+
+    $events = PregnantAnimal::where([
+        'farm_id' => $farm->id
+    ])->get();
+
+    $femal_animals = Animal::where([
+        'farm_id' => $farm->id,
+        'sex' => 'Female'
+    ])->get()->pluck('id')->toArray();
+
+    if (count($events) < 200) {
+        $max = (200 - count($events));
+        for ($x = 1; $x < $max; $x++) {
+            shuffle($femal_animals);
+            $animal_id = $femal_animals[rand(0, 5)];
+            $event = new PregnantAnimal();
+            $event->administrator_id = $farm->administrator_id;
+            $event->original_status = [
+                'Pregnant',
+                'Pregnant',
+                'Pregnant',
+                'Pregnant',
+                'Pregnant',
+                'Failed',
+            ][rand(0, 5)];
+            $event->fertilization_method = [
+                'Mating',
+                'AI'
+            ][rand(0, 1)];
+            $event->expected_sex = [
+                'Male',
+                'Female',
+                'Female'
+            ][rand(0, 2)];
+            $event->pregnancy_check_method = rand(4, 8);
+            $event->details = 'Some details....';
+            $event->born_sex = [
+                'Male',
+                'Female',
+                'Female',
+                'Female'
+            ][rand(0, 2)];
+            $now = Carbon::now();
+            $event->conception_date = $now->subDays(rand(100, 200))->format('Y-m-d');
+            $event->expected_calving_date = $now->addDays(rand(200, 300))->format('Y-m-d');
+            $event->gestation_length = rand(270, 290);
+            $event->did_animal_abort = [
+                'Yes',
+                'No',
+                'No'
+            ][rand(0, 1)];
+
+            //reason_for_animal_abort
+            $event->reason_for_animal_abort = [
+                "Disease",
+                "Accident"
+            ][rand(0, 1)];
+            $event->did_animal_conceive = [
+                'Yes',
+                'No',
+                'No'
+            ][rand(0, 1)];
+            $event->calf_birth_weight = rand(20, 60);
+            $event->pregnancy_outcome = [
+                '1',
+                '1',
+                '2'
+            ][rand(0, 1)];
+            $event->number_of_calves = [
+                '1',
+                '1',
+                '2'
+            ][rand(0, 1)];
+            $event->calving_difficulty = [
+                'Normal',
+                'Normal',
+                'Difficult',
+            ][rand(0, 1)];
+
+            $event->born_date = $now->addDays(rand(200, 300))->format('Y-m-d');
+            $event->calf_id = $animal_id;
+            $event->total_calving_milk = rand(10, 30);
+            $event->is_weaned_off = [
+                'Yes',
+                'No',
+                'No'
+            ][rand(0, 1)];
+            $event->weaning_date = $now->addDays(rand(300, 600))->format('Y-m-d');
+            $event->weaning_weight = rand(20, 60);
+            $event->weaning_age = rand(20, 60);
+            $event->got_pregnant = [
+                'Yes',
+                'Yes',
+                'Yes',
+                'No'
+            ][rand(0, 1)];
+            $event->ferilization_date = $event->conception_date;
+            $event->farm_id = $farm->id;
+            $event->animal_id = $animal_id;
+            $event->save();
+            echo "Saved record " . $event->id . ": $max <br>";
+        }
+    }
+    /*    
+  
+
+
+
+
+
+ 
+*/
+
+    dd($events);
+});
 Route::get('/test-report', function () {
     $r = FarmReport::find(1);
     return FarmReport::do_process($r);

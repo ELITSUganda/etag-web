@@ -58,6 +58,9 @@ class Image extends Model
         $lastSeg = end($lastSeg);
         $path = public_path('storage/images/' . $lastSeg);
         if (!file_exists($path)) {
+            if (Utils::is_local()) {
+                return $src;
+            }
             return 'logo.png';
         }
         return $src;
