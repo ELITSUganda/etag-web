@@ -1983,4 +1983,16 @@ duplicate_results
 
         return Schema::getColumnListing($table);
     }
+
+    public static function create_dummy_content()
+    {
+        $u = Admin::user();
+        if($u == null){
+            return;
+        }
+        dd($u);
+        $count = 0;
+
+    }
+
 }

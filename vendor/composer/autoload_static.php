@@ -816,6 +816,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'App\\Admin\\Controllers\\DrugStockBatchRecordController' => __DIR__ . '/../..' . '/app/Admin/Controllers/DrugStockBatchRecordController.php',
         'App\\Admin\\Controllers\\EventController' => __DIR__ . '/../..' . '/app/Admin/Controllers/EventController.php',
         'App\\Admin\\Controllers\\FarmController' => __DIR__ . '/../..' . '/app/Admin/Controllers/FarmController.php',
+        'App\\Admin\\Controllers\\FarmReportController' => __DIR__ . '/../..' . '/app/Admin/Controllers/FarmReportController.php',
         'App\\Admin\\Controllers\\FarmVaccinationRecordController' => __DIR__ . '/../..' . '/app/Admin/Controllers/FarmVaccinationRecordController.php',
         'App\\Admin\\Controllers\\FinanceCategoryController' => __DIR__ . '/../..' . '/app/Admin/Controllers/FinanceCategoryController.php',
         'App\\Admin\\Controllers\\FormDrugSellerController' => __DIR__ . '/../..' . '/app/Admin/Controllers/FormDrugSellerController.php',

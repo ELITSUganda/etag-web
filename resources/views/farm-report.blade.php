@@ -3,7 +3,7 @@
     use App\Models\Utils;
 
     $animal_owner = 'N/A';
-   
+
     $sub_county_text = 'N/A';
 
     $is_export = false;
@@ -97,8 +97,8 @@ background-color: red;
  
 ">
 
-    <p class="text-center text-uppercase py-0 my-0" style="font-size: 22px">
-        <u><b>Animal's Profile</b></u>
+    <p class="text-center text-uppercase py-0 my-0 mt-2" style="font-size: 22px">
+        <u><b>{{ $report->title }}</b></u>
     </p>
 
     <div class="row p-0 m-0">
@@ -107,21 +107,22 @@ background-color: red;
             <table class="w-100">
                 <tr>
                     <td>
-                        <h2 class="p-0 m-0" style="font-size: 18px;"><b>BIO DATA</b></h2>
+                        <h2 class="p-0 m-0 mt-3" style="font-size: 18px;"><b>FARM KPIs</b></h2>
                         <hr class="p-0 m-0 mt-2 mb-2"
                             style="
                             background-color: #6B3B01;
                             height: 2px;
                         ">
-                        @include('components.text-detail', ['t' => 'E-ID', 'v' => '$animal->e_id'])
-                        @include('components.text-detail', ['t' => 'V-ID', 'v' => '$animal->v_id'])
                         @include('components.text-detail', [
-                            't' => 'Animal Name',
-                            'v' => '$animal->details',
+                            't' => 'Pregnant Animals',
+                            'v' => '$animal->v_id',
                         ])
-
-
-
+                        @include('components.text-detail', ['t' => 'Calving Rate', 'v' => '$animal->v_id'])
+                        @include('components.text-detail', [
+                            't' => 'Abortion Rate',
+                            'v' => '$animal->v_id',
+                        ])
+                        @include('components.text-detail', ['t' => 'Weaning Rate', 'v' => '$animal->v_id'])
 
                     </td>
                     <td>
@@ -134,11 +135,39 @@ background-color: red;
                             height: 2px;
                         ">
 
+
+
                                 @include('components.text-detail', [
-                                    't' => 'Age',
-                                    'v' => '12',
+                                    't' => 'LHC',
+                                    'v' => $report->farm->holding_code,
                                 ])
 
+                                @include('components.text-detail', [
+                                    't' => 'Location',
+                                    'v' => $report->farm->sub_county_text,
+                                ])
+
+                                @include('components.text-detail', [
+                                    't' => 'Total Cattle',
+                                    'v' => $report->animals->count(),
+                                ])
+                                @include('components.text-detail', [
+                                    't' => 'Female Cattle',
+                                    'v' => $report->female_animals->count(),
+                                ])
+                                @include('components.text-detail', [
+                                    't' => 'Male Cattle',
+                                    'v' => $report->animals->count() - $report->female_animals->count(),
+                                ])
+                                {{--                                 @include('components.text-detail', [
+                                    't' => 'Female Cattle',
+                                    'v' => $report->farm->female_cattle->count(),
+                                ])
+
+                                @include('components.text-detail', [
+                                    't' => 'Male Cattle',
+                                    'v' => $report->farm->animals->count(),
+                                ]) --}}
 
                             </div>
                         </div>

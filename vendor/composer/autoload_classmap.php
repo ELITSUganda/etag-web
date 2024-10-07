@@ -25,6 +25,7 @@ return array(
     'App\\Admin\\Controllers\\DrugStockBatchRecordController' => $baseDir . '/app/Admin/Controllers/DrugStockBatchRecordController.php',
     'App\\Admin\\Controllers\\EventController' => $baseDir . '/app/Admin/Controllers/EventController.php',
     'App\\Admin\\Controllers\\FarmController' => $baseDir . '/app/Admin/Controllers/FarmController.php',
+    'App\\Admin\\Controllers\\FarmReportController' => $baseDir . '/app/Admin/Controllers/FarmReportController.php',
     'App\\Admin\\Controllers\\FarmVaccinationRecordController' => $baseDir . '/app/Admin/Controllers/FarmVaccinationRecordController.php',
     'App\\Admin\\Controllers\\FinanceCategoryController' => $baseDir . '/app/Admin/Controllers/FinanceCategoryController.php',
     'App\\Admin\\Controllers\\FormDrugSellerController' => $baseDir . '/app/Admin/Controllers/FormDrugSellerController.php',

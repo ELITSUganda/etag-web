@@ -24,7 +24,7 @@ class FarmReportController extends AdminController
      */
     protected function grid()
     {
-        $r = FarmReport::find(1);
+        $r = FarmReport::find(186);
         return FarmReport::do_process($r);
         die("stop"); 
         $grid = new Grid(new FarmReport());

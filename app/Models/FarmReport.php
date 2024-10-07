@@ -30,8 +30,19 @@ class FarmReport extends Model
         $end_date = $r->end_date;
         $farm = Farm::find($r->farm_id);
 
-        $r->title = "Farm Report for the period $start_date to $end_date. $farm->holding_code.";
+        $r->title = "Farm Report for the period $start_date to $end_date.";
+        $r->animals = Animal::where([
+            'farm_id' => $r->farm_id,
+            'type' => 'Cattle'
+        ])->get();
+        $r->female_animals = Animal::where([
+            'farm_id' => $r->farm_id,
+            'sex' => 'Male'
+        ])->get();
 
+        return view('farm-report', [
+            'report' => $r
+        ]);
 
         $pdf = App::make('dompdf.wrapper');
         $pdf->loadHTML(view('farm-report', [
@@ -43,5 +54,12 @@ class FarmReport extends Model
 
         dd($r);
         return $r;
+    }
+
+
+    //belongs to farm
+    public function farm()
+    {
+        return $this->belongsTo(Farm::class);
     }
 }
