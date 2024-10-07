@@ -30,8 +30,6 @@ use function PHPUnit\Framework\fileExists;
 
 
 Route::get('/gen-dummy-data', function () {
-    Utils::is_local();
-    die();
 
     set_time_limit(0);
     //set max memory to unlimited
@@ -44,22 +42,33 @@ Route::get('/gen-dummy-data', function () {
     //seconds diff
     $seconds = $end_time->diffInSeconds($start_time);
     echo "Time taken: $seconds seconds<br>";
-    //minutes diffe
-    $mins = $end_time->diffInMinutes($start_time);
-    echo "Time taken: $mins minutes<hr>";
-    //seconds diff
-    $seconds = $end_time->diffInSeconds($start_time);
-    echo "Time taken: $seconds seconds<br>";
-    //minutes diffe
-    $mins = $end_time->diffInMinutes($start_time);
-    echo "Time taken: $mins minutes<hr>";
+    $mins = $seconds / 60;
+    $sec_1 = $seconds % 60;
+    echo "Time taken: $mins:$sec_1 minutes<hr>";
 
+
+    $start_time = Carbon::now();
+    Utils::run_test();
+    $end_time = Carbon::now();
+    //seconds diff
+    $seconds = $end_time->diffInSeconds($start_time);
+    echo "Time taken: $seconds seconds<br>";
+    $mins = $seconds / 60;
+    $sec_1 = $seconds % 60;
+    echo "Time taken: $mins:$sec_1 minutes<hr>";
+
+
+
+    $start_time = Carbon::now();
+    Utils::run_test();
+    $end_time = Carbon::now();
     //seconds diff
     $seconds = $end_time->diffInSeconds($start_time);
     echo "Time taken: $seconds seconds<br>";
     //minutes diffe
-    $mins = $end_time->diffInMinutes($start_time);
-    echo "Time taken: $mins minutes<hr>";
+    $mins = $seconds / 60;
+    $sec_1 = $seconds % 60;
+    echo "Time taken: $mins:$sec_1 minutes<hr>";
 
     die("<hr>Done");
 
