@@ -27,7 +27,40 @@ use Milon\Barcode\DNS1D;
 
 use function PHPUnit\Framework\fileExists;
 
+
+
 Route::get('/gen-dummy-data', function () {
+
+    set_time_limit(0);
+    //set max memory to unlimited
+    ini_set('memory_limit', '-1');
+
+    $start_time = Carbon::now();
+    Utils::run_test();
+    $end_time = Carbon::now();
+
+    //seconds diff
+    $seconds = $end_time->diffInSeconds($start_time);
+    echo "Time taken: $seconds seconds<br>";
+    //minutes diffe
+    $mins = $end_time->diffInMinutes($start_time);
+    echo "Time taken: $mins minutes<hr>";
+    //seconds diff
+    $seconds = $end_time->diffInSeconds($start_time);
+    echo "Time taken: $seconds seconds<br>";
+    //minutes diffe
+    $mins = $end_time->diffInMinutes($start_time);
+    echo "Time taken: $mins minutes<hr>";
+
+    //seconds diff
+    $seconds = $end_time->diffInSeconds($start_time);
+    echo "Time taken: $seconds seconds<br>";
+    //minutes diffe
+    $mins = $end_time->diffInMinutes($start_time);
+    echo "Time taken: $mins minutes<hr>";
+
+    die("<hr>Done");
+
     $farm = Farm::find(128);
     $animals = Animal::where([
         'farm_id' => $farm->id

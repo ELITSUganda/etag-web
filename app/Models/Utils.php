@@ -2125,6 +2125,19 @@ duplicate_results
         }
         die();
     }
+
+    //run test
+    public static function run_test()
+    {
+        $_100_animals = Animal::where([])
+            ->latest()
+            ->limit(5000)
+            ->get();
+        foreach ($_100_animals as $key => $animal) {
+            $animal->details .= ".";
+            $animal->save();
+        }
+    }
 }
 
 //724
