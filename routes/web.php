@@ -30,6 +30,8 @@ use function PHPUnit\Framework\fileExists;
 
 
 Route::get('/gen-dummy-data', function () {
+    Utils::is_local();
+    die();
 
     set_time_limit(0);
     //set max memory to unlimited

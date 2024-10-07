@@ -1986,7 +1986,7 @@ duplicate_results
 
     public static function is_local()
     {
-        $url = $_SERVER['APP_URL'];
+        $url = $_SERVER['HTTP_HOST'];
         $segs = explode('/', strtolower($url));
         if (in_array('u-lits.com', $segs)) {
             return false;
