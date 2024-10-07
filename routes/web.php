@@ -197,6 +197,10 @@ Route::get('/gen-dummy-data', function () {
 });
 Route::get('/test-report', function () {
     $r = FarmReport::find(1);
+
+ /*        $r->start_date = '2020-01-01';  
+        $r->end_date = '2025-01-01';  
+        return $r; */
     return FarmReport::do_process($r);
     die("stop");
 });

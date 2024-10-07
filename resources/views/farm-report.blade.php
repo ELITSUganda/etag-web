@@ -114,7 +114,7 @@ background-color: red;
                             height: 2px;
                         ">
                         @include('components.text-detail', [
-                            't' => 'Pregnant Animals',
+                            't' => 'Pregnancy Rate',
                             'v' => '$animal->v_id',
                         ])
                         @include('components.text-detail', ['t' => 'Calving Rate', 'v' => '$animal->v_id'])
