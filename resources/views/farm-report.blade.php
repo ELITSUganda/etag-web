@@ -115,14 +115,33 @@ background-color: red;
                         ">
                         @include('components.text-detail', [
                             't' => 'Pregnancy Rate',
-                            'v' => '$animal->v_id',
+                            'v' => $report->pregnancy_rate . '%' ?? 'N/A',
                         ])
-                        @include('components.text-detail', ['t' => 'Calving Rate', 'v' => '$animal->v_id'])
+
                         @include('components.text-detail', [
                             't' => 'Abortion Rate',
-                            'v' => '$animal->v_id',
+                            'v' => $report->abortion_rate . '%' ?? 'N/A',
                         ])
-                        @include('components.text-detail', ['t' => 'Weaning Rate', 'v' => '$animal->v_id'])
+
+                        @include('components.text-detail', [
+                            't' => 'CALVING RATE',
+                            'v' => $report->calving_rate . '%' ?? 'N/A',
+                        ])
+
+                        @include('components.text-detail', [
+                            't' => 'Weaning Rate',
+                            'v' => $report->weaning_rate . '%',
+                        ])
+                        @include('components.text-detail', [
+                            't' => 'Average Weaning weight',
+                            'v' => $report->weaning_weight . ' KGs',
+                        ])
+                        @include('components.text-detail', [
+                            't' => 'Weaning weight range',
+                            'v' => $report->min_weaning_weight . ' - ' . $report->max_weaning_weight . ' (KGs)',
+                        ])
+
+
 
                     </td>
                     <td>
@@ -159,15 +178,8 @@ background-color: red;
                                     't' => 'Male Cattle',
                                     'v' => $report->animals->count() - $report->female_animals->count(),
                                 ])
-                                {{--                                 @include('components.text-detail', [
-                                    't' => 'Female Cattle',
-                                    'v' => $report->farm->female_cattle->count(),
-                                ])
 
-                                @include('components.text-detail', [
-                                    't' => 'Male Cattle',
-                                    'v' => $report->farm->animals->count(),
-                                ]) --}}
+
 
                             </div>
                         </div>
@@ -184,12 +196,40 @@ background-color: red;
     <div class="row mt-2">
         <div class="col-12 p-0">
 
-            <h2 class="p-0 m-0 text-uppercase text-center" style="font-size: 18px;"><b>Recent Events</b></h2>
+            <h2 class="p-0 m-0 text-uppercase text-center" style="font-size: 18px;"><b>Pregnancy Overview</b></h2>
             <hr class="p-0 m-0 mt-1 mb-2"
                 style="
                         background-color: #6B3B01;
                         height: 2px;
                     ">
+            {{-- Total Pregnancies Recorded --}}
+            @include('components.text-detail', [
+                't' => 'Total Animals Serviced',
+                'v' => $report->serviced_animals->count(),
+            ])
+
+            {{-- Total Pregnancies Recorded --}}
+            @include('components.text-detail', [
+                't' => 'Total Pregnancies Recorded',
+                'v' => $report->got_pregnant_animals->count(),
+            ])
+
+            {{-- Total Pregnancies in Progress --}}
+            @include('components.text-detail', [
+                't' => 'Pregnancies in Progress',
+                'v' => $report->pregnancies_in_progress->count(),
+            ])
+
+            @include('components.text-detail', [
+                't' => 'Calves born',
+                'v' => $report->animals_that_produced->count(),
+            ])
+
+            @include('components.text-detail', [
+                't' => 'Calves died',
+                'v' => $report->calves_that_died->count(),
+            ])
+
         </div>
     </div>
 
@@ -198,60 +238,170 @@ background-color: red;
     <div class="row mt-3">
         <div class="col-12 p-0">
 
-            <h2 class="p-0 m-0 text-uppercase text-center" style="font-size: 18px;"><b>Recent Photos</b></h2>
-            <hr class="p-0 m-0 mt-1 mb-3"
+            <h2 class="p-0 m-0 text-uppercase text-center" style="font-size: 18px;"><b>Fertilization and Conception
+                    Data</b></h2>
+            <hr class="p-0 m-0 mt-2 mb-1"
                 style="
                         background-color: #6B3B01;
                         height: 2px;
                     ">
+
+
+            <table class="table table-bordered">
+                <tr>
+                    <th class="p-1">Method</th>
+                    <th class="p-1 text-center">Artifitial Inseminations</th>
+                    <th class="p-1 text-center">Natural Mating</th>
+                    <th class="p-1 text-right">TOTAL</th>
+                </tr>
+                <tr>
+                    <th class="p-1 m-0">
+                        Serviced Animals
+                    </th>
+                    <td class="text-center  p-1">
+                        {{ $report->serviced_animals->count() }}
+                    </td>
+                    <td class="text-center p-1">
+                        {{ $report->natural_mating->count() }}
+                    </td>
+                    <td class="text-right p-1 m-0">
+                        {{ $report->serviced_animals->count() + $report->natural_mating->count() }}
+                    </td>
+                </tr>
+                {{-- •	Conception Rate --}}
+                <tr>
+                    <th class="p-1 m-0">
+                        Conception Rate
+                    </th>
+                    <td class="text-center  p-1">
+                        {{ $report->ai_conception_rate . '%' }}
+                    </td>
+                    <td class="text-center p-1">
+                        {{ $report->natural_conception_rate . '%' }}
+                    </td>
+                    <td class="text-right p-1 m-0">
+                        {{ $report->natural_conception_rate + $report->ai_conception_rate . '%' }}
+                    </td>
+                </tr>
+                {{-- •	Abortion Rate --}}
+                <tr>
+                    <th class="p-1 m-0">
+                        Abortion Rate
+                    </th>
+                    <td class="text-center  p-1">
+                        {{ $report->ai_abortion_rate . '%' }}
+                    </td>
+                    <td class="text-center p-1">
+                        {{ $report->natural_abortion_rate . '%' }}
+                    </td>
+                    <td class="text-right p-1 m-0">
+                        {{ $report->natural_abortion_rate + $report->ai_abortion_rate . '%' }}
+                    </td>
+                </tr>
+                {{-- Gestation Period --}}
+                <tr>
+                    <th class="p-1 m-0">
+                        Gestation Period
+                    </th>
+                    <td class="text-center  p-1">
+                        {{ $report->ai_gestation_length . ' Days' }}
+                    </td>
+                    <td class="text-center p-1">
+                        {{ $report->natural_gestation_length . ' days' }}
+                    </td>
+                    <td class="text-right p-1 m-0">
+                        {{ $report->natural_gestation_length + $report->ai_gestation_length }} Days
+                    </td>
+                </tr>
+            </table>
         </div>
     </div>
-
-    @php
-        $photos = [];
-        $x = 0;
-    @endphp
-
-    @if (count($photos) == 0)
-        <div class="alert alert-dark text-center mt-2 mr-4">
-            No recent photos.
-        </div>
-    @else
-        @foreach ($photos as $photo)
-            @php
-                $x++;
-            @endphp
-            <img class="mt-2" src="{{ Utils::img($photo->src, $is_export) }}" alt="Photo" style="width: 220px;">
-        @endforeach
-    @endif
-    </div>
-
-
 
 
     <div class="row mt-2">
         <div class="col-12 p-0">
 
-            <h2 class="p-0 m-0 text-uppercase text-center" style="font-size: 18px;"><b>More Information</b></h2>
+            <h2 class="p-0 m-0 text-uppercase text-center" style="font-size: 18px;"><b>Weaning Statistics</b></h2>
             <hr class="p-0 m-0 mt-1 mb-2"
                 style="
                         background-color: #6B3B01;
                         height: 2px;
                     ">
-        </div>
-    </div>
 
-    <div class="row pb-4">
-        <div class="col-12">
-            {{-- is_pregnant --}}
+            {{-- Total Pregnancies Recorded --}}
             @include('components.text-detail', [
-                't' => 'Is Pregnant',
-                'v' => 'as',
+                't' => 'Total Calves Weaned',
+                'v' => $report->total_calves_weaned->count(),
             ])
-
-
+            @include('components.text-detail', [
+                't' => 'Average Weaning Weight',
+                'v' => $report->average_weaning_weight,
+            ])
+            @include('components.text-detail', [
+                't' => 'Average Weaning Age',
+                'v' => $report->average_weaning_age . ' Days',
+            ])
         </div>
     </div>
+
+    <div class="row mt-2">
+        <div class="col-12 p-0">
+
+            <h2 class="p-0 m-0 text-uppercase text-center" style="font-size: 18px;"><b>Health and Complications</b></h2>
+            <hr class="p-0 m-0 mt-1 mb-2" style="background-color: #6B3B01;
+                        height: 2px; ">
+
+            {{-- Total Pregnancies Recorded --}}
+            @include('components.text-detail', [
+                't' => 'Total Complications Recorded',
+                'v' => $report->total_complications_recorded->count(),
+            ])
+            <h5><u><b>Abortion Reasons Breakdown:</b></u></h5>
+            <ul>
+                <li>
+                    @include('components.text-detail', [
+                        't' => 'Disease',
+                        'v' => $report->reason_for_animal_abort_disease->count(),
+                    ])
+                </li>
+                <li>
+                    {{-- reason_for_animal_abort_accident --}}
+                    @include('components.text-detail', [
+                        't' => 'Accident',
+                        'v' => $report->reason_for_animal_abort_accident->count(),
+                    ])
+                </li>
+                <li>
+                    {{-- reason_for_animal_abort --}}
+                    @include('components.text-detail', [
+                        't' => 'Other',
+                        'v' => $report->reason_for_animal_abort_other->count(),
+                    ])
+                </li>
+            </ul>
+        </div>
+    </div>
+
+
+    <div class="row mt-2">
+        <div class="col-12 p-0">
+
+            <h2 class="p-0 m-0 text-uppercase text-center" style="font-size: 18px;"><b>
+                    Recommendations and Action Items
+                </b></h2>
+            <hr class="p-0 m-0 mt-1 mb-2" style="background-color: #6B3B01;
+                        height: 2px; ">
+            <ul>
+                <li>Areas for Improvement: [List of Areas]</li>
+                <li>Proposed Actions: [List of Actions]</li>
+            </ul>
+
+            <b>Notes:</b>
+            • [Additional notes or observations]
+        </div>
+    </div>
+
+
 
 
 </body>

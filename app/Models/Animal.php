@@ -33,7 +33,6 @@ class Animal extends Model
     {
         parent::boot();
         self::creating(function ($model) {
-            return $model;
 
             if ($model->e_id != null && strlen($model->e_id) > 4) {
                 $animal = Animal::where('e_id', $model->e_id)->first();
@@ -119,7 +118,6 @@ class Animal extends Model
         });
 
         self::updating(function ($model) {
-            return $model;
             //check if images isset and unset
             if (isset($model->images)) {
                 unset($model->images);
