@@ -10,6 +10,8 @@ use Encore\Admin\Layout\Row;
 use Encore\Admin\Widgets\InfoBox;
 use App\Models\AdminRoleUser;
 use App\Models\Animal;
+use App\Models\Application;
+use App\Models\ApplicationType;
 use App\Models\ArchivedAnimal;
 use App\Models\BatchSession;
 use App\Models\DrugCategory;
@@ -149,7 +151,7 @@ class HomeController extends Controller
             });
         }
 
- 
+
 
         if ($u->isRole('slaughter')) {
 
@@ -335,7 +337,7 @@ class HomeController extends Controller
             }
         }
 
-        
+
 
         $f = FormDrugSeller::where('applicant_id', Admin::user()->id)->first();
         if ($f != null) {
@@ -382,7 +384,7 @@ class HomeController extends Controller
                 $row->column(6, Dashboard::to_districts($u));
                 $row->column(6, Dashboard::animals_by_farms($u));
             });
-    
+
             $content->row(function ($row) {
                 $box = new Box('Livestock Species', view('admin.dashboard.chart-animal-types'));
                 $box->removable();
@@ -398,11 +400,9 @@ class HomeController extends Controller
                 $box->solid();
                 $row->column(6, $box);
             });
-
-            
         }
 
-        
+
 
 
         //Farmer
@@ -485,6 +485,41 @@ class HomeController extends Controller
         return $content;
     }
 
+
+    public function maaf_application_forms(Content $content)
+    {
+        $u = Admin::user();
+        $forms = ApplicationType::where([])->orderBy('name', 'asc')->get();
+        $content
+            ->title('MAAIF APPLICATION FORMS');
+        $content
+            ->view("widgets.maaf-application-forms", [
+                'forms' => $forms
+            ]);
+        return $content;
+
+        $content->row(function ($row) {
+
+
+            $row->$row->column(3, function (Column $column) {
+                    // global access for $form
+                    $forms = ApplicationType::where([])->orderBy('name', 'asc')->get();
+                    foreach ($forms as $key => $app_form) {
+                        $column->append(view('widgets.box-5', [
+                            'is_dark' => false,
+                            'title' => $app_form->name,
+                            'sub_title' => 'Total number of cattle vaccinated in last 6 months ago.',
+                            'number' => number_format(Animal::where([
+                                'type' => 'Cattle',
+                                'genetic_donor' => 'Not Vaccinated'
+                            ])->count()),
+                            'link' => admin_url('vaccination-stats')
+                        ]));
+                    }
+                });
+        });
+        return $content;
+    }
 
     public function vaccination(Content $content)
     {

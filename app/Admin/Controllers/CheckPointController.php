@@ -113,9 +113,17 @@ class CheckPointController extends AdminController
             ->options(\App\Models\User::pluck('name', 'id'))
             ->required();
 
-        $form->select('sub_county_id', __('Subcounty'))
-            ->options(\App\Models\Location::get_sub_counties_array())
-            ->required();
+     
+        $form->select('sub_county_id', 'Sub-county')->options(function ($id) {
+            $a = Location::find($id);
+            if ($a) {
+                return [$a->id =>  $a->name_text];
+            }
+        })
+            ->rules('required')
+            ->ajax(url(
+                '/api/sub-counties'
+            ));
 
 
         $form->text('latitube', __('GPS latitube'))->required();

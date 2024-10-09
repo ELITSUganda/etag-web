@@ -18,6 +18,7 @@ Route::group([
 
     $router->get('/', 'HomeController@index')->name('home');
     $router->get('vaccination-stats', 'HomeController@vaccination')->name('vaccination-stats');
+    $router->get('maaf-application-forms', 'HomeController@maaf_application_forms')->name('maaf-application-forms');
     $router->get('/become-farmer', 'HomeController@become_farmer');
     $router->resource('product-orders', ProductOrderController::class);
     $router->resource('requests', VendorController::class);
@@ -81,4 +82,7 @@ Route::group([
     $router->get('maps', 'MapController@index')->name('maps');
     $router->get('charts', 'MapController@charts')->name('charts');
     $router->resource('farm-reports', FarmReportController::class); 
+
+    $router->resource('application-types', ApplicationTypeController::class);
+    $router->resource('applications', ApplicationController::class);
 });

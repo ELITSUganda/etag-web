@@ -104,7 +104,7 @@ php artisan admin:make TripController --model=App\Models\Trip
 php artisan admin:make BatchSessionController --model=App\\Models\\BatchSession
 php artisan admin:make SlaughterRecordController --model=App\\Models\\SlaughterRecord
 php artisan admin:make FarmVaccinationRecordController --model=App\\Models\\FarmVaccinationRecord
-php artisan admin:make FarmReportController --model=App\\Models\\FarmReport
+php artisan admin:make ApplicationController --model=App\\Models\\Application
 
 
 php artisan make:model HealthReport -m
@@ -148,10 +148,39 @@ php artisan make:model Product
 php artisan make:model NotificationModel -m
 php artisan make:model SlaughterRecord -m
 php artisan make:model FarmReport -m
+php artisan make:model Application -m
+php artisan make:model ApplicationType -m
+php artisan admin:make ApplicationTypeController --model=App\\Models\\ApplicationType
 
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs
 
 
-php artisan make:migration add_farm_id_to_animals --table=pregnant_animals
+php artisan make:migration add_file_fields_to_applications --table=applications
+
+CREATE DATABASE etag
+mysql -u root -p etag < /home/tudeekakasujja23/ulits_db_1.sql
+mysql -u muhindo -p etag < /home/tudeekakasujja23/ulits_db_1.sql
+
+
+CREATE USER 'muhindo'@'localhost' IDENTIFIED BY 'Ilovemum999.';
+GRANT ALL PRIVILEGES ON etag.* TO 'muhindo'@'localhost';
+ls -la /var/www/html/
+sudo chmod 644 /var/www/html/etag/.htaccess
+
+
+sudo git clone https://github.com/ELITSUganda/etag-web etag
+
+sudo chown -R www-data:www-data /var/www/html/etag
+sudo chmod -R 755 /var/www/html/etag
+
+ulits_db_1.sql
+
+sudo nano /etc/apache2/sites-available/000-default.conf
+
+<Directory /var/www/html/etag>
+    AllowOverride All
+</Directory>
+
+
 
