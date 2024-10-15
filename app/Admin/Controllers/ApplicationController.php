@@ -387,6 +387,7 @@ class ApplicationController extends AdminController
                     $form_type = ApplicationType::find($app->application_type_id);
                     if ($form_type == null) {
                         $app->application_type_id = 1;
+                        $app->save(); 
                         admin_error('Error', 'Invalid form type');
                     }
                 }
