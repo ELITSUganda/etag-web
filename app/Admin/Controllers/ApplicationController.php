@@ -32,7 +32,11 @@ class ApplicationController extends AdminController
 
         $grid->column('id', __('Id'));
         $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('Updated at'));
+        $grid->column('updated_at', __('PRINT'))
+            ->display(function ($v) {
+                $url = url('application-print?id=' . $this->id);
+                return "<a href='$url' target='_blank'>Print</a>";
+            });
         $grid->column('applicant_id', __('Applicant id'));
         $grid->column('inspector_1_id', __('Inspector 1 id'));
         $grid->column('inspector_2_id', __('Inspector 2 id'));
@@ -242,6 +246,7 @@ class ApplicationController extends AdminController
     protected function form()
     {
         $form = new Form(new Application());
+
         $u = Admin::user();
         $form_type = null;
         if (isset($_GET['create_form_for'])) {
@@ -250,6 +255,27 @@ class ApplicationController extends AdminController
             if ($form_type != null) {
                 session(['create_form_for' => $form_type->id]);
             }
+        }
+
+        if (!$form->isCreating()) {
+            $segs = request()->segments();
+            if ($form_type == null) {
+                if (isset($segs[1])) {
+                    $app = Application::find($segs[2]);
+                    if ($app == null) {
+                        admin_error('Error', 'Invalid application');
+                    }
+                    $form_type = ApplicationType::find($app->application_type_id);
+                    if ($form_type == null) {
+                        $app->application_type_id = 1;
+                        admin_error('Error', 'Invalid form type');
+                    }
+                }
+            }
+        }
+        if ($form_type == null) {
+            $form->disableCreatingCheck();
+            return $form;
         }
 
         if ($form_type == null) {
@@ -271,13 +297,16 @@ class ApplicationController extends AdminController
         $form->text('applicant_address', __('Applicant Address'))->rules('required')->required();
 
         if (in_array($form_type->id, [1])) {
-            $form->divider('Animal Information');
+            $form->divider('Animal Information')->rules('required')->required();
+            $form->text('animal_name', __('Animal name'));
             $form->radio('animal_species', __('Animal species'))->options([
                 'Bovine/Cattle' => 'Bovine/Cattle',
                 'Caprine/Goat' => 'Caprine/Goat',
                 'Ovine/Sheep' => 'Ovine/Sheep',
                 'Swine/Pig' => 'Swine/Pig',
             ])->rules('required')->required();
+
+            $form->date('animal_dob', __('Animal Date of Birth'))->rules('required')->required();   
             //animal_age
             $form->decimal('animal_age', __('Animal age (in Months)'))->rules('required')->required();
             //animal_breed
@@ -285,7 +314,7 @@ class ApplicationController extends AdminController
             //animal_weight
             $form->decimal('animal_weight', __('Animal weight (in Kgs)'))->rules('required')->required();
             //animal_sex
-            $form->radio('animal_sex', __('Animal\'s sex'))->options(['Male', 'Female'])->rules('required')->required();
+            $form->radio('animal_sex', __('Animal\'s sex'))->options(['Male' => 'Male', 'Female' => 'Female'])->rules('required')->required();
             //animal_color
             $form->text('animal_color', __('Animal color'))->rules('required')->required();
             //animal_quantity
@@ -323,9 +352,16 @@ class ApplicationController extends AdminController
         if (in_array($form_type->id, [1])) {
             $form->divider('Origin Information');
             //Name of owner/consigner 
-            $form->text('origin_owner_name', __('Name of owner/consigner'))->required();
-            $form->text('origin_address', __('Origin address'));
 
+
+            $form->text('origin_owner_name', __('Name of owner/consigner'))->required();
+
+            $form->select('origin_country')
+                ->help('Country of origin')
+                ->required()
+                ->options(Utils::COUNTRIES())->rules('required');
+            $form->text('origin_address', __('Origin address'));
+            /* 
             $form->select('origin_subscount_id', 'Sub-county')->options(function ($id) {
                 $a = Location::find($id);
                 if ($a) {
@@ -334,7 +370,7 @@ class ApplicationController extends AdminController
             })
                 ->ajax(url(
                     '/api/sub-counties'
-                ));
+                )); */
 
             /* 
 
@@ -343,10 +379,10 @@ class ApplicationController extends AdminController
         }
         if (in_array($form_type->id, [1])) {
             $form->divider('Destination Information');
-            $form->select('destination_country_id')
-                ->help('Nationality of the suspect')
+            /* $form->select('destination_country_id')
+                ->help('Nationality')
                 ->required()
-                ->options(Utils::COUNTRIES())->rules('required');
+                ->options(Utils::COUNTRIES())->rules('required'); */
 
             //destination_address
             $form->text('destination_address', __('Destination address'))->rules('required')->required();
@@ -376,11 +412,7 @@ class ApplicationController extends AdminController
         return $form;
 
 
-        /* 
-            $form->textarea('animal_name', __('Animal name'));
-            $form->textarea('animal_dob', __('Animal dob')); 
-
-*/
+   
         $form->textarea('applicant_occupation', __('Applicant occupation'));
         $form->number('inspector_1_id', __('Inspector 1 id'));
         $form->number('inspector_2_id', __('Inspector 2 id'));

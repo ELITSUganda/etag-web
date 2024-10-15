@@ -102,6 +102,7 @@ return array(
     'Facade\\IgnitionContracts\\' => array($vendorDir . '/facade/ignition-contracts/src'),
     'Facade\\FlareClient\\' => array($vendorDir . '/facade/flare-client-php/src'),
     'Encore\\Grid\\Lightbox\\' => array($vendorDir . '/laravel-admin-ext/grid-lightbox/src'),
+    'Encore\\CKEditor\\' => array($vendorDir . '/laravel-admin-ext/ckeditor/src'),
     'Encore\\Admin\\Latlong\\' => array($vendorDir . '/laravel-admin-ext/latlong/src'),
     'Encore\\Admin\\' => array($vendorDir . '/encore/laravel-admin/src'),
     'Egulias\\EmailValidator\\' => array($vendorDir . '/egulias/email-validator/src'),

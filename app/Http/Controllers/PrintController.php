@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Animal;
+use App\Models\Application;
 use App\Models\District;
 use App\Models\Movement;
 use App\Models\Location;
@@ -10,6 +11,7 @@ use App\Models\Utils;
 use Encore\Admin\Facades\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
+use Svg\Tag\Rect;
 
 class PrintController extends Controller
 {
@@ -28,6 +30,121 @@ class PrintController extends Controller
     {
         Utils::prepareThumbnails();
     }
+
+    public function application_print(Request $r)
+    {
+
+        $m = new Animal();
+        $pdf = App::make('dompdf.wrapper');
+        $app = Application::find($r->id);
+    
+        $pdf->loadHTML(view('application-form-print', [
+            'animal' => $m,
+            'app' => $app
+        ]));
+        /* 
+           "id" => 1
+    "created_at" => "2024-10-09 18:12:44"
+    "updated_at" => "2024-10-09 18:12:44"
+    "applicant_id" => 709
+    "inspector_1_id" => null
+    "inspector_2_id" => null
+    "inspector_3_id" => null
+    "application_type_id" => null
+    "stage" => "Pending"
+    "payment_status" => "Pending"
+    "payment_prn" => "Pending"
+    "payment_prn_status" => "Pending"
+    "stage_message" => null
+    "applicant_remarks" => null
+    "applicant_name" => "Ahmed Rivas"
+    "applicant_occupation" => null
+    "applicant_phone" => "+1 (391) 225-8662"
+    "applicant_id_type" => null
+    "applicant_id_number" => null
+    "applicant_address" => "Quas magnam est vel"
+    "applicant_tin" => "Sapiente laboris lor"
+    "applicant_region" => null
+    "applicant_district_id" => null
+    "applicant_subcounty_id" => null
+    "applicant_county_id" => null
+    "applicant_parish_id" => null
+    "applicant_village" => null
+    "applicant_business_name" => null
+    "applicant_business_address" => null
+    "applicant_business_region" => null
+    "applicant_business_district_id" => null
+    "applicant_business_subcounty_id" => null
+    "applicant_business_parish_id" => null
+    "applicant_photo" => null
+    "applicant_proof_of_payment_photo" => null
+    "applicant_recommendation" => null
+    "applicant_nationality" => null
+    "applicant_national_insurance_number" => null
+    "applicant_has_been_convicted" => null
+    "applicant_conviction_details" => null
+    "applicant_conviction_date" => null
+    "type_of_skin" => null
+    "animal_name" => null
+    "animal_species" => "Bovine/Cattle"
+    "animal_breed" => "Elit voluptatem dol"
+    "animal_age" => "6"
+    "animal_sex" => "0"
+    "animal_e_id" => "Tempor deserunt cons"
+    "animal_v_id" => "Nemo blanditiis cons"
+    "animal_color" => "Expedita provident"
+    "animal_dob" => null
+    "animal_weight" => "21"
+    "animal_quantity" => "578"
+    "animal_identification_remarks" => "Sed sit provident"
+    "package_hs_code" => "Dolores id aut sint"
+    "package_type" => "Vehicle"
+    "package_wight" => "2"
+    "package_number" => "751"
+    "package_purpose" => "Qui mollitia ut omni"
+    "package_goods_description" => "Et possimus volupta"
+    "package_monetry_value" => "12"
+    "package_currency" => "Autem eu qui quasi t"
+    "origin_owner_name" => "May Oconnor"
+    "origin_address" => "Quae voluptatem Qui"
+    "origin_subscount_id" => null
+    "origin_district_id" => null
+    "destination_country_id" => null
+    "destination_district_id" => null
+    "destination_subcounty_id" => null
+    "destination_address" => "Quae commodo quia na"
+    "destination_importer_name" => "Xandra Castillo"
+    "port_of_exit" => "Quis aut placeat di"
+    "movement_route" => "Repellendus Duis pl"
+    "movement_transport_means" => "Dicta sunt cupidatat"
+    "movement_quarantine" => null
+    "has_buyer_licence" => null
+    "buyer_license_number" => null
+    "buyer_license_expiry" => null
+    "buyer_tin" => null
+    "buyer_nin" => null
+    "operation_location_of_premise" => null
+    "operation_floor_space_of_the_store" => null
+    "operation_district_id" => null
+    "operation_capacity_of_press" => null
+    "operation_sub_country_id" => null
+    "operation_director_of_company_of_staffing" => null
+    "feed_type" => null
+    "feed_quantity" => null
+    "feed_description" => null
+    "feed_batch_no" => null
+    "invoice_number" => null
+    "invoice_value" => null
+    "invoice_currency" => null
+    "file_inspection_report" => null
+    "file_objection_letter" => null
+    "file_laboratory_results" => null
+    "file_invoice" => null
+  ]
+        */
+        return $pdf->stream($m->id . ".pdf");
+    }
+
     public function animal_profile()
     {
         //animal-profile

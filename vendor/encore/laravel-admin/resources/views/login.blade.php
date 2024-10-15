@@ -1,3 +1,7 @@
+<?php
+// import Utils class from models
+use App\Models\Utils;
+?>
 <!DOCTYPE html>
 <html>
 
@@ -44,8 +48,18 @@
 
         <!-- /.login-logo -->
         <div class="login-box-body" style="text-align: center;">
-            <p class="login-box-msg">UGANDA LIVESTOCK IDENTIFICATION & TRACEABILITY SYSTEM</p>
-            <img src="{{ url('assets/images/logo.png') }}" width="120">
+            <p class="login-box-msg">
+                @if (Utils::is_maaif())
+                    <b>MINISTRY OF AGRICULTURE, ANIMAL INDUSTRY AND FISHERIES</b>
+                @else
+                    UGANDA LIVESTOCK IDENTIFICATION & TRACEABILITY SYSTEM
+                @endif
+            </p>
+            @if (Utils::is_maaif())
+                <img src="{{ url('assets/images/coat_of_arms-min.png') }}" width="120">
+            @else
+                <img src="{{ url('assets/images/logo.png') }}" width="120">
+            @endif
             <br>
             <br>
             <div style="height: 3px; width:100%; background: black;"> </div>
@@ -53,6 +67,13 @@
             <div style="height: 3px; width:100%; background: red;"> </div>
             <br>
 
+
+            @if (Utils::is_maaif())
+                <u class="text-uppercase">Animal Directorate License & Permits Portal</u>
+            @endif
+
+            <br>
+            <br>
             <p class="login-box-msg"><b>{{ trans('Login') }}</b></p>
             <form action="{{ admin_url('auth/login') }}" method="post">
 
@@ -65,7 +86,7 @@
                         @endforeach
                     @endif
 
-                    <input type="text" class="form-control" placeholder="Phone number" name="phone_number" required
+                    <input type="text" class="form-control" placeholder="Email Address or Phone number" name="phone_number" required
                         value="{{ old('phone_number') }}">
                     <span class="glyphicon glyphicon-phone form-control-feedback"></span>
                 </div>

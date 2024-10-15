@@ -1,3 +1,7 @@
+<?php
+// import Utils class from models
+use App\Models\Utils;
+?>
 <!DOCTYPE html>
 <html>
 
@@ -44,16 +48,33 @@
 
         <!-- /.login-logo -->
         <div class="login-box-body" style="text-align: center;">
-            <p class="login-box-msg">UGANDA LIVESTOCK IDENTIFICATION & TRACEABILITY SYSTEM</p>
-            <img src="{{ url('assets/images/logo.png') }}" width="120">
+            <p class="login-box-msg">
+                @if ($is_maaif)
+                    <b>MINISTRY OF AGRICULTURE, ANIMAL INDUSTRY AND FISHERIES</b>
+                @else
+                    UGANDA LIVESTOCK IDENTIFICATION & TRACEABILITY SYSTEM
+                @endif
+            </p>
+            @if (Utils::is_maaif())
+                <img src="{{ url('assets/images/coat_of_arms-min.png') }}" width="120">
+            @else
+                <img src="{{ url('assets/images/logo.png') }}" width="120">
+            @endif
             <br>
             <br>
             <div style="height: 3px; width:100%; background: black;"> </div>
             <div style="height: 3px; width:100%; background: yellow;"> </div>
             <div style="height: 3px; width:100%; background: red;"> </div>
             <br>
- 
-            <p class="login-box-msg"><b>{{ trans('Register') }}</b></p>
+
+            @if (Utils::is_maaif())
+                <u class="text-uppercase">Animal Directorate License & Permits Portal</u>
+            @endif
+
+
+            <br>
+            <br>
+            <p class="login-box-msg"><b>Create Account</b></p>
             <form action="{{ url('register') }}" method="post">
                 <div class="form-group has-feedback {!! !$errors->has('name') ?: 'has-error' !!}">
                     @if ($errors->has('name'))
@@ -69,12 +90,25 @@
                 </div>
 
 
+                <div class="form-group has-feedback {!! !$errors->has('email') ?: 'has-error' !!}">
+                    @if ($errors->has('email'))
+                        @foreach ($errors->get('email') as $message)
+                            <label class="control-label" for="inputError"><i
+                                    class="fa fa-mail"></i>{{ $message }}</label><br>
+                        @endforeach
+                    @endif
+
+                    <input type="email" class="form-control" placeholder="Email Address" name="email" required
+                        value="{{ old('email') }}">
+                    <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+                </div>
+
                 <div class="form-group has-feedback {!! !$errors->has('phone_number') ?: 'has-error' !!}">
                     @if ($errors->has('phone_number'))
                         @foreach ($errors->get('phone_number') as $message)
                             <label class="control-label" for="inputError"><i
                                     class="fa fa-times-circle-o"></i>{{ $message }}</label><br>
-                        @endforeach 
+                        @endforeach
                     @endif
 
                     <input type="text" class="form-control" placeholder="Phone number" name="phone_number" required
@@ -108,7 +142,7 @@
                     @endif
 
                     <input type="password" class="form-control" placeholder="{{ trans('admin.password') }}"
-                        name="password" required>
+                        name="password" required value="{{ old('password') }}">
                     <span class="glyphicon glyphicon-lock form-control-feedback"></span>
                 </div>
 
@@ -123,8 +157,8 @@
                         @endforeach
                     @endif
 
-                    <input type="password" class="form-control" placeholder="Repeat password" name="password_2"
-                        required>
+                    <input type="password" class="form-control" placeholder="Repeat password" name="password_2" required
+                        value="{{ old('password_2') }}">
                     <span class="glyphicon glyphicon-lock form-control-feedback"></span>
                 </div>
 
