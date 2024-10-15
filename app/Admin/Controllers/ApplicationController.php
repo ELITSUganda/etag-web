@@ -30,30 +30,141 @@ class ApplicationController extends AdminController
     {
         $grid = new Grid(new Application());
 
-        $grid->column('id', __('Id'));
-        $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('PRINT'))
+        $page = '';
+        $segs = request()->segments();
+        $title = 'All Applications';
+        if (in_array('pending-applications', $segs)) {
+            $page = 'pending-applications';
+            $title = 'Pending Applications';
+            $grid->model()->where('stage', 'Pending');
+        } else if (in_array('approved-applications', $segs)) {
+            $page = 'approved-applications';
+            $title = 'Approved Applications';
+            $grid->model()->where('stage', 'Approved');
+        } else if (in_array('inspection-applications', $segs)) {
+            $page = 'inspection-applications';
+            $title = 'Inspection Applications';
+            $grid->model()->where('stage', 'Inspection');
+        } else if (in_array('payment-applications', $segs)) {
+            $page = 'payment-applications';
+            $title = 'Payment Applications';
+            $grid->model()->where('stage', 'Payment');
+        } else if (in_array('approved-applications', $segs)) {
+            $page = 'approved-applications';
+            $title = 'Approved Applications';
+        } else {
+            $page = 'applications';
+            $title = 'All Applications';
+        }
+
+        $grid->setTitle($title);
+
+
+        $u = Admin::user();
+        if (!$u->isRole('maaif-admin')) {
+            // $grid->model()->where('applicant_id', $u->id);
+        }
+
+        $grid->disableBatchActions();
+        $grid->disableCreateButton();
+        $grid->disableColumnSelector();
+
+        $grid->filter(function ($filter) {
+            $filter->disableIdFilter();
+            $filter->like('applicant_name', __('Applicant Name'));
+            $filter->like('applicant_phone', __('Applicant Phone'));
+            $filter->like('applicant_address', __('Applicant Address'));
+            $filter->like('applicant_id_number', __('Applicant ID Number'));
+            $filter->like('applicant_id_type', __('Applicant ID Type'));
+            $filter->like('stage', __('Application Stage'));
+        });
+
+        $grid->model()->orderBy('id', 'desc');
+        $grid->quickSearch('code', 'applicant_name', 'applicant_phone', 'applicant_address', 'applicant_id_number', 'applicant_id_type', 'stage')
+            ->placeholder('Search by name, phone, address, ID number, ID type, stage');
+
+        $grid->column('id', __('Id'))->hide();
+
+        $grid->column('created_at', __('Date'))
             ->display(function ($v) {
-                $url = url('application-print?id=' . $this->id);
-                return "<a href='$url' target='_blank'>Print</a>";
+                return Utils::my_date($v);
+            })->sortable();
+
+
+        $grid->column('applicant_id_type', __('Application'))
+            ->display(function ($v) {
+                $type =  ApplicationType::find($this->application_type_id);
+                if ($type != null) {
+                    return $type->name;
+                }
+                return 'Unknown';
+            })->sortable();
+        $grid->column('applicant_name', __('Applicant'))->sortable();
+        $grid->column('applicant_phone', __('Contact'))->sortable();
+        $grid->column('applicant_address', __('Address'))->sortable();
+        $grid->column('applicant_id_number', __('Applicant ID'))
+            ->display(function ($v) {
+                if ($v == null || strlen($v) < 1) {
+                    return 'N/A';
+                }
+                return $this->applicant_id_type . ' ' . $v;
+            })->sortable();
+        // $grid->column('applicant_remarks', __('Applicant Remarks'))->sortable();
+        $grid->column('stage', __('Application Stage'))->sortable()
+            ->label([
+                'Pending' => 'default',
+                'Approved' => 'success',
+                'Payment' => 'warning',
+                'Inspection' => 'info',
+                'Rejected' => 'danger',
+            ])->filter([
+                'Pending' => 'Pending',
+                'Approved' => 'Approved',
+                'Payment' => 'Payment',
+                'Inspection' => 'Inspection',
+                'Rejected' => 'Rejected',
+            ]);
+
+        //code
+        $grid->column('code', __('Code'))->sortable();
+
+        $grid->column('updated_at', __('Actions'))
+            ->display(function ($v) {
+                $seg = Utils::get_seg();
+                if ($seg == 'pending-applications') {
+                    $u = Admin::user();
+                    if (!$u->isRole('maaif-admin')) {
+                        return 'N/A';
+                    }
+                    return "<a href='" . admin_url('pending-applications/' . $this->id) . "/edit" . "' class='btn btn-sm btn-primary'>REVIEW</a>";
+                } else if ($seg == 'inspection-applications') {
+                    $u = Admin::user();
+                    if (!$u->isRole('maaif-admin')) {
+                        return 'N/A';
+                    }
+                    return "<a href='" . admin_url('inspection-applications/' . $this->id) . "/edit" . "' class='btn btn-sm btn-primary'>INSPECT</a>";
+                }
+                $url = "<a href='" . url('application-print?id=' . $this->id) . "' target='_blank' class='btn btn-sm btn-primary'>DOWNLOAD</a>";
+                return $url;
             });
-        $grid->column('applicant_id', __('Applicant id'));
+
+        $grid->disableBatchActions();
+        return $grid;
+        $grid->column('applicant_occupation', __('Applicant occupation'));
+
+
+
+        $grid->column('applicant_id', __('Applicant'));
         $grid->column('inspector_1_id', __('Inspector 1 id'));
         $grid->column('inspector_2_id', __('Inspector 2 id'));
         $grid->column('inspector_3_id', __('Inspector 3 id'));
         $grid->column('application_type_id', __('Application type id'));
-        $grid->column('stage', __('Stage'));
         $grid->column('payment_status', __('Payment status'));
         $grid->column('payment_prn', __('Payment prn'));
         $grid->column('payment_prn_status', __('Payment prn status'));
         $grid->column('stage_message', __('Stage message'));
-        $grid->column('applicant_remarks', __('Applicant remarks'));
-        $grid->column('applicant_name', __('Applicant name'));
-        $grid->column('applicant_occupation', __('Applicant occupation'));
-        $grid->column('applicant_phone', __('Applicant phone'));
-        $grid->column('applicant_id_type', __('Applicant id type'));
-        $grid->column('applicant_id_number', __('Applicant id number'));
-        $grid->column('applicant_address', __('Applicant address'));
+
+
         $grid->column('applicant_tin', __('Applicant tin'));
         $grid->column('applicant_region', __('Applicant region'));
         $grid->column('applicant_district_id', __('Applicant district id'));
@@ -246,6 +357,9 @@ class ApplicationController extends AdminController
     protected function form()
     {
         $form = new Form(new Application());
+        $form->disableCreatingCheck();
+        $form->disableReset();
+        $form->disableViewCheck();
 
         $u = Admin::user();
         $form_type = null;
@@ -290,6 +404,43 @@ class ApplicationController extends AdminController
             $form->hidden('applicant_id', __('Applicant id'))->default($u->id);
         }
 
+        if (!$form->isCreating()) {
+
+            $url = "<a href='" . url('application-print?id=' . $app->id) . "' target='_blank' class='btn btn-sm btn-primary'>Preview Application</a>";
+            //add download button
+            $form->html($url, 'Preview Application');
+
+            if ($u->isRole('maaif-admin')) {
+                $form->divider('Applicant Details');
+                $form->display('applicant_name', __('Applicant name'));
+                $form->display('applicant_phone', __('Applicant phone number'));
+                $form->display('applicant_tin', __('Applicant TIN'));
+                $form->display('applicant_address', __('Applicant Address'));
+
+
+                if (Utils::get_seg() == 'pending-applications') {
+                    $form->divider('Review Application');
+                    $form->radio('stage', __('Review Decision'))->options([
+                        'Pending' => 'Pending',
+                        'Inspection' => 'Ready for inspection',
+                        'Rejected' => 'Rejected',
+                    ])->rules('required')->required();
+                    $form->textarea('stage_message', __('Stage message'))->rules('required')->required();
+                } else if (Utils::get_seg() == 'inspection-applications') {
+                    $form->divider('Inspection Decision');
+                    $form->radio('stage', __('Application Stage'))->options([
+                        'Inspection' => 'Under Inspection',
+                        'Payment' => 'Approved and ready for payment',
+                        'Rejected' => 'Rejected',
+                    ])->rules('required')->required();
+                    $form->textarea('stage_message', __('Stage message'))->rules('required')->required();
+                }
+
+                return $form;
+            }
+        }
+
+
         $form->divider('Applicant Details');
         $form->text('applicant_name', __('Applicant name'))->rules('required')->required();
         $form->text('applicant_phone', __('Applicant phone number'))->rules('required')->required();
@@ -306,7 +457,7 @@ class ApplicationController extends AdminController
                 'Swine/Pig' => 'Swine/Pig',
             ])->rules('required')->required();
 
-            $form->date('animal_dob', __('Animal Date of Birth'))->rules('required')->required();   
+            $form->date('animal_dob', __('Animal Date of Birth'))->rules('required')->required();
             //animal_age
             $form->decimal('animal_age', __('Animal age (in Months)'))->rules('required')->required();
             //animal_breed
@@ -412,7 +563,7 @@ class ApplicationController extends AdminController
         return $form;
 
 
-   
+
         $form->textarea('applicant_occupation', __('Applicant occupation'));
         $form->number('inspector_1_id', __('Inspector 1 id'));
         $form->number('inspector_2_id', __('Inspector 2 id'));

@@ -143,7 +143,6 @@ class MainController extends Controller
 
         $request->phone_number = $request->phone_number;
         $request->username = $request->email;
-        $request->email = $request->email;
 
 
         $u = Administrator::where('username', $request->username)->first();
@@ -171,6 +170,7 @@ class MainController extends Controller
 
         $user->name = $request->name;
         $user->username = $request->username;
+        $user->email = $request->email;
         $user->phone_number = $request->phone_number;
         $user->address = $request->address;
         $user->password = password_hash(trim($request->password), PASSWORD_DEFAULT);

@@ -78,7 +78,7 @@ class HomeController extends Controller
                     'title' => strtoupper('Pending for review'),
                     'sub_title' => 'New applications not yet reviewed',
                     'number' => number_format(Application::where($conds)->count()),
-                    'link' => admin_url('movements')
+                    'link' => admin_url('pending-applications')
                 ]));
             });
 
@@ -93,10 +93,9 @@ class HomeController extends Controller
                     'title' => strtoupper('Under Inspection'),
                     'sub_title' => 'Applications under inspection',
                     'number' => number_format(Application::where($conds)->count()),
-                    'link' => admin_url('movements')
+                    'link' => admin_url('inspection-applications')
                 ]));
             });
-
             $row->column(3, function (Column $column) {
                 $u = Admin::user();
                 $conds = ['stage' => 'Payment'];
@@ -108,7 +107,7 @@ class HomeController extends Controller
                     'title' => strtoupper('Payment Stage'),
                     'sub_title' => 'Applications pending for payment',
                     'number' => number_format(Application::where($conds)->count()),
-                    'link' => admin_url('movements')
+                    'link' => admin_url('payment-applications')
                 ]));
             });
 
@@ -124,10 +123,11 @@ class HomeController extends Controller
                     'title' => strtoupper('Approved Applications'),
                     'sub_title' => 'Completed applications.',
                     'number' => number_format(Application::where($conds)->count()),
-                    'link' => admin_url('movements')
+                    'link' => admin_url('approved-applications')
                 ]));
             });
         });
+        return $content; 
         Admin::js('/vendor/laravel-admin-ext/chartjs/Chart.bundle.min.js');
         $content->title('Main Dashboard');
 

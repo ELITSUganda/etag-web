@@ -18,6 +18,32 @@ use Milon\Barcode\DNS2D;
 class Utils extends Model
 {
 
+    public static function get_seg()
+    {
+        //$_SERVER['HTTP_HOST'];
+        $segs = request()->segments();
+        $title = 'All Applications';
+        if (in_array('pending-applications', $segs)) {
+            $page = 'pending-applications';
+            $title = 'Pending Applications';
+        } else if (in_array('approved-applications', $segs)) {
+            $page = 'approved-applications';
+            $title = 'Approved Applications';
+        } else if (in_array('inspection-applications', $segs)) {
+            $page = 'inspection-applications';
+            $title = 'Inspection Applications';
+        } else if (in_array('payment-applications', $segs)) {
+            $page = 'payment-applications';
+            $title = 'Payment Applications';
+        } else if (in_array('approved-applications', $segs)) {
+            $page = 'approved-applications';
+            $title = 'Approved Applications';
+        } else {
+            $page = 'applications';
+            $title = 'All Applications';
+        }
+        return $page;
+    }
     public static function is_maaif()
     {
         $host = $_SERVER['HTTP_HOST'];
