@@ -564,6 +564,10 @@ class ApplicationController extends AdminController
             $table->string('file_invoice')->nullable()->comment('Invoice and other supporting documents');
         */
 
+        //creating, set application_type_id
+        if ($form->isCreating()) {
+            $form->hidden('application_type_id', __('Application type id'))->default($form_type->id);
+        } 
 
         return $form;
 
