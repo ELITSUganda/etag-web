@@ -127,7 +127,12 @@ class ApplicationController extends AdminController
 
         //code
         $grid->column('code', __('Code'))->sortable();
-
+        //preive form
+        $grid->column('Preview', __('Preview'))
+            ->display(function ($v) {
+                $url = "<a href='" . url('application-print?id=' . $this->id) . "' target='_blank' >Preview Application</a>";
+                return $url;
+            });
         $grid->column('updated_at', __('Actions'))
             ->display(function ($v) {
                 $seg = Utils::get_seg();
