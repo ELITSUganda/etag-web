@@ -62,9 +62,145 @@ class HomeController extends Controller
         return redirect(admin_url('/'));
     }
 
+    public function maaif_dashboard(Content $content)
+    {
+
+        $content->row(function ($row) {
+
+            $row->column(3, function (Column $column) {
+                $u = Admin::user();
+                $conds = ['stage' => 'Pending'];
+                if (!$u->isRole('maaif-admin')) {
+                    $conds = ['applicant_id' => $u->id];
+                }
+                $column->append(view('widgets.box-5', [
+                    'is_dark' => false,
+                    'title' => strtoupper('Pending for review'),
+                    'sub_title' => 'New applications not yet reviewed',
+                    'number' => number_format(Application::where($conds)->count()),
+                    'link' => admin_url('pending-applications')
+                ]));
+            });
+
+            $row->column(3, function (Column $column) {
+                $u = Admin::user();
+                $conds = ['stage' => 'Inspection'];
+                if (!$u->isRole('maaif-admin')) {
+                    $conds = ['applicant_id' => $u->id];
+                }
+                $column->append(view('widgets.box-5', [
+                    'is_dark' => false,
+                    'title' => strtoupper('Under Inspection'),
+                    'sub_title' => 'Applications under inspection',
+                    'number' => number_format(Application::where($conds)->count()),
+                    'link' => admin_url('inspection-applications')
+                ]));
+            });
+            $row->column(3, function (Column $column) {
+                $u = Admin::user();
+                $conds = ['stage' => 'Payment'];
+                if (!$u->isRole('maaif-admin')) {
+                    $conds = ['applicant_id' => $u->id];
+                }
+                $column->append(view('widgets.box-5', [
+                    'is_dark' => false,
+                    'title' => strtoupper('Payment Stage'),
+                    'sub_title' => 'Applications pending for payment',
+                    'number' => number_format(Application::where($conds)->count()),
+                    'link' => admin_url('payment-applications')
+                ]));
+            });
+
+
+            $row->column(3, function (Column $column) {
+                $u = Admin::user();
+                $conds = ['stage' => 'Completed'];
+                if (!$u->isRole('maaif-admin')) {
+                    $conds = ['applicant_id' => $u->id];
+                }
+                $column->append(view('widgets.box-5', [
+                    'is_dark' => true,
+                    'title' => strtoupper('Approved Applications'),
+                    'sub_title' => 'Completed applications.',
+                    'number' => number_format(Application::where($conds)->count()),
+                    'link' => admin_url('approved-applications')
+                ]));
+            });
+        });
+        return $content; 
+        Admin::js('/vendor/laravel-admin-ext/chartjs/Chart.bundle.min.js');
+        $content->title('Main Dashboard');
+
+        $content->row(function (Row $row) {
+            $u = Admin::user();
+            $row->column(6, Dashboard::to_districts($u));
+            $row->column(6, Dashboard::animals_by_farms($u));
+        });
+
+        $content->row(function ($row) {
+            $box = new Box('Livestock Species', view('admin.dashboard.chart-animal-types'));
+            $box->removable();
+            $box->collapsable();
+            $box->style('success');
+            $box->solid();
+            $row->column(6, $box);
+
+            $box = new Box('Events', view('admin.dashboard.chart-animal-status'));
+            $box->removable();
+            $box->collapsable();
+            $box->style('success');
+            $box->solid();
+            $row->column(6, $box);
+        });
+        return $content;
+    }
     public function index(Content $content)
     {
         $u = Admin::user();
+        $isApplicant = false;
+        $isAdmin = false;
+        if (Utils::is_maaif()) {
+
+            return $this->maaif_dashboard($content);
+            if ($u->isRole('applicant')) {
+                $isApplicant = true;
+            } else {
+                //assign applicant role
+                Utils::assign_role($u->id, 'applicant');
+            }
+
+            $forms = ApplicationType::where([])->orderBy('name', 'asc')->get();
+
+
+
+            if (!$u->isRole('maaif-admin')) {
+                $isAdmin = true;
+
+                $myApplciations = Application::where([
+                    'applicant_id' => $u->id
+                ])->get();
+
+                if ($myApplciations->count() > 0) {
+                    $content
+                        ->title('My Applications');
+                    $content
+                        ->view("widgets.maaf-application-dashboard", [
+                            'applications' => $myApplciations
+                        ]);
+                    return $content;
+                } else {
+                    $content
+                        ->title('MAAIF APPLICATION FORMS');
+                    $content
+                        ->view("widgets.maaf-application-forms", [
+                            'forms' => $forms
+                        ]);
+                }
+
+                return $content;
+            }
+        }
+
         $content
             ->title('U-LITS - Dashboard')
             /* ->description('Hello ' . $u->name . "!" . " - " . Carbon::now()->format('l jS \\of F Y h:i:s A')) */;;
@@ -502,21 +638,21 @@ class HomeController extends Controller
 
 
             $row->$row->column(3, function (Column $column) {
-                    // global access for $form
-                    $forms = ApplicationType::where([])->orderBy('name', 'asc')->get();
-                    foreach ($forms as $key => $app_form) {
-                        $column->append(view('widgets.box-5', [
-                            'is_dark' => false,
-                            'title' => $app_form->name,
-                            'sub_title' => 'Total number of cattle vaccinated in last 6 months ago.',
-                            'number' => number_format(Animal::where([
-                                'type' => 'Cattle',
-                                'genetic_donor' => 'Not Vaccinated'
-                            ])->count()),
-                            'link' => admin_url('vaccination-stats')
-                        ]));
-                    }
-                });
+                // global access for $form
+                $forms = ApplicationType::where([])->orderBy('name', 'asc')->get();
+                foreach ($forms as $key => $app_form) {
+                    $column->append(view('widgets.box-5', [
+                        'is_dark' => false,
+                        'title' => $app_form->name,
+                        'sub_title' => 'Total number of cattle vaccinated in last 6 months ago.',
+                        'number' => number_format(Animal::where([
+                            'type' => 'Cattle',
+                            'genetic_donor' => 'Not Vaccinated'
+                        ])->count()),
+                        'link' => admin_url('vaccination-stats')
+                    ]));
+                }
+            });
         });
         return $content;
     }

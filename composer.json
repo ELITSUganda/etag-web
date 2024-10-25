@@ -15,6 +15,7 @@
         "guzzlehttp/guzzle": "^7.0.1",
         "jxlwqq/material-ui": "^1.0",
         "jxlwqq/quill": "^1.0",
+        "laravel-admin-ext/ckeditor": "^1.0",
         "laravel-admin-ext/grid-lightbox": "^1.0",
         "laravel-admin-ext/latlong": "2.x",
         "laravel/framework": "^8.54",

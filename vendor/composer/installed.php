@@ -3,7 +3,7 @@
         'name' => 'laravel/laravel',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => 'cca547b9b20d1f82af98fc772b90b34c35d4fa92',
+        'reference' => '4f14c6e18de424e2638ffbcde817f9dea29bb613',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -574,6 +574,15 @@
                 0 => '*',
             ),
         ),
+        'laravel-admin-ext/ckeditor' => array(
+            'pretty_version' => 'v1.0.1',
+            'version' => '1.0.1.0',
+            'reference' => '33b0be1f489f923617417f8135a198d984a6b12f',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../laravel-admin-ext/ckeditor',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'laravel-admin-ext/grid-lightbox' => array(
             'pretty_version' => 'v1.0.3',
             'version' => '1.0.3.0',
@@ -604,7 +613,7 @@
         'laravel/laravel' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => 'cca547b9b20d1f82af98fc772b90b34c35d4fa92',
+            'reference' => '4f14c6e18de424e2638ffbcde817f9dea29bb613',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

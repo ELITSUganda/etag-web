@@ -192,6 +192,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'E' => 
         array (
             'Encore\\Grid\\Lightbox\\' => 21,
+            'Encore\\CKEditor\\' => 16,
             'Encore\\Admin\\Latlong\\' => 21,
             'Encore\\Admin\\' => 13,
             'Egulias\\EmailValidator\\' => 23,
@@ -629,6 +630,10 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'Encore\\Grid\\Lightbox\\' => 
         array (
             0 => __DIR__ . '/..' . '/laravel-admin-ext/grid-lightbox/src',
+        ),
+        'Encore\\CKEditor\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/laravel-admin-ext/ckeditor/src',
         ),
         'Encore\\Admin\\Latlong\\' => 
         array (
@@ -2308,6 +2313,9 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'Encore\\Admin\\Widgets\\Tab' => __DIR__ . '/..' . '/encore/laravel-admin/src/Widgets/Tab.php',
         'Encore\\Admin\\Widgets\\Table' => __DIR__ . '/..' . '/encore/laravel-admin/src/Widgets/Table.php',
         'Encore\\Admin\\Widgets\\Widget' => __DIR__ . '/..' . '/encore/laravel-admin/src/Widgets/Widget.php',
+        'Encore\\CKEditor\\CKEditor' => __DIR__ . '/..' . '/laravel-admin-ext/ckeditor/src/CKEditor.php',
+        'Encore\\CKEditor\\CKEditorServiceProvider' => __DIR__ . '/..' . '/laravel-admin-ext/ckeditor/src/CKEditorServiceProvider.php',
+        'Encore\\CKEditor\\Editor' => __DIR__ . '/..' . '/laravel-admin-ext/ckeditor/src/Editor.php',
         'Encore\\Grid\\Lightbox\\GalleryDisplayer' => __DIR__ . '/..' . '/laravel-admin-ext/grid-lightbox/src/GalleryDisplayer.php',
         'Encore\\Grid\\Lightbox\\Lightbox' => __DIR__ . '/..' . '/laravel-admin-ext/grid-lightbox/src/Lightbox.php',
         'Encore\\Grid\\Lightbox\\LightboxDisplayer' => __DIR__ . '/..' . '/laravel-admin-ext/grid-lightbox/src/LightboxDisplayer.php',

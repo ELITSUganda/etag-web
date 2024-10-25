@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdminRole;
 use App\Models\Utils;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Facades\Admin;
@@ -31,8 +32,8 @@ class MainController extends Controller
                 while (($file = readdir($dh)) !== false) {
                     if ($file != "." && $file != ".." && $file != '.DS_Store') {
 
-                        $temps = explode('_',$file);
-                        if(in_array('temp',$temps)){
+                        $temps = explode('_', $file);
+                        if (in_array('temp', $temps)) {
                             continue;
                         }
                         $original_file = $dir . $file;
@@ -72,7 +73,7 @@ class MainController extends Controller
                             $thumb =  Utils::create_thumbnail($original_file);
                             if ($thumb == null) {
                                 continue;
-                            } 
+                            }
 
                             if (!file_exists($thumb)) {
                                 echo "========THUMB DNE!============";
@@ -86,10 +87,9 @@ class MainController extends Controller
                             rename($thumb, $original_file);
 
                             if (file_exists($thumb)) {
-                                unlink($thumb); 
+                                unlink($thumb);
                                 continue;
                             }
-
                         } catch (\Throwable $th) {
                             //throw $th;
                         }
@@ -119,21 +119,30 @@ class MainController extends Controller
                 'name' => "You must provide username, password, name and phone number.",
             ]);
         }
+        if (
+            $request->email == null
+        ) {
+
+            return back()->withInput()->withErrors([
+                'email' => "You must provide email.",
+            ]);
+        }
+
+        if (!Utils::email_is_valid($request->email)) {
+            return back()->withInput()->withErrors([
+                'email' => "Please enter valid email.",
+            ]);
+        }
 
         if ($request->password != $request->password_2) {
             return back()->withInput()->withErrors([
                 'password' => "Passwords did not match.",
             ]);
         }
+ 
 
-        if (!Utils::phone_number_is_valid($request->phone_number)) {
-            return back()->withInput()->withErrors([
-                'phone_number' => "Please enter valid phone number.",
-            ]);
-        }
-
-        $request->phone_number = Utils::prepare_phone_number($request->phone_number);
-        $request->username = $request->phone_number;
+        $request->phone_number = $request->phone_number;
+        $request->username = $request->email;
 
 
         $u = Administrator::where('username', $request->username)->first();
@@ -142,13 +151,13 @@ class MainController extends Controller
                 'phone_number' => "User with same username already exist.",
             ]);
         }
-
         $u = Administrator::where('email', $request->username)->first();
         if ($u != null) {
             return back()->withInput()->withErrors([
-                'phone_number' => "User with same phone number already exist.",
+                'email' => "User with same email address already exist.",
             ]);
         }
+
 
         $u = Administrator::where('phone_number', $request->phone_number)->first();
         if ($u != null) {
@@ -161,12 +170,16 @@ class MainController extends Controller
 
         $user->name = $request->name;
         $user->username = $request->username;
+        $user->email = $request->email;
         $user->phone_number = $request->phone_number;
         $user->address = $request->address;
         $user->password = password_hash(trim($request->password), PASSWORD_DEFAULT);
-        if (!$user->save()) {
+
+        try {
+            $user->save();
+        } catch (\Throwable $th) {
             return back()->withInput()->withErrors([
-                'name' => "Failed to create account. Please try again.",
+                'name' => "Failed to create account because " . $th->getMessage(),
             ]);
         }
 
@@ -177,12 +190,20 @@ class MainController extends Controller
             ]);
         }
 
-
-        DB::table('admin_role_users')->insert([
-            'user_id' => $u->id,
-            'role_id' => 12
-        ]);
-
+        $role = AdminRole::where('slug', 'applicant')->first();
+        if (!Utils::is_maaif()) {
+            DB::table('admin_role_users')->insert([
+                'user_id' => $u->id,
+                'role_id' => 12
+            ]);
+        } else {
+            if ($role != null) {
+                DB::table('admin_role_users')->insert([
+                    'user_id' => $u->id,
+                    'role_id' => $role->id
+                ]);
+            }
+        }
 
 
         $remember = $request->get('remember', true);
@@ -197,7 +218,10 @@ class MainController extends Controller
 
     public function create_account_page(Request $request)
     {
-        return view('main.register');
+        $is_maaif = Utils::is_maaif();
+        return view('main.register', [
+            'is_maaif' => $is_maaif
+        ]);
         if (
             $request->username == null ||
             $request->password == null

@@ -75,14 +75,40 @@ class ApplicationTypeController extends AdminController
     {
         $form = new Form(new ApplicationType());
 
-        $form->text('name', __('Name'))->rules('required');
-        $form->text('description', __('Description'))->rules('required')->required();
-        $form->textarea('fields', __('Fields'));
-        $form->quill('message_1', __('Message 1'));
-        $form->quill('message_2', __('Message 2'));
+        $form->text('name', __('Application Name'))->rules('required');
+        $form->text('message_2', __('Application Title'))->rules('required');
+        $form->text('description', __('Short Description'))->rules('required')->required();
+        $form->ckeditor('message_1', __('Template'))
+            ->options([
+                'height' => 600,
+                'toolbar' => [
+                    ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-', 'RemoveFormat'],
+                    ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'Blockquote'],
+                    ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+                    ['Link', 'Unlink', 'Anchor'],
+                    ['Image', 'Table', 'HorizontalRule', 'SpecialChar'],
+                    '/',
+                    ['Styles', 'Format', 'Font', 'FontSize'],
+                    ['TextColor', 'BGColor'],
+                    ['Maximize', 'ShowBlocks', '-', 'Source'],
+                ],
+                'placeholder' => 'Compose an epic...',
+            ]);
+
+        $form->html(
+            '<code>[NAME_OF_APPLICANT]</code>' .
+                '<code>[APPLICANT_ADDRESS]</code>' .
+                '<code>[COUNTRY_OF_ORIGIN]</code>' .
+                '<code>[SINGLE_ANIMAL_TABLE]</code>' .
+                '',
+            "Keywords"
+        );
+
+        return $form;
         $form->quill('message_3', __('Message 3'));
         $form->text('is_paid', __('Is paid'))->default('Yes');
         $form->tags('documents', __('Documents'));
+        $form->textarea('fields', __('Fields'));
 
         return $form;
     }

@@ -441,6 +441,17 @@ return [
                 'height' => '200px',
             ]
         ],
+        'ckeditor' => [
+
+            //Set to false if you want to disable this extension
+            'enable' => true,
+            
+
+            // Editor configuration
+            'config' => [
+                'height' => 500,
+            ]
+        ],
 
         'grid-lightbox' => [
             'enable' => true,

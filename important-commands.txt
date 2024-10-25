@@ -156,7 +156,7 @@ composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs
 
 
-php artisan make:migration add_file_fields_to_applications --table=applications
+php artisan make:migration add_code_to_applications --table=applications
 
 CREATE DATABASE etag
 mysql -u root -p etag < /home/tudeekakasujja23/ulits_db_1.sql

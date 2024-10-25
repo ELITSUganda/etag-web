@@ -84,5 +84,12 @@ Route::group([
     $router->resource('farm-reports', FarmReportController::class);
 
     $router->resource('application-types', ApplicationTypeController::class);
+    $router->resource('pending-applications', ApplicationController::class);
+    $router->resource('inspection-applications', ApplicationController::class);
+    $router->resource('payment-applications', ApplicationController::class);
+    $router->resource('approved-applications', ApplicationController::class);
     $router->resource('applications', ApplicationController::class);
+    /* 
+    maaif.u-lits.com
+    */
 });
