@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\App;
 
+use function PHPUnit\Framework\fileExists;
+
 class FarmReport extends Model
 {
     use HasFactory;
@@ -16,12 +18,21 @@ class FarmReport extends Model
     {
         parent::boot();
         static::creating(function ($model) {
-            $model = FarmReport::do_process($model);
+            /* $model = FarmReport::do_process($model);
+            if (isset($model->inseminations)) {
+                unset($model->inseminations);
+            } */
         });
 
         //updating 
         static::updating(function ($model) {
-            $model = FarmReport::do_process($model);
+            /* $model = FarmReport::do_process($model);
+            if (isset($model->serviced_animals)) {
+                unset($model->serviced_animals);
+            }
+            if (isset($model->inseminations)) {
+                unset($model->inseminations);
+            } */
         });
     }
 
@@ -140,7 +151,7 @@ class FarmReport extends Model
                 'farm_id' => $r->farm_id,
                 'post_calving_complications' => 'Yes'
             ]
-        )->whereBetween('ferilization_date', [$start_date, $end_date])->get(); 
+        )->whereBetween('ferilization_date', [$start_date, $end_date])->get();
 
         //natural mating
         $r->natural_mating = PregnantAnimal::where(
@@ -311,19 +322,28 @@ class FarmReport extends Model
         ])->get();
 
 
-        /* return view('farm-report', [
-            'report' => $r
-        ]);
- */
         $pdf = App::make('dompdf.wrapper');
         $pdf->loadHTML(view('farm-report', [
             'report' => $r
         ]));
-        return $pdf->stream($r->id . " - " . $r->title . ".pdf");
 
-        dd($r->title);
+        return $pdf->stream();
 
-        dd($r);
+
+        //check if file pdf 
+        if ($r->pdf != null) {
+            if (fileExists(Utils::docs_root() . "/storage/" . $r->pdf)) {
+                unlink(Utils::docs_root() . "/storage/" . $r->pdf);
+            }
+        }
+
+        $name  = "files/" . Utils::get_unique_text() . ".pdf";
+        $source = Utils::docs_root() . "/storage/" . $name;
+        $pdf->save($source);
+        $r->pdf = $name;
+        $r->pdf_prepared = 'Yes';
+        $r->pdf_prepare_date = Carbon::now();
+
         return $r;
     }
 

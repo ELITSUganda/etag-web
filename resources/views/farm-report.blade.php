@@ -195,7 +195,7 @@ background-color: red;
     <div class="row mt-2">
         <div class="col-12 p-0">
 
-            <h2 class="p-0 m-0 text-uppercase text-center" style="font-size: 18px;"><b>Pregnancy Overview</b></h2>
+            <h2 class="p-0 m-0 text-uppercase text-center" style="font-size: 18px;"><b>Pregnancies Overview</b></h2>
             <hr class="p-0 m-0 mt-1 mb-2"
                 style="
                         background-color: #6B3B01;

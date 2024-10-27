@@ -24,9 +24,10 @@ class FarmReportController extends AdminController
      */
     protected function grid()
     {
-        $r = FarmReport::find(186);
-        return FarmReport::do_process($r);
-        die("stop"); 
+        /* $r = FarmReport::find(1);
+        $r = FarmReport::do_process($r);
+        $r->save(); 
+        die("stop");  */
         $grid = new Grid(new FarmReport());
         $grid->model()->orderBy('id', 'desc');
 
@@ -38,6 +39,16 @@ class FarmReportController extends AdminController
         $grid->column('end_date', __('End date'));
         $grid->column('farm_id', __('Farm id'));
         $grid->column('user_id', __('User id'));
+        $grid->column('pdf', __('PRINT'))
+            ->display(function ($pdf) {
+                $url = url('farm-report-print?report_id=' . $this->id);
+                return "<a href='$url' target='_blank'>PDF</a>";
+                if ($pdf) {
+                    return "<a href='/storage/$pdf' target='_blank'>PDF</a>";
+                } else {
+                    return "No PDF";
+                }
+            });
 
         return $grid;
     }

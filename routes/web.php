@@ -21,6 +21,7 @@ use App\Models\PregnantAnimal;
 use App\Models\Utils;
 use Carbon\Carbon;
 use Encore\Admin\Grid\Tools\Header;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Milon\Barcode\DNS1D;
@@ -29,6 +30,16 @@ use function PHPUnit\Framework\fileExists;
 
 
 
+Route::get('farm-report-print', function (Request $request) {
+    $report_id = $request->report_id;
+    $report = FarmReport::find($report_id);
+    if ($report == null) {
+        return abort(404);
+    }
+    return FarmReport::do_process($report);
+    dd($report);
+    $report = FarmReport::do_process($report);
+});
 Route::get('/gen-dummy-data', function () {
 
     set_time_limit(0);
@@ -46,7 +57,7 @@ Route::get('/gen-dummy-data', function () {
     $sec_1 = $seconds % 60;
     echo "Time taken: $mins:$sec_1 minutes<hr>";
 
-/* 
+    /* 
     $start_time = Carbon::now();
     Utils::run_test();
     $end_time = Carbon::now();
@@ -198,7 +209,7 @@ Route::get('/gen-dummy-data', function () {
 Route::get('/test-report', function () {
     $r = FarmReport::find(1);
 
- /*        $r->start_date = '2020-01-01';  
+    /*        $r->start_date = '2020-01-01';  
         $r->end_date = '2025-01-01';  
         return $r; */
     return FarmReport::do_process($r);
