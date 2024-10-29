@@ -12,6 +12,7 @@ use App\Models\Farm;
 use App\Models\Location;
 use App\Models\Medicine;
 use App\Models\SubCounty;
+use App\Models\User;
 use App\Models\Utils;
 use App\Models\Vaccine;
 use Carbon\Carbon;
@@ -126,19 +127,27 @@ class EventController extends AdminController
 
 
             $admins = [];
-            foreach (Administrator::all() as $key => $v) {
-                if (!$v->isRole('farmer')) {
-                    continue;
-                }
-                $admins[$v->id] = $v->name . " - " . $v->id;
-            }
 
             $animals = [];
-            foreach (Animal::all() as $key => $v) {
+            $u = Auth::user();
+            foreach (
+                Animal::where([
+                    'administrator_id' => $u->id
+                ])->get() as $key => $v
+            ) {
                 $animals[$v->id] = $v->e_id . " - " . $v->v_id;
             }
 
-            $filter->equal('administrator_id', "Owner")->select($admins);
+            $filter->equal('administrator_id', 'Filter by farm owner')->select(function ($id) {
+                $a = User::find($id);
+                if ($a) {
+                    return [$a->id => $a->name];
+                }
+            })
+                ->ajax(
+                    url('api/ajax-users')
+                );
+
 
             $filter->equal('type', "Animal type")->select(array(
                 'Cattle' => "Cattle",
