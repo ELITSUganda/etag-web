@@ -99,13 +99,13 @@ class EventController extends AdminController
         $u = Auth::user();
         $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
         $dis = null;
-        if($r != null){
+        if ($r != null) {
             $dis = Location::find($r->type_id);
         }
         if ($dis != null) {
-            $grid->model()->where('district_id', '=', $dis->id); 
+            $grid->model()->where('district_id', '=', $dis->id);
         } else if (Admin::user()->isRole('farmer')) {
-            $grid->model()->where('administrator_id', '=', $dis->id);
+            $grid->model()->where('administrator_id', '=', Admin::user()->id);
             $grid->actions(function ($actions) {
                 //$actions->disableDelete();
                 $actions->disableEdit();
@@ -478,11 +478,13 @@ class EventController extends AdminController
             })
             ->when('Treatment', function (Form $form) {
                 $drugs = [];
-                foreach (DrugStockBatch::where([
-                    'administrator_id' => Auth::user()->id
-                ])
-                    ->where('current_quantity', '>', 0)
-                    ->get() as $key => $v) {
+                foreach (
+                    DrugStockBatch::where([
+                        'administrator_id' => Auth::user()->id
+                    ])
+                        ->where('current_quantity', '>', 0)
+                        ->get() as $key => $v
+                ) {
 
                     $unit = "";
                     if ($v->category != null) {
