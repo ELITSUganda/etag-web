@@ -80,7 +80,7 @@ Route::get('/gen-dummy-data', function () {
     $mins = $seconds / 60;
     $sec_1 = $seconds % 60;
     echo "Time taken: $mins:$sec_1 minutes<hr>"; */
- 
+
 
     $farm = Farm::find(128);
     $animals = Animal::where([
@@ -100,6 +100,8 @@ Route::get('/gen-dummy-data', function () {
         'sex' => 'Female'
     ])->get()->pluck('id')->toArray();
 
+    dd($femal_animals);
+    dd($events[0]);
     if (count($events) < 200) {
         $max = (200 - count($events));
         for ($x = 1; $x < $max; $x++) {
