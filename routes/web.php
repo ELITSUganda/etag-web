@@ -47,7 +47,7 @@ Route::get('/gen-dummy-data', function () {
     ini_set('memory_limit', '-1');
 
     $start_time = Carbon::now();
-    Utils::run_test();
+    // Utils::run_test();
     $end_time = Carbon::now();
 
     //seconds diff
@@ -80,8 +80,7 @@ Route::get('/gen-dummy-data', function () {
     $mins = $seconds / 60;
     $sec_1 = $seconds % 60;
     echo "Time taken: $mins:$sec_1 minutes<hr>"; */
-
-    die("<hr>Done");
+ 
 
     $farm = Farm::find(128);
     $animals = Animal::where([
@@ -195,11 +194,6 @@ Route::get('/gen-dummy-data', function () {
         }
     }
     /*    
-  
-
-
-
-
 
  
 */

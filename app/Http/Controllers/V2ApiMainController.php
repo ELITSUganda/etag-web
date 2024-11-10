@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Animal;
 use App\Models\Farm;
+use App\Models\FarmReport;
 use App\Models\Image;
 use App\Models\Location;
 use App\Models\PregnantAnimal;
@@ -18,6 +19,59 @@ class V2ApiMainController extends Controller
 {
     use ApiResponser;
 
+    public function v2_farm_report_create(Request $r)
+    {
+        $farm = Farm::find($r->farm_id);
+        if ($farm == null) {
+            return $this->error("Farm not found.");
+        }
+        $start_date = null;
+        try {
+            $start_date = Carbon::parse($r->start_date);
+        } catch (\Throwable $th) {
+            return $this->error("Invalid start date.");
+        }
+        $end_date = null;
+        try {
+            $end_date = Carbon::parse($r->end_date);
+        } catch (\Throwable $th) {
+            return $this->error("Invalid end date.");
+        }
+        //check if days is less than 3
+        $diffDays = $start_date->diffInDays($end_date);
+        if ($diffDays < 3) {
+            return $this->error("Report must be atleast 3 days.");
+        }
+        $report = new FarmReport();
+        $report->farm_id = $farm->id;
+        $report->user_id = $farm->administrator_id;
+        $report->start_date = $start_date;
+        $report->end_date = $end_date;
+        $report->pdf = null;
+
+        try {
+            $report->save();
+        } catch (\Throwable $th) {
+            return $this->error("Failed to create farm report because " . $th->getMessage());
+        }
+        $r = FarmReport::find($report->id);
+        if ($r == null) {
+            return $this->error("Failed to create farm report.");
+        }
+        $r = FarmReport::do_process($r);
+        return $this->success($r, "Farm report created successfully.");
+
+
+
+        /*
+start_date
+end_date
+farm_id
+user_id
+pdf
+pdf_prepared
+pdf_prepare_date */
+    }
     public function v2_farms_create(Request $r)
     {
         $farm = Farm::find($r->id);
@@ -578,7 +632,7 @@ Copy Copy
             $msg = 'Failed because ' . $e->getMessage();
         }
 
-        $record = PregnantAnimal::find($record->id); 
+        $record = PregnantAnimal::find($record->id);
         return $this->success($record, $msg);
     }
 

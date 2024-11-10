@@ -262,54 +262,6 @@ class FarmReport extends Model
             ]
         )->whereBetween('ferilization_date', [$start_date, $end_date])->get();
 
-        //Total Births
-
-
-        //Weaning Rate
-
-
-        /* 
-        //Death
-    "id" => 168
-    "created_at" => "2024-10-07 23:00:50"
-    "updated_at" => "2024-10-07 23:00:50"
-    "administrator_id" => 709
-    "animal_id" => 19888
-    "district_id" => 1
-    "sub_county_id" => 1
-    "original_status" => "Pregnant"
-    "current_status" => "Pregnant"
-    "fertilization_method" => "AI"
-    "expected_sex" => "Female"
-    "details" => "Some details...."
-    "pregnancy_check_method" => "8"
-    "born_sex" => "Male"
-    "conception_date" => "2024-06-11"
-    "expected_calving_date" => "2025-01-01"
-    "gestation_length" => 285
-    "did_animal_abort" => "Yes"
-    "reason_for_animal_abort" => "Disease"
-    "did_animal_conceive" => "Yes"
-    "calf_birth_weight" => "24.00"
-    "pregnancy_outcome" => "1"
-    "calving_difficulty" => "Normal"
-    "postpartum_recovery_time" => null
-    "post_calving_complications" => null
-    "total_pregnancies" => null
-    "hormone_use" => null
-    "nutritional_status" => null
-    "number_of_calves" => 1
-    "born_date" => "2025-09-04"
-    "calf_id" => "19888"
-    "total_calving_milk" => 22
-    "is_weaned_off" => "No"
-    "weaning_date" => "2027-03-04"
-    "weaning_weight" => "50"
-    "weaning_age" => "49"
-    "got_pregnant" => "Yes"
-    "ferilization_date" => "2024-06-11"
-    "farm_id" => 128
-*/
 
         $r->title = "Farm Report for the period $start_date to $end_date.";
         $r->animals = Animal::where([
@@ -327,13 +279,16 @@ class FarmReport extends Model
             'report' => $r
         ]));
 
-        return $pdf->stream();
+        // return $pdf->stream();
 
 
         //check if file pdf 
         if ($r->pdf != null) {
             if (fileExists(Utils::docs_root() . "/storage/" . $r->pdf)) {
-                unlink(Utils::docs_root() . "/storage/" . $r->pdf);
+                try {
+                    unlink(Utils::docs_root() . "/storage/" . $r->pdf);
+                } catch (\Throwable $th) {
+                }
             }
         }
 
@@ -351,6 +306,6 @@ class FarmReport extends Model
     //belongs to farm
     public function farm()
     {
-        return $this->belongsTo(Farm::class);
+        return $this->belongsTo(Farm::class, 'farm_id');
     }
 }
