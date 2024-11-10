@@ -100,6 +100,15 @@ Route::get('/gen-dummy-data', function () {
         'sex' => 'Female'
     ])->get()->pluck('id')->toArray();
 
+    foreach (
+        Animal::where([
+            'farm_id' => $farm->id,
+            'sex' => 'Female'
+        ])->get() as $key => $an
+    ) {
+        dd($an->photo);
+    }
+
     dd($femal_animals);
     dd($events[0]);
     if (count($events) < 200) {

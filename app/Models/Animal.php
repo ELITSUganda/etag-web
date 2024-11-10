@@ -279,7 +279,7 @@ class Animal extends Model
         return  $imgs;
     }
 
-    public function getPhotoAttribute($photo)
+    /* public function getPhotoAttribute($photo)
     {
         if ($photo !=  null && strlen($photo) > 3) {
             return $photo;
@@ -307,7 +307,7 @@ class Animal extends Model
         }
 
         return 'logo.png';
-    }
+    } */
 
     public function getParentTextAttribute()
     {
