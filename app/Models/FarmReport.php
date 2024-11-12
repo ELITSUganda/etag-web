@@ -263,7 +263,7 @@ class FarmReport extends Model
         )->whereBetween('ferilization_date', [$start_date, $end_date])->get();
 
 
-        $r->title = "Farm Report for the period $start_date to $end_date.";
+        $r->title = "Farm Report for the period ".Utils::my_date_1($start_date)." to ".Utils::my_date_1($end_date);
         $r->animals = Animal::where([
             'farm_id' => $r->farm_id,
             'type' => 'Cattle'

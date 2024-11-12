@@ -139,7 +139,7 @@ class MainController extends Controller
                 'password' => "Passwords did not match.",
             ]);
         }
- 
+
 
         $request->phone_number = $request->phone_number;
         $request->username = $request->email;
@@ -168,10 +168,12 @@ class MainController extends Controller
 
         $user = new Administrator();
 
+        $phone_number = Utils::prepare_phone_number($request->phone_number);
+
         $user->name = $request->name;
         $user->username = $request->username;
         $user->email = $request->email;
-        $user->phone_number = $request->phone_number;
+        $user->phone_number = $phone_number;
         $user->address = $request->address;
         $user->password = password_hash(trim($request->password), PASSWORD_DEFAULT);
 
@@ -183,8 +185,10 @@ class MainController extends Controller
             ]);
         }
 
-        $u = Administrator::where('username', $request->username)->first();
-        if ($u === null) {
+        $u = Administrator::where([
+            'phone_number' => $phone_number,
+        ])->first();
+        if ($u == null) {
             return back()->withInput()->withErrors([
                 'name' => "Failed to create account. Plase try agains.",
             ]);
@@ -208,7 +212,10 @@ class MainController extends Controller
 
         $remember = $request->get('remember', true);
 
-        $credentials = $request->only(['username', 'password']);
+        $credentials = [
+            'phone_number' => $phone_number,
+            'password' => $request->password,
+        ];
         if ($this->guard()->attempt($credentials, $remember)) {
             return redirect(admin_url('/'));
         }

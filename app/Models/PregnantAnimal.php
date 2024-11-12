@@ -30,7 +30,7 @@ class PregnantAnimal extends Model
 
         $animal = Animal::find($r->animal_id);
         if ($animal == null) {
-            throw new Exception("Animal not found");
+            throw new Exception("Animal not found #".$r->animal_id);
         }
         $farm = Farm::find($animal->farm_id);
         if ($farm == null) {

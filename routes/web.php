@@ -42,6 +42,134 @@ Route::get('farm-report-print', function (Request $request) {
 });
 Route::get('/gen-dummy-data', function () {
 
+
+    $farm = Farm::find(128);
+    $animals = Animal::where([
+        'farm_id' => $farm->id
+    ])->get();
+    $femal_animals = Animal::where([
+        'farm_id' => $farm->id,
+        'sex' => 'Female'
+    ])->get()->pluck('id')->toArray();
+
+    foreach (PregnantAnimal::all() as $key => $event) {
+
+        $animal_id = $femal_animals[rand(1,(count($femal_animals)-1))];
+       
+        $event->administrator_id = $farm->administrator_id;
+        $event->animal_id = $animal_id;
+        $event->original_status = [
+            'Pregnant',
+            'Pregnant',
+            'Pregnant',
+            'Pregnant',
+            'Pregnant',
+            'Conceived',
+        ][rand(0, 5)];
+        $event->fertilization_method = [
+            'Mating',
+            'AI'
+        ][rand(0, 1)];
+        $event->expected_sex = [
+            'Male',
+            'Female',
+            'Female'
+        ][rand(0, 2)];
+        $event->pregnancy_check_method = rand(4, 8);
+        $event->details = 'Some details....';
+        $event->born_sex = [
+            'Male',
+            'Female',
+            'Female',
+            'Female'
+        ][rand(0, 2)];
+        $now = Carbon::now();
+        $event->conception_date = $now->subDays(rand(100, 200))->format('Y-m-d');
+        $event->expected_calving_date = $now->addDays(rand(200, 300))->format('Y-m-d');
+        $event->gestation_length = rand(270, 290);
+        $event->did_animal_abort = [
+            'Yes',
+            'No',
+            'No'
+        ][rand(0, 1)];
+
+        //reason_for_animal_abort
+        $event->reason_for_animal_abort = [
+            "Disease",
+            "Accident"
+        ][rand(0, 1)];
+        $event->did_animal_conceive = [
+            'Yes',
+            'No',
+            'No'
+        ][rand(0, 1)];
+        $event->calf_birth_weight = rand(20, 60);
+        $event->pregnancy_outcome = [
+            '1',
+            '1',
+            '2'
+        ][rand(0, 1)];
+        $event->number_of_calves = [
+            '1',
+            '1',
+            '2'
+        ][rand(0, 1)];
+        $event->calving_difficulty = [
+            'Normal',
+            'Normal',
+            'Difficult',
+        ][rand(0, 1)];
+
+        $event->born_date = $now->addDays(rand(200, 300))->format('Y-m-d');
+        // $event->calf_id = $animal_id;
+        $mom = Animal::find($event->animal_id);
+        if ($mom != null) {
+            $event->parent_v_id = $mom->v_id;
+            $event->parent_photo = $mom->photo;
+            // $event->parent_e_id = $mom->e_id;
+        }
+        $event->total_calving_milk = rand(10, 30);
+        $event->is_weaned_off = [
+            'Yes',
+            'No',
+            'No'
+        ][rand(0, 1)];
+        $event->weaning_date = $now->addDays(rand(300, 600))->format('Y-m-d');
+        $event->weaning_weight = rand(20, 60);
+        $event->weaning_age = rand(20, 60);
+        $event->got_pregnant = [
+            'Yes',
+            'Yes',
+            'Yes',
+            'No'
+        ][rand(0, 1)];
+        $event->ferilization_date = $event->conception_date;
+        $event->farm_id = $farm->id;
+        $event->created_at = Carbon::now()->subDays(rand(100, 200));
+        $event->calf_photo = $src = 'young-' . rand(0, 36) . '.jpg';
+        //expected_sex
+        if ($event->did_animal_abort == 'Yes') {
+            $event->did_animal_conceive = 'No';
+            $event->expected_sex = null;
+            $event->born_sex = null;
+            $ferilization_date = Carbon::parse($event->conception_date);
+            $event->current_status = 'Aborted';
+            $event->conception_date = $ferilization_date->addDays(rand(100, 200))->format('Y-m-d');
+            //pregnancy_outcome
+            $event->pregnancy_outcome = null;
+        } else {
+            $event->reason_for_animal_abort = null;
+            $event->did_animal_conceive = 'Yes';
+            $event->calf_id = $femal_animals[rand(0, count($femal_animals) - 1)];
+        }
+
+        $event->save();
+        echo "Saved record " . $event->id . ": <br>";
+
+    }
+
+
+    die("0-0");
     set_time_limit(0);
     //set max memory to unlimited
     ini_set('memory_limit', '-1');
@@ -148,7 +276,7 @@ Route::get('/gen-dummy-data', function () {
             echo ("FAILED TO CREATE IMAGE FOR " . $an->id . "<br>");
             continue;
         }
-        $an->photo = $images[0]->src; 
+        $an->photo = $images[0]->src;
         $an->save();
         echo $an->id . ". Generated => $an->photo.<br>";
         if ($my_counter > 200) {

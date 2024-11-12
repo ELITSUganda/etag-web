@@ -6,6 +6,7 @@ use App\Models\Animal;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductOrder;
+use App\Models\User;
 use App\Models\Utils;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Facades\Admin;
@@ -242,16 +243,19 @@ class MarketController extends Controller
         $user->phone_number = $phone_number;
         $user->address = '';
         $user->password = password_hash(trim($r->password), PASSWORD_DEFAULT);
-        if (!$user->save()) {
+
+        try {
+            $user->save();
+        } catch (\Throwable $th) {
             return back()->withInput()->withErrors([
-                'phone_number' => "Failed to create account. Please try again.",
+                'phone_number' => "Failed to create account because " . $th->getMessage(),
             ]);
         }
 
-        $u = Administrator::where('phone_number', $phone_number)->first();
+        $u = User::where('phone_number', $phone_number)->first();
         if ($u == null) {
             return back()->withInput()->withErrors([
-                'phone_number' => "Failed to create account. Plase try agains.",
+                'phone_number' => "Failed to create account for $phone_number.",
             ]);
         }
 
@@ -261,7 +265,7 @@ class MarketController extends Controller
             'role_id' => 15
         ]);
 
-        $credentials['username'] = $phone_number;
+        $credentials['phone_number'] = $phone_number;
         $credentials['password'] = $r->password;
 
 
@@ -283,7 +287,7 @@ class MarketController extends Controller
         }
 
         return back()->withInput()->withErrors([
-            'phone_number' => "Failed to login your account. Plase try agains.",
+            'phone_number' => "Account created but failed to login with  password $r->password.",
         ]);
     }
 
@@ -330,9 +334,9 @@ class MarketController extends Controller
         ';
 
         $recs = preg_split('/\r\n|\n\r|\r|\n/', $data);
-        
 
-        MarketController::fromJson($recs);  
+
+        MarketController::fromJson($recs);
         MarketController::from_json($recs);
 
         MarketController::create_table($recs, 'logged_in_user');
@@ -371,7 +375,7 @@ class MarketController extends Controller
         $len = count($recs);
         foreach ($recs as $v) {
             $key = trim($v);
-            if(strlen($key)<2){
+            if (strlen($key) < 2) {
                 continue;
             }
 
@@ -402,7 +406,7 @@ class MarketController extends Controller
             if (strlen($key) < 2) {
                 continue;
             }
-            $_data .= '"'.$key.'"'." : $key,<br>";
+            $_data .= '"' . $key . '"' . " : $key,<br>";
         }
 
         echo "<pre>";
