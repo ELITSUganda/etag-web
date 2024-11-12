@@ -100,14 +100,62 @@ Route::get('/gen-dummy-data', function () {
         'sex' => 'Female'
     ])->get()->pluck('id')->toArray();
 
+    $my_counter = 0;
     foreach (
         Animal::where([
             'farm_id' => $farm->id,
             'sex' => 'Female'
         ])->get() as $key => $an
     ) {
-        dd($an->photo);
+        $my_counter++;
+        $images = Image::where([
+            'parent_id' => $an->id
+        ])
+            ->orderBy('id', 'desc')
+            ->get();
+        if ($images->count() > 3) {
+            $photo = $images[0]->src;
+            if ($photo == $an->photo) {
+                continue;
+            }
+            $an->photo = $photo;
+            $an->save();
+            continue;
+        }
+
+        for ($i = 0; $i < 5; $i++) {
+            $img = new Image();
+            $img->administrator_id = $an->administrator_id;
+            $src = 'old-' . rand(0, 156) . '.jpg';
+            $img->src = $src;
+            $img->thumbnail = $src;
+            $img->parent_id = $an->id;
+            $img->product_id = $an->id;
+            $img->type = 'Animal';
+            $img->parent_endpoint = 'Animal';
+            $img->note = 'Testing';
+            $img->registered_by_id = $an->administrator_id;
+            $img->local_id = rand(100000000000000, 100000000000000) . time();
+            $img->save();
+        }
+        $images = Image::where([
+            'parent_id' => $an->id
+        ])
+            ->orderBy('id', 'desc')
+            ->get();
+        //check if empty $images
+        if ($images->count() < 3) {
+            echo ("FAILED TO CREATE IMAGE FOR " . $an->id . "<br>");
+            continue;
+        }
+        $an->photo = $images[0]->src;
+        $an->save();
+        echo $an->id . ". Generated => $an->photo.<br>";
+        if ($my_counter > 200) {
+            break;
+        }
     }
+    die('done');
 
     dd($femal_animals);
     dd($events[0]);
