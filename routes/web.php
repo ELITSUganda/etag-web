@@ -157,6 +157,7 @@ Route::get('/gen-dummy-data', function () {
             $event->conception_date = $ferilization_date->addDays(rand(100, 200))->format('Y-m-d');
             //pregnancy_outcome
             $event->pregnancy_outcome = null;
+ 
         } else {
             $event->reason_for_animal_abort = null;
             $event->did_animal_conceive = 'Yes';
