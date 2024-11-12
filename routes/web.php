@@ -157,7 +157,6 @@ Route::get('/gen-dummy-data', function () {
             break;
         }
     }
-    die('done');
 
     dd($femal_animals);
     dd($events[0]);
