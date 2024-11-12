@@ -77,6 +77,7 @@ class Image extends Model
 
     public function create_thumbail()
     {
+        return;
         set_time_limit(-1);
 
         $src = $this->src;

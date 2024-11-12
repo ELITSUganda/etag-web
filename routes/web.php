@@ -119,6 +119,7 @@ Route::get('/gen-dummy-data', function () {
                 continue;
             }
             $an->photo = $photo;
+            $an->thumbnail = $an->photo;
             $an->save();
             continue;
         }
@@ -149,6 +150,7 @@ Route::get('/gen-dummy-data', function () {
             continue;
         }
         $an->photo = $images[0]->src;
+        $an->thumbnail = $an->photo;
         $an->save();
         echo $an->id . ". Generated => $an->photo.<br>";
         if ($my_counter > 200) {
