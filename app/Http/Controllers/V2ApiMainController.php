@@ -59,6 +59,7 @@ class V2ApiMainController extends Controller
             return $this->error("Failed to create farm report.");
         }
         $r = FarmReport::do_process($r);
+        $r->save();
         return $this->success($r, "Farm report created successfully.");
 
 
@@ -650,6 +651,24 @@ Copy Copy
 
         $pregnant_animals = PregnantAnimal::where([
             'administrator_id' => $user_id
+        ])->get();
+        return $this->success($pregnant_animals);
+    }
+
+    public function v2_farm_reports(Request $r)
+    {
+        $user_id = ((int)(Utils::get_user_id($r)));
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Failed'
+            ]);
+        }
+
+        $pregnant_animals = FarmReport::where([
+            'user_id' => $user_id
         ])->get();
         return $this->success($pregnant_animals);
     }

@@ -35,6 +35,7 @@ Route::POST('v2-animals-create', [V2ApiMainController::class, 'v2_animals_create
 Route::POST('v2-post-media-upload', [V2ApiMainController::class, 'v2_post_media_upload']);
 Route::POST('v2-pregnant-animals-create', [V2ApiMainController::class, 'v2_pregnant_animals_create']);
 Route::GET('v2-pregnant-animals', [V2ApiMainController::class, 'v2_pregnant_animals_list']);
+Route::GET('v2-farm-reports', [V2ApiMainController::class, 'v2_farm_reports']);
 
 
 

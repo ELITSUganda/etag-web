@@ -33,6 +33,7 @@ class FarmReport extends Model
             if (isset($model->inseminations)) {
                 unset($model->inseminations);
             } */
+           //unset animals
         });
     }
 

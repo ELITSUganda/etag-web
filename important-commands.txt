@@ -156,7 +156,7 @@ composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs
 
 
-php artisan make:migration add_missing_cols_in_farm_reports --table=farm_reports
+php artisan make:migration change_data_types_farm_reports --table=farm_reports
 
 CREATE DATABASE etag
 mysql -u root -p etag < /home/tudeekakasujja23/ulits_db_1.sql
