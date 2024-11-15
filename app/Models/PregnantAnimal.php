@@ -105,4 +105,10 @@ calf_photo
         }
         return $value;
     }
+
+    //belong to animal
+    public function animal()
+    {
+        return $this->belongsTo(Animal::class);
+    }
 }

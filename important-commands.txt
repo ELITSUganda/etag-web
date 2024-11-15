@@ -149,8 +149,8 @@ php artisan make:model NotificationModel -m
 php artisan make:model SlaughterRecord -m
 php artisan make:model FarmReport -m
 php artisan make:model Application -m
-php artisan make:model ApplicationType -m
-php artisan admin:make ApplicationTypeController --model=App\\Models\\ApplicationType
+php artisan make:model PregnantAnimal -m
+php artisan admin:make PregnantAnimalController --model=App\\Models\\PregnantAnimal
 
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs

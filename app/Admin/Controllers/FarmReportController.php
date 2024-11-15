@@ -24,10 +24,10 @@ class FarmReportController extends AdminController
      */
     protected function grid()
     {
-        $r = FarmReport::find(5);
+        /* $r = FarmReport::find(5);
         $r = FarmReport::do_process($r);
         $r->save();
-        die("stop");
+        die("stop"); */
         $grid = new Grid(new FarmReport());
         $grid->model()->orderBy('id', 'desc');
 
