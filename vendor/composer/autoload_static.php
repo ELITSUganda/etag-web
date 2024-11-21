@@ -843,7 +843,6 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'App\\Admin\\Controllers\\OrderController' => __DIR__ . '/../..' . '/app/Admin/Controllers/OrderController.php',
         'App\\Admin\\Controllers\\ParishController' => __DIR__ . '/../..' . '/app/Admin/Controllers/ParishController.php',
         'App\\Admin\\Controllers\\PregnantAnimalController' => __DIR__ . '/../..' . '/app/Admin/Controllers/PregnantAnimalController.php',
-        'App\\Admin\\Controllers\\PregnantAnimalControllerOld' => __DIR__ . '/../..' . '/app/Admin/Controllers/PregnantAnimalControllerOld.php',
         'App\\Admin\\Controllers\\ProductCategoryController' => __DIR__ . '/../..' . '/app/Admin/Controllers/ProductCategoryController.php',
         'App\\Admin\\Controllers\\ProductCategoryControllerOld' => __DIR__ . '/../..' . '/app/Admin/Controllers/ProductCategoryControllerOld.php',
         'App\\Admin\\Controllers\\ProductController' => __DIR__ . '/../..' . '/app/Admin/Controllers/ProductController.php',
