@@ -49,9 +49,9 @@
 <body>
     {{-- redirect to https://about.u-lits.com --}}
     <script>
-        window.location.href = "https://about.u-lits.com";
+        window.location.href = "<?php echo $url; ?>";
     </script>
-    <p>Redirecting to <a href="https://about.u-lits.com">https://about.u-lits.com</a></p>
+    <p>Redirecting to <a href="https://about.u-lits.com">u-lits.com</a></p>
 </body>
 
 </html>
