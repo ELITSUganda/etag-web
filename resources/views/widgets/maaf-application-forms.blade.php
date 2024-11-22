@@ -1,6 +1,12 @@
 <div class="{{-- bg-white p-3 p-md-4 mb-2 mb-md-5 --}}">
     <div class="row">
+        @php
+            $i = 0;
+        @endphp
         @foreach ($forms as $item)
+            @php
+                $i++;
+            @endphp
             <div class="col-12 col-md-6 col-lg-3 mb-3 mb-md-4">
                 <div class="card"
                     style="border-radius: 10px; border: 5px #6B3B01 solid; box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;">
@@ -11,7 +17,7 @@
                         font-size: 2rem;
                         font-weight: 700;
                         ">
-                            <b>{{ $item->id }}.</b> {{ $item->name }}
+                            <b>{{ $i }}.</b> {{ $item->name }}
                         </p>
                         <hr
                             style="
@@ -57,6 +63,7 @@ if ($is_dark) {
     $text2 = 'text-white';
 }
 /* ?>
+?>
 ?>
 ?>
 ?>

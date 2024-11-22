@@ -70,8 +70,8 @@ class HomeController extends Controller
             $row->column(3, function (Column $column) {
                 $u = Admin::user();
                 $conds = ['stage' => 'Pending'];
-                if (!$u->isRole('maaif-admin')) {
-                    $conds = ['applicant_id' => $u->id];
+                if (!$u->isRole('maaif')) {
+                    $conds['applicant_id'] = $u->id;
                 }
                 $column->append(view('widgets.box-5', [
                     'is_dark' => false,
@@ -85,8 +85,8 @@ class HomeController extends Controller
             $row->column(3, function (Column $column) {
                 $u = Admin::user();
                 $conds = ['stage' => 'Inspection'];
-                if (!$u->isRole('maaif-admin')) {
-                    $conds = ['applicant_id' => $u->id];
+                if (!$u->isRole('maaif')) {
+                    $conds['applicant_id'] = $u->id;
                 }
                 $column->append(view('widgets.box-5', [
                     'is_dark' => false,
@@ -99,8 +99,8 @@ class HomeController extends Controller
             $row->column(3, function (Column $column) {
                 $u = Admin::user();
                 $conds = ['stage' => 'Payment'];
-                if (!$u->isRole('maaif-admin')) {
-                    $conds = ['applicant_id' => $u->id];
+                if (!$u->isRole('maaif')) {
+                    $conds['applicant_id'] = $u->id;
                 }
                 $column->append(view('widgets.box-5', [
                     'is_dark' => false,
@@ -114,9 +114,9 @@ class HomeController extends Controller
 
             $row->column(3, function (Column $column) {
                 $u = Admin::user();
-                $conds = ['stage' => 'Completed'];
-                if (!$u->isRole('maaif-admin')) {
-                    $conds = ['applicant_id' => $u->id];
+                $conds = ['stage' => 'Approved'];
+                if (!$u->isRole('maaif')) {
+                    $conds['applicant_id'] = $u->id;
                 }
                 $column->append(view('widgets.box-5', [
                     'is_dark' => true,
@@ -173,7 +173,7 @@ class HomeController extends Controller
 
 
 
-            if (!$u->isRole('maaif-admin')) {
+            if (!$u->isRole('maaif')) {
                 $isAdmin = true;
 
                 $myApplciations = Application::where([

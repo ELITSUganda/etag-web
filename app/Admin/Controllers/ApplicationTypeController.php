@@ -26,16 +26,14 @@ class ApplicationTypeController extends AdminController
     {
         $grid = new Grid(new ApplicationType());
 
-        $grid->column('id', __('Id'));
-        $grid->column('created_at', __('Created at'));
-        $grid->column('updated_at', __('Updated at'));
+        $grid->column('id', __('Id'))->sortable();
         $grid->column('name', __('Name'));
-        $grid->column('description', __('Description'));
+/*         $grid->column('description', __('Description'));
         $grid->column('fields', __('Fields'));
         $grid->column('message_1', __('Message 1'));
         $grid->column('message_2', __('Message 2'));
-        $grid->column('message_3', __('Message 3'));
-        $grid->column('is_paid', __('Is paid'));
+        $grid->column('message_3', __('Message 3')); */
+        $grid->column('is_paid', __('Is paid'))->sortable();
         $grid->column('documents', __('Documents'));
 
         return $grid;
