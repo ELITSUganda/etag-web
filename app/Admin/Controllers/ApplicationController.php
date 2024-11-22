@@ -11,6 +11,7 @@ use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use Illuminate\Support\Facades\Session;
 
 class ApplicationController extends AdminController
 {
@@ -63,7 +64,7 @@ class ApplicationController extends AdminController
 
         $u = Admin::user();
         if (!$u->isRole('maaif')) {
-            // $grid->model()->where('applicant_id', $u->id);
+            $grid->model()->where('applicant_id', $u->id);
         }
 
         $grid->disableBatchActions();
@@ -401,19 +402,34 @@ class ApplicationController extends AdminController
         $create_form_for_id = session('create_form_for');
         $form_type = ApplicationType::find($create_form_for_id);
 
-        if ($form_type == null) {
-            if (isset($_GET['create_form_for'])) {
-                //create_form_for set session
-                $form_type = ApplicationType::find($_GET['create_form_for']);
-                if ($form_type != null) {
-                    session(['create_form_for' => $form_type->id]);
+
+        if (isset($_GET['create_form_for'])) {
+            //create_form_for set session
+            $form_type = ApplicationType::find($_GET['create_form_for']);
+            if ($form_type != null) {
+                try {
+                    Utils::start_session();
+                } catch (\Throwable $th) {
+                    //throw $th;
                 }
-                echo "<script>window.location.href = '" . admin_url('applications/create') . "';</script>";
-                die();
+                session(['create_form_for' => $form_type->id]);
             }
+            echo "<script>window.location.href = '" . admin_url('applications/create') . "';</script>";
+            return $form;
         }
-        $create_form_for_id = session('create_form_for');
-        $form_type = ApplicationType::find($create_form_for_id);
+
+
+        try {
+            Utils::start_session();
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+
+        if ($form_type == null) {
+            $create_form_for_id = session('create_form_for');
+            $form_type = ApplicationType::find($create_form_for_id);
+        }
+
 
         if ($form->isCreating()) {
             if ($form_type == null) {
@@ -562,7 +578,7 @@ class ApplicationController extends AdminController
             return $form;
         }
 
-        if (in_array($form_type->id, [1])) {
+        if (in_array($form_type->id, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])) {
             $form->divider('Animal Information');
             $form->text('animal_name', __('Animal name'));
             $form->radio('animal_species', __('Animal species'))->options([
@@ -593,7 +609,7 @@ class ApplicationController extends AdminController
             $form->text('animal_v_id', __('Animal TAG Visual ID'));
         }
 
-        if (in_array($form_type->id, [1])) {
+        if (in_array($form_type->id, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])) {
             $form->divider('Package Information');
             $form->text('package_hs_code', __('HS code'));
             $form->radio('package_type', __('Package type'))->options([
@@ -615,7 +631,7 @@ class ApplicationController extends AdminController
         }
 
         //
-        if (in_array($form_type->id, [1])) {
+        if (in_array($form_type->id, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])) {
             $form->divider('Origin Information');
             //Name of owner/consigner 
 
@@ -627,7 +643,7 @@ class ApplicationController extends AdminController
                 ->options(Utils::COUNTRIES());
             $form->text('origin_address', __('Origin address'));
         }
-        if (in_array($form_type->id, [1])) {
+        if (in_array($form_type->id, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])) {
             $form->divider('Destination Information');
             /* $form->select('destination_country_id')
                 ->help('Nationality')
@@ -644,7 +660,7 @@ class ApplicationController extends AdminController
             $form->text('movement_route', __('Movement route'));
         }
 
-        if (in_array($form_type->id, [1])) {
+        if (in_array($form_type->id, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])) {
             $form->divider('Attachments');
             $form->file('file_inspection_report', __('Inspection report'))->uniqueName();
             $form->file('file_objection_letter', __('Attach no objection letter/import permit from importing country'))->uniqueName();
@@ -660,7 +676,7 @@ class ApplicationController extends AdminController
 
         //creating, set application_type_id
         if ($form->isCreating()) {
-            $form->text('application_type_id', __('Application type id'))->default($form_type->id);
+            $form->hidden('application_type_id', __('Application type id'))->default($form_type->id);
         }
 
         return $form;
