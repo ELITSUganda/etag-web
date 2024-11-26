@@ -2676,10 +2676,10 @@ class ApiAnimalController extends Controller
 
 
         if (!in_array($request->type, $accepted_events)) {
-            return Utils::response([
+            /* return Utils::response([
                 'status' => 0,
                 'message' => "Invalid event type.",
-            ]);
+            ]); */
         }
 
         $event = new Event();
@@ -2806,8 +2806,66 @@ class ApiAnimalController extends Controller
         if ($event->medicine_id == null || strlen($event->medicine_id) < 1) {
             $event->medicine_id = $request->medicine_id;
         }
-        if ($event->medicine_text == null || strlen($event->medicine_text) < 1) {
-            $event->medicine_text = $request->medicine_text;
+
+
+        if ($event->price != null) {
+            $event->price = $request->price;
+        }
+        if ($event->reproduction_type != null) {
+            $event->reproduction_type = $request->reproduction_type;
+        }
+        if ($event->service_type != null) {
+            $event->service_type = $request->service_type;
+        }
+        if ($event->service_date != null) {
+            try {
+                $event->service_date = Carbon::parse($request->service_date);
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
+        }
+        if ($event->male_id != null) {
+            $event->male_id = $request->male_id;
+        }
+        if ($event->male_breed != null) {
+            $event->male_breed = $request->male_breed;
+        }
+        if ($event->simen_code != null) {
+            $event->simen_code = $request->simen_code;
+        }
+        if ($event->inseminator != null) {
+            $event->inseminator = $request->inseminator;
+        }
+
+        if ($event->calving_date != null) {
+            try {
+                $event->calving_date = Carbon::parse($request->calving_date);
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
+        }
+        if ($event->wean_date != null) {
+            try {
+                $event->wean_date = Carbon::parse($request->wean_date);
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
+        }
+        //calf_id
+        if ($event->calf_id != null) {
+            $event->calf_id = $request->calf_id;
+        }
+        if ($event->calf_sex != null) {
+            $event->calf_sex = $request->calf_sex;
+        }
+        if ($event->calf_weight != null) {
+            $event->calf_weight = $request->calf_weight;
+        }
+        if ($event->wean_weight != null) {
+            $event->wean_weight = $request->wean_weight;
+        }
+        if ($event->wean_milk != null) {
+            $event->wean_milk = $request->wean_milk;
         }
 
         $event->temperature = $request->temperature;
@@ -3141,7 +3199,7 @@ class ApiAnimalController extends Controller
             $v->photos = null;
             $v->district = null;
             $v->sub_county = null;
-            $data[] = $v; 
+            $data[] = $v;
         }
         return Utils::response([
             'status' => 1,
