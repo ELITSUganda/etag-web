@@ -2672,14 +2672,17 @@ class ApiAnimalController extends Controller
             'Weight check',
             'Milking',
             'Other',
+            'Calving',
+            'Weaning',
+            'Calving',
         ];
 
 
         if (!in_array($request->type, $accepted_events)) {
-            /* return Utils::response([
+            return Utils::response([
                 'status' => 0,
                 'message' => "Invalid event type.",
-            ]); */
+            ]);
         }
 
         $event = new Event();
@@ -2867,6 +2870,24 @@ class ApiAnimalController extends Controller
         if ($event->wean_milk != null) {
             $event->wean_milk = $request->wean_milk;
         }
+
+        /* 
+        'service_type' : service_type,
+        'service_date' : service_date,
+        'male_id' : male_id,
+        'male_text' : male_text,
+        'male_breed' : male_breed,
+        'simen_code' : simen_code,
+        'inseminator' : inseminator,
+        'calving_date' : calving_date,
+        'calf_id' : calf_id,
+        'calf_text' : calf_text,
+        'calf_sex' : calf_sex,
+        'calf_weight' : calf_weight,
+        'wean_date' : wean_date,
+        'wean_weight' : wean_weight,
+        'wean_milk' : wean_milk,
+        */
 
         $event->temperature = $request->temperature;
         $event->e_id = $animal->e_id;
