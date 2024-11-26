@@ -89,7 +89,15 @@ Route::group([
     $router->resource('payment-applications', ApplicationController::class);
     $router->resource('approved-applications', ApplicationController::class);
     $router->resource('applications', ApplicationController::class);
+    $router->resource('reproduction-events', ReproductionEventController::class);
+    $router->resource('pregnancy-events', ReproductionEventController::class);
+    $router->resource('abortion-events', ReproductionEventController::class);
+    $router->resource('calving-events', ReproductionEventController::class);
+    $router->resource('weaning-events', ReproductionEventController::class);
     /* 
-    maaif.u-lits.com
+    - pregnancy
+    - abortion
+    - calving
+    - weaning
     */
 });

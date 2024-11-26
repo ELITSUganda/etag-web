@@ -2674,6 +2674,7 @@ class ApiAnimalController extends Controller
             'Other',
             'Calving',
             'Weaning',
+            'Abortion',
             'Calving',
         ];
 
@@ -2775,6 +2776,13 @@ class ApiAnimalController extends Controller
             $event->description = 'Vaccined against ' . $disease->name . ' using ' . $request->vaccination . ' Vaccine.';
             $event->disease_text = $disease->name;
             $event->disease_id = $request->disease_id;
+        } else if ($request->type == 'Abortion') {
+            if (!isset($request->wean_date)) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Abortion date must be provided.",
+                ]);
+            }
         }
 
         $event->type = $request->type;
@@ -2788,13 +2796,13 @@ class ApiAnimalController extends Controller
         $event->time_stamp = $request->time_stamp;
         $event->import_file = $request->import_file;
 
-        if ($event->description == null || (strlen($event->description) < 4)) {
+        if ($request->description == null || (strlen($event->description) < 4)) {
             $event->description = $request->description;
         }
-        if ($event->medicine_quantity == null || (strlen($event->medicine_quantity) < 1)) {
+        if ($request->medicine_quantity == null || (strlen($event->medicine_quantity) < 1)) {
             $event->medicine_quantity = $request->medicine_quantity;
         }
-        if ($event->disease_text == null || (strlen($event->disease_text) < 4)) {
+        if ($request->disease_text == null || (strlen($event->disease_text) < 4)) {
             $event->disease_text = $request->disease_text;
         }
 
@@ -2803,7 +2811,7 @@ class ApiAnimalController extends Controller
             $event->detail = $request->description;
         }
 
-        if ($event->disease_id == null || strlen($event->disease_id) < 1) {
+        if ($request->disease_id != null) {
             $event->disease_id = $request->disease_id;
         }
         if ($event->medicine_id == null || strlen($event->medicine_id) < 1) {
@@ -2811,43 +2819,43 @@ class ApiAnimalController extends Controller
         }
 
 
-        if ($event->price != null) {
+        if ($request->price != null) {
             $event->price = $request->price;
         }
-        if ($event->reproduction_type != null) {
+        if ($request->reproduction_type != null) {
             $event->reproduction_type = $request->reproduction_type;
         }
-        if ($event->service_type != null) {
+        if ($request->service_type != null) {
             $event->service_type = $request->service_type;
         }
-        if ($event->service_date != null) {
+        if ($request->service_date != null) {
             try {
                 $event->service_date = Carbon::parse($request->service_date);
             } catch (\Throwable $th) {
                 //throw $th;
             }
         }
-        if ($event->male_id != null) {
+        if ($request->male_id != null) {
             $event->male_id = $request->male_id;
         }
-        if ($event->male_breed != null) {
+        if ($request->male_breed != null) {
             $event->male_breed = $request->male_breed;
         }
-        if ($event->simen_code != null) {
+        if ($request->simen_code != null) {
             $event->simen_code = $request->simen_code;
         }
-        if ($event->inseminator != null) {
+        if ($request->inseminator != null) {
             $event->inseminator = $request->inseminator;
         }
 
-        if ($event->calving_date != null) {
+        if ($request->calving_date != null) {
             try {
                 $event->calving_date = Carbon::parse($request->calving_date);
             } catch (\Throwable $th) {
                 //throw $th;
             }
         }
-        if ($event->wean_date != null) {
+        if ($request->wean_date != null) {
             try {
                 $event->wean_date = Carbon::parse($request->wean_date);
             } catch (\Throwable $th) {
@@ -2855,39 +2863,27 @@ class ApiAnimalController extends Controller
             }
         }
         //calf_id
-        if ($event->calf_id != null) {
+        if ($request->calf_id != null) {
             $event->calf_id = $request->calf_id;
         }
-        if ($event->calf_sex != null) {
+        if ($request->calf_sex != null) {
             $event->calf_sex = $request->calf_sex;
         }
-        if ($event->calf_weight != null) {
+        if ($request->calf_weight != null) {
             $event->calf_weight = $request->calf_weight;
         }
-        if ($event->wean_weight != null) {
+        if ($request->wean_weight != null) {
             $event->wean_weight = $request->wean_weight;
         }
-        if ($event->wean_milk != null) {
+        if ($request->wean_milk != null) {
             $event->wean_milk = $request->wean_milk;
         }
-
-        /* 
-        'service_type' : service_type,
-        'service_date' : service_date,
-        'male_id' : male_id,
-        'male_text' : male_text,
-        'male_breed' : male_breed,
-        'simen_code' : simen_code,
-        'inseminator' : inseminator,
-        'calving_date' : calving_date,
-        'calf_id' : calf_id,
-        'calf_text' : calf_text,
-        'calf_sex' : calf_sex,
-        'calf_weight' : calf_weight,
-        'wean_date' : wean_date,
-        'wean_weight' : wean_weight,
-        'wean_milk' : wean_milk,
-        */
+        if ($request->is_present != null) {
+            $event->is_present = $request->is_present;
+        }
+        if ($request->medicine_name != null) {
+            $event->medicine_name = $request->medicine_name;
+        }
 
         $event->temperature = $request->temperature;
         $event->e_id = $animal->e_id;

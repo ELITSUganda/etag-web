@@ -52,7 +52,7 @@ class Event extends Model
 
 
             if ($model->type == 'Pregnancy check') {
-                $ok = false;
+                /* $ok = false;
                 if (
                     isset($model->pregnancy_check_method) &&
                     isset($model->pregnancy_check_results)
@@ -90,7 +90,7 @@ class Event extends Model
                 }
                 if (!$ok) {
                     throw new Exception("enter valid Pregnancy check parametters");
-                }
+                } */
             } else if ($model->type == 'Disease test') {
                 /* if (isset($model->disease_id)) {
                     if ($model->disease_id != null) {
@@ -258,7 +258,7 @@ class Event extends Model
             }
 
             try {
-                $animal->processWeightChange(); 
+                $animal->processWeightChange();
             } catch (\Throwable $th) {
                 //throw $th;
             }

@@ -849,6 +849,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'App\\Admin\\Controllers\\ProductController' => __DIR__ . '/../..' . '/app/Admin/Controllers/ProductController.php',
         'App\\Admin\\Controllers\\ProductControllerOld' => __DIR__ . '/../..' . '/app/Admin/Controllers/ProductControllerOld.php',
         'App\\Admin\\Controllers\\ProductOrderController' => __DIR__ . '/../..' . '/app/Admin/Controllers/ProductOrderController.php',
+        'App\\Admin\\Controllers\\ReproductionEventController' => __DIR__ . '/../..' . '/app/Admin/Controllers/ReproductionEventController.php',
         'App\\Admin\\Controllers\\SickAnimalController' => __DIR__ . '/../..' . '/app/Admin/Controllers/SickAnimalController.php',
         'App\\Admin\\Controllers\\SlaughterHouseController' => __DIR__ . '/../..' . '/app/Admin/Controllers/SlaughterHouseController.php',
         'App\\Admin\\Controllers\\SlaughterRecordController' => __DIR__ . '/../..' . '/app/Admin/Controllers/SlaughterRecordController.php',

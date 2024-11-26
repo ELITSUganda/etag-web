@@ -53,6 +53,7 @@ return array(
     'App\\Admin\\Controllers\\ProductController' => $baseDir . '/app/Admin/Controllers/ProductController.php',
     'App\\Admin\\Controllers\\ProductControllerOld' => $baseDir . '/app/Admin/Controllers/ProductControllerOld.php',
     'App\\Admin\\Controllers\\ProductOrderController' => $baseDir . '/app/Admin/Controllers/ProductOrderController.php',
+    'App\\Admin\\Controllers\\ReproductionEventController' => $baseDir . '/app/Admin/Controllers/ReproductionEventController.php',
     'App\\Admin\\Controllers\\SickAnimalController' => $baseDir . '/app/Admin/Controllers/SickAnimalController.php',
     'App\\Admin\\Controllers\\SlaughterHouseController' => $baseDir . '/app/Admin/Controllers/SlaughterHouseController.php',
     'App\\Admin\\Controllers\\SlaughterRecordController' => $baseDir . '/app/Admin/Controllers/SlaughterRecordController.php',
