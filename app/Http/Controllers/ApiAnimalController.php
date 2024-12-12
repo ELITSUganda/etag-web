@@ -2601,6 +2601,7 @@ class ApiAnimalController extends Controller
 
     public function store_event_2(Request $request)
     {
+
         $user_id = Utils::get_user_id($request);
         $u = Administrator::find($user_id);
         if ($u == null) {
@@ -2651,12 +2652,44 @@ class ApiAnimalController extends Controller
             ]);
         }
 
-        $animal = Animal::find(((int)($request->animal_id)));
-        if ($animal == null) {
-            return Utils::response([
-                'status' => 0,
-                'message' => "Animal not found on our database.",
-            ]);
+
+
+        //
+
+        $isMultipleEvents = false;
+        // check if $request->animal_id contains [
+        $_animal_ids = trim($request->animal_id);
+        $animal_ids = [];
+        if (strpos($_animal_ids, '[') !== false) {
+            $isMultipleEvents = true;
+            $animal_ids = [];
+            try {
+                $animal_ids = json_decode($request->animal_id);
+            } catch (\Throwable $th) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Invalid animal_ids because of " . $th->getMessage(),
+                ]);
+            }
+            if (count($animal_ids) < 1) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "No animal_ids found.",
+                ]);
+            } else {
+                $isMultipleEvents = true;
+            }
+        }
+
+        if (!$isMultipleEvents) {
+            $animal = Animal::find(((int)($request->animal_id)));
+            if ($animal == null) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Animal not found on our database.",
+                ]);
+            }
+            $animal_ids[] = $animal->id;
         }
 
         $accepted_events = [
@@ -2664,10 +2697,11 @@ class ApiAnimalController extends Controller
             'Treatment',
             'Disease test',
             'Pregnancy check',
+            'Service',
             'Temperature check',
             'Home slaughter',
             'Stolen',
-            'Death',
+            'Mortality',
             'Note',
             'Weight check',
             'Milking',
@@ -2675,7 +2709,10 @@ class ApiAnimalController extends Controller
             'Calving',
             'Weaning',
             'Abortion',
-            'Calving',
+            'Sample taken',
+            'Sample result',
+            'Test conducted',
+            'Test conducted',
         ];
 
 
@@ -2688,7 +2725,6 @@ class ApiAnimalController extends Controller
 
         $event = new Event();
         $event->session_id = $request->id;
-        $event->animal_id = $animal->id;
         if ($request->created_at != null && strlen($request->created_at) > 3) {
             try {
                 $event->created_at = Carbon::parse($request->created_at);
@@ -2715,7 +2751,7 @@ class ApiAnimalController extends Controller
             $event->status = $request->status;
             $event->disease_text = $disease->name;
             $test_results = $event->status;
-            $event->description = "Disease test for animal {$animal->v_id} and found it {$test_results}.";
+            $event->description = "Disease test for {$disease->name} and found the animal {$test_results}.";
         } else if ($request->type == 'Treatment') {
             $disease = Disease::find(((int)($request->disease_id)));
             if ($disease == null) {
@@ -2886,8 +2922,6 @@ class ApiAnimalController extends Controller
         }
 
         $event->temperature = $request->temperature;
-        $event->e_id = $animal->e_id;
-        $event->v_id = $animal->v_id;
         $event->pregnancy_check_method = $request->pregnancy_check_method;
         $event->pregnancy_check_results = $request->pregnancy_check_results;
         $event->pregnancy_expected_sex = $request->pregnancy_expected_sex;
@@ -2897,12 +2931,28 @@ class ApiAnimalController extends Controller
         $event->weight = $request->weight;
 
         try {
-            $event->save();
+
+            $eve = null;
+            $count = 0;
+            foreach ($animal_ids as $key => $animal_id) {
+                $animal = Animal::find($animal_id);
+                if ($animal == null) {
+                    continue;
+                }
+                $event_clone = clone $event;
+                $event_clone->animal_id = $animal->id;
+                $event_clone->v_id = $animal->v_id;
+                $event_clone->e_id = $animal->e_id;
+                $event_clone->save();
+                $eve = Event::find($event_clone->id);
+                $count++;
+            }
+
             $event = Event::find($event->id);
             return Utils::response([
                 'status' => 1,
-                'message' => "Event was created successfully.",
-                'data' => $event
+                'message' => "Created $count events successfully.",
+                'data' => $eve
             ]);
         } catch (\Throwable $th) {
             return Utils::response([
