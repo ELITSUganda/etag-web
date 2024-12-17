@@ -587,4 +587,68 @@ class Animal extends Model
             ->get();
         return $imgs;
     }
+
+    public function transfer_animal($receiver_farm_id)
+    {
+        $receiver_farm = Farm::find($receiver_farm_id);
+        if ($receiver_farm == null) {
+            throw new Exception("Receiver farm not found.", 1);
+        }
+        $default_group = Group::where([
+            'administrator_id' => $receiver_farm->administrator_id,
+            'is_main_group' => 'Yes'
+        ])->first();
+
+        if ($default_group == null) {
+            throw new Exception("Default group not found.", 1);
+        }
+
+        $receiver = Administrator::find($receiver_farm->administrator_id);
+        if ($receiver == null) {
+            throw new Exception("Receiver not found.", 1);
+        }
+        $sender = Administrator::find($this->administrator_id);
+        if ($sender == null) {
+            throw new Exception("Sender not found.", 1);
+        }
+
+        $an = $this;
+
+        $an->farm_id = $receiver_farm->id;
+        $an->group_id = $default_group->id;
+
+        $an->administrator_id = $receiver->id;
+        $an->save();
+        Event::where('animal_id', $an->v_id)->update(['administrator_id' => $receiver->id]);
+
+        $ev = new Event();
+        $ev->animal_id = $an->id;
+        $ev->administrator_id = $receiver->administrator_id;
+        $ev->administrator_id = $an->farm_id;
+        $ev->type = 'Ownership Transfer';
+        $ev->short_description = 'Ownership Transfer';
+        $ev->detail = "Anima's ownership transfered from {$sender->name} to  {$receiver->name}.";
+        $ev->description = "Anima's ownership transfered from {$sender->name} to  {$receiver->name}.";
+        $ev->save();
+        try {
+            Utils::sendNotification(
+                "Your animal {$an->v_id} ownership has been transfered to {$receiver->name} - {$receiver->phone_number}.",
+                $sender->id,
+                $headings = 'Animal ownership transfered'
+            );
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+        try {
+            Utils::sendNotification(
+                "Animal {$an->v_id} has been transfered to you by {$sender->name} - {$sender->phone_number}.",
+                $receiver->id,
+                $headings = 'Animal ownership received'
+            );
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+        $new_an = Animal::find($an->id);
+        return $new_an;
+    }
 }

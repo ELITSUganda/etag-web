@@ -116,7 +116,7 @@ class Farm extends Model
             }
         });
 
-        self::updated(function ($model) { 
+        self::updated(function ($model) {
 
             if ($model->animals != null) {
                 foreach ($model->animals as $key => $animal) {
@@ -219,5 +219,26 @@ class Farm extends Model
             return $x;
         }
         return $u->phone_number;
+    }
+    //create is_main_group
+    public function createMainGroup()
+    {
+        $main_group = Group::where([
+            'administrator_id' => $this->administrator_id,
+            'is_main_group' => 'Yes'
+        ])->first();
+        if ($main_group != null) {
+            return $main_group;
+        }
+
+        $group = new Group();
+        $group->administrator_id = $this->administrator_id;
+        $group->name = "Main Group";
+        $group->is_main_group = 'Yes';
+        $group->save();
+        $g = Group::find($group->id);
+        return $g;
+
+        return $this->holding_code == '0000';
     }
 }

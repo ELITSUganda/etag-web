@@ -30,6 +30,28 @@ use function PHPUnit\Framework\fileExists;
 
 
 
+Route::get('transfer-animals', function (Request $request) {
+    $farm = Farm::where([
+        'administrator_id' => 873
+    ])->first();
+
+    $ans = Animal::where([
+        'group_id' => 1416,
+        'administrator_id' => 777
+    ])->get();
+
+    $i = 0;
+    foreach ($ans as $key => $an) {
+        $i++;
+        try {
+            $new_an = $an->transfer_animal($farm->id);
+            echo "$i. $an->id => $new_an->id  transfered successfully <br>";
+        } catch (\Throwable $th) {
+            echo "$i. $an->id => $new_an->id  transfered failed because " . $th->getMessage() . "<br>";
+        }
+    }
+    die('DONE!');
+});
 Route::get('farm-report-print', function (Request $request) {
     $report_id = $request->report_id;
     $report = FarmReport::find($report_id);
@@ -54,8 +76,8 @@ Route::get('/gen-dummy-data', function () {
 
     foreach (PregnantAnimal::all() as $key => $event) {
 
-        $animal_id = $femal_animals[rand(1,(count($femal_animals)-1))];
-       
+        $animal_id = $femal_animals[rand(1, (count($femal_animals) - 1))];
+
         $event->administrator_id = $farm->administrator_id;
         $event->animal_id = $animal_id;
         $event->original_status = [
@@ -157,7 +179,6 @@ Route::get('/gen-dummy-data', function () {
             $event->conception_date = $ferilization_date->addDays(rand(100, 200))->format('Y-m-d');
             //pregnancy_outcome
             $event->pregnancy_outcome = null;
- 
         } else {
             $event->reason_for_animal_abort = null;
             $event->did_animal_conceive = 'Yes';
@@ -166,7 +187,6 @@ Route::get('/gen-dummy-data', function () {
 
         $event->save();
         echo "Saved record " . $event->id . ": <br>";
-
     }
 
 
@@ -1080,10 +1100,10 @@ Route::get('/test', function () {
 Route::get('/', function () {
     //maaif
     $url = admin_url();
-    if(Utils::is_maaif()){
+    if (Utils::is_maaif()) {
         $url = 'https://maaif.u-lits.com/admin';
     }
-    return view('index',[ 
+    return view('index', [
         'url' => $url
     ]);
     header('Location: ' . admin_url());
