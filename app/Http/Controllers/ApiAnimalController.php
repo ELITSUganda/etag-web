@@ -2789,12 +2789,12 @@ class ApiAnimalController extends Controller
                 $event->medicine_text = $stock->drug_category_text;
             }
         } else if ($request->type == 'Vaccination') {
-            if ($request->vaccination == null || strlen($request->vaccination) < 1) {
+            /* if ($request->vaccination == null || strlen($request->vaccination) < 1) {
                 return Utils::response([
                     'status' => 0,
                     'message' => "Vaccination must be provided.",
                 ]);
-            }
+            } */
             if ($request->disease_id == null || strlen($request->disease_id) < 1) {
                 return Utils::response([
                     'status' => 0,
