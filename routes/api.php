@@ -208,6 +208,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::POST("post-media-upload", [ApiAnimalController::class, 'upload_media']); //==>3<==*
+Route::POST("post-media-upload-v2", [ApiAnimalController::class, 'upload_media_v2']); //==>3<==*
 Route::POST("product-create", [ApiShopController::class, "product_create"]); //==>2*
 Route::get('products', [ApiShopController::class, 'products']); //==>1*
 Route::post('products-delete', [ApiShopController::class, 'products_delete']); //==>4*

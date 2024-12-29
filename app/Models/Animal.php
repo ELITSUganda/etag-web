@@ -265,7 +265,6 @@ class Animal extends Model
     {
         $imgs =   Image::where([
             'parent_id' => $this->id,
-            'parent_endpoint' => 'Animal',
         ])->get();
         return json_encode($imgs);
     }
