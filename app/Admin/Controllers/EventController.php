@@ -34,6 +34,18 @@ class EventController extends AdminController
      */
     protected $title = 'Events';
 
+    protected function title()
+    {
+        $segments = request()->segments();
+        if (in_array('events-production', $segments)) {
+            return "Production events";
+        } else if (in_array('events-sanitary', $segments)) {
+            return "Sanitary events";
+        } else {
+            return "Events";
+        }
+    }
+
     /**
      * Make a grid builder.
      
@@ -61,41 +73,16 @@ class EventController extends AdminController
 
         //Utils::display_alert_message();
         $grid = new Grid(new Event());
+
+
+
+
         $grid->disableBatchActions();
 
         $grid->actions(function ($actions) {
             $actions->disableView();
         });
 
-        /*$faker = \Faker\Factory::create();
-        
-        $types = Array(
-            'Sick' => 'Sick',
-            'Healed' => 'Healed',
-            'Vaccinated' => 'Vaccinated',
-            'Gave birth' => 'Gave birth',
-            'Sold' => 'Sold',
-            'Died' => 'Died',
-            'Slautered' => 'Slautered',
-            'Stolen' => 'Stolen',
-        );
-        Event::truncate();
-        for($i = 0;$i<300;$i++){
-            $e = new Event();
-            shuffle($types); 
-            $e->type = $types[0];
-            $e->detail = $faker->sentence();
-            $e->approved_by = 1;
-            $e->animal_id = rand(1,400);
-            $e->save();
-        }
-        dd("Done");*/
-        /*  $e = new Event();
-        $e->weight = 130;
-        $e->type = 'Weight check';
-        $e->animal_id = 16186;
-
-        $e->save(); */
 
         $u = Auth::user();
         $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
@@ -103,8 +90,11 @@ class EventController extends AdminController
         if ($r != null) {
             $dis = Location::find($r->type_id);
         }
+
         if ($dis != null) {
             $grid->model()->where('district_id', '=', $dis->id);
+        }
+        if ($u->isRole('administrator')) {
         } else if (Admin::user()->isRole('farmer')) {
             $grid->model()->where('administrator_id', '=', Admin::user()->id);
             $grid->actions(function ($actions) {
@@ -119,8 +109,52 @@ class EventController extends AdminController
                 $actions->disableEdit();
             });
         }
+        $district = $dis ? $dis->id : null;
 
 
+        $segments = request()->segments();
+        if (in_array('events-production', $segments)) {
+            $grid->setTitle("Production events");
+            $types = [
+                'Ownership Transfer',
+                'Milking',
+                'Temperature check',
+                'Weight check',
+                'Service',
+                'Roll call',
+                'Pregnancy check',
+                'Pregnancy',
+                'Calving',
+                'Weaning',
+                'Slaughter',
+                'Note',
+                'Picture',
+                'Check point',
+            ];
+            $grid->model()->whereIn('type', $types);
+        } else if (in_array('events-sanitary', $segments)) {
+
+            $lastEvent = Event::where([])->orderBy('created_at', 'desc')->first();
+
+            // dd($lastEvent);
+            $types = [
+                'Abortion',
+                'Death',
+                'Disease test',
+                'Sample taken',
+                'Sample result',
+                'Test conducted',
+                'Test result',
+                'Treatment',
+                'Vaccination',
+                'Mortality',
+                'Batch Treatment',
+            ];
+            $grid->model()->whereIn('type', $types);
+            $grid->setTitle("Sanitary events");
+        } else {
+            $grid->setTitle("Events");
+        }
         $grid->model()->orderBy('id', 'DESC');
         $grid->filter(function ($filter) {
 

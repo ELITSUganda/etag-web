@@ -27,6 +27,8 @@ Route::group([
     $router->resource('farms', FarmController::class);
     $router->resource('animals', AnimalController::class);
     $router->resource('events', EventController::class);
+    $router->resource('events-sanitary', EventController::class);
+    $router->resource('events-production', EventController::class);
     $router->resource('movements', MovementController::class);
     $router->resource('diseases', DiseaseController::class);
     $router->resource('medicines', MedicineController::class);
