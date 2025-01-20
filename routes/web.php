@@ -1078,7 +1078,14 @@ Route::get('/test', function () {
 
 //Route::get('/', [WebController::class, 'index']);
 Route::get('/', function () {
-    return view('index');
+    //maaif
+    $url = admin_url();
+    if(Utils::is_maaif()){
+        $url = 'https://maaif.u-lits.com/admin';
+    }
+    return view('index',[
+        'url' => $url
+    ]);
     header('Location: ' . admin_url());
     die();
 });
