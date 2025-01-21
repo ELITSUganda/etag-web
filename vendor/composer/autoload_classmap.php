@@ -47,6 +47,7 @@ return array(
     'App\\Admin\\Controllers\\OrderController' => $baseDir . '/app/Admin/Controllers/OrderController.php',
     'App\\Admin\\Controllers\\ParishController' => $baseDir . '/app/Admin/Controllers/ParishController.php',
     'App\\Admin\\Controllers\\PregnantAnimalController' => $baseDir . '/app/Admin/Controllers/PregnantAnimalController.php',
+    'App\\Admin\\Controllers\\PregnantAnimalControllerOld' => $baseDir . '/app/Admin/Controllers/PregnantAnimalControllerOld.php',
     'App\\Admin\\Controllers\\ProductCategoryController' => $baseDir . '/app/Admin/Controllers/ProductCategoryController.php',
     'App\\Admin\\Controllers\\ProductCategoryControllerOld' => $baseDir . '/app/Admin/Controllers/ProductCategoryControllerOld.php',
     'App\\Admin\\Controllers\\ProductController' => $baseDir . '/app/Admin/Controllers/ProductController.php',
