@@ -6,6 +6,7 @@ use App\Models\AdminRoleUser;
 use App\Models\Animal;
 use App\Models\Disease;
 use App\Models\District;
+use App\Models\DrugDosage;
 use App\Models\DrugStockBatch;
 use App\Models\Event;
 use App\Models\Farm;
@@ -74,6 +75,43 @@ class EventController extends AdminController
         //Utils::display_alert_message();
 
         $grid = new Grid(new Event());
+
+        $grid->export(function ($export) {
+            $date_time = date('Y-m-d_H-i-s');
+            $export->filename('Events-' . $date_time);
+            $export->only([
+                'created_at',
+                'animal_id',
+                'type',
+                'disease_id',
+                'inseminator',
+                'inseminator_1',
+                'inseminator_2',
+                'inseminator_3',
+                'medicine_id',
+                'description',
+            ]);
+            $export->originalValue([
+                'created_at',
+                'animal_id',
+                'type',
+                'disease_id',
+                'inseminator',
+                'inseminator_1',
+                'inseminator_2',
+                'inseminator_3',
+                'medicine_id',
+                'description',
+            ]);
+
+            $export->originalValue(['id', 'created_at', 'type', 'description', 'detail']);
+            $export->column('description', function ($value) {
+                return strip_tags($value);
+            });
+            $export->column('detail', function ($value) {
+                return strip_tags($value);
+            });
+        });
 
         $segments = request()->segments();
         $isSanitary = false;
@@ -307,12 +345,13 @@ class EventController extends AdminController
         if ($isSanitary)
             $grid->column('disease_id', __('Disease'))
                 ->display(function ($id) {
-                    if ($this->type != 'Disease test') {
+                    if ($this->type != 'Disease test' && $this->type != 'Treatment') {
                         return 'N/A';
                     }
+
                     $u = Disease::find($id);
                     if (!$u) {
-                        return $id;
+                        return 'N/A';
                     }
                     return $u->name;
                 })
@@ -329,9 +368,67 @@ class EventController extends AdminController
                 })
                 ->sortable();
 
+        //if sanitary event, display -	Sample result
+        if ($isSanitary)
+            $grid->column('inseminator_1', __('Sample result'))
+                ->display(function ($id) {
+                    if ($this->type != 'Sample result') {
+                        return 'N/A';
+                    }
+                    return $this->inseminator;
+                });
+
+        ///-	Test conducted
+        if ($isSanitary)
+            $grid->column('inseminator_2', __('Test conducted'))
+                ->display(function ($id) {
+                    if (strtolower($this->type) != 'test conducted') {
+                        return 'N/A';
+                    }
+                    return $this->inseminator;
+                });
+        //-	Test result
+        if ($isSanitary)
+            $grid->column('inseminator_3', __('Test result'))
+                ->display(function ($id) {
+                    if (strtolower($this->type) != 'test result') {
+                        return 'N/A';
+                    }
+                    return $this->inseminator;
+                });
+
+        //Treatment
+
+        //Treatment
+        if ($isSanitary)
+            $grid->column('medicine_id', __('Drug'))
+                ->display(function ($id) {
+                    if (strtolower($this->type) != 'treatment' && strtolower($this->type) != 'batch treatment') {
+                        return 'N/A';
+                    }
+                    if (strtolower($this->type) == 'batch treatment') {
+                        return $this->description;
+                    }
+                    $u = DrugStockBatch::find($id);
+                    if (!$u) {
+                        return "#" . $id;
+                    }
+                    return $u->name;
+                })
+                ->sortable();
+
+        //-	Mortality 
+        /*  if ($isSanitary)
+            $grid->column('inseminator_4', __('Mortality'))
+                ->display(function ($id) {
+                    if (strtolower($this->type) != 'mortality') {
+                        return 'N/A';
+                    }
+                    return $this->inseminator;
+                }); */
 
         $grid->column('description', __('Description'))->sortable()
-            ->limit(25);
+            ->limit(70);
         $grid->column('detail', __('Details'))->sortable()->hide();
 
 
