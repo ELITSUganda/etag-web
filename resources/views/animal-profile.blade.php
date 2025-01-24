@@ -543,7 +543,7 @@
 @if (!$is_export)
     {{-- show print button --}}
     @php
-        $url = url('/animal-profile?' . $animal->id . '&export=true');
+        $url = url('/animal-profile?id=' . $animal->id . '&export=true');
     @endphp
     <div class="row mt-4">
         <div class="col-12 text-center">

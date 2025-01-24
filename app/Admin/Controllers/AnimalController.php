@@ -204,12 +204,8 @@ class AnimalController extends AdminController
             $filter->equal('v_id', "V-ID");
         });
 
+        $grid->column('e_id', __('E-ID'))->sortable();
 
-        $grid->column('created_at', __('Created'))
-            ->sortable()
-            ->display(function ($c) {
-                return Utils::my_date($c);
-            });
         if ($u->isRole('data-viewer')) {
             $grid->disableActions();
             $grid->disableCreateButton();
@@ -226,12 +222,13 @@ class AnimalController extends AdminController
             ->image(url("https://u-lits.com/storage/images"), 60, 60)
             //->lightbox(['width' => 60, 'height' => 60])
             ->sortable();
-        $grid->column('e_id', __('E-ID'))->sortable();
+
         $grid->column('v_id', __('V-ID'))->sortable()->hide();
-        $grid->column('lhc', __('LHC'))->sortable()->hide();
         $grid->column('type', __('Species'))->sortable();
+        $grid->column('breed', __('Breed'))->sortable();
         $grid->column('sex', __('Sex'))->sortable();
-        $grid->column('breed', __('Breed'))->sortable()->hide();
+        // Colour
+        $grid->column('colour', __('Colour'))->sortable();
         $grid->column('weight', __('Weight'))->display(function () {
             return $this->weight_text;
         })->sortable();
@@ -243,10 +240,11 @@ class AnimalController extends AdminController
         })
             ->hide()
             ->sortable();
-        $grid->column('dob', __('Born'))->display(function ($y) {
+        $grid->column('dob', __('DoB/YoB'))->display(function ($y) {
             return Utils::my_date($y);
         })->sortable();
-        $grid->column('fmd', __('Last FMD'))->hide()->sortable();
+        $grid->column('fmd', __('Last FMD'))->sortable();
+        $grid->column('lhc', __('LHC'))->sortable();
         $grid->column('status', __('Status'))->sortable();
 
 
@@ -285,6 +283,11 @@ class AnimalController extends AdminController
                 //download profile 
                 $links .=  ' <a  target="_blank" class="btn btn-primary btn-sm" href="' . url('/animal-profile?id=' . $this->id . '&export=true') . '" >Download Profile</a>';
                 return $links;
+            });
+        $grid->column('created_at', __('Created'))
+            ->sortable()
+            ->display(function ($c) {
+                return Utils::my_date($c);
             });
 
         return $grid;

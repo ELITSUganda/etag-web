@@ -427,6 +427,90 @@ class EventController extends AdminController
                     return $this->inseminator;
                 }); */
 
+        #-	Milking
+        if (!$isSanitary)
+            $grid->column('milk', __('Milk (L)'))
+                ->display(function ($id) {
+                    if ($this->type != 'Milking') {
+                        return 'N/A';
+                    }
+                    return $id;
+                })
+                ->sortable();
+        #-    Weight check
+        if (!$isSanitary)
+            $grid->column('weight', __('Weight (KG)'))
+                ->display(function ($id) {
+                    if ($this->type != 'Weight check') {
+                        return 'N/A';
+                    }
+                    return $id;
+                })
+                ->sortable();
+
+
+        //calf_sex
+        if (!$isSanitary)
+            $grid->column('calf_sex', __('Calf Sex'))
+                ->display(function ($id) {
+                    if ($this->type != 'Calving') {
+                        return 'N/A';
+                    }
+                    return $id;
+                })
+                ->sortable();
+        //calf_weight
+        if (!$isSanitary)
+            $grid->column('calf_weight', __('Calf Weight (KG)'))
+                ->display(function ($id) {
+                    if ($this->type != 'Calving') {
+                        return 'N/A';
+                    }
+                    return $id;
+                })
+                ->sortable();
+
+        //-	Weaning
+        if (!$isSanitary)
+            $grid->column('wean_weight', __('Wean Weight (KG)'))
+                ->display(function ($id) {
+                    if ($this->type != 'Weaning') {
+                        return 'N/A';
+                    }
+                    return $id;
+                })
+                ->sortable();
+
+        //-	Service (service_type)
+        if (!$isSanitary)
+            $grid->column('service_type', __('Service Type'))
+                ->display(function ($id) {
+                    if ($this->type != 'Service') {
+                        return 'N/A';
+                    }
+                    return $id;
+                })
+                ->sortable();
+
+        //sire e-id (inseminator) 
+        if (!$isSanitary)
+            $grid->column('inseminator_1', __('Sire E-ID'))
+                ->display(function ($id) {
+                    if ($this->type != 'Service') {
+                        return 'N/A';
+                    }
+                    return $this->inseminator;
+                });
+        //Sire Breed (inseminator) inseminator_2
+        if (!$isSanitary)
+            $grid->column('inseminator_2', __('Sire Breed'))
+                ->display(function ($id) {
+                    if ($this->type != 'Service') {
+                        return 'N/A';
+                    }
+                    return $this->inseminator;
+                });
+
         $grid->column('description', __('Description'))->sortable()
             ->limit(70);
         $grid->column('detail', __('Details'))->sortable()->hide();
