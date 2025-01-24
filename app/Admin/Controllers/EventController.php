@@ -72,8 +72,18 @@ class EventController extends AdminController
 
 
         //Utils::display_alert_message();
+
         $grid = new Grid(new Event());
 
+        $segments = request()->segments();
+        $isSanitary = false;
+        if (in_array('events-production', $segments)) {
+            $isSanitary = false;
+        } else if (in_array('events-sanitary', $segments)) {
+            $isSanitary = true;
+        } else {
+            $isSanitary = false;
+        }
 
 
 
@@ -158,7 +168,7 @@ class EventController extends AdminController
         $grid->model()->orderBy('id', 'DESC');
         $grid->filter(function ($filter) {
 
-
+            return $filter;
 
             $admins = [];
 
@@ -239,84 +249,103 @@ class EventController extends AdminController
         });
 
 
-        $grid->column('id', __('ID'))->sortable();
-
-
-        /*         $grid->column('animal_id', __('E-ID'))
-            ->display(function ($id) {
-                $u = Animal::find($id);
-                if (!$u) {
-                    return $id;
-                }
-                return $u->e_id;
-            })->sortable(); */
-
-
-        $grid->column('animal_id', __('V-ID'))
-            ->display(function ($id) {
-                $u = Animal::find($id);
-                if (!$u) {
-                    return $id;
-                }
-                return $u->v_id;
-            })->sortable();
-
-
+        $grid->column('id', __('ID'))->sortable()->hide();
         $grid->column('created_at', __('Date'))
             ->display(function ($f) {
                 return Utils::my_date_time($f);
             })->sortable();
-        $grid->column('type', __('Event Type'))->sortable();
-        $grid->column('milk', __('Milk (Ltrs)'))->sortable();
-        $grid->column('vaccine_id', __('Vaccine'))
-            ->hide()
-            ->display(function ($id) {
-                $u = Vaccine::find($id);
-                if (!$u) {
-                    return $id;
-                }
-                return $u->name;
-            })->sortable();
 
-        $grid->column('disease_id', __('Disease'))
-            ->display(function ($id) {
-                $u = Disease::find($id);
-                if (!$u) {
-                    return $id;
-                }
-                return $u->name;
-            })
-            ->hide()
-            ->sortable();
 
-        $grid->column('medicine_id', __('Drug'))
-            ->hide()
+        $grid->column('animal_id', __('E-ID'))
             ->display(function ($id) {
-                $u = Medicine::find($id);
+                $u = Animal::find($id);
                 if (!$u) {
-                    return $id;
+                    return 'N/A';
                 }
-                return $u->name;
+                return $u->e_id;
             })->sortable();
 
 
-        $grid->column('animal_type', __('Livestock species'))->sortable();
+        $sanitaryEvents = [
+            'Abortion',
+            'Death',
+            'Disease test',
+            'Sample taken',
+            'Sample result',
+            'Test conducted',
+            'Test result',
+            'Treatment',
+            'Vaccination',
+            'Mortality',
+            'Batch Treatment',
+        ];
+        $productionEvents = [
+            'Ownership Transfer',
+            'Milking',
+            'Temperature check',
+            'Weight check',
+            'Service',
+            'Roll call',
+            'Pregnancy check',
+            'Pregnancy',
+            'Calving',
+            'Weaning',
+            'Slaughter',
+            'Note',
+            'Picture',
+            'Check point',
+        ];
+        $type_filters = [];
+        if ($isSanitary) {
+            $type_filters = $sanitaryEvents;
+        } else {
+            $type_filters = $productionEvents;
+        }
+        $grid->column('type', __('Event Type'))->sortable()
+            ->filter(array_combine($type_filters, $type_filters));
 
-        $grid->column('detail', __('Details'))->sortable();
-        $grid->column('description', __('Description'))->sortable();
+        if ($isSanitary)
+            $grid->column('disease_id', __('Disease'))
+                ->display(function ($id) {
+                    if ($this->type != 'Disease test') {
+                        return 'N/A';
+                    }
+                    $u = Disease::find($id);
+                    if (!$u) {
+                        return $id;
+                    }
+                    return $u->name;
+                })
+                ->sortable();
+
+        //if sanitary event, display -	Sample taken
+        if ($isSanitary)
+            $grid->column('inseminator', __('Sample taken'))
+                ->display(function ($id) {
+                    if ($this->type != 'Sample taken') {
+                        return 'N/A';
+                    }
+                    return $id;
+                })
+                ->sortable();
+
+
+        $grid->column('description', __('Description'))->sortable()
+            ->limit(25);
+        $grid->column('detail', __('Details'))->sortable()->hide();
 
 
 
-        $grid->column('district_id', __('District'))
+        /* $grid->column('district_id', __('District'))
+            ->display(function ($id) {
+                return Utils::get_object(Location::class, $id)->name_text;
+            })->sortable(); */
+        /*        $grid->column('sub_county_id', __('Sub county'))
             ->display(function ($id) {
                 return Utils::get_object(Location::class, $id)->name_text;
             })->sortable();
-        $grid->column('sub_county_id', __('Sub county'))
-            ->display(function ($id) {
-                return Utils::get_object(Location::class, $id)->name_text;
-            })->sortable();
 
-
+ */
         $grid->column('administrator_id', __('Animal owner'))
             ->display(function ($id) {
                 $u = Administrator::find($id);
@@ -324,7 +353,8 @@ class EventController extends AdminController
                     return $id;
                 }
                 return $u->name;
-            })->sortable();
+            })->sortable()
+            ->hide();
 
 
 
