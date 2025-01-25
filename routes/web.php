@@ -31,6 +31,25 @@ use function PHPUnit\Framework\fileExists;
 
 
 Route::get('transfer-animals', function (Request $request) {
+
+    Route::get('/clear', function () {
+
+        Artisan::call('cache:clear');
+        Artisan::call('config:clear');
+        Artisan::call('config:cache');
+        Artisan::call('view:clear');
+
+        return "Cleared!";
+    });
+    Route::get('migrate', function () {
+        //run laravel migrate command in code
+        $RESP = Artisan::call('migrate');
+        echo "<pre>";
+        print_r($RESP);
+        echo "</pre>";
+        die();
+    });
+
     $farm = Farm::where([
         'administrator_id' => 873
     ])->first();
