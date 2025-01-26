@@ -22,6 +22,7 @@ use App\Models\Utils;
 use Carbon\Carbon;
 use Encore\Admin\Grid\Tools\Header;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Milon\Barcode\DNS1D;
@@ -29,26 +30,26 @@ use Milon\Barcode\DNS1D;
 use function PHPUnit\Framework\fileExists;
 
 
+Route::get('/clear', function () {
+
+    Artisan::call('cache:clear');
+    Artisan::call('config:clear');
+    Artisan::call('config:cache');
+    Artisan::call('view:clear');
+
+    return "Cleared!";
+});
+Route::get('migrate', function () {
+    //run laravel migrate command in code
+    $RESP = Artisan::call('migrate');
+    echo "<pre>";
+    print_r($RESP);
+    echo "</pre>";
+    die();
+});
 
 Route::get('transfer-animals', function (Request $request) {
 
-    Route::get('/clear', function () {
-
-        Artisan::call('cache:clear');
-        Artisan::call('config:clear');
-        Artisan::call('config:cache');
-        Artisan::call('view:clear');
-
-        return "Cleared!";
-    });
-    Route::get('migrate', function () {
-        //run laravel migrate command in code
-        $RESP = Artisan::call('migrate');
-        echo "<pre>";
-        print_r($RESP);
-        echo "</pre>";
-        die();
-    });
 
     $farm = Farm::where([
         'administrator_id' => 873

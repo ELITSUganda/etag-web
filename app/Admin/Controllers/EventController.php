@@ -288,12 +288,6 @@ class EventController extends AdminController
 
 
         $grid->column('id', __('ID'))->sortable()->hide();
-        $grid->column('created_at', __('Date'))
-            ->display(function ($f) {
-                return Utils::my_date_time($f);
-            })->sortable();
-
-
         $grid->column('animal_id', __('E-ID'))
             ->display(function ($id) {
                 $u = Animal::find($id);
@@ -302,6 +296,21 @@ class EventController extends AdminController
                 }
                 return $u->e_id;
             })->sortable();
+        $grid->column('v_id', __('V-ID'))
+            ->display(function ($id) {
+                $u = Animal::find($id);
+                if (!$u) {
+                    return 'N/A';
+                }
+                return $u->v_id;
+            })->hide();
+        $grid->column('created_at', __('Date'))
+            ->display(function ($f) {
+                return Utils::my_date_time($f);
+            })->sortable();
+
+
+
 
 
         $sanitaryEvents = [
@@ -436,7 +445,8 @@ class EventController extends AdminController
                     }
                     return $id;
                 })
-                ->sortable();
+                ->sortable()
+                ->hide();
         #-    Weight check
         if (!$isSanitary)
             $grid->column('weight', __('Weight (KG)'))
