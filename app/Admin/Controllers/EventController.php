@@ -300,6 +300,18 @@ class EventController extends AdminController
                 'type',
                 'detail',
             ];
+        } else if (in_array('events-milking', $segments)) {
+            $grid->model()->where([
+                'type' => 'Milking'
+            ]);
+            $grid->setTitle("Milking events");
+            $cols = [
+                'id',
+                'animal_id',
+                'created_at',
+                'type',
+                'milk',
+            ];
         }
 
         //Sample Result
@@ -389,6 +401,10 @@ class EventController extends AdminController
 
 
         $grid->column('id', __('ID'))->sortable()->hide();
+        $grid->column('created_at', __('Date'))
+            ->display(function ($f) {
+                return Utils::my_date_time($f);
+            })->sortable();
         $grid->column('animal_id', __('E-ID'))
             ->display(function ($id) {
                 $u = Animal::find($id);
@@ -404,11 +420,9 @@ class EventController extends AdminController
                     return 'N/A';
                 }
                 return $u->v_id;
-            })->hide();
-        $grid->column('created_at', __('Date'))
-            ->display(function ($f) {
-                return Utils::my_date_time($f);
-            })->sortable();
+            })
+            ->hide();
+
 
 
 
@@ -455,7 +469,7 @@ class EventController extends AdminController
             $grid->column('type', __('Event Type'))->sortable()
                 ->filter(array_combine($type_filters, $type_filters));
         } else {
-            $grid->column('type', __('Event Type'))->sortable();
+            $grid->column('type', __('Event Type'))->sortable()->hide();
         }
 
 
@@ -551,13 +565,10 @@ class EventController extends AdminController
         if (in_array('milk', $cols))
             $grid->column('milk', __('Milk (L)'))
                 ->display(function ($id) {
-                    if ($this->type != 'Milking') {
-                        return 'N/A';
-                    }
                     return $id;
                 })
                 ->sortable()
-                ->hide();
+            ;
         #-    Weight check
         if (in_array('weight', $cols))
             $grid->column('weight', __('Weight (KG)'))
@@ -665,7 +676,7 @@ class EventController extends AdminController
                     }
                     return $u->name;
                 })->sortable()
-                ->hide();
+            ;
 
 
 
