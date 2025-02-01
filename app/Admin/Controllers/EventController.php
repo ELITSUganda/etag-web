@@ -277,7 +277,7 @@ class EventController extends AdminController
             ])->orWhere([
                 'type' => 'Batch Treatment'
             ]);
-            $grid->setTitle("Test conducted events");
+            $grid->setTitle("Treatment events");
             $cols = [
                 'id',
                 'animal_id',
@@ -286,6 +286,18 @@ class EventController extends AdminController
                 'disease_id',
                 'medicine_id',
                 'description',
+                'detail',
+            ];
+        } else if (in_array('events-mortality', $segments)) {
+            $grid->model()->where([
+                'type' => 'Mortality'
+            ]);
+            $grid->setTitle("Mortality events");
+            $cols = [
+                'id',
+                'animal_id',
+                'created_at',
+                'type',
                 'detail',
             ];
         }
