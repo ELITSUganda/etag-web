@@ -255,7 +255,7 @@ class EventController extends AdminController
                 'animal_id',
                 'created_at',
                 'type',
-                'inseminator',
+                'inseminator_1',
                 'detail',
             ];
         }
