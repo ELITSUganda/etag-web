@@ -203,6 +203,22 @@ class EventController extends AdminController
         } else {
             $grid->setTitle("Events");
         }
+
+        $cols = [];
+        if (in_array('events-abortion', $segments)) {
+            $grid->model()->where([
+                'type' => 'Abortion'
+            ]);
+            $grid->setTitle("Abortion events");
+            $cols = [
+                'id',
+                'animal_id',
+                'created_at',
+                'type',
+                'detail',
+            ];
+        }
+
         $grid->model()->orderBy('id', 'DESC');
         $grid->filter(function ($filter) {
 
@@ -348,10 +364,17 @@ class EventController extends AdminController
         } else {
             $type_filters = $productionEvents;
         }
-        $grid->column('type', __('Event Type'))->sortable()
-            ->filter(array_combine($type_filters, $type_filters));
 
-        if ($isSanitary)
+        if (in_array('events', $segments)) {
+            $type_filters = array_merge($sanitaryEvents, $productionEvents);
+            $grid->column('type', __('Event Type'))->sortable()
+                ->filter(array_combine($type_filters, $type_filters));
+        } else {
+            $grid->column('type', __('Event Type'))->sortable();
+        }
+
+
+        if (in_array('disease_id', $cols))
             $grid->column('disease_id', __('Disease'))
                 ->display(function ($id) {
                     if ($this->type != 'Disease test' && $this->type != 'Treatment') {
@@ -367,7 +390,7 @@ class EventController extends AdminController
                 ->sortable();
 
         //if sanitary event, display -	Sample taken
-        if ($isSanitary)
+        if (in_array('inseminator', $cols))
             $grid->column('inseminator', __('Sample taken'))
                 ->display(function ($id) {
                     if ($this->type != 'Sample taken') {
@@ -378,7 +401,7 @@ class EventController extends AdminController
                 ->sortable();
 
         //if sanitary event, display -	Sample result
-        if ($isSanitary)
+        if (in_array('inseminator_1', $cols))
             $grid->column('inseminator_1', __('Sample result'))
                 ->display(function ($id) {
                     if ($this->type != 'Sample result') {
@@ -388,7 +411,7 @@ class EventController extends AdminController
                 });
 
         ///-	Test conducted
-        if ($isSanitary)
+        if (in_array('inseminator_2', $cols))
             $grid->column('inseminator_2', __('Test conducted'))
                 ->display(function ($id) {
                     if (strtolower($this->type) != 'test conducted') {
@@ -397,7 +420,7 @@ class EventController extends AdminController
                     return $this->inseminator;
                 });
         //-	Test result
-        if ($isSanitary)
+        if (in_array('inseminator_3', $cols))
             $grid->column('inseminator_3', __('Test result'))
                 ->display(function ($id) {
                     if (strtolower($this->type) != 'test result') {
@@ -409,7 +432,7 @@ class EventController extends AdminController
         //Treatment
 
         //Treatment
-        if ($isSanitary)
+        if (in_array('medicine_id', $cols))
             $grid->column('medicine_id', __('Drug'))
                 ->display(function ($id) {
                     if (strtolower($this->type) != 'treatment' && strtolower($this->type) != 'batch treatment') {
@@ -437,7 +460,7 @@ class EventController extends AdminController
                 }); */
 
         #-	Milking
-        if (!$isSanitary)
+        if (in_array('milk', $cols))
             $grid->column('milk', __('Milk (L)'))
                 ->display(function ($id) {
                     if ($this->type != 'Milking') {
@@ -448,7 +471,7 @@ class EventController extends AdminController
                 ->sortable()
                 ->hide();
         #-    Weight check
-        if (!$isSanitary)
+        if (in_array('weight', $cols))
             $grid->column('weight', __('Weight (KG)'))
                 ->display(function ($id) {
                     if ($this->type != 'Weight check') {
@@ -460,7 +483,7 @@ class EventController extends AdminController
 
 
         //calf_sex
-        if (!$isSanitary)
+        if (in_array('calf_sex', $cols))
             $grid->column('calf_sex', __('Calf Sex'))
                 ->display(function ($id) {
                     if ($this->type != 'Calving') {
@@ -470,7 +493,7 @@ class EventController extends AdminController
                 })
                 ->sortable();
         //calf_weight
-        if (!$isSanitary)
+        if (in_array('calf_weight', $cols))
             $grid->column('calf_weight', __('Calf Weight (KG)'))
                 ->display(function ($id) {
                     if ($this->type != 'Calving') {
@@ -481,7 +504,7 @@ class EventController extends AdminController
                 ->sortable();
 
         //-	Weaning
-        if (!$isSanitary)
+        if (in_array('wean_weight', $cols))
             $grid->column('wean_weight', __('Wean Weight (KG)'))
                 ->display(function ($id) {
                     if ($this->type != 'Weaning') {
@@ -492,7 +515,7 @@ class EventController extends AdminController
                 ->sortable();
 
         //-	Service (service_type)
-        if (!$isSanitary)
+        if (in_array('service_type', $cols))
             $grid->column('service_type', __('Service Type'))
                 ->display(function ($id) {
                     if ($this->type != 'Service') {
@@ -502,8 +525,7 @@ class EventController extends AdminController
                 })
                 ->sortable();
 
-        //sire e-id (inseminator) 
-        if (!$isSanitary)
+        if (in_array('inseminator_1', $cols))
             $grid->column('inseminator_1', __('Sire E-ID'))
                 ->display(function ($id) {
                     if ($this->type != 'Service') {
@@ -512,7 +534,7 @@ class EventController extends AdminController
                     return $this->inseminator;
                 });
         //Sire Breed (inseminator) inseminator_2
-        if (!$isSanitary)
+        if (in_array('inseminator_2', $cols))
             $grid->column('inseminator_2', __('Sire Breed'))
                 ->display(function ($id) {
                     if ($this->type != 'Service') {
@@ -521,9 +543,12 @@ class EventController extends AdminController
                     return $this->inseminator;
                 });
 
-        $grid->column('description', __('Description'))->sortable()
-            ->limit(70);
-        $grid->column('detail', __('Details'))->sortable()->hide();
+
+        if (in_array('description', $cols))
+            $grid->column('description', __('Description'))->sortable()
+                ->limit(70);
+        if (in_array('detail', $cols))
+            $grid->column('detail', __('Details'))->sortable();
 
 
 
@@ -537,15 +562,17 @@ class EventController extends AdminController
             })->sortable();
 
  */
-        $grid->column('administrator_id', __('Animal owner'))
-            ->display(function ($id) {
-                $u = Administrator::find($id);
-                if (!$u) {
-                    return $id;
-                }
-                return $u->name;
-            })->sortable()
-            ->hide();
+
+        if (in_array('administrator_id', $cols))
+            $grid->column('administrator_id', __('Animal owner'))
+                ->display(function ($id) {
+                    $u = Administrator::find($id);
+                    if (!$u) {
+                        return $id;
+                    }
+                    return $u->name;
+                })->sortable()
+                ->hide();
 
 
 
