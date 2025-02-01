@@ -32,6 +32,7 @@ Route::group([
     $router->resource('events-disease-test', EventController::class);
     $router->resource('events-sample-taken', EventController::class);
     $router->resource('events-sample-result', EventController::class);
+    $router->resource('events-test-conducted', EventController::class);
     $router->resource('events-production', EventController::class);
     $router->resource('movements', MovementController::class);
     $router->resource('diseases', DiseaseController::class);

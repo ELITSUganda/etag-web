@@ -222,7 +222,7 @@ class EventController extends AdminController
             $grid->model()->where([
                 'type' => 'Disease test'
             ]);
-            $grid->setTitle("Abortion events");
+            $grid->setTitle("Disease test events");
             $cols = [
                 'id',
                 'animal_id',
@@ -236,7 +236,7 @@ class EventController extends AdminController
             $grid->model()->where([
                 'type' => 'Sample taken'
             ]);
-            $grid->setTitle("Abortion events");
+            $grid->setTitle("Sample taken events");
             $cols = [
                 'id',
                 'animal_id',
@@ -249,13 +249,26 @@ class EventController extends AdminController
             $grid->model()->where([
                 'type' => 'Sample result'
             ]);
-            $grid->setTitle("Abortion events");
+            $grid->setTitle("Sample result events");
             $cols = [
                 'id',
                 'animal_id',
                 'created_at',
                 'type',
                 'sample_results',
+                'detail',
+            ];
+        } else if (in_array('events-test-conducted', $segments)) {
+            $grid->model()->where([
+                'type' => 'Test conducted'
+            ]);
+            $grid->setTitle("Test conducted events");
+            $cols = [
+                'id',
+                'animal_id',
+                'created_at',
+                'type',
+                'test_conducted',
                 'detail',
             ];
         }
@@ -586,6 +599,11 @@ class EventController extends AdminController
                     if ($this->type != 'Service') {
                         return 'N/A';
                     }
+                    return $this->inseminator;
+                });
+        if (in_array('test_conducted', $cols))
+            $grid->column('test_conducted', __('Test Conducted'))
+                ->display(function ($id) {
                     return $this->inseminator;
                 });
 
