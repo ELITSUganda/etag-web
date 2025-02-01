@@ -403,9 +403,8 @@ return [
     */
     'extensions' => [
 
-        'quill' => [
-            // If the value is set to false, this extension will be disabled
-            'enable' => true,
+        /* 'quill' => [
+            'enable' => false,
             'config' => [
                 'modules' => [
                     'syntax' => true,
@@ -440,12 +439,12 @@ return [
                 'theme' => 'snow',
                 'height' => '200px',
             ]
-        ],
+        ], */
         'ckeditor' => [
 
             //Set to false if you want to disable this extension
             'enable' => true,
-            
+
 
             // Editor configuration
             'config' => [
