@@ -312,6 +312,18 @@ class EventController extends AdminController
                 'type',
                 'milk',
             ];
+        } else if (in_array('events-weighing', $segments)) {
+            $grid->model()->where([
+                'type' => 'Weight check'
+            ]);
+            $grid->setTitle("Weighing events");
+            $cols = [
+                'id',
+                'animal_id',
+                'created_at',
+                'type',
+                'weight',
+            ];
         }
 
         //Sample Result
