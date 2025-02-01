@@ -255,7 +255,7 @@ class EventController extends AdminController
                 'animal_id',
                 'created_at',
                 'type',
-                'inseminator_1',
+                'sample_results',
                 'detail',
             ];
         }
@@ -442,8 +442,8 @@ class EventController extends AdminController
                 ->sortable();
 
         //if sanitary event, display -	Sample result
-        if (in_array('inseminator_1', $cols))
-            $grid->column('inseminator_1', __('Sample result'))
+        if (in_array('sample_results', $cols))
+            $grid->column('sample_results', __('Sample result'))
                 ->display(function ($id) {
                     return $this->inseminator;
                 });
