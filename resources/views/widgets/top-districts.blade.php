@@ -26,12 +26,27 @@ $title = isset($_title) ? $_title : 'Farm Count by Districts';
 <script>
     $(document).on('pjax:complete', function() {
 
-        my_function();
+
+
+        // get last par of the url
+        var url = window.location.href;
+        var parts = url.split('/');
+        var last_part = parts[parts.length - 1];
+        if (last_part == '') {
+            my_function();
+        }
         // Your code to execute after PJAX content is loaded into the container
     });
     //document.addEventListener("DOMContentLoaded", my_function);
     document.addEventListener("DOMContentLoaded", function() {
-        my_function();
+
+        // get last par of the url
+        var url = window.location.href;
+        var parts = url.split('/');
+        var last_part = parts[parts.length - 1];
+        if (last_part == '') {
+            my_function();
+        }
     });
 
     var hasLoaded = false;
@@ -48,7 +63,7 @@ $title = isset($_title) ? $_title : 'Farm Count by Districts';
              subtitles: [{
                  text: "As of November, 2017",
              }], */
-             theme: "light3",
+            theme: "light3",
             animationEnabled: true,
             data: [{
                 type: "pie",

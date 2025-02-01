@@ -127,7 +127,7 @@ class HomeController extends Controller
                 ]));
             });
         });
-        return $content; 
+        return $content;
         Admin::js('/vendor/laravel-admin-ext/chartjs/Chart.bundle.min.js');
         $content->title('Main Dashboard');
 

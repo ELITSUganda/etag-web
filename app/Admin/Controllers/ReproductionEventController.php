@@ -34,6 +34,47 @@ class ReproductionEventController extends AdminController
      */
     protected $title = 'Reproduction Events';
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     protected function title()
     {
         $t = 'Reproduction Events';
