@@ -46,6 +46,7 @@ class Utils extends Model
     }
     public static function is_maaif()
     {
+        return false;
         $host = $_SERVER['HTTP_HOST'];
         if (str_contains($host, 'localhost') || str_contains($host, 'maaif')) {
             return true;

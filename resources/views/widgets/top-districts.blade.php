@@ -26,45 +26,71 @@ $title = isset($_title) ? $_title : 'Farm Count by Districts';
 <script>
     $(document).on('pjax:complete', function() {
 
-
-
-        // get last par of the url
-        var url = window.location.href;
-        var parts = url.split('/');
-        var last_part = parts[parts.length - 1];
-        if (last_part == '') {
-            my_function();
-        }
-        // Your code to execute after PJAX content is loaded into the container
+        my_function();
     });
     //document.addEventListener("DOMContentLoaded", my_function);
     document.addEventListener("DOMContentLoaded", function() {
 
-        // get last par of the url
-        var url = window.location.href;
-        var parts = url.split('/');
-        var last_part = parts[parts.length - 1];
-        if (last_part == '') {
-            my_function();
-        }
+        my_function();
     });
 
     var hasLoaded = false;
 
     function my_function() {
-        if (hasLoaded) {
-            // return;
+
+        var url = window.location.href;
+        var parts = url.split('/');
+        var last_part = parts[parts.length - 1];
+        if (last_part == '') {}
+        if (last_part != 'admin' && last_part != '') {
+            return;
         }
-        hasLoaded = true;
-        var options = {
-            /*  title: {
-                 text: '<?= $title ?>',
-             },
-             subtitles: [{
-                 text: "As of November, 2017",
-             }], */
+
+
+        const chartInstance = new CanvasJS.Chart("topDistricts", {
             theme: "light3",
             animationEnabled: true,
+            animationDuration: 800,
+            backgroundColor: "transparent",
+            axisX: {
+                title: "Months",
+                titleFontSize: 14,
+                titleFontWeight: "600",
+                labelFontSize: 13,
+                labelFontColor: "#6c757d",
+                lineThickness: 0,
+                tickLength: 0,
+                margin: 12,
+                valueFormatString: "Q#",
+                interval: 1
+            },
+            axisY: {
+                title: "Marketplace Sales",
+                titleFontSize: 14,
+                titleFontWeight: "600",
+                labelFontSize: 13,
+                labelFontColor: "#6c757d",
+                gridColor: "#f1f3f5",
+                lineColor: "#dee2e6",
+                includeZero: true,
+                margin: 20
+            },
+            toolTip: {
+                shared: true,
+                backgroundColor: "rgba(255,255,255,0.98)",
+                borderColor: "#e9ecef",
+                borderThickness: 2,
+                cornerRadius: 6,
+                fontColor: "#495057",
+                fontSize: 14,
+                animationEnabled: false
+            },
+            legend: {
+                verticalAlign: "top",
+                horizontalAlign: "center",
+                fontSize: 14,
+                itemTextFormatter: e => e.dataSeries.name.replace(/([A-Z])/g, ' $1').trim()
+            },
             data: [{
                 type: "pie",
                 startAngle: 40,
@@ -75,7 +101,10 @@ $title = isset($_title) ? $_title : 'Farm Count by Districts';
                 labelFontSize: 20,
                 dataPoints: JSON.parse('<?= json_encode($data) ?>')
             }]
-        };
-        $("#topDistricts").CanvasJSChart(options);
+        });
+
+        chartInstance.render();
+        window.addEventListener('resize', () => chartInstance.render());
+
     }
 </script>
