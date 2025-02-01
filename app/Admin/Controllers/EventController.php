@@ -271,6 +271,23 @@ class EventController extends AdminController
                 'test_conducted',
                 'detail',
             ];
+        } else if (in_array('events-treatment', $segments)) {
+            $grid->model()->where([
+                'type' => 'Treatment'
+            ])->orWhere([
+                'type' => 'Batch Treatment'
+            ]);
+            $grid->setTitle("Test conducted events");
+            $cols = [
+                'id',
+                'animal_id',
+                'created_at',
+                'type',
+                'disease_id',
+                'medicine_id',
+                'description',
+                'detail',
+            ];
         }
 
         //Sample Result
