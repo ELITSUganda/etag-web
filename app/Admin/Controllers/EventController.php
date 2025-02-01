@@ -245,7 +245,22 @@ class EventController extends AdminController
                 'inseminator',
                 'detail',
             ];
+        } else if (in_array('events-sample-result', $segments)) {
+            $grid->model()->where([
+                'type' => 'Sample result'
+            ]);
+            $grid->setTitle("Abortion events");
+            $cols = [
+                'id',
+                'animal_id',
+                'created_at',
+                'type',
+                'inseminator',
+                'detail',
+            ];
         }
+
+        //Sample Result
 
         $grid->model()->orderBy('id', 'DESC');
         $grid->filter(function ($filter) {
