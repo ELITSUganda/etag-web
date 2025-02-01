@@ -232,6 +232,19 @@ class EventController extends AdminController
                 'status',
                 'detail',
             ];
+        } else if (in_array('events-sample-taken', $segments)) {
+            $grid->model()->where([
+                'type' => 'Sample taken'
+            ]);
+            $grid->setTitle("Abortion events");
+            $cols = [
+                'id',
+                'animal_id',
+                'created_at',
+                'type',
+                'inseminator',
+                'detail',
+            ];
         }
 
         $grid->model()->orderBy('id', 'DESC');
