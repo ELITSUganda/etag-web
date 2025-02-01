@@ -75,6 +75,7 @@ class EventController extends AdminController
         //Utils::display_alert_message();
 
         $grid = new Grid(new Event());
+        $grid->disableCreateButton();
 
         $grid->export(function ($export) {
             $date_time = date('Y-m-d_H-i-s');
@@ -215,6 +216,20 @@ class EventController extends AdminController
                 'animal_id',
                 'created_at',
                 'type',
+                'detail',
+            ];
+        } else if (in_array('events-disease-test', $segments)) {
+            $grid->model()->where([
+                'type' => 'Disease test'
+            ]);
+            $grid->setTitle("Abortion events");
+            $cols = [
+                'id',
+                'animal_id',
+                'created_at',
+                'type',
+                'disease_id',
+                'status',
                 'detail',
             ];
         }
@@ -393,9 +408,7 @@ class EventController extends AdminController
         if (in_array('inseminator', $cols))
             $grid->column('inseminator', __('Sample taken'))
                 ->display(function ($id) {
-                    if ($this->type != 'Sample taken') {
-                        return 'N/A';
-                    }
+
                     return $id;
                 })
                 ->sortable();
@@ -404,9 +417,6 @@ class EventController extends AdminController
         if (in_array('inseminator_1', $cols))
             $grid->column('inseminator_1', __('Sample result'))
                 ->display(function ($id) {
-                    if ($this->type != 'Sample result') {
-                        return 'N/A';
-                    }
                     return $this->inseminator;
                 });
 
@@ -423,11 +433,19 @@ class EventController extends AdminController
         if (in_array('inseminator_3', $cols))
             $grid->column('inseminator_3', __('Test result'))
                 ->display(function ($id) {
-                    if (strtolower($this->type) != 'test result') {
-                        return 'N/A';
-                    }
                     return $this->inseminator;
                 });
+        //-	Test result
+        if (in_array('status', $cols))
+            $grid->column('status', __('Disease Test result'))
+                ->display(function ($id) {
+                    return $this->status;
+                })
+                ->sortable()
+                ->filter([
+                    'Positive' => 'Positive',
+                    'Negative' => 'Negative',
+                ]);
 
         //Treatment
 

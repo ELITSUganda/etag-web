@@ -29,6 +29,7 @@ Route::group([
     $router->resource('events', EventController::class);
     $router->resource('events-sanitary', EventController::class);
     $router->resource('events-abortion', EventController::class);
+    $router->resource('events-disease-test', EventController::class);
     $router->resource('events-production', EventController::class);
     $router->resource('movements', MovementController::class);
     $router->resource('diseases', DiseaseController::class);
