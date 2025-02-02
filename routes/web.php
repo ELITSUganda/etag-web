@@ -58,49 +58,79 @@ Route::get('transfer-animals', function (Request $request) {
         die('Farm not found');
     }
 
-    $an = Animal::where([
-        'v_id' => $request->an_id
-    ])->first();
-
-    if ($an == null) {
-        //search like v_id
-        $an = Animal::where('v_id', 'like', '%' . $request->an_id . '%')->first();
-    }
-
-    if ($an == null) {
-        //search like e_id
-        $an = Animal::where('e_id', 'like', '%' . $request->an_id . '%')->first();
-    }
-    if ($an == null) {
-        die('Animal not found');
-    }
-    $oldFarm = Farm::find($an->farm_id);
-    if ($oldFarm == null) {
-        die('Old farm not found');
-    }
-    //check if animal is already in the farm
-    if ($an->farm_id == $farm->id) {
-        die('Animal already in the farm');
-    }
-    try {
-        $new_an = $an->transfer_animal($farm->id);
-        echo "$an->id transfered successfully from $oldFarm->holding_code to $farm->holding_code <br>";
-    } catch (\Throwable $th) {
-        echo "$an->id => $new_an->id  transfered failed because " . $th->getMessage() . "<br>";
-    }
-    die('<br>DONE!');
+    $numbers = [
+        20102,
+        21251,
+        21466,
+        21299,
+        21252,
+        21437,
+        21470,
+        21330,
+        21302,
+        21262,
+        21319,
+        20239,
+        21454
+    ];
 
     $i = 0;
-    foreach ($ans as $key => $an) {
+    $success = [];
+    foreach ($numbers as $key => $num) {
         $i++;
+        echo "<hr> $i. Processing $num <br>";
+        $an = Animal::where([
+            'v_id' => $num
+        ])->first();
+
+        if ($an == null) {
+            //search like v_id
+            $an = Animal::where('v_id', 'like', '%' . $num . '%')->first();
+        }
+
+        if ($an == null) {
+            //search like e_id
+            $an = Animal::where('e_id', 'like', '%' . $num . '%')->first();
+        }
+        if ($an == null) {
+            echo ('Animal not found for ' . $num . '<br>');
+            continue;
+        }
+        $oldFarm = Farm::find($an->farm_id);
+        if ($oldFarm == null) {
+            echo ('Old farm not found for ' . $num . '<br>');
+            continue;
+        }
+        //check if animal is already in the farm
+        if ($an->farm_id == $farm->id) {
+            $success[] = $num;
+            echo ('Animal already in the farm');
+            continue;
+        }
         try {
             $new_an = $an->transfer_animal($farm->id);
-            echo "$i. $an->id => $new_an->id  transfered successfully <br>";
+            $success[] = $num;
+            echo "<br>$an->id transfered successfully from $oldFarm->holding_code to $farm->holding_code <br>";
         } catch (\Throwable $th) {
-            echo "$i. $an->id => $new_an->id  transfered failed because " . $th->getMessage() . "<br>";
+            echo "<br>$an->id => $new_an->id  transfered failed because " . $th->getMessage() . "<br>";
         }
     }
-    die('DONE!');
+
+    $fails = [];
+    foreach ($numbers as $key => $num) {
+        if (!in_array($num, $success)) {
+            $fails[] = $num;
+        }
+    }
+
+    echo "<hr>Success: <br><pre>";
+    print_r($success);
+    echo "</pre>";
+    echo "<hr>Failed: <br><pre>";
+    print_r($fails);
+    echo "</pre>";
+
+    die('<br>DONE!');
 });
 Route::get('farm-report-print', function (Request $request) {
     $report_id = $request->report_id;
