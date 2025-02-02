@@ -52,13 +52,30 @@ Route::get('transfer-animals', function (Request $request) {
 
 
     $farm = Farm::where([
-        'administrator_id' => 873
+        'id' => 21486
     ])->first();
+    if ($farm == null) {
+        die('Farm not found');
+    }
 
-    $ans = Animal::where([
-        'group_id' => 1416,
-        'administrator_id' => 777
+    $an = Animal::where([
+        'v_id' => $request->an_id
     ])->get();
+
+    if ($an == null) {
+        die('Animal not found');
+    }
+    $oldFarm = Farm::find($an->farm_id);
+    if ($oldFarm == null) {
+        die('Old farm not found');
+    }
+    try {
+        $new_an = $an->transfer_animal($farm->id);
+        echo "$an->id transfered successfully from $oldFarm->name to $farm->name <br>";
+    } catch (\Throwable $th) {
+        echo "$an->id => $new_an->id  transfered failed because " . $th->getMessage() . "<br>";
+    }
+    die('<br>DONE!');
 
     $i = 0;
     foreach ($ans as $key => $an) {
