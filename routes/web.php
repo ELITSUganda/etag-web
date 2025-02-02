@@ -84,7 +84,7 @@ Route::get('transfer-animals', function (Request $request) {
     }
     try {
         $new_an = $an->transfer_animal($farm->id);
-        echo "$an->id transfered successfully from $oldFarm->name to $farm->name <br>";
+        echo "$an->id transfered successfully from $oldFarm->holding_code to $farm->holding_code <br>";
     } catch (\Throwable $th) {
         echo "$an->id => $new_an->id  transfered failed because " . $th->getMessage() . "<br>";
     }
