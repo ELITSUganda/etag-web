@@ -395,6 +395,19 @@ class EventController extends AdminController
                 'inseminator',
                 'sire_breed',
             ];
+        } else if (in_array('events-pregnancy', $segments)) {
+            $grid->model()->where([
+                'type' => 'Pregnancy'
+            ]);
+            $grid->setTitle("Pregnancy events");
+            $cols = [
+                'id',
+                'animal_id',
+                'created_at',
+                'type',
+                'service_type',
+                'is_present',
+            ];
         } else {
             $cols = [
                 'id',
@@ -730,6 +743,11 @@ class EventController extends AdminController
                     }
                     return $id;
                 })
+                ->sortable();
+
+        //-	Service (service_type)
+        if (in_array('is_present', $cols))
+            $grid->column('is_present', __('PD Results'))
                 ->sortable();
 
         if (in_array('sire_breed', $cols))
