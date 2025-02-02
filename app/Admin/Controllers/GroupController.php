@@ -4,6 +4,7 @@ namespace App\Admin\Controllers;
 
 use App\Models\Group;
 use Encore\Admin\Controllers\AdminController;
+use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
@@ -26,15 +27,23 @@ class GroupController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new Group());
+        $grid->quickSearch('name', 'description');
+        $grid->filter(function ($filter) {
+            $filter->disableIdFilter();
+            $filter->like('name', __('Name'));
+            $filter->like('description', __('Description'));
+        });
+        $admin = Admin::user();
+        //if not admin
+        if (!$admin->isRole('administrator')) {
+            $grid->model()->where('administrator_id', $admin->id);
+        }
         $grid->model()
-            ->where([
-                'administrator_id' => Auth::user()->id
-            ])
-            ->orderBy('name', 'desc');
+            ->orderBy('id', 'desc');
         $grid->disableBatchActions();
         $grid->column('name', __('Name'))->sortable();
         $grid->column('description', __('Description'));
-/*         $grid->column('administrator_id', __('Administrator id')); */
+        /*         $grid->column('administrator_id', __('Administrator id')); */
 
         return $grid;
     }

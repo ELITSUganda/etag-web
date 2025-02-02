@@ -12,6 +12,7 @@ use App\Models\Event;
 use App\Models\Farm;
 use App\Models\FarmReport;
 use App\Models\Gen;
+use App\Models\Group;
 use App\Models\HealthReport;
 use App\Models\Image;
 use App\Models\Image as ModelsImage;
@@ -50,6 +51,10 @@ Route::get('migrate', function () {
 
 Route::get('transfer-animals', function (Request $request) {
 
+    $group = Group::find($request->group_id);
+    if ($group == null) {
+        die('Group not found');
+    }
 
     $farm = Farm::where([
         'id' => 21486
@@ -181,6 +186,8 @@ Route::get('transfer-animals', function (Request $request) {
         //check if animal is already in the farm
         if ($an->farm_id == $farm->id) {
             $success[] = $num;
+            $an->group_id = $group->id;
+            $an->save();
             echo ('Animal already in the farm');
             continue;
         }
@@ -196,6 +203,7 @@ Route::get('transfer-animals', function (Request $request) {
 
         try {
             $new_an = $an->transfer_animal($farm->id);
+
             $success[] = $num;
             echo "<br>$an->id transfered successfully from $oldFarm->holding_code to $farm->holding_code <br>";
         } catch (\Throwable $th) {
