@@ -64,6 +64,21 @@ class AnimalController extends AdminController
         }*/
 
         $grid = new Grid(new Animal());
+
+        //displat basic info only
+        $grid->column('e_id', __('E-ID'))->sortable()
+            ->filter('like');
+        $grid->column('v_id', __('V-ID'))->sortable()
+            ->filter('like');
+        $grid->column('type', __('Species'))->sortable();
+        $grid->column('breed', __('Breed'))->sortable();
+        $grid->column('sex', 'Sex')->sortable();
+        $grid->column('dob', __('DoB/YoB'))->display(function ($y) {
+            return Utils::my_date($y);
+        })->sortable();
+        $grid->column('fmd', __('Last FMD'))->sortable();
+        $grid->column('farm_id', __('Farm'))->sortable();
+        return $grid;
         $grid->disableActions();
         $grid->quickSearch('v_id')->placeholder('Search by E-ID');
         $grid->disableBatchActions();
