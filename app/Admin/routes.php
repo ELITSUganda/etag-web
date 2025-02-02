@@ -37,6 +37,7 @@ Route::group([
     $router->resource('events-mortality', EventController::class);
     $router->resource('events-milking', EventController::class);
     $router->resource('events-weighing', EventController::class);
+    $router->resource('events-calving', EventController::class);
     $router->resource('events-production', EventController::class);
     $router->resource('movements', MovementController::class);
     $router->resource('diseases', DiseaseController::class);

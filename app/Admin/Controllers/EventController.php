@@ -324,6 +324,20 @@ class EventController extends AdminController
                 'type',
                 'weight',
             ];
+        } else if (in_array('events-calving', $segments)) {
+            $grid->model()->where([
+                'type' => 'Calving'
+            ]);
+            $grid->setTitle("Calving events");
+            $cols = [
+                'id',
+                'animal_id',
+                'created_at',
+                'type',
+                'calf_sex',
+                'calf_weight',
+                'calf_id'
+            ];
         }
 
         //Sample Result
@@ -611,6 +625,16 @@ class EventController extends AdminController
                         return 'N/A';
                     }
                     return $id;
+                })
+                ->sortable();
+        if (in_array('calf_id', $cols))
+            $grid->column('calf_id', __('Calf Born'))
+                ->display(function ($id) {
+                    $an = Animal::find($id);
+                    if (!$an) {
+                        return 'N/A';
+                    }
+                    return $an->e_id;
                 })
                 ->sortable();
 
