@@ -40,6 +40,7 @@ Route::group([
     $router->resource('events-calving', EventController::class);
     $router->resource('events-weaning', EventController::class);
     $router->resource('events-service-artificial', EventController::class);
+    $router->resource('events-service-natural', EventController::class);
     $router->resource('events-production', EventController::class);
     $router->resource('movements', MovementController::class);
     $router->resource('diseases', DiseaseController::class);

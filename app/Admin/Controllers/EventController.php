@@ -366,6 +366,35 @@ class EventController extends AdminController
                 'simen_code',
                 'sire_breed',
             ];
+        } else if (in_array('events-service-natural', $segments)) {
+            $grid->model()->where([
+                'type' => 'Service',
+                'service_type' => 'Natural service'
+            ]);
+            $grid->setTitle("Natural service - service events");
+            $cols = [
+                'id',
+                'animal_id',
+                'created_at',
+                'type',
+                'service_type',
+                'sire_breed',
+            ];
+        } else if (in_array('events-production', $segments)) {
+            $grid->model()->where([
+                'type' => 'Service',
+                'service_type' => 'Natural breeding'
+            ]);
+            $grid->setTitle("Natural breeding - service events");
+            $cols = [
+                'id',
+                'animal_id',
+                'created_at',
+                'type',
+                'service_type',
+                'inseminator',
+                'sire_breed',
+            ];
         } else {
             $cols = [
                 'id',
