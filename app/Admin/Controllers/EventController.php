@@ -397,9 +397,9 @@ class EventController extends AdminController
             ];
         } else if (in_array('events-pregnancy', $segments)) {
             $grid->model()->where([
-                'type' => 'Pregnancy'
+                'type' => 'Pregnancy check'
             ]);
-            $grid->setTitle("Pregnancy events");
+            $grid->setTitle("Pregnancy check events");
             $cols = [
                 'id',
                 'animal_id',
