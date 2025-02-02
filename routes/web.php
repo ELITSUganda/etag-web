@@ -63,6 +63,15 @@ Route::get('transfer-animals', function (Request $request) {
     ])->first();
 
     if ($an == null) {
+        //search like v_id
+        $an = Animal::where('v_id', 'like', '%' . $request->an_id . '%')->first();
+    }
+
+    if ($an == null) {
+        //search like e_id
+        $an = Animal::where('e_id', 'like', '%' . $request->an_id . '%')->first();
+    }
+    if ($an == null) {
         die('Animal not found');
     }
     $oldFarm = Farm::find($an->farm_id);
