@@ -60,7 +60,7 @@ Route::get('transfer-animals', function (Request $request) {
 
     $an = Animal::where([
         'v_id' => $request->an_id
-    ])->get();
+    ])->first();
 
     if ($an == null) {
         die('Animal not found');
