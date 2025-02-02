@@ -69,6 +69,10 @@ Route::get('transfer-animals', function (Request $request) {
     if ($oldFarm == null) {
         die('Old farm not found');
     }
+    //check if animal is already in the farm
+    if ($an->farm_id == $farm->id) {
+        die('Animal already in the farm');
+    }
     try {
         $new_an = $an->transfer_animal($farm->id);
         echo "$an->id transfered successfully from $oldFarm->name to $farm->name <br>";
