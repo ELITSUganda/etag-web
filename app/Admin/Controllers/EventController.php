@@ -350,6 +350,37 @@ class EventController extends AdminController
                 'type',
                 'wean_weight',
             ];
+        } else if (in_array('events-service-artificial', $segments)) {
+            $grid->model()->where([
+                'type' => 'Service',
+                'service_type' => 'Artificial insemination'
+            ]);
+            $grid->setTitle("Artificial insemination - service events");
+            $cols = [
+                'id',
+                'animal_id',
+                'created_at',
+                'type',
+                'service_type',
+                'inseminator',
+                'simen_code',
+                'sire_breed',
+            ];
+        } else {
+            $cols = [
+                'id',
+                'animal_id',
+                'created_at',
+                'type',
+                'disease_id',
+                'inseminator',
+                'inseminator_1',
+                'inseminator_2',
+                'inseminator_3',
+                'medicine_id',
+                'description',
+                'detail',
+            ];
         }
 
         //Sample Result
@@ -672,7 +703,7 @@ class EventController extends AdminController
                 })
                 ->sortable();
 
-        if (in_array('inseminator_1', $cols))
+        if (in_array('sire_breed', $cols))
             $grid->column('inseminator_1', __('Sire E-ID'))
                 ->display(function ($id) {
                     if ($this->type != 'Service') {
@@ -681,14 +712,21 @@ class EventController extends AdminController
                     return $this->inseminator;
                 });
         //Sire Breed (inseminator) inseminator_2
-        if (in_array('inseminator_2', $cols))
-            $grid->column('inseminator_2', __('Sire Breed'))
+        if (in_array('simen_code', $cols))
+            $grid->column('simen_code', __('Simen Code'))
+                ->sortable();
+
+        //inseminator
+        if (in_array('inseminator', $cols))
+            $grid->column('inseminator', __('Inseminator'))
                 ->display(function ($id) {
                     if ($this->type != 'Service') {
                         return 'N/A';
                     }
                     return $this->inseminator;
                 });
+
+
         if (in_array('test_conducted', $cols))
             $grid->column('test_conducted', __('Test Conducted'))
                 ->display(function ($id) {
