@@ -44,6 +44,11 @@ class GroupController extends AdminController
         $grid->column('name', __('Name'))->sortable();
         $grid->column('description', __('Description'));
         /*         $grid->column('administrator_id', __('Administrator id')); */
+        //animals_count
+        $grid->column('animals_count', __('Animals'))->display(function () {
+            $count = $this->animals()->count();
+            return "<span class='label label-success'>{$count}</span>";
+        });
 
         return $grid;
     }
