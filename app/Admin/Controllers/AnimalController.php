@@ -8,6 +8,7 @@ use App\Models\District;
 use App\Models\Farm;
 use App\Models\Group;
 use App\Models\Location;
+use App\Models\User;
 use App\Models\Utils;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
@@ -64,21 +65,6 @@ class AnimalController extends AdminController
         }*/
 
         $grid = new Grid(new Animal());
-
-        //displat basic info only
-        $grid->column('e_id', __('E-ID'))->sortable()
-            ->filter('like');
-        $grid->column('v_id', __('V-ID'))->sortable()
-            ->filter('like');
-        $grid->column('type', __('Species'))->sortable();
-        $grid->column('breed', __('Breed'))->sortable();
-        $grid->column('sex', 'Sex')->sortable();
-        $grid->column('dob', __('DoB/YoB'))->display(function ($y) {
-            return Utils::my_date($y);
-        })->sortable();
-        $grid->column('fmd', __('Last FMD'))->sortable();
-        $grid->column('farm_id', __('Farm'))->sortable();
-        return $grid;
         $grid->disableActions();
         $grid->quickSearch('v_id')->placeholder('Search by E-ID');
         $grid->disableBatchActions();
@@ -162,15 +148,15 @@ class AnimalController extends AdminController
 
 
 
-            $admins = [];
-            foreach (Administrator::all() as $key => $v) {
-                if (!$v->isRole('farmer')) {
-                    continue;
+            $filter->equal('administrator_id', 'Filter by animal owner')->select(function ($id) {
+                $a = User::find($id);
+                if ($a) {
+                    return [$a->id => $a->name];
                 }
-                $admins[$v->id] = $v->name . " - " . $v->id;
-            }
-
-            $filter->equal('administrator_id', "Owner")->select($admins);
+            })
+                ->ajax(
+                    url('api/ajax-users')
+                );
             $filter->equal('sex', "Sex")->select([
                 'Male' => 'Male',
                 'Female' => 'Female',
@@ -378,24 +364,26 @@ class AnimalController extends AdminController
             } */
         });
 
-        $items = [];
-        foreach (Farm::all() as $key => $f) {
-            if (Admin::user()->isRole('farmer')) {
-                if ($f->administrator_id == Admin::user()->id) {
-                    $items[$f->id] = $f->holding_code;
-                }
-            } else {
-                $items[$f->id] = $f->holding_code . " - By " . $f->owner()->name;
-            }
-        }
+
 
         $form->hidden('administrator_id', __('Administrator id'))->default(1);
         $form->hidden('district_id', __('District id'))->default(1);
         $form->hidden('sub_county_id', __('Subcounty'))->default(1);
 
-        $form->select('farm_id', __('Farm'))
-            ->options($items)
-            ->required();
+        $u = Admin::user();
+
+        $form->select('farm_id', 'Select Farm')
+            ->options(function ($id) {
+                $parent = Farm::find($id);
+                if ($parent != null) {
+                    return [$parent->id =>  $parent->v_id . " - " . $parent->e_id];
+                }
+            })
+            ->rules('required')
+            ->ajax(
+                url('/api/ajax-farms?'
+                    . "&administrator_id={$u->id}")
+            )->rules('required');
 
         $form->select('type', __('Livestock species'))
             ->options(array(

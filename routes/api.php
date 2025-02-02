@@ -16,6 +16,7 @@ use App\Http\Controllers\ApiUserController;
 use App\Http\Controllers\V2ApiMainController;
 use App\Models\Animal;
 use App\Models\Disease;
+use App\Models\Farm;
 use App\Models\Location;
 use App\Models\Utils;
 use Encore\Admin\Auth\Database\Administrator;
@@ -422,6 +423,39 @@ Route::get('ajax-animals', function (Request $r) {
         $data[] = [
             'id' => $v->id,
             'text' => "{$v->e_id} - {$v->v_id}"
+        ];
+        $done_ids[] = $v->id;
+    }
+
+    return [
+        'data' => $data
+    ];
+});
+
+Route::get('ajax-farms', function (Request $r) {
+    $q = trim($r->get('q'));
+    if (strlen($q) < 1) {
+        return [
+            'data' => []
+        ];
+    }
+    $res_1 = Farm::where(
+        'holding_code',
+        'like',
+        "%$q%"
+    )
+        ->limit(20)->get();
+
+    $data = [];
+    $done_ids = [];
+
+    foreach ($res_1 as $key => $v) {
+        if (in_array($v->id, $done_ids)) {
+            continue;
+        }
+        $data[] = [
+            'id' => $v->id,
+            'text' => "{$v->holding_code} - #{$v->id}"
         ];
         $done_ids[] = $v->id;
     }
