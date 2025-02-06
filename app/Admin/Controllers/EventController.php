@@ -247,6 +247,7 @@ class EventController extends AdminController
                 'animal_id',
                 'created_at',
                 'type',
+                'sample_taken',
                 'detail',
             ];
             $date_title = "Sample taken Date";
@@ -591,6 +592,13 @@ class EventController extends AdminController
             $grid->column('inseminator', __('Sample taken'))
                 ->display(function ($id) {
 
+                    return $id;
+                })
+                ->sortable();
+        //if sanitary event, display -	Sample taken
+        if (in_array('sample_taken', $cols))
+            $grid->column('sample_taken', __('Sample taken'))
+                ->display(function ($id) {
                     return $id;
                 })
                 ->sortable();
