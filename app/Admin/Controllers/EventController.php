@@ -421,9 +421,10 @@ class EventController extends AdminController
                 'created_at',
                 'type',
                 'vaccination_against',
+                'detail',
 
             ];
-            $date_title = "Pregnancy check Date";
+            $date_title = "Vaccination Date";
         } else if (in_array('events-pregnancy', $segments)) {
             $grid->model()->where([
                 'type' => 'Pregnancy check'
