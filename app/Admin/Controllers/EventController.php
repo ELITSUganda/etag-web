@@ -292,7 +292,6 @@ class EventController extends AdminController
                 'type',
                 'disease_id',
                 'medicine_id',
-                'description',
                 'detail',
             ];
             $date_title = "Treatment Date";
