@@ -447,19 +447,12 @@ class EventController extends AdminController
         $grid->model()->orderBy('id', 'DESC');
         $grid->filter(function ($filter) {
 
-            return $filter;
 
             $admins = [];
 
             $animals = [];
             $u = Auth::user();
-            foreach (
-                Animal::where([
-                    'administrator_id' => $u->id
-                ])->get() as $key => $v
-            ) {
-                $animals[$v->id] = $v->e_id . " - " . $v->v_id;
-            }
+
 
             $filter->equal('administrator_id', 'Filter by farm owner')->select(function ($id) {
                 $a = User::find($id);
@@ -470,59 +463,15 @@ class EventController extends AdminController
                 ->ajax(
                     url('api/ajax-users')
                 );
-
-
-            $filter->equal('type', "Animal type")->select(array(
-                'Cattle' => "Cattle",
-                'Goat' => "Goat",
-                'Sheep' => "Sheep"
-            ));
-
-            $filter->equal('district_id', 'Filter by district')->select(function ($id) {
-                $a = Location::find($id);
+            $filter->equal('animal_id', 'Filter by Animal')->select(function ($id) {
+                $a = Animal::find($id);
                 if ($a) {
-                    return [$a->id => $a->name_text];
+                    return [$a->id => $a->e_id];
                 }
             })
                 ->ajax(
-                    url('/api/ajax?'
-                        . "&search_by_1=name"
-                        . "&search_by_2=id"
-                        . "&query_parent=0"
-                        . "&model=Location")
+                    url('api/ajax-animals')
                 );
-
-            $filter->equal('sub_county_id', 'Filter by sub-county')->select(function ($id) {
-                $a = Location::find($id);
-                if ($a) {
-                    return [$a->id => $a->name_text];
-                }
-            })
-                ->ajax(
-                    url('/api/sub-counties')
-                );
-
-            $filter->like('animal_id', "Animal")->select($animals);
-            $filter->equal('type', "Event type")->select(array(
-                'Milking' => 'Milking',
-                'Disease test' => 'Disease',
-                'Drug' => 'Teatment',
-                'Vaccination' => 'Vaccination',
-                'Pregnancy' => 'Pregnancy test',
-                'Death' => 'Death',
-                'Slaughter' => 'Slaughter',
-                'Other' => 'Other',
-
-            ));
-            $filter->equal('disease_id', "Event type")->select(
-                Disease::all()->pluck('name', 'name')
-            );
-            $filter->equal('medicine_id', "Drug")->select(
-                Medicine::all()->pluck('name', 'name')
-            );
-            $filter->equal('vaccine_id', "Vaccine")->select(
-                Vaccine::all()->pluck('name', 'name')
-            );
 
             $filter->between('created_at', 'Created between')->date();
         });
