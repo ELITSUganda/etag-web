@@ -247,7 +247,6 @@ class EventController extends AdminController
                 'animal_id',
                 'created_at',
                 'type',
-                'inseminator',
                 'detail',
             ];
             $date_title = "Sample taken Date";
