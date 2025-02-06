@@ -589,7 +589,7 @@ class EventController extends AdminController
 
         //if sanitary event, display -	Sample taken
         if (in_array('inseminator', $cols))
-            $grid->column('inseminator', __('Sample taken'))
+            $grid->column('inseminator', __('Inseminator'))
                 ->display(function ($id) {
 
                     return $id;
