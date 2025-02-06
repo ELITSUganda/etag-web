@@ -410,6 +410,20 @@ class EventController extends AdminController
                 'sire_breed',
             ];
             $date_title = "Service Date";
+        } else if (in_array('events-vaccination', $segments)) {
+            $grid->model()->where([
+                'type' => 'Vaccination'
+            ]);
+            $grid->setTitle("Pregnancy check events");
+            $cols = [
+                'id',
+                'animal_id',
+                'created_at',
+                'type',
+                'vaccination_against',
+
+            ];
+            $date_title = "Pregnancy check Date";
         } else if (in_array('events-pregnancy', $segments)) {
             $grid->model()->where([
                 'type' => 'Pregnancy check'
@@ -722,6 +736,12 @@ class EventController extends AdminController
                     if ($this->type != 'Service') {
                         return 'N/A';
                     }
+                    return $this->inseminator;
+                });
+
+        if (in_array('vaccination_against', $cols))
+            $grid->column('vaccination_against', __('Vaccinated against'))
+                ->display(function ($id) {
                     return $this->inseminator;
                 });
         //Sire Breed (inseminator) inseminator_2

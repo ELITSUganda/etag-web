@@ -43,6 +43,7 @@ Route::group([
     $router->resource('events-service-natural', EventController::class);
     $router->resource('events-pregnancy', EventController::class);
     $router->resource('events-production', EventController::class);
+    $router->resource('events-vaccination', EventController::class);
     $router->resource('movements', MovementController::class);
     $router->resource('diseases', DiseaseController::class);
     $router->resource('medicines', MedicineController::class);
