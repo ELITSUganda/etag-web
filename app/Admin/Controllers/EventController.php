@@ -346,7 +346,8 @@ class EventController extends AdminController
                 'type',
                 'calf_sex',
                 'calf_weight',
-                'calf_id'
+                'calf_id',
+                'detail',
             ];
             $date_title = "Birth Date";
         } else if (in_array('events-weaning', $segments)) {
@@ -360,6 +361,7 @@ class EventController extends AdminController
                 'created_at',
                 'type',
                 'wean_weight',
+                'detail',
             ];
             $date_title = "Weaning Date";
         } else if (in_array('events-service-artificial', $segments)) {
@@ -377,6 +379,7 @@ class EventController extends AdminController
                 'inseminator',
                 'simen_code',
                 'sire_breed',
+                'detail',
             ];
             $date_title = "Service Date";
         } else if (in_array('events-service-natural', $segments)) {
@@ -392,6 +395,7 @@ class EventController extends AdminController
                 'type',
                 'service_type',
                 'sire_breed',
+                'detail',
             ];
             $date_title = "Date mated";
         } else if (in_array('events-production', $segments)) {
@@ -408,6 +412,7 @@ class EventController extends AdminController
                 'service_type',
                 'inseminator',
                 'sire_breed',
+                'detail',
             ];
             $date_title = "Service Date";
         } else if (in_array('events-vaccination', $segments)) {
@@ -437,6 +442,7 @@ class EventController extends AdminController
                 'type',
                 'service_type',
                 'is_present',
+                'detail',
             ];
             $date_title = "Pregnancy check Date";
         } else {
