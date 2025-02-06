@@ -393,7 +393,7 @@ class EventController extends AdminController
                 'service_type',
                 'sire_breed',
             ];
-            $date_title = "Service Date";
+            $date_title = "Date mated";
         } else if (in_array('events-production', $segments)) {
             $grid->model()->where([
                 'type' => 'Service',
