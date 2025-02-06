@@ -452,7 +452,7 @@ class EventController extends AdminController
 
             $animals = [];
             $u = Auth::user();
-
+            $filter->disableIdFilter();
 
             $filter->equal('administrator_id', 'Filter by farm owner')->select(function ($id) {
                 $a = User::find($id);

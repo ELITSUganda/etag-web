@@ -393,7 +393,6 @@ Route::get('ajax-animals', function (Request $r) {
         'like',
         "%$q%"
     )
-        ->where('administrator_id', $administrator_id)
         ->limit(20)->get();
 
     $res_2 = Animal::where(
@@ -401,7 +400,6 @@ Route::get('ajax-animals', function (Request $r) {
         'like',
         "%$q%"
     )
-        ->where('administrator_id', $administrator_id)
         ->limit(20)->get();
 
 
