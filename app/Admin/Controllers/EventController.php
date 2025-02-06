@@ -76,6 +76,7 @@ class EventController extends AdminController
 
         $grid = new Grid(new Event());
         $grid->disableCreateButton();
+        $grid->disableActions();
 
         $grid->export(function ($export) {
             $date_time = date('Y-m-d_H-i-s');
@@ -159,6 +160,7 @@ class EventController extends AdminController
             });
         }
         $district = $dis ? $dis->id : null;
+        $date_title = 'Date';
 
 
         $segments = request()->segments();
@@ -181,6 +183,7 @@ class EventController extends AdminController
                 'Check point',
             ];
             $grid->model()->whereIn('type', $types);
+            $date_title = 'Date';
         } else if (in_array('events-sanitary', $segments)) {
 
             $lastEvent = Event::where([])->orderBy('created_at', 'desc')->first();
@@ -218,6 +221,7 @@ class EventController extends AdminController
                 'type',
                 'detail',
             ];
+            $date_title = "Abortion Date";
         } else if (in_array('events-disease-test', $segments)) {
             $grid->model()->where([
                 'type' => 'Disease test'
@@ -232,6 +236,7 @@ class EventController extends AdminController
                 'status',
                 'detail',
             ];
+            $date_title = "Test Date";
         } else if (in_array('events-sample-taken', $segments)) {
             $grid->model()->where([
                 'type' => 'Sample taken'
@@ -245,6 +250,7 @@ class EventController extends AdminController
                 'inseminator',
                 'detail',
             ];
+            $date_title = "Sample taken Date";
         } else if (in_array('events-sample-result', $segments)) {
             $grid->model()->where([
                 'type' => 'Sample result'
@@ -258,6 +264,7 @@ class EventController extends AdminController
                 'sample_results',
                 'detail',
             ];
+            $date_title = "Sample result Date";
         } else if (in_array('events-test-conducted', $segments)) {
             $grid->model()->where([
                 'type' => 'Test conducted'
@@ -271,6 +278,7 @@ class EventController extends AdminController
                 'test_conducted',
                 'detail',
             ];
+            $date_title = "Test conducted Date";
         } else if (in_array('events-treatment', $segments)) {
             $grid->model()->where([
                 'type' => 'Treatment'
@@ -288,6 +296,7 @@ class EventController extends AdminController
                 'description',
                 'detail',
             ];
+            $date_title = "Treatment Date";
         } else if (in_array('events-mortality', $segments)) {
             $grid->model()->where([
                 'type' => 'Mortality'
@@ -300,6 +309,7 @@ class EventController extends AdminController
                 'type',
                 'detail',
             ];
+            $date_title = "Mortality Date";
         } else if (in_array('events-milking', $segments)) {
             $grid->model()->where([
                 'type' => 'Milking'
@@ -312,6 +322,7 @@ class EventController extends AdminController
                 'type',
                 'milk',
             ];
+            $date_title = "Milking Date";
         } else if (in_array('events-weighing', $segments)) {
             $grid->model()->where([
                 'type' => 'Weight check'
@@ -324,6 +335,7 @@ class EventController extends AdminController
                 'type',
                 'weight',
             ];
+            $date_title = "Weighing Date";
         } else if (in_array('events-calving', $segments)) {
             $grid->model()->where([
                 'type' => 'Calving'
@@ -338,6 +350,7 @@ class EventController extends AdminController
                 'calf_weight',
                 'calf_id'
             ];
+            $date_title = "Birth Date";
         } else if (in_array('events-weaning', $segments)) {
             $grid->model()->where([
                 'type' => 'Weaning'
@@ -350,6 +363,7 @@ class EventController extends AdminController
                 'type',
                 'wean_weight',
             ];
+            $date_title = "Weaning Date";
         } else if (in_array('events-service-artificial', $segments)) {
             $grid->model()->where([
                 'type' => 'Service',
@@ -366,6 +380,7 @@ class EventController extends AdminController
                 'simen_code',
                 'sire_breed',
             ];
+            $date_title = "Service Date";
         } else if (in_array('events-service-natural', $segments)) {
             $grid->model()->where([
                 'type' => 'Service',
@@ -380,6 +395,7 @@ class EventController extends AdminController
                 'service_type',
                 'sire_breed',
             ];
+            $date_title = "Service Date";
         } else if (in_array('events-production', $segments)) {
             $grid->model()->where([
                 'type' => 'Service',
@@ -395,6 +411,7 @@ class EventController extends AdminController
                 'inseminator',
                 'sire_breed',
             ];
+            $date_title = "Service Date";
         } else if (in_array('events-pregnancy', $segments)) {
             $grid->model()->where([
                 'type' => 'Pregnancy check'
@@ -408,6 +425,7 @@ class EventController extends AdminController
                 'service_type',
                 'is_present',
             ];
+            $date_title = "Pregnancy check Date";
         } else {
             $cols = [
                 'id',
@@ -423,6 +441,7 @@ class EventController extends AdminController
                 'description',
                 'detail',
             ];
+            $date_title = "Date";
         }
 
         //Sample Result
@@ -512,7 +531,7 @@ class EventController extends AdminController
 
 
         $grid->column('id', __('ID'))->sortable()->hide();
-        $grid->column('created_at', __('Date'))
+        $grid->column('created_at', __($date_title))
             ->display(function ($f) {
                 return Utils::my_date_time($f);
             })->sortable();
