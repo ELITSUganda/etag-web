@@ -226,17 +226,16 @@ class EventController extends AdminController
             $grid->model()->where([
                 'type' => 'Disease test'
             ]);
-            $grid->setTitle("Disease test events");
+            $grid->setTitle("Disease suspected events");
             $cols = [
                 'id',
                 'animal_id',
                 'created_at',
                 'type',
                 'disease_id',
-                'status',
                 'detail',
             ];
-            $date_title = "Test Date";
+            $date_title = "Date";
         } else if (in_array('events-sample-taken', $segments)) {
             $grid->model()->where([
                 'type' => 'Sample taken'
@@ -573,7 +572,7 @@ class EventController extends AdminController
 
 
         if (in_array('disease_id', $cols))
-            $grid->column('disease_id', __('Disease'))
+            $grid->column('disease_id', __('Disease suspected'))
                 ->display(function ($id) {
                     if ($this->type != 'Disease test' && $this->type != 'Treatment') {
                         return 'N/A';
