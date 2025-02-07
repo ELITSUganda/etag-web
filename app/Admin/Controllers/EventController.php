@@ -420,7 +420,7 @@ class EventController extends AdminController
             $grid->model()->where([
                 'type' => 'Vaccination'
             ]);
-            $grid->setTitle("Pregnancy check events");
+            $grid->setTitle("Vaccination events");
             $cols = [
                 'id',
                 'animal_id',
