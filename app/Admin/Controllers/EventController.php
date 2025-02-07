@@ -161,6 +161,7 @@ class EventController extends AdminController
         }
         $district = $dis ? $dis->id : null;
         $date_title = 'Date';
+        $e_id_title = 'E-ID';
 
 
         $segments = request()->segments();
@@ -319,6 +320,7 @@ class EventController extends AdminController
                 'created_at',
                 'type',
                 'milk',
+                'detail',
             ];
             $date_title = "Milking Date";
         } else if (in_array('events-weighing', $segments)) {
@@ -332,6 +334,7 @@ class EventController extends AdminController
                 'created_at',
                 'type',
                 'weight',
+                'detail',
             ];
             $date_title = "Weighing Date";
         } else if (in_array('events-calving', $segments)) {
@@ -349,7 +352,8 @@ class EventController extends AdminController
                 'calf_id',
                 'detail',
             ];
-            $date_title = "Birth Date";
+            $date_title = "Calving Date";
+            $e_id_title = 'Dam E-ID';
         } else if (in_array('events-weaning', $segments)) {
             $grid->model()->where([
                 'type' => 'Weaning'
@@ -375,7 +379,7 @@ class EventController extends AdminController
                 'animal_id',
                 'created_at',
                 'type',
-                'service_type',
+                // 'service_type',
                 'inseminator',
                 'simen_code',
                 'sire_breed',
@@ -393,7 +397,7 @@ class EventController extends AdminController
                 'animal_id',
                 'created_at',
                 'type',
-                'service_type',
+                // 'service_type',
                 'sire_breed',
                 'detail',
             ];
@@ -409,7 +413,7 @@ class EventController extends AdminController
                 'animal_id',
                 'created_at',
                 'type',
-                'service_type',
+                // 'service_type',
                 'inseminator',
                 'sire_breed',
                 'detail',
@@ -503,7 +507,7 @@ class EventController extends AdminController
             ->display(function ($f) {
                 return Utils::my_date_time($f);
             })->sortable();
-        $grid->column('animal_id', __('E-ID'))
+        $grid->column('animal_id', __($e_id_title))
             ->display(function ($id) {
                 $u = Animal::find($id);
                 if (!$u) {
@@ -707,7 +711,7 @@ class EventController extends AdminController
                 })
                 ->sortable();
         if (in_array('calf_id', $cols))
-            $grid->column('calf_id', __('Calf Born (E-ID)'))
+            $grid->column('calf_id', __('Calf E-ID'))
                 ->display(function ($id) {
                     $an = Animal::find($id);
                     if (!$an) {
@@ -745,7 +749,7 @@ class EventController extends AdminController
                 ->sortable();
 
         if (in_array('sire_breed', $cols))
-            $grid->column('inseminator_1', __('Sire E-ID'))
+            $grid->column('inseminator_1', __('E-ID / Breed Sire'))
                 ->display(function ($id) {
                     if ($this->type != 'Service') {
                         return 'N/A';
@@ -760,7 +764,7 @@ class EventController extends AdminController
                 });
         //Sire Breed (inseminator) inseminator_2
         if (in_array('simen_code', $cols))
-            $grid->column('simen_code', __('Simen Code'))
+            $grid->column('simen_code', __('Semen Code'))
                 ->sortable();
 
         //inseminator
