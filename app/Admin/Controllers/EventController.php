@@ -254,13 +254,13 @@ class EventController extends AdminController
             $grid->model()->where([
                 'type' => 'Sample result'
             ]);
-            $grid->setTitle("Sample result events");
+            $grid->setTitle("Test result events");
             $cols = [
                 'id',
                 'animal_id',
                 'created_at',
                 'type',
-                'sample_results',
+                // 'sample_results',
                 'detail',
             ];
             $date_title = "Sample result Date";
