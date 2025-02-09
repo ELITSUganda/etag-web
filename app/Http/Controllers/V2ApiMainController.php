@@ -91,7 +91,7 @@ pdf_prepare_date */
             return $this->error("Parent not found.");
         }
         $msg = '';
-        if ($animal->has_parent != 'Yes') {
+        if ($r->has_parent != 'Yes') {
             $animal->has_parent = 'No';
             $animal->parent_id = null;
             $animal->birth_position = null;
