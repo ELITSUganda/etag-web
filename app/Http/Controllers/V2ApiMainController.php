@@ -90,8 +90,8 @@ pdf_prepare_date */
         $msg = '';
         if ($r->has_parent != 'Yes') {
             $animal->has_parent = 'No';
-            $animal->parent_id = '';
-            $animal->birth_position = '';
+            $animal->parent_id = null;
+            $animal->birth_position = null;
             $msg = 'Animal disconnected from parent.';
         } else {
             $parent = Animal::find($r->parent_id);
