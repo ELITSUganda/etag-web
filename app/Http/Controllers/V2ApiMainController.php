@@ -86,17 +86,18 @@ pdf_prepare_date */
         if ($animal == null) {
             return $this->error("Animal not found.");
         }
-        $parent = Animal::find($r->parent_id);
-        if ($parent == null) {
-            return $this->error("Parent not found.");
-        }
+
         $msg = '';
         if ($r->has_parent != 'Yes') {
             $animal->has_parent = 'No';
-            $animal->parent_id = null;
-            $animal->birth_position = null;
+            $animal->parent_id = '';
+            $animal->birth_position = '';
             $msg = 'Animal disconnected from parent.';
         } else {
+            $parent = Animal::find($r->parent_id);
+            if ($parent == null) {
+                return $this->error("Parent not found.");
+            }
             $animal->has_parent = 'Yes';
             $animal->parent_id = $parent->id;
             $animal->birth_position = $r->birth_position;
