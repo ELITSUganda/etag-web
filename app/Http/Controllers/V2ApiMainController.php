@@ -73,6 +73,46 @@ pdf
 pdf_prepared
 pdf_prepare_date */
     }
+
+
+    public function animal_connect_parent(Request $r)
+    {
+        /* 
+                 "animal_id": widget.item.id,
+          "parent_id": widget.item.parent_id,
+          "birth_position": widget.item.birth_position,
+          "has_parent": widget.item.has_parent, */
+        $animal = Animal::find($r->animal_id);
+        if ($animal == null) {
+            return $this->error("Animal not found.");
+        }
+        $parent = Animal::find($r->parent_id);
+        if ($parent == null) {
+            return $this->error("Parent not found.");
+        }
+        $msg = '';
+        if ($animal->has_parent != 'Yes') {
+            $animal->has_parent = 'No';
+            $animal->parent_id = null;
+            $animal->birth_position = null;
+            $msg = 'Animal disconnected from parent.';
+        } else {
+            $animal->has_parent = 'Yes';
+            $animal->parent_id = $parent->id;
+            $animal->birth_position = $r->birth_position;
+            $msg = 'Animal connected to parent.';
+        }
+        try {
+            $animal->save();
+            $animal = Animal::find($animal->id);
+            if ($animal == null) {
+                return $this->error("Failed to connect animal to parent.");
+            }
+            return $this->success($animal, $msg);
+        } catch (\Throwable $th) {
+            return $this->error("Failed to connect animal to parent because " . $th->getMessage());
+        }
+    }
     public function v2_farms_create(Request $r)
     {
         $farm = Farm::find($r->id);
