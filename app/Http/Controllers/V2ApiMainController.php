@@ -713,4 +713,12 @@ Copy Copy
         ])->get();
         return $this->success($pregnant_animals);
     }
+    public function animal_view(Request $r)
+    {
+        $an = Animal::find($r->id);
+        if ($an == null) {
+            return $this->error("Animal not found.");
+        }
+        return $this->success($an);
+    }
 }

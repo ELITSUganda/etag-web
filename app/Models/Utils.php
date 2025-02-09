@@ -1517,8 +1517,10 @@ duplicate_results
         }
         if ($resp['status'] == '1' || $resp['status'] == 1) {
             $resp['code'] = "1";
+            $resp['status'] = "1";
         } else {
             $resp['code'] = "0";
+            $resp['status'] = "0";
         }
 
         if (isset($data['message'])) {
