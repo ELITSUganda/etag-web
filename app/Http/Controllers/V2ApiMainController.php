@@ -717,7 +717,7 @@ Copy Copy
     {
         $an = Animal::find($r->id);
         if ($an == null) {
-            return $this->error("Animal not found.");
+            return $this->error("Animal not found  for id #" . $r->id);
         }
         return $this->success($an);
     }
