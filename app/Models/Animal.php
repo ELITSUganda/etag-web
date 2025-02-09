@@ -317,7 +317,7 @@ class Animal extends Model
         if ($p == null) {
             return null;
         }
-        return $p->v_id;
+        return $p->e_id . " - " . $p->v_id . " (" . $p->id . ")";
     }
 
     public function getPhoneNumberAttribute()
