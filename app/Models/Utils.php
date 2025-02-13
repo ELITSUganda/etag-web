@@ -2053,6 +2053,7 @@ duplicate_results
 
     public static function is_local()
     {
+        return false; 
         $url = $_SERVER['HTTP_HOST'];
         $segs = explode('/', strtolower($url));
         if (in_array('u-lits.com', $segs)) {

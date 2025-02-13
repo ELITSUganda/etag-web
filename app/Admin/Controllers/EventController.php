@@ -136,6 +136,22 @@ class EventController extends AdminController
 
         $u = Auth::user();
         $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
+
+        $u = Admin::user();
+        $isAdmin = false;
+        if (
+            $u->isRole('administrator') ||
+            $u->isRole('admin') ||
+            $u->isRole('dvo') ||
+            $u->isRole('nda') ||
+            $u->isRole('maaif') 
+            ) {
+            $isAdmin = true;
+        } 
+        if(!$isAdmin){
+            $grid->model()->where('administrator_id', '=', $u->id);
+        }
+         
         $dis = null;
         if ($r != null) {
             $dis = Location::find($r->type_id);
@@ -144,21 +160,7 @@ class EventController extends AdminController
         if ($dis != null) {
             $grid->model()->where('district_id', '=', $dis->id);
         }
-        if ($u->isRole('administrator')) {
-        } else if (Admin::user()->isRole('farmer')) {
-            $grid->model()->where('administrator_id', '=', Admin::user()->id);
-            $grid->actions(function ($actions) {
-                //$actions->disableDelete();
-                $actions->disableEdit();
-            });
-            //$grid->disableCreateButton();
-        } else {
-            $grid->model()->where('administrator_id', '=', Admin::user()->id);
-            $grid->actions(function ($actions) {
-                //$actions->disableDelete();
-                $actions->disableEdit();
-            });
-        }
+       
         $district = $dis ? $dis->id : null;
         $date_title = 'Date';
         $e_id_title = 'E-ID';

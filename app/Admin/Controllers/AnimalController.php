@@ -69,13 +69,27 @@ class AnimalController extends AdminController
         $grid->quickSearch('v_id')->placeholder('Search by E-ID');
         $grid->disableBatchActions();
 
-        $u = Auth::user();
-
-
+        $u = Admin::user();
+        $isAdmin = false;
+        if (
+            $u->isRole('administrator') ||
+            $u->isRole('admin') ||
+            $u->isRole('dvo') ||
+            $u->isRole('nda') ||
+            $u->isRole('maaif') 
+            ) {
+            $isAdmin = true;
+        } 
+        if(!$isAdmin){
+            $grid->model()->where('administrator_id', '=', $u->id);
+        }
+          
         if ($u->isRole('data-viewer')) {
             $grid->disableActions();
             $grid->disableCreateButton();
         }
+
+       
 
         $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
         $dis = null;

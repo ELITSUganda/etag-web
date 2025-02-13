@@ -148,6 +148,21 @@ class MovementController extends AdminController
             $grid->model()->orderBy('id', 'DESC');
         }
 
+        $u = Admin::user();
+        $isAdmin = false;
+        if (
+            $u->isRole('administrator') ||
+            $u->isRole('admin') ||
+            $u->isRole('dvo') ||
+            $u->isRole('nda') ||
+            $u->isRole('maaif') 
+            ) {
+            $isAdmin = true;
+        } 
+        if(!$isAdmin){
+            $grid->model()->where('administrator_id', '=', $u->id);
+        } 
+
         $grid->column('id', __('ID'))->sortable();
         $grid->column('created_at', __('Date'))
             ->display(function ($f) {
@@ -168,7 +183,13 @@ class MovementController extends AdminController
             }
             return $s->name;
         })->sortable();
-        $grid->column('trader_name', __('Applicant'))->sortable();
+        $grid->column('administrator_id', __('Approved by'))->display(function ($user) {
+            $_user = Administrator::find($user);
+            if (!$_user) {
+                return "-";
+            }
+            return $_user->name;
+        })->sortable(); 
         $grid->column('transporter_name', __('Transporter'))->sortable();
         $grid->column('vehicle', __('Vehicle Reg. No.'));
 
