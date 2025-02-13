@@ -769,16 +769,7 @@ class EventController extends AdminController
             $grid->column('simen_code', __('Semen Code'))
                 ->sortable();
 
-        //inseminator
-        if (in_array('inseminator', $cols))
-            $grid->column('inseminator', __('Inseminator'))
-                ->display(function ($id) {
-                    if ($this->type != 'Service') {
-                        return 'N/A';
-                    }
-                    return $this->inseminator;
-                });
-
+ 
 
         if (in_array('test_conducted', $cols))
             $grid->column('test_conducted', __('Test Conducted'))
