@@ -253,9 +253,28 @@ class EventController extends AdminController
                 'detail',
             ];
             $date_title = "Sample taken Date";
-        } else if (in_array('events-sample-result', $segments)) {
+        } 
+        
+        else if (in_array('events-sample-result', $segments)) {
             $grid->model()->where([
                 'type' => 'Sample result'
+            ]);
+            $grid->setTitle("Sample result events");
+            $cols = [
+                'id',
+                'animal_id',
+                'created_at',
+                'type',
+                // 'sample_results',
+                'detail',
+            ];
+            $date_title = "Sample result Date";
+        } 
+        
+        
+        else if (in_array('events-test-result', $segments)) {
+            $grid->model()->where([
+                'type' => 'Test result'
             ]);
             $grid->setTitle("Test result events");
             $cols = [
@@ -267,7 +286,9 @@ class EventController extends AdminController
                 'detail',
             ];
             $date_title = "Sample result Date";
-        } else if (in_array('events-test-conducted', $segments)) {
+        } 
+        
+        else if (in_array('events-test-conducted', $segments)) {
             $grid->model()->where([
                 'type' => 'Test conducted'
             ]);
