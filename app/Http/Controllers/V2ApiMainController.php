@@ -717,6 +717,21 @@ Copy Copy
     {
         $an = Animal::find($r->id);
         if ($an == null) {
+            $an = Animal::where([
+                'local_id' => $r->id
+            ])->first();
+        }
+        if ($an == null) {
+            $an = Animal::where([
+                'v_id' => $r->id
+            ])->first();
+        }
+        if ($an == null) {
+            $an = Animal::where([
+                'e_id' => $r->id
+            ])->first();
+        }
+        if ($an == null) {
             return $this->error("Animal not found  for id #" . $r->id);
         }
         return $this->success($an);

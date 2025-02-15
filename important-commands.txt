@@ -156,7 +156,7 @@ composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs
 
 
-php artisan make:migration change_is_present_events --table=events
+php artisan make:migration add_service_to_animal --table=animals
 ``.``
 
 CREATE DATABASE etag
