@@ -292,7 +292,7 @@ class EventController extends AdminController
             $grid->model()->where([
                 'type' => 'Test conducted'
             ]);
-            $grid->setTitle("Test result");
+            $grid->setTitle("Tests Conducted");
             $cols = [
                 'id',
                 'animal_id',

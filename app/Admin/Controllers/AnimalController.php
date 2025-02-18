@@ -246,7 +246,7 @@ class AnimalController extends AdminController
         $grid->column('colour', __('Colour'))->sortable();
         $grid->column('weight', __('Weight'))->display(function () {
             return $this->weight_text;
-        })->sortable();
+        })->sortable()->hide();
         $grid->column('average_milk', __('Average milk'))->display(function () {
             if (((int)($this->average_milk)) < 1) {
                 return "N/A";
@@ -271,7 +271,8 @@ class AnimalController extends AdminController
         $grid->column('sub_county_id', __('Sub county'))
             ->display(function ($id) {
                 return Utils::get_object(Location::class, $id)->name_text;
-            })->sortable();
+            })->sortable()
+            ->hide(); 
 
 
         if (Admin::user()->isRole('slaughter')) {

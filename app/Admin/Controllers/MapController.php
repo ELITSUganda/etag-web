@@ -22,9 +22,14 @@ class MapController extends Controller
     {
 
         $farms = [];
+        $counter = 0;
         foreach (Farm::where([
-            'duplicate_results' => 'NEW'
+       
         ])->get() as $farm) {
+            $counter++;
+            if ($counter > 100) {
+                break;
+            } 
             if ($farm->latitude == null || $farm->longitude == null) {
                 continue;
             }
@@ -44,7 +49,7 @@ class MapController extends Controller
 
             ];
         }
-
+ 
         $data = json_encode($farms);
         $content->title('Farms (' . number_format(count($farms)) . ')');
         $content->row(view('map', [
@@ -58,8 +63,13 @@ class MapController extends Controller
         ])->get();
         $markers = '';
         $icon_path = '';
+        $counter = 0;
         foreach ($farms as $farm) {
             $status = '';
+            $counter++;
+            if($counter > 100){
+                break;
+            } 
             //check has closed farm
             if (!$farm->running) {
                 $status = 'Closed';

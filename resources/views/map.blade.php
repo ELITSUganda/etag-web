@@ -25,7 +25,20 @@
 <script>
     //document ready
 
+    document.addEventListener("DOMContentLoaded", initMap);
+
+    $(document).on('pjax:complete', function() {
+        initMap();
+    });
+
     function initMap() {
+
+        var url = window.location.href;
+        var parts = url.split('/');
+        var last_part = parts[parts.length - 1];
+        if (last_part != 'maps') {
+            return;
+        }
         var map = new google.maps.Map(document.getElementById('map'), {
             center: {
                 lat: 1.37,
@@ -91,5 +104,5 @@
         }
         // // Add markers to the map
         markers.forEach((marker) => marker.setMap(map));
-    }
+    } 
 </script>
