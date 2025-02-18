@@ -64,7 +64,7 @@ class DrugCategoryController extends AdminController
 
         $form->text('name', __('Name'))->required();
         $form->text('unit', __('Measuring Unit'))->required();
-        $form->image('photo', __('Drug Photo'))->required();
+        $form->image('photo', __('Drug Photo')); 
         $form->textarea('details', __('Details'));
 
         return $form;
