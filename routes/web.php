@@ -244,14 +244,20 @@ Route::get('transfer-animals', function (Request $request) {
     die('<br>DONE!');
 });
 Route::get('farm-report-print', function (Request $request) {
+    //set unlimited execution time
+    set_time_limit(0);
+    
     $report_id = $request->report_id;
     $report = FarmReport::find($report_id);
     if ($report == null) {
         return abort(404);
     }
-    return FarmReport::do_process($report);
+
+    if($report->pdf_prepared == 'No'){
+        $report = FarmReport::do_process($report);
+    }
+
     dd($report);
-    $report = FarmReport::do_process($report);
 });
 Route::get('/gen-dummy-data', function () {
 

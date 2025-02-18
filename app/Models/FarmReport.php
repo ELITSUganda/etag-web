@@ -33,12 +33,15 @@ class FarmReport extends Model
             if (isset($model->inseminations)) {
                 unset($model->inseminations);
             } */
-           //unset animals
+            //unset animals
         });
     }
 
     public static function do_process($r)
     {
+        $r->pdf_prepared = 'Yes';
+        $r->pdf_prepare_date = Carbon::now();
+        $r->save();  
         $start_date = Carbon::parse($r->start_date);
         $end_date = Carbon::parse($r->end_date);
         $farm = Farm::find($r->farm_id);
@@ -264,7 +267,7 @@ class FarmReport extends Model
         )->whereBetween('ferilization_date', [$start_date, $end_date])->get();
 
 
-        $r->title = "Farm Report for the period ".Utils::my_date($start_date)." to ".Utils::my_date($end_date);
+        $r->title = "Farm Report for the period " . Utils::my_date($start_date) . " to " . Utils::my_date($end_date);
         $r->animals = Animal::where([
             'farm_id' => $r->farm_id,
             'type' => 'Cattle'
@@ -279,9 +282,6 @@ class FarmReport extends Model
         $pdf->loadHTML(view('farm-report', [
             'report' => $r
         ]));
-
-        // return $pdf->stream();
-
 
         //check if file pdf 
         if ($r->pdf != null) {
@@ -300,6 +300,12 @@ class FarmReport extends Model
         $r->pdf_prepared = 'Yes';
         $r->pdf_prepare_date = Carbon::now();
 
+        $path = Utils::docs_root() . "/storage/" . $name;
+        $sql = "UPDATE farm_reports SET pdf = '$name', pdf_prepared = 'Yes', pdf_prepare_date = NOW() WHERE id = $r->id";
+        $r->save();
+
+
+        return $pdf->stream();
         return $r;
     }
 
