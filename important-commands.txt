@@ -150,13 +150,14 @@ php artisan make:model SlaughterRecord -m
 php artisan make:model FarmReport -m
 php artisan make:model Application -m
 php artisan make:model PregnantAnimal -m
-php artisan admin:make PregnantAnimalController --model=App\\Models\\PregnantAnimal
+php artisan admin:make DrugReportController --model=App\\Models\\DrugReport
+php artisan make:model DrugReport -m
 
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs
 
 
-php artisan make:migration add_service_to_animal --table=animals
+php artisan make:migration add_title_and_design_to_drug_reports --table=drug_reports
 ``.``
 
 CREATE DATABASE etag

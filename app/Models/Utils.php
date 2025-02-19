@@ -2053,7 +2053,7 @@ duplicate_results
 
     public static function is_local()
     {
-        return false; 
+        return false;
         $url = $_SERVER['HTTP_HOST'];
         $segs = explode('/', strtolower($url));
         if (in_array('u-lits.com', $segs)) {
@@ -2459,6 +2459,12 @@ duplicate_results
             $data[$v] = $v;
         };
         return $data;
+    }
+
+    //money formart with ugx static function
+    public static function money($amount = 0)
+    {
+        return "UGX " . number_format($amount);
     }
 }
 

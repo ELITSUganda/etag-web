@@ -7,6 +7,7 @@ use App\Http\Controllers\PrintController2;
 use App\Http\Controllers\WebController;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Models\Animal;
+use App\Models\DrugReport;
 use App\Models\DrugStockBatch;
 use App\Models\Event;
 use App\Models\Farm;
@@ -246,19 +247,68 @@ Route::get('transfer-animals', function (Request $request) {
 Route::get('farm-report-print', function (Request $request) {
     //set unlimited execution time
     set_time_limit(0);
-    
+
     $report_id = $request->report_id;
     $report = FarmReport::find($report_id);
     if ($report == null) {
         return abort(404);
     }
 
-    if($report->pdf_prepared == 'No'){
+    if ($report->pdf_prepared == 'No') {
         $report = FarmReport::do_process($report);
     }
 
-    dd($report);
+    return  $report;
 });
+
+Route::get('print-drrugs-report', function (Request $request) {
+    //set unlimited execution time
+    set_time_limit(0);
+
+    $report_id = $request->report_id;
+    $report = DrugReport::find($report_id);
+    if ($report == null) {
+        return abort(404);
+    }
+ 
+    if($report->pdf_generated != 'Yes'){
+        $report = DrugReport::do_process($report);
+    }
+
+    $report = DrugReport::find($report_id); 
+    $url = url('storage/' . $report->pdf_path);
+ 
+    return redirect($url); 
+    die();
+
+    return $report;
+    die("pdf is ready");
+
+    dd($report);
+    /* 
+    "created_at" => "2025-02-19 00:04:22"
+    "updated_at" => "2025-02-19 00:04:22"
+    "owner_id" => 777
+    "farm_id" => 186
+    "period_type" => "YEARLY"
+    "period" => "THIS_YEAR"
+    "start_date" => null
+    "end_date" => null
+    "total_cost" => null
+    "pdf_generated" => null
+    "pdf_path" => null
+    "data" => "some infomation"
+    */
+
+    if ($report->pdf_prepared == 'No') {
+        $report = FarmReport::do_process($report);
+    }
+
+    return  $report;
+});
+
+
+
 Route::get('/gen-dummy-data', function () {
 
 

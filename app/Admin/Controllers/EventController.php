@@ -144,14 +144,14 @@ class EventController extends AdminController
             $u->isRole('admin') ||
             $u->isRole('dvo') ||
             $u->isRole('nda') ||
-            $u->isRole('maaif') 
-            ) {
+            $u->isRole('maaif')
+        ) {
             $isAdmin = true;
-        } 
-        if(!$isAdmin){
+        }
+        if (!$isAdmin) {
             $grid->model()->where('administrator_id', '=', $u->id);
         }
-         
+
         $dis = null;
         if ($r != null) {
             $dis = Location::find($r->type_id);
@@ -160,7 +160,7 @@ class EventController extends AdminController
         if ($dis != null) {
             $grid->model()->where('district_id', '=', $dis->id);
         }
-       
+
         $district = $dis ? $dis->id : null;
         $date_title = 'Date';
         $e_id_title = 'E-ID';
@@ -253,9 +253,7 @@ class EventController extends AdminController
                 'detail',
             ];
             $date_title = "Sample taken Date";
-        } 
-        
-        else if (in_array('events-sample-result', $segments)) {
+        } else if (in_array('events-sample-result', $segments)) {
             $grid->model()->where([
                 'type' => 'Sample result'
             ]);
@@ -269,10 +267,7 @@ class EventController extends AdminController
                 'detail',
             ];
             $date_title = "Sample result Date";
-        } 
-        
-        
-        else if (in_array('events-test-result', $segments)) {
+        } else if (in_array('events-test-result', $segments)) {
             $grid->model()->where([
                 'type' => 'Test result'
             ]);
@@ -286,9 +281,7 @@ class EventController extends AdminController
                 'detail',
             ];
             $date_title = "Sample result Date";
-        } 
-        
-        else if (in_array('events-test-conducted', $segments)) {
+        } else if (in_array('events-test-conducted', $segments)) {
             $grid->model()->where([
                 'type' => 'Test conducted'
             ]);
@@ -790,7 +783,7 @@ class EventController extends AdminController
             $grid->column('simen_code', __('Semen Code'))
                 ->sortable();
 
- 
+
 
         if (in_array('test_conducted', $cols))
             $grid->column('test_conducted', __('Test Conducted'))

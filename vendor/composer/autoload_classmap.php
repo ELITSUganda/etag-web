@@ -121,6 +121,7 @@ return array(
     'App\\Models\\DrugDosage' => $baseDir . '/app/Models/DrugDosage.php',
     'App\\Models\\DrugDosageItem' => $baseDir . '/app/Models/DrugDosageItem.php',
     'App\\Models\\DrugForSale' => $baseDir . '/app/Models/DrugForSale.php',
+    'App\\Models\\DrugReport' => $baseDir . '/app/Models/DrugReport.php',
     'App\\Models\\DrugStockBatch' => $baseDir . '/app/Models/DrugStockBatch.php',
     'App\\Models\\DrugStockBatchRecord' => $baseDir . '/app/Models/DrugStockBatchRecord.php',
     'App\\Models\\Event' => $baseDir . '/app/Models/Event.php',

@@ -112,6 +112,8 @@ Route::group([
     $router->resource('abortion-events', ReproductionEventController::class);
     $router->resource('calving-events', ReproductionEventController::class);
     $router->resource('weaning-events', ReproductionEventController::class);
+    $router->resource('drug-reports', DrugReportController::class);
+    
     /* 
     - pregnancy
     - abortion
