@@ -146,8 +146,10 @@ Route::POST('create-slaughter-distribution-record', [
 // Route::get('animals/{id}', [ApiAnimalController::class, 'show']);
 
 Route::get('events', [ApiAnimalController::class, 'events']);
+Route::get('drug-reports', [ApiAnimalController::class, 'drug_reports']);
 Route::get('events-v2', [ApiAnimalController::class, 'events_v2']);
 Route::post('events-v2', [ApiAnimalController::class, 'store_event_2']);
+Route::post('drug-report-create', [ApiAnimalController::class, 'drug_report_create']);
 Route::POST('events-v3', [ApiAnimalController::class, 'store_event_2']);
 Route::POST('events-new', [ApiAnimalController::class, 'store_event_2']);
 Route::POST('v3-animal-records', [ApiAnimalController::class, 'store_event_2']);

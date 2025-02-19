@@ -41,7 +41,7 @@ class FarmReport extends Model
     {
         $r->pdf_prepared = 'Yes';
         $r->pdf_prepare_date = Carbon::now();
-        $r->save();  
+        $r->save();
         $start_date = Carbon::parse($r->start_date);
         $end_date = Carbon::parse($r->end_date);
         $farm = Farm::find($r->farm_id);

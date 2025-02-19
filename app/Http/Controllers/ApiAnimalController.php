@@ -8,6 +8,7 @@ use App\Models\ArchivedAnimal;
 use App\Models\BatchSession;
 use App\Models\Disease;
 use App\Models\DistrictVaccineStock;
+use App\Models\DrugReport;
 use App\Models\DrugStockBatch;
 use App\Models\Event;
 use App\Models\Farm;
@@ -2723,6 +2724,62 @@ class ApiAnimalController extends Controller
     }
 
 
+    public function drug_report_create(Request $request)
+    {
+
+        $user_id = Utils::get_user_id($request);
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
+        }
+
+        $farm = Farm::find($request->farm_id);
+        if ($farm == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Farm not found.",
+            ]);
+        }
+        $rep = new DrugReport();
+        $rep->owner_id = $u->id;
+        $rep->farm_id = $request->farm_id;
+        $rep->period_type = $request->period_type;
+        $rep->period = $request->period;
+        $rep->start_date = $request->start_date;
+        $rep->end_date = $request->end_date;
+        $rep->total_cost = $request->total_cost;
+        $rep->design = $request->design;
+        $rep->pdf_generated = 'No';
+        $rep->pdf_path = null;
+        try {
+            $rep->save();
+        } catch (\Throwable $th) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Failed to save drug report on database.",
+            ]);
+        }
+
+        try {
+            DrugReport::do_process($rep);
+        } catch (\Throwable $th) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Failed  because of $th",
+            ]);
+        }
+
+        $rep = DrugReport::find($rep->id);
+        return Utils::response([
+            'status' => 1,
+            'message' => "Drug report created successfully.",
+            'data' => $rep
+        ]);
+    }
+
     public function store_event_2(Request $request)
     {
 
@@ -3801,6 +3858,21 @@ class ApiAnimalController extends Controller
         ]);
     }
 
+
+    public function drug_reports(Request $request)
+    {
+        $user_id = Utils::get_user_id($request);
+
+        $data = DrugReport::where([
+            'owner_id' => $user_id
+        ])->get();
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success.",
+            'data' => $data
+        ]);
+    }
 
     public function events(Request $request)
     {

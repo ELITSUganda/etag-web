@@ -58,8 +58,8 @@ class V2ApiMainController extends Controller
         if ($r == null) {
             return $this->error("Failed to create farm report.");
         }
-        $r = FarmReport::do_process($r);
-        $r->save();
+        FarmReport::do_process($r);
+        $r = FarmReport::find($report->id);
         return $this->success($r, "Farm report created successfully.");
 
 
