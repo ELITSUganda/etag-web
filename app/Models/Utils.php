@@ -2464,7 +2464,16 @@ duplicate_results
     //money formart with ugx static function
     public static function money($amount = 0)
     {
-        return "UGX " . number_format($amount);
+        if ($amount  == null) {
+            return "UGX 0";
+        }
+        $num = "UGX 0";
+        try {
+            $num = "UGX " . number_format($amount);
+        } catch (\Throwable $th) {
+            return $amount; 
+        }
+        return $num;
     }
 }
 
