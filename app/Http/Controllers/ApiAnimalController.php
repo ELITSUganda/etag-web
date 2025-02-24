@@ -2943,12 +2943,12 @@ class ApiAnimalController extends Controller
             }
 
             //medicine_quantity
-            if ($request->medicine_quantity == null || strlen($request->medicine_quantity) < 1) {
+           /*  if ($request->medicine_quantity == null || strlen($request->medicine_quantity) < 1) {
                 return Utils::response([
                     'status' => 0,
                     'message' => "Medicine quantity must be provided.",
                 ]);
-            }
+            } */
            /*  if (floatval($request->medicine_quantity) < 1) {
                 return Utils::response([
                     'status' => 0,
