@@ -170,13 +170,13 @@ class Event extends Model
                                     throw new Exception("Failed to created event because available drug quantity is less than what you have entered.");
                                 }
                                 $ok = true;
-                                $record = new DrugStockBatchRecord();
+                                /* $record = new DrugStockBatchRecord();
                                 $record->record_type = 'animal_event';
                                 $record->administrator_id = $animal->administrator_id;
                                 $record->drug_stock_batch_id = $medicine->id;
                                 $record->batch_number = $medicine->batch_number;
                                 $record->receiver_account = null;
-                                $record->other_explantion = $model->detail;
+                                $record->other_explantion = $model->detail; 
                                 $record->buyer_info = null;
                                 $record->is_generated = 'no';
                                 $record->event_animal_id = $animal->id;
@@ -197,7 +197,7 @@ class Event extends Model
                                 $model->medicine_image = $medicine->image;
                                 $worth = ($medicine_quantity / $medicine->original_quantity) * $medicine->selling_price;
                                 $model->drug_worth = $worth;
-                                $record->save();
+                                $record->save(); */
                             }
                         }
                     }
