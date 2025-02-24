@@ -3982,6 +3982,7 @@ class ApiAnimalController extends Controller
                 'weight',
                 'milk',
                 'v_id',
+                'medicine_id',
                 'short_description',
             ]);
 

@@ -170,7 +170,7 @@ class Event extends Model
                                     throw new Exception("Failed to created event because available drug quantity is less than what you have entered.");
                                 }
                                 $ok = true;
-                                /* $record = new DrugStockBatchRecord();
+                                /* $record = new DrugS  tockBatchRecord();
                                 $record->record_type = 'animal_event';
                                 $record->administrator_id = $animal->administrator_id;
                                 $record->drug_stock_batch_id = $medicine->id;
