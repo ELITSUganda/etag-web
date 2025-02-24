@@ -4128,6 +4128,7 @@ class ApiAnimalController extends Controller
                 'milk',
                 'v_id',
                 'short_description',
+                'medicine_id',
                 'price',
             ]);
 
