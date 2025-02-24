@@ -203,7 +203,7 @@ class Event extends Model
                     }
                 }
                 if (!$ok) {
-                    throw new Exception("enter valid treament parametters");
+                    // throw new Exception("enter valid treament parametters");
                 }
             } else if ($model->type == 'Temperature check') {
                 $model->description = "{$animal->v_id} body temperature measured {$model->temperature} degrees Celsius.";
