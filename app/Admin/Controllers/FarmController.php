@@ -239,6 +239,7 @@ class FarmController extends AdminController
         $grid->column('holding_code', __('Holding code'))->sortable();
         $grid->column('name', __('Farm Name'))->sortable();
         $grid->column('size', __('Size (Ha)'))->sortable();
+        $grid->column('farm_type', __('Farm type'))->sortable();
         $grid->column('cattle_count', __('Cattle'))->sortable()
             ->display(function ($id) {
                 return number_format($this->cattle_count);
@@ -263,17 +264,9 @@ class FarmController extends AdminController
         $grid->column('longitude', __('GPS'))->display(function ($id) {
             return $this->latitude . "," . $this->longitude;
         })->sortable();
-        $grid->column('village', __('Village'))->sortable();
-        $grid->column('administrator_id', __('Owner'))
-            ->display(function ($id) {
-                $u = Administrator::find($id);
-                if (!$u) {
-                    return $id;
-                }
-                return $u->name . " ({$u->phone_number}) ";
-            })->sortable();
-        $grid->column('farm_type', __('Farm type'))->sortable();
 
+
+        $grid->column('village', __('Village'))->sortable();
 
         $grid->column('district_id', __('District'))
             ->display(function ($id) {
@@ -285,7 +278,7 @@ class FarmController extends AdminController
             })->sortable();
 
         //is_processed
-        $grid->column('is_processed', __('Processed'))->sortable()
+        /*  $grid->column('is_processed', __('Processed'))->sortable()
             ->filter([
                 'Yes' => 'Yes',
                 'No' => 'No',
@@ -294,9 +287,9 @@ class FarmController extends AdminController
                 'Yes' => 'success',
                 'No' => 'danger',
                 'FAILED' => 'warning',
-            ])->hide();
+            ])->hide(); */
         //duplicate_results
-        $grid->column('duplicate_results', __('Duplicate'))->sortable()
+        /*    $grid->column('duplicate_results', __('Duplicate'))->sortable()
             ->filter([
                 'Yes' => 'Yes',
                 'No' => 'No',
@@ -305,10 +298,28 @@ class FarmController extends AdminController
                 'Yes' => 'success',
                 'No' => 'danger',
                 'FAILED' => 'warning',
-            ])->hide();
+            ])->hide(); */
+
+
+        $grid->column('administrator_id', __('Owner'))
+            ->display(function ($id) {
+                $u = Administrator::find($id);
+                if (!$u) {
+                    return $id;
+                }
+                return $u->name;
+            })->sortable();
+        $grid->column('owner_contact', __('Owner Contact'))
+            ->display(function ($id) {
+                $u = Administrator::find($this->administrator_id);
+                if (!$u) {
+                    return $id;
+                }
+                return "({$u->phone_number}) ";
+            });
 
         //registered_id by 
-        $grid->column('registered_id', __('Registered by'))
+        $grid->column('registered_id', __('Registered By'))
             ->display(function ($id) {
                 $u = Administrator::find($id);
                 if (!$u) {
@@ -320,6 +331,16 @@ class FarmController extends AdminController
                 }
                 return $u->name . $phone_number;
             })->sortable();
+
+        //REG BY CONTACT
+        $grid->column('registered_id', __('Contact'))
+            ->display(function ($id) {
+                $u = Administrator::find($this->registered_id);
+                if (!$u) {
+                    return $id;
+                }
+                return $u->phone_number;
+            });
 
         return $grid;
     }

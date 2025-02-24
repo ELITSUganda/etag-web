@@ -220,6 +220,7 @@ class AnimalController extends AdminController
         });
 
         $grid->column('e_id', __('E-ID'))->sortable();
+        $grid->column('v_id', __('V-ID'))->sortable(); 
 
         if ($u->isRole('data-viewer')) {
             $grid->disableActions();
@@ -244,7 +245,7 @@ class AnimalController extends AdminController
         $grid->column('sex', __('Sex'))->sortable();
         // Colour
         $grid->column('colour', __('Colour'))->sortable();
-        $grid->column('weight', __('Weight'))->display(function () {
+     /*    $grid->column('weight', __('Weight'))->display(function () {
             return $this->weight_text;
         })->sortable()->hide();
         $grid->column('average_milk', __('Average milk'))->display(function () {
@@ -254,13 +255,12 @@ class AnimalController extends AdminController
             return round($this->average_milk, 2) . " liters";
         })
             ->hide()
-            ->sortable();
+            ->sortable(); */
         $grid->column('dob', __('DoB/YoB'))->display(function ($y) {
             return Utils::my_date($y);
         })->sortable();
         $grid->column('fmd', __('Last FMD'))->sortable();
-        $grid->column('lhc', __('LHC'))->sortable();
-        $grid->column('status', __('Status'))->sortable();
+        $grid->column('lhc', __('LHC'))->sortable(); 
 
 
 
@@ -268,11 +268,11 @@ class AnimalController extends AdminController
             ->display(function ($id) {
                 return Utils::get_object(Location::class, $id)->name_text;
             })->sortable(); */
-        $grid->column('sub_county_id', __('Sub county'))
+   /*      $grid->column('sub_county_id', __('Sub county'))
             ->display(function ($id) {
                 return Utils::get_object(Location::class, $id)->name_text;
             })->sortable()
-            ->hide(); 
+            ->hide();  */
 
 
         if (Admin::user()->isRole('slaughter')) {
