@@ -2941,13 +2941,6 @@ class ApiAnimalController extends Controller
                     'message' => "Disease not found on our database.",
                 ]);
             }
-            $stock = DrugStockBatch::find($request->medicine_id);
-            if ($stock == null) {
-                return Utils::response([
-                    'status' => 0,
-                    'message' => "Medicine not found on our database.",
-                ]);
-            }
 
             //medicine_quantity
             if ($request->medicine_quantity == null || strlen($request->medicine_quantity) < 1) {
@@ -2956,19 +2949,17 @@ class ApiAnimalController extends Controller
                     'message' => "Medicine quantity must be provided.",
                 ]);
             }
-            if (floatval($request->medicine_quantity) < 1) {
+           /*  if (floatval($request->medicine_quantity) < 1) {
                 return Utils::response([
                     'status' => 0,
                     'message' => "Medicine quantity must be greater than 0.",
                 ]);
-            }
+            } */
             $event->disease_id = $disease->id;
-            $event->medicine_id = $stock->id;
+            $event->medicine_id = $request->medicine_id;
             $event->disease_text = $disease->name;
             $event->medicine_quantity = $request->medicine_quantity;
-            if ($stock->drug_category_text != null) {
-                $event->medicine_text = $stock->drug_category_text;
-            }
+            $event->medicine_text = $request->medicine_id;
         } else if ($request->type == 'Vaccination') {
             /* if ($request->vaccination == null || strlen($request->vaccination) < 1) {
                 return Utils::response([
