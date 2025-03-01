@@ -227,19 +227,13 @@ class AnimalController extends AdminController
             $grid->disableCreateButton();
         }
         //$grid->column('updated_at_text', __('Last Update'));
-        $grid->column(
-            'id',
-            __('ID')
-        )->sortable()
-            ->hide();
-
+      
         $grid->model()->orderBy('created_at', 'DESC');
         $grid->column('photo', __('Photo'))
             ->image(url("https://u-lits.com/storage/images"), 60, 60)
             //->lightbox(['width' => 60, 'height' => 60])
             ->sortable();
-
-        $grid->column('v_id', __('V-ID'))->sortable()->hide();
+ 
         $grid->column('type', __('Species'))->sortable();
         $grid->column('breed', __('Breed'))->sortable();
         $grid->column('sex', __('Sex'))->sortable();

@@ -263,8 +263,8 @@ class FarmController extends AdminController
             });
 
         $grid->column('pigs_count', __('Pigs'))->sortable()
-            ->display(function ($id) {
-                return number_format($this->id);
+            ->display(function ($pigs_count) {
+                return number_format($pigs_count);
             })
             ->totalRow(function ($amount) {
                 return "<span class='text-success'>" . number_format($amount) . "</span>";
@@ -276,12 +276,12 @@ class FarmController extends AdminController
 
 
         $grid->column('village', __('Village'))->sortable();
-
-        $grid->column('district_id', __('District'))
+        $grid->column('sub_county_id', __('Sub county'))
             ->display(function ($id) {
                 return Utils::get_object(Location::class, $id)->name_text;
             })->sortable();
-        $grid->column('sub_county_id', __('Sub county'))
+
+        $grid->column('district_id', __('District'))
             ->display(function ($id) {
                 return Utils::get_object(Location::class, $id)->name_text;
             })->sortable();
