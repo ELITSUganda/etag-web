@@ -261,6 +261,15 @@ class FarmController extends AdminController
             ->totalRow(function ($amount) {
                 return "<span class='text-success'>" . number_format($amount) . "</span>";
             });
+
+        $grid->column('pigs_count', __('Pigs'))->sortable()
+            ->display(function ($id) {
+                return number_format($this->id);
+            })
+            ->totalRow(function ($amount) {
+                return "<span class='text-success'>" . number_format($amount) . "</span>";
+            });
+
         $grid->column('longitude', __('GPS'))->display(function ($id) {
             return $this->latitude . "," . $this->longitude;
         })->sortable();
