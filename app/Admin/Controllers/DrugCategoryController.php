@@ -28,7 +28,9 @@ class DrugCategoryController extends AdminController
         $grid->disableBatchActions();
         $grid->quickSearch('name')->placeholder('Search Drug Category');
         $grid->column('id', __('Id'))->hide();
-        $grid->picture('photo', __('Photo'))->sortable();
+        $grid->column('photo', __('Photo'))->image(
+            '', 50, 50
+        ); 
         $grid->column('name', __('Name'))->sortable();
         $grid->column('unit', __('Unit'))->sortable(); 
 
