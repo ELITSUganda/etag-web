@@ -16,6 +16,7 @@ use App\Models\SubCounty;
 use App\Models\User;
 use App\Models\Utils;
 use App\Models\Vaccine;
+use App\Models\VetDrug;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Controllers\AdminController;
@@ -668,7 +669,12 @@ class EventController extends AdminController
                     if (strtolower($this->type) == 'batch treatment') {
                         return $this->description;
                     }
-                    $u = DrugStockBatch::find($id);
+                    $u = VetDrug::find($id);
+
+                    if (!$u) {
+                        $u = DrugStockBatch::find($id); //Medicine::find($id); 
+                    }
+
                     if (!$u) {
                         return "#" . $id;
                     }
