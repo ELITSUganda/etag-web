@@ -113,6 +113,7 @@ Route::group([
     $router->resource('calving-events', ReproductionEventController::class);
     $router->resource('weaning-events', ReproductionEventController::class);
     $router->resource('drug-reports', DrugReportController::class);
+    $router->resource('vet-drugs', VetDrugController::class);
     
     /* 
     - pregnancy

@@ -150,8 +150,8 @@ php artisan make:model SlaughterRecord -m
 php artisan make:model FarmReport -m
 php artisan make:model Application -m
 php artisan make:model PregnantAnimal -m
-php artisan admin:make DrugReportController --model=App\\Models\\DrugReport
-php artisan make:model DrugReport -m
+php artisan admin:make VetDrugController --model=App\Models\VetDrug
+php artisan make:model VetDrug -m
 
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs
