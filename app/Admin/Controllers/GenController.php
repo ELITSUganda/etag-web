@@ -74,10 +74,10 @@ class GenController extends AdminController
         $form->text('class_name', __('Class Name'));
         $tables = DB::select("SHOW TABLES");
         $data = [];
-        foreach ($tables as $key => $table) {
-            //$tables[] = $table->Tables_in_ussd;
-            $db_name = 'Tables_in_' . env("DB_DATABASE");
-            $data[$table->$db_name] = $table->$db_name;
+        foreach ($tables as $table) {
+            $tableArray = (array) $table;
+            $tableName = reset($tableArray);
+            $data[$tableName] = $tableName;
         }
         $form->select('table_name', __('Table name'))->options($data)->rules('required');
         $form->text('end_point', __('end_point'))->rules('required');
