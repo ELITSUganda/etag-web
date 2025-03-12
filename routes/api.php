@@ -173,6 +173,7 @@ Route::get('movements', [ApiMovement::class, 'index']);
 Route::get('user-roles', [ApiMovement::class, 'user_roles']);
 Route::get('movement-routes', [ApiMovement::class, 'routes']);
 Route::get('system-users', [ApiMovement::class, 'system_users']);
+Route::get('vet-drugs', [ApiMovement::class, 'vet_drugs']);
 
 
 Route::POST('transfer-animal/{id}', [ApiMovement::class, 'transfer_animal']);

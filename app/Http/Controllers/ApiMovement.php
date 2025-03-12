@@ -25,6 +25,7 @@ use App\Models\TripRecord;
 use App\Models\User;
 use App\Models\Utils;
 use App\Models\VaccinationOrder;
+use App\Models\VetDrug;
 use App\Models\VetHasService;
 use App\Traits\ApiResponser;
 use Carbon\Carbon;
@@ -918,6 +919,16 @@ class ApiMovement extends Controller
         return Utils::response([
             'status' => 1,
             'data' => $cats,
+            'message' => 'Success'
+        ]);
+    }
+
+    public function vet_drugs(Request $request)
+    {
+        $data = VetDrug::all();
+        return Utils::response([
+            'status' => 1,
+            'data' => $data,
             'message' => 'Success'
         ]);
     }
