@@ -150,14 +150,15 @@ php artisan make:model SlaughterRecord -m
 php artisan make:model FarmReport -m
 php artisan make:model Application -m
 php artisan make:model PregnantAnimal -m
-php artisan admin:make VetDrugController --model=App\Models\VetDrug
-php artisan make:model VetDrug -m
+php artisan admin:make FamerTagsOrderController --model=App\Models\FamerTagsOrder
+php artisan make:model DistrictTagDistributionBatch -m
+php artisan make:model FamerTagsOrder -m
 
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs
 
 
-php artisan make:migration add_title_and_design_to_drug_reports --table=drug_reports
+php artisan make:migration add_range_to_famer_tags_orders --table=famer_tags_orders
 ``.``
 
 CREATE DATABASE etag

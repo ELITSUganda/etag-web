@@ -114,6 +114,9 @@ Route::group([
     $router->resource('weaning-events', ReproductionEventController::class);
     $router->resource('drug-reports', DrugReportController::class);
     $router->resource('vet-drugs', VetDrugController::class);
+    $router->resource('central-tag-batches', CentralTagBatchController::class);
+    $router->resource('district-tag-distribution-batches', DistrictTagDistributionBatchController::class);
+    $router->resource('famer-tags-orders', FamerTagsOrderController::class);
     
     /* 
     - pregnancy
