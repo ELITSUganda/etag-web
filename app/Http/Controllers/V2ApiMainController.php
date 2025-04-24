@@ -114,6 +114,37 @@ pdf_prepare_date */
             return $this->error("Failed to connect animal to parent because " . $th->getMessage());
         }
     }
+    public function v2_farmer_tags_order_create(Request $r)
+    {
+        $farm = Farm::find($r->farm_id);
+        $owner = null;
+        $isNew = false;
+        if ($farm == null) {
+            return $this->error("Farm not found.");
+        }
+        $owner = User::find($farm->administrator_id);
+        if ($owner == null) {
+            return $this->error("Farm owner not found.");
+        }
+        $total_tags_ordered_quantity = (int)$r->total_tags_ordered_quantity;
+        if ($total_tags_ordered_quantity < 1) {
+            return $this->error("Invalid tags ordered quantity.");
+        }
+        $delivery_address = $r->delivery_address;
+        if ($delivery_address == null || strlen($delivery_address) < 3) {
+            return $this->error("Invalid delivery address.");
+        }
+        $farmer_message = $r->farmer_message;
+        $order = null;
+        if (isset($r->id)) {
+            $order = FarmTag::find($r->id);
+        }
+
+        if ($order == null) {
+            $order = new FarmerTagOrder();
+        }
+    }
+
     public function v2_farms_create(Request $r)
     {
         $farm = Farm::find($r->id);

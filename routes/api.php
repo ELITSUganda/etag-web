@@ -31,6 +31,7 @@ Route::post('test-2', function (Request $r) {
 });
 
 Route::POST('animal-connect-parent', [V2ApiMainController::class, 'animal_connect_parent']);
+Route::POST('v2-farmer-tags-order-create', [V2ApiMainController::class, 'v2_farmer_tags_order_create']);
 Route::POST('v2-farms-create', [V2ApiMainController::class, 'v2_farms_create']);
 Route::POST('v2-farm-report-create', [V2ApiMainController::class, 'v2_farm_report_create']);
 Route::POST('v2-animals-create', [V2ApiMainController::class, 'v2_animals_create']);
