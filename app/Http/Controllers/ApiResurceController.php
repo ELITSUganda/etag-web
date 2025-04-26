@@ -164,13 +164,7 @@ class ApiResurceController extends Controller
 
         $worker_id = Utils::get_user_id($r);
         $worker = User::find($worker_id);
-        if ($worker != null) {
-            return Utils::response([
-                'status' => 0,
-                'message' => "Worker not allowed to delete animals.",
-            ]);
-        }
-
+      
         $administrator_id = Utils::get_user_id($r);
         $u = Administrator::find($administrator_id);
 

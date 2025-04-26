@@ -155,6 +155,7 @@ return array(
     'App\\Models\\NotificationModel' => $baseDir . '/app/Models/NotificationModel.php',
     'App\\Models\\Order' => $baseDir . '/app/Models/Order.php',
     'App\\Models\\Parish' => $baseDir . '/app/Models/Parish.php',
+    'App\\Models\\PersonalSetting' => $baseDir . '/app/Models/PersonalSetting.php',
     'App\\Models\\PregnantAnimal' => $baseDir . '/app/Models/PregnantAnimal.php',
     'App\\Models\\Product' => $baseDir . '/app/Models/Product.php',
     'App\\Models\\ProductCategory' => $baseDir . '/app/Models/ProductCategory.php',
