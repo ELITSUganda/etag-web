@@ -951,6 +951,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'App\\Models\\NotificationModel' => __DIR__ . '/../..' . '/app/Models/NotificationModel.php',
         'App\\Models\\Order' => __DIR__ . '/../..' . '/app/Models/Order.php',
         'App\\Models\\Parish' => __DIR__ . '/../..' . '/app/Models/Parish.php',
+        'App\\Models\\PersonalSetting' => __DIR__ . '/../..' . '/app/Models/PersonalSetting.php',
         'App\\Models\\PregnantAnimal' => __DIR__ . '/../..' . '/app/Models/PregnantAnimal.php',
         'App\\Models\\Product' => __DIR__ . '/../..' . '/app/Models/Product.php',
         'App\\Models\\ProductCategory' => __DIR__ . '/../..' . '/app/Models/ProductCategory.php',

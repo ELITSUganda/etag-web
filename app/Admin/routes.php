@@ -117,7 +117,8 @@ Route::group([
     $router->resource('central-tag-batches', CentralTagBatchController::class);
     $router->resource('district-tag-distribution-batches', DistrictTagDistributionBatchController::class);
     $router->resource('famer-tags-orders', FamerTagsOrderController::class);
-    
+
+    $router->resource('personal-settings', PersonalSettingController::class);
     /* 
     - pregnancy
     - abortion

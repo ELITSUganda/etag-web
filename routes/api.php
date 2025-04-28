@@ -31,6 +31,11 @@ Route::post('test-2', function (Request $r) {
 });
 
 Route::POST('animal-connect-parent', [V2ApiMainController::class, 'animal_connect_parent']);
+Route::GET('v2-farmer-tags-orders', [V2ApiMainController::class, 'v2_farmer_tags_orders']);
+Route::GET('v2-personal-settings', [V2ApiMainController::class, 'v2_personal_settings']);
+Route::POST('v2-personal-settings', [V2ApiMainController::class, 'v2_personal_settings_update']);
+Route::POST('v2-farmer-tags-order-check-payment-status', [V2ApiMainController::class, 'v2_farmer_tags_order_check_payment_status']);
+Route::POST('v2-farmer-tags-order-generate-payment-link', [V2ApiMainController::class, 'v2_farmer_tags_order_generate_payment_link_create']);
 Route::POST('v2-farmer-tags-order-create', [V2ApiMainController::class, 'v2_farmer_tags_order_create']);
 Route::POST('v2-farms-create', [V2ApiMainController::class, 'v2_farms_create']);
 Route::POST('v2-farm-report-create', [V2ApiMainController::class, 'v2_farm_report_create']);

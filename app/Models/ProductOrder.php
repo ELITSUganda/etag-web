@@ -87,7 +87,12 @@ class ProductOrder extends Model
         $phone_number,
         $phone_number_type
     ) {
-        $this->total_price = 500;
+
+        if(!isset($this->total_price)){
+            if(strlen($this->total_price) < 2){
+                $this->total_price = 500;
+            }
+        }
         $ip = $_SERVER['REMOTE_ADDR'];
         $data['tx_ref'] = 'ULITS-PRO-' . $this->id;
         $data['voucher'] = 'ULITS-PRO-' . $this->id;

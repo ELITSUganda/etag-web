@@ -641,6 +641,7 @@ class ApiMovement extends Controller
     {
         $user_id = ((int)(Utils::get_user_id($request)));
         $admin = Administrator::find($user_id);
+
         if ($admin == null) {
             return Utils::response([
                 'status' => 0,
@@ -694,7 +695,9 @@ class ApiMovement extends Controller
             $request->password != null &&
             strlen($request->password) > 3
         ) {
-            $u->password = password_hash($request->password, PASSWORD_DEFAULT);
+            if(strlen($request->password) < 12){
+                $u->password = password_hash($request->password, PASSWORD_DEFAULT);
+            }
         }
 
         $msg = "";

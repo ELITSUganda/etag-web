@@ -3,16 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Models\Animal;
+use App\Models\DistrictTagDistributionBatch;
+use App\Models\FamerTagsOrder;
 use App\Models\Farm;
 use App\Models\FarmReport;
 use App\Models\Image;
 use App\Models\Location;
+use App\Models\PersonalSetting;
 use App\Models\PregnantAnimal;
 use App\Models\User;
 use App\Models\Utils;
 use App\Traits\ApiResponser;
 use Carbon\Carbon;
+use Dflydev\DotAccessData\Util;
 use Encore\Admin\Auth\Database\Administrator;
+use Faker\Provider\ar_EG\Person;
 use Illuminate\Http\Request;
 
 class V2ApiMainController extends Controller
@@ -61,20 +66,67 @@ class V2ApiMainController extends Controller
         FarmReport::do_process($r);
         $r = FarmReport::find($report->id);
         return $this->success($r, "Farm report created successfully.");
-
-
-
-        /*
-start_date
-end_date
-farm_id
-user_id
-pdf
-pdf_prepared
-pdf_prepare_date */
     }
 
 
+    public function v2_personal_settings(Request $r){
+        $user_id = ((int)(Utils::get_user_id($r)));
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Failed'
+            ]);
+        } 
+
+        if($u->user_type == 'Worker'){
+            $user_id = $u->temp_id;
+            $u = Administrator::find($user_id);
+            if ($u == null) {
+                return Utils::response([
+                    'status' => 0,
+                    'data' => null,
+                    'message' => 'Failed'
+                ]);
+            }
+        }
+
+        $settings = PersonalSetting::where([
+            'user_id' => $u->id
+        ])->first();
+        
+        if($settings == null){
+            $settings = new PersonalSetting();
+            $settings->user_id = $u->id;
+            try {
+                $settings->save();
+                $settings = PersonalSetting::find($settings->id);
+            } catch (\Throwable $th) {
+                return $this->error("Failed to create personal settings because " . $th->getMessage());
+            }
+        }
+        $recs = [$settings];
+        return $this->success($recs, "Personal settings retrieved successfully.");
+    }
+
+
+    public function v2_farmer_tags_orders(Request $r){
+        $user_id = ((int)(Utils::get_user_id($r)));
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'data' => null,
+                'message' => 'Failed'
+            ]);
+        } 
+        $orders = FamerTagsOrder::where([
+            'famer_id' => $user_id
+        ])->get();
+        return $this->success($orders);
+
+    }
     public function animal_connect_parent(Request $r)
     {
         /* 
@@ -114,13 +166,147 @@ pdf_prepare_date */
             return $this->error("Failed to connect animal to parent because " . $th->getMessage());
         }
     }
+
+    //v2_personal_settings_update
+    public function v2_personal_settings_update(Request $r){
+        $rec = PersonalSetting::find($r->id);
+        if ($rec == null) {
+            return $this->error("Personal settings not found.");
+        }
+        if ($r->sms_phone_number == null || strlen($r->sms_phone_number) < 5) {
+            return $this->error("Invalid phone number.");
+        }  
+        $rec->enable_sms_notification = $r->enable_sms_notification;
+        $rec->sms_phone_number = $r->sms_phone_number;
+        $rec->paid_for_sms_notification = $r->paid_for_sms_notification;
+        $rec->enable_email_notification = $r->enable_email_notification;
+        $rec->email_address = $r->email_address;
+        $rec->farm_worker_can_view_data = $r->farm_worker_can_view_data;
+        $rec->farm_worker_can_edit_data = $r->farm_worker_can_edit_data;
+        $rec->farm_worker_can_add_data = $r->farm_worker_can_add_data;
+        $rec->farm_worker_can_delete_data = $r->farm_worker_can_delete_data;
+        $rec->enable_automated_reports = $r->enable_automated_reports;
+        $rec->report_frequency = $r->report_frequency;
+        $rec->enable_milk_production_report = $r->enable_milk_production_report;
+        $rec->enable_animal_health_report = $r->enable_animal_health_report;
+        $rec->enable_animal_sales_report = $r->enable_animal_sales_report;
+        $rec->enable_animal_birth_report = $r->enable_animal_birth_report;
+        $rec->enable_animal_death_report = $r->enable_animal_death_report;
+        $rec->enable_animal_movement_report = $r->enable_animal_movement_report;
+        $rec->enable_animal_treatment_report = $r->enable_animal_treatment_report;
+        $rec->enable_animal_vaccination_report = $r->enable_animal_vaccination_report;
+        $rec->enable_animal_weighing_report = $r->enable_animal_weighing_report;
+        $rec->enable_animal_tagging_report = $r->enable_animal_tagging_report;
+        $rec->enable_animal_breeding_report = $r->enable_animal_breeding_report;
+        $rec->enable_financial_report = $r->enable_financial_report;
+        $rec->enable_milk_sales_report = $r->enable_milk_sales_report;
+        try {
+            $rec->save();
+            $rec = PersonalSetting::find($rec->id);
+            if ($rec == null) {
+                return $this->error("Failed to update personal settings.");
+            }
+            return $this->success($rec, "Personal settings updated successfully.");
+        } catch (\Throwable $th) {
+            return $this->error("Failed to update personal settings because " . $th->getMessage());
+        }
+    }
+    public function v2_farmer_tags_order_check_payment_status(Request $r){
+        $rec = FamerTagsOrder::find($r->id);
+        if ($rec == null) {
+            return $this->error("Order not found.");
+        }
+
+        try {
+            $rec->is_order_paid();
+        } catch (\Throwable $th) {
+            return $this->error("Failed to check payment status because " . $th->getMessage());
+        }
+        
+        $rec = FamerTagsOrder::find($rec->id);
+        if ($rec == null) {
+            return $this->error("Failed to create order. Order not found again.");
+        }
+        return $this->success($rec, "Payment link generated successfully.");
+    }
+
+
+    public function v2_farmer_tags_order_generate_payment_link_create(Request $r){
+
+        $rec = FamerTagsOrder::find($r->id);
+        if ($rec == null) {
+            return $this->error("Order not found.");
+        }
+
+        $user = User::find($rec->famer_id);
+        if ($user == null) {
+            return $this->error("Farmer not found.");
+        }
+        
+        $rec->flutterwave_phone_number = $r->flutterwave_phone_number;
+        $rec->name = $r->name;
+        if($rec->name == null || strlen($rec->name) < 3){
+           $rec->name = $user->name;
+        }
+
+        if($rec->name == null || strlen($rec->name) < 3){
+           $rec->name = $user->first_name . " " . $user->last_name;
+        } 
+        
+        $rec->phone_number_type = $r->phone_number_type;
+
+        try {
+            $rec->save();
+        } catch (\Throwable $th) {
+            return $this->error("Failed to save order because " . $th->getMessage());
+        }
+
+        try {
+            $rec->get_flutterwave_link();
+        } catch (\Throwable $th) {
+            return $this->error("Failed to generate payment link because " . $th->getMessage());
+        }
+    
+        $rec = FamerTagsOrder::find($rec->id);
+    
+        if ($rec == null) {
+            return $this->error("Failed to create order. Order not found again.");
+        }
+
+        if ($rec->flutterwave_link == null || strlen($rec->flutterwave_link) < 10) {
+            return $this->error("Failed to create order. Payment link not found.");
+        }
+
+        $rec->flutterwave_link = $rec->flutterwave_link;
+        return $this->success($rec, "Payment link generated successfully.");
+
+    }
+/**
+ * Handles the creation or updating of a farmer tags order.
+ *
+ * This function first validates the existence of the farm and its owner based on the 
+ * provided farm ID. It then checks the validity of the total tags ordered quantity 
+ * and the delivery address. If an existing order ID is provided, the function updates 
+ * the order; otherwise, it creates a new order. The order details are populated 
+ * including district ID and total tags ordered amount. The function attempts to save 
+ * the order and returns an appropriate success or error message.
+ *
+ * @param Request $r The HTTP request object containing order details such as farm ID, 
+ *                   total tags ordered quantity, delivery address, and optionally, 
+ *                   an order ID.
+ * 
+ * @return \Illuminate\Http\Response A success response with the created or updated order 
+ *                                   details, or an error response if any validation or 
+ *                                   process fails.
+ */
+
     public function v2_farmer_tags_order_create(Request $r)
     {
         $farm = Farm::find($r->farm_id);
         $owner = null;
         $isNew = false;
         if ($farm == null) {
-            return $this->error("Farm not found.");
+            return $this->error("Farm not found. #" . $r->farm_id);
         }
         $owner = User::find($farm->administrator_id);
         if ($owner == null) {
@@ -136,13 +322,60 @@ pdf_prepare_date */
         }
         $farmer_message = $r->farmer_message;
         $order = null;
+        $isCraeating = false;
         if (isset($r->id)) {
-            $order = FarmTag::find($r->id);
+            $order = FamerTagsOrder::find($r->id);
+            $isCraeating = true;
         }
 
         if ($order == null) {
-            $order = new FarmerTagOrder();
+            $order = new FamerTagsOrder();
         }
+        $district = Location::find($farm->district_id);
+        if ($district != null) {
+            $order->district_id = $district->id;
+        } else {
+            return $this->error("District not found.");
+        }
+        if($isCraeating){
+            $batch = DistrictTagDistributionBatch::find($r->district_tag_distribution_batch_id);
+            if ($batch != null) {
+                $order->district_tag_distribution_batch_id = $batch->id;
+                $order->total_tags_ordered_amount = $batch->selling_price * $total_tags_ordered_quantity;
+            }else{
+                $order->total_tags_ordered_amount = 1000 * $total_tags_ordered_quantity;
+            }
+            $order->delivery_address = $delivery_address;
+            $order->farmer_message = $farmer_message;
+            $order->order_status = 'Pending';
+            $order->farm_id = $farm->id;
+        }
+
+        if($isCraeating){
+            try {
+                $order->save();
+                $order = FamerTagsOrder::find($order->id);
+                if ($order == null) {
+                    return $this->error("Failed to create order.");
+                }
+                return $this->success($order, "Order created successfully.");
+            } catch (\Throwable $th) {
+                return $this->error("Failed to create order because " . $th->getMessage());
+            }
+        }else{
+            try {
+                $order->save();
+                $order = FamerTagsOrder::find($order->id);
+                if ($order == null) {
+                    return $this->error("Failed to create order.");
+                }
+                return $this->success($order, "Order updated successfully.");
+            } catch (\Throwable $th) {
+                return $this->error("Failed to create order because " . $th->getMessage());
+            }
+        }
+
+        return $this->error("Failed to create order.");
     }
 
     public function v2_farms_create(Request $r)
