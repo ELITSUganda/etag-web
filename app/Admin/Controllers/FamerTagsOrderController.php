@@ -2,6 +2,8 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\District;
+use App\Models\DistrictTagDistributionBatch;
 use App\Models\FamerTagsOrder;
 use App\Models\Farm;
 use Encore\Admin\Controllers\AdminController;
@@ -108,6 +110,7 @@ class FamerTagsOrderController extends AdminController
         $form = new Form(new FamerTagsOrder());
 
         $u = Admin::user();
+        /*
         $form->select('farm_id', 'Select Farm')
             ->options(function ($id) {
                 $parent = Farm::find($id);
@@ -119,21 +122,30 @@ class FamerTagsOrderController extends AdminController
             ->ajax(
                 url('/api/ajax-farms?'
                     . "&administrator_id={$u->id}")
-            )->rules('required');
+            )->rules('required');*/
 
 
         $form->text('delivery_address', __('Delivery address'));
 
 
-        $form->decimal('total_tags_ordered_quantity', __('Total tags ordered quantity'));
+        $form->decimal('total_tags_ordered_quantity', __('Total tags ordered quantity'))->readonly();
+        //district_tag_distribution_batch_id
+        $district_tag_distribution_batches = [];
+        foreach (DistrictTagDistributionBatch::all() as $key => $stock) {
+            $district_tag_distribution_batches[$stock->id] = $stock->batch_name. " - (" . $stock->available_quantity . " tags available) ";
+        }
+        $form->select('district_tag_distribution_batch_id', __('Select District Tag Distribution Batch'))
+            ->options($district_tag_distribution_batches)
+            ->rules('required')
+            ->required();
 
         if ($form->isEditing()) {
 
 
-            $form->text('vid_range_start', __('Vid range start'));
-            $form->text('vid_range_end', __('Vid range end'));
-            $form->text('eid_range_start', __('Eid range start'));
-            $form->text('eid_range_end', __('Eid range end'));
+            $form->decimal('vid_range_start', __('Vid range start'));
+            $form->decimal('vid_range_end', __('Vid range end'));
+            $form->decimal('eid_range_start', __('Eid range start'));
+            $form->decimal('eid_range_end', __('Eid range end'));
 
             $form->select('order_status', __('Order status'))
                 ->options([

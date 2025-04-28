@@ -32,6 +32,12 @@ use Milon\Barcode\DNS1D;
 use function PHPUnit\Framework\fileExists;
 
 
+Route::get('sms', function () {
+
+   Utils::send_sms('+256783204665', 'Withdraw 5k from my mtn, 0783204665. muhindo mubaraka.'); 
+ 
+    die('stop');
+});
 Route::get('/clear', function () {
 
     Artisan::call('cache:clear');
