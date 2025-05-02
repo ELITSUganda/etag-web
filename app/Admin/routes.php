@@ -119,7 +119,7 @@ Route::group([
     $router->resource('famer-tags-orders', FamerTagsOrderController::class);
 
     $router->resource('personal-settings', PersonalSettingController::class);
-    $router->resource('animals', AnimalNewController::class);
+    $router->resource('animals-all', AnimalNewController::class);
     /* 
     - pregnancy
     - abortion
