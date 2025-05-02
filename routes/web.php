@@ -126,6 +126,9 @@ Route::get('transfer-animals', function (Request $request) {
         die('Final group not found');
     }
 
+    // Set unlimited execution time and memory
+    set_time_limit(0);
+    ini_set('memory_limit', '-1');
  
 
 
