@@ -10,7 +10,6 @@ use App\Models\Animal;
 use App\Models\DrugReport;
 use App\Models\DrugStockBatch;
 use App\Models\Event;
-use App\Models\FamerTagsOrder;
 use App\Models\Farm;
 use App\Models\FarmReport;
 use App\Models\Gen;
@@ -33,54 +32,11 @@ use Milon\Barcode\DNS1D;
 use function PHPUnit\Framework\fileExists;
 
 
-Route::get('/process-tag-orders', function () {
-    $rec = FamerTagsOrder::find(1);
-    $rec->name = 'John Doe';
-    $rec->phone_number_type = 'MTN';
-    $rec->flutterwave_amount = 500;
-    $rec->flutterwave_phone_number = '+256883204665';
+Route::get('sms', function () {
 
-    try {
-        $rec->get_flutterwave_link();
-    } catch (\Throwable $th) {
-        return $this->error("Failed to generate flutterwave link because " . $th->getMessage());
-    }
-
-    $rec = FamerTagsOrder::find(1);
-
-    echo "<br>Flutterwave link: " . $rec->flutterwave_link;
-
-    dd($rec);
-    /* 
-    "id" => 1
-    "created_at" => "2025-04-25 01:55:53"
-    "updated_at" => "2025-04-25 02:21:56"
-    "farm_id" => 394
-    "famer_id" => 709
-    "district_id" => 88
-    "sub_county_id" => 1000781
-    "district_tag_distribution_batch_id" => null
-    "farmer_message" => "some inform."
-    "delivery_address" => "some address"
-    "delivery_date" => null
-    "order_status" => "Pending"
-    "pending_message_sent" => "Pending"
-    "shipping_started_message_sent" => "Pending"
-    "delivered_message_sent" => "Pending"
-    "total_tags_ordered_quantity" => null
-    "total_tags_ordered_amount" => 12000
-    "total_tags_delivered_quantity" => null
-    "flutterwave_amount" => null
-    "flutterwave_status" => "Pending"
-    "flutterwave_link" => null
-    "flutterwave_phone_number" => null
-    "vid_range_start" => null
-    "vid_range_end" => null
-    "eid_range_start" => null
-    "eid_range_end" => null
+   Utils::send_sms('+256783204665', 'Withdraw 5k from my mtn, 0783204665. muhindo mubaraka.'); 
  
-  ]
-    */
+    die('stop');
 });
 Route::get('/clear', function () {
 

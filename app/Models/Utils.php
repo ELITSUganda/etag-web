@@ -664,6 +664,38 @@ duplicate_results
         return $data;
     }
 
+
+    public static function send_sms($phone_number, $message)
+    { 
+        if (!Utils::validateUgandanPhoneNumber($phone_number)) {
+            return "$phone_number is not a valid phone number.";
+        }
+
+        $url = "https://www.socnetsolutions.com/projects/bulk/amfphp/services/blast.php?username=mubaraka&passwd=muh1nd0@2023";
+        $url .= "&msg=" . trim($message);
+        $url .= "&numbers=" . $phone_number;
+        $my_response = "";
+        try {
+            $result = file_get_contents($url, false, stream_context_create([
+                'http' => [
+                    'method' => 'POST',
+                    'header' => 'Content-Type: application/json',
+                    /* 'content' => json_encode($m), */
+                ],
+            ]));
+            if (str_contains($result, 'Send ok')) {
+                $my_response = "";
+            } else {
+                $my_response = "Failed to send sms because " . ((string)$result);
+            }
+        } catch (\Throwable $th) {
+            $my_response = $th->getMessage();
+        }
+        return $my_response;
+    }
+
+
+
     public static function send_message($phone_number, $message)
     {
         return '';
