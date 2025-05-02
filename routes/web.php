@@ -52,6 +52,7 @@ Route::get('test-notification', function () {
                         'reason' => 'Duplicate animal',
                         'details' => 'This animal was found to be a duplicate of another animal',
                     ]);
+                    echo "<br>Removed duplicate animal: $val->id <br>";
                     continue; 
                 }
             }
