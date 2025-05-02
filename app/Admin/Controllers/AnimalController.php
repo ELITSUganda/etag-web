@@ -230,8 +230,8 @@ class AnimalController extends AdminController
       
         $grid->model()->orderBy('created_at', 'DESC');
         $grid->column('photo', __('Photo'))
-            ->image(url("https://u-lits.com/storage/images"), 60, 60)
-            //->lightbox(['width' => 60, 'height' => 60])
+
+            ->lightbox(['width' => 60, 'height' => 60])
             ->sortable();
  
         $grid->column('type', __('Species'))->sortable();
