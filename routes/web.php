@@ -45,9 +45,10 @@ Route::get('test-notification', function () {
     $dups = [];
     $ans = Animal::where([
 
-    ])->get()
+    ])
+    ->limit(1000)
     ->orderBy('id', 'desc')
-    ->limit(1000);
+    ->get(); 
 
     foreach ($ans as $key => $val) {
         $v_id = trim($val->v_id);
