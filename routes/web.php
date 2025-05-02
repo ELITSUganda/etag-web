@@ -45,17 +45,31 @@ Route::get('test-notification', function () {
         $v_id = trim($val->v_id);
         if (in_array($v_id, $done)) {
             $dups[] = $v_id;
+            if(isset($_GET['DO_REMOVE'])){
+                if($_GET['DO_REMOVE'] == 'YES'){
+                    Utils::archive_animal([
+                        'animal_id' => $val->id,
+                        'reason' => 'Duplicate animal',
+                        'details' => 'This animal was found to be a duplicate of another animal',
+                    ]);
+                    continue; 
+                }
+            }
+            continue;
         }
         $done[] = $val->v_id;
     }
 
 
+    $i = 0;
     foreach ($dups as $key => $dup_vid) {
+        $i++;
         $vals = Animal::where([
             'administrator_id' => 777,
             'v_id' => $dup_vid
         ])->get();
         $v_id = trim($val->v_id);
+        echo '<b>'.$i.'. Found '.$vals->count().' duplicates for V-ID<code>'.$dup_vid.'</code></b>';  
         echo "<table border='1' style='border-collapse: collapse;'> <hr>";
         echo "<tr><th style='text-align: left;'>VID</th><th>Image</th></tr>";
         foreach ($vals as $key => $val) {
