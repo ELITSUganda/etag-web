@@ -220,7 +220,7 @@ class AnimalController extends AdminController
         });
 
         $grid->column('e_id', __('E-ID'))->sortable();
-        $grid->column('v_id', __('V-ID'))->sortable()->editable(); 
+        $grid->column('v_id', __('V-ID'))->sortable(); 
 
         if ($u->isRole('data-viewer')) {
             $grid->disableActions();
@@ -354,7 +354,6 @@ class AnimalController extends AdminController
     {
         $form = new Form(new Animal());
         if($form->isCreating()){
-            admin_warning('Note', 'Please ensure you have selected the correct farm before proceeding.');
             return $form;
         }
         //$form->setWidth(8, 4);
@@ -428,7 +427,8 @@ class AnimalController extends AdminController
                 ->rules('required|unique:animals');
         } else {
 
-            $form->text('e_id', __('Electronic ID (E-ID)'));
+            $form->text('e_id', __('Electronic ID (E-ID)'))
+                ->readonly();
         }
 
         //'required|email|unique:company_users,email_address,NULL,id,company_id,' . $request->company_id
