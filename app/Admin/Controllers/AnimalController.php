@@ -353,6 +353,10 @@ class AnimalController extends AdminController
     protected function form()
     {
         $form = new Form(new Animal());
+        if($form->isCreating()){
+            admin_warning('Note', 'Please ensure you have selected the correct farm before proceeding.');
+            return $form;
+        }
         //$form->setWidth(8, 4);
 
         $form->saving(function (Form $form) {
@@ -381,7 +385,7 @@ class AnimalController extends AdminController
 
         $u = Admin::user();
 
-        $form->select('farm_id', 'Select Farm')
+      /*   $form->select('farm_id', 'Select Farm')
             ->options(function ($id) {
                 $parent = Farm::find($id);
                 if ($parent != null) {
@@ -400,7 +404,7 @@ class AnimalController extends AdminController
                 'Goat' => "Goat",
                 'Sheep' => "Sheep"
             ))
-            ->required();
+            ->required(); */
 
         $form->radio('sex', __('Sex'))
             ->options(array(
@@ -424,8 +428,7 @@ class AnimalController extends AdminController
                 ->rules('required|unique:animals');
         } else {
 
-            $form->text('e_id', __('Electronic ID (E-ID)'))
-                ->readonly();
+            $form->text('e_id', __('Electronic ID (E-ID)'));
         }
 
         //'required|email|unique:company_users,email_address,NULL,id,company_id,' . $request->company_id
