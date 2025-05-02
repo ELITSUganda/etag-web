@@ -230,8 +230,28 @@ class AnimalController extends AdminController
       
         $grid->model()->orderBy('created_at', 'DESC');
         $grid->column('photo', __('Photo'))
+            ->display(function ($photo) {
+                if ($photo == null) {
+                    return '<img src="' . url('images/logo.png') . '" style="width: 60px; height: 60px;" />';
+                }
+                $splits = explode('/', $photo);
+                if (count($splits) < 1) {
+                    return '<img src="' . url('images/logo.png') . '" style="width: 60px; height: 60px;" />';
+                }
+                $last = $splits[count($splits) - 1];
+                if ($last == null) {
+                    return '<img src="' . url('images/logo.png') . '" style="width: 60px; height: 60px;" />';
+                }
+                $url = url('storage/' . $last);
+                if ($url == null) {
+                    return '<img src="' . url('images/logo.png') . '" style="width: 60px; height: 60px;" />';
+                }
+                
 
-            ->lightbox(['width' => 60, 'height' => 60])
+                return '<img src="' . $url . '" style="width: 60px; height: 60px;" />';
+            })
+            //->image(, 60, 60)
+            //->lightbox(['width' => 60, 'height' => 60])
             ->sortable();
  
         $grid->column('type', __('Species'))->sortable();
