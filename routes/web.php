@@ -46,7 +46,7 @@ Route::get('test-notification', function () {
     $ans = Animal::where([
 
     ])
-    ->limit(1000a00)
+    ->limit(100000)
     ->orderBy('id', 'desc')
     ->get(); 
 
