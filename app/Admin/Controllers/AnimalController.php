@@ -242,7 +242,7 @@ class AnimalController extends AdminController
                 if ($last == null) {
                     return '<img src="' . url('images/logo.png') . '" style="width: 60px; height: 60px;" />';
                 }
-                $url = url('storage/' . $last);
+                $url = url('storage/images/' . $last);
                 if ($url == null) {
                     return '<img src="' . url('images/logo.png') . '" style="width: 60px; height: 60px;" />';
                 }
