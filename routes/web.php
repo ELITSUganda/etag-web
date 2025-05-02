@@ -102,179 +102,53 @@ Route::get('migrate', function () {
 
 Route::get('transfer-animals', function (Request $request) {
 
-    $group = Group::find($request->group_id);
+    $group = Group::find(1416);
     if ($group == null) {
         die('Group not found');
     }
 
     $farm = Farm::where([
-        'id' => 21486
+        'id' => 309
     ])->first();
     if ($farm == null) {
         die('Farm not found');
     }
 
-    $numbers = [
-        20102,
-        21251,
-        21466,
-        21299,
-        21252,
-        21437,
-        21470,
-        21302,
-        21319,
-        20239,
-        21454,
-        20217,
-        20204,
-        20246,
-        20151,
-        21416,
-        20214,
-        20199,
-        21382,
-        20285,
-        21396,
-        20174,
-        20185,
-        20210,
-        20154,
-        20208,
-        21315,
-        21431,
-        21462,
-        21279,
-        21412,
-        22641,
-        21278,
-        21272,
-        21476,
-        21287,
-        21447,
-        21296,
-        20712,
-        21314,
-        21317,
-        20240,
-        21417,
-        20230,
-        20093,
-        21422,
-        21402,
-        20095,
-        21444,
-        21291,
-        21315,
-        20148,
-        21472,
-        21256,
-        21463,
-        21298,
-        21261,
-        21469,
-        20166,
-        20080,
-        21380,
-        21275,
-        21429,
-        21468,
-        21453,
-        21300,
-        21405,
-        21403,
-        21377,
-        21451,
-        21420,
-        21265,
-        21414,
-        21424,
-        21408,
-        21442,
-        21432,
-        21418,
-        20097,
-        21446,
-        21413,
-        20162,
-        21269,
-        21452,
-        21409,
-        20129,
-        21257,
-        21404,
-        21268,
-        20155,
-        20181
-    ];
+    $animals = Animal::where([
+        'group_id' => $group->id
+    ])->get();
+
+    $finalGroup = Group::where([
+        'administrator_id' => $farm->administrator_id,
+        'is_main_group' => 'Yes',
+    ])->first();
+    if ($finalGroup == null) {
+        die('Final group not found');
+    }
+
+ 
 
 
     $i = 0;
     $success = [];
     $not_found = [];
-    foreach ($numbers as $key => $num) {
+    foreach ($animals as $key => $animal) {
         $i++;
-        echo "<hr> $i. Processing $num <br>";
-        $an = Animal::where([
-            'v_id' => $num
-        ])->first();
+        echo "<hr> $i. Processing {$animal->id} <br>";
+        
 
-        if ($an == null) {
-            //search like v_id
-            $an = Animal::where('v_id', 'like', '%' . $num . '%')->first();
-        }
-
-        if ($an == null) {
-            //search like e_id
-            $an = Animal::where('e_id', 'like', '%' . $num . '%')->first();
-        }
-        if ($an == null) {
-            echo ('Animal not found for ' . $num . '<br>');
-            $not_found[] = $num;
-            continue;
-        }
-
-        //check if animal is already in the farm
-        if ($an->farm_id == $farm->id) {
-            $success[] = $num;
-            $an->group_id = $group->id;
-            $an->save();
-            echo ('Animal already in the farm');
-            continue;
-        }
-
-        echo "<br>NOT TRANSFERED: $an->id transfered successfully from $an->farm_id to $farm->id <br>";
-        continue;
-
-        $oldFarm = Farm::find($an->farm_id);
-        if ($oldFarm == null) {
-            echo ('Old farm not found for ' . $num . '<br>');
-            continue;
-        }
 
         try {
-            $new_an = $an->transfer_animal($farm->id);
-
-            $success[] = $num;
-            echo "<br>$an->id transfered successfully from $oldFarm->holding_code to $farm->holding_code <br>";
+            $new_an = $animal->transfer_animal($farm->id);
+            $success[] = $new_an;
+            echo "<br>$animal->id transfered successfully from $animal->holding_code to $farm->holding_code <br>";
         } catch (\Throwable $th) {
-            echo "<br>$an->id => $new_an->id  transfered failed because " . $th->getMessage() . "<br>";
+            echo "<br>$animal->id => $new_an->id  transfered failed because " . $th->getMessage() . "<br>";
         }
     }
-
-    $duplicates = [];
-    foreach ($success as $key => $num) {
-        if (in_array($num, $duplicates)) {
-            echo "<br>Duplicate: $num <br>";
-        }
-        $duplicates[] = $num;
-    }
-    $fails = [];
-    foreach ($numbers as $key => $num) {
-        if (!in_array($num, $success)) {
-            $fails[] = $num;
-        }
-    }
+    echo "<hr>Success: " . count($success) . "<br><pre>";
+    
+    die("done");
 
 
 
