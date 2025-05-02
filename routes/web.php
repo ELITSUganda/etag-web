@@ -40,10 +40,27 @@ Route::get('test-notification', function () {
     $ans = Animal::where([
         'administrator_id' => 777
     ])->get();
-    echo "<table border='1' style='border-collapse: collapse;'>";
-    echo "<tr><th style='text-align: left;'>VID</th><th>Image</th></tr>";
+
     foreach ($ans as $key => $val) {
         $v_id = trim($val->v_id);
+        if (in_array($v_id, $done)) {
+            $dups[] = $v_id;
+        }
+        $done[] = $val->v_id;
+    }
+
+
+    foreach ($dups as $key => $dup_vid) {
+        $vals = Animal::where([
+            'administrator_id' => 777,
+            'v_id' => $dup_vid
+        ])->get();
+        $v_id = trim($val->v_id);
+        echo "<table border='1' style='border-collapse: collapse;'> <hr>";
+        echo "<tr><th style='text-align: left;'>VID</th><th>Image</th></tr>";
+        foreach ($vals as $key => $val) {
+         
+
         if (in_array($v_id, $done)) {
             $dups[] = $v_id;
             $img = url('storage/' . $val->photo);
@@ -55,12 +72,12 @@ Route::get('test-notification', function () {
             echo $val->e_id."<br>";
             echo "</td>";
             echo "<td style='text-align: center;'><img src='$img' width='100' height='100' alt=''></td>";
-            echo "</tr>";
-            continue;
-        }
-        $done[] = $val->v_id;
+            echo "</tr>"; 
+         } 
+
+        }          echo "</table>";
     }
-    echo "</table>";
+
     die('as');
 
 });
