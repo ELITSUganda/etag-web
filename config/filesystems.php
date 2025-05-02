@@ -31,18 +31,25 @@ return [
 
     'disks' => [
 
-        'local' => [
+        'admin' => [
             'driver' => 'local',
-            'root' => $_SERVER['DOCUMENT_ROOT'].'/storage',
+            'root' => public_path('storage'),
             'url' => env('APP_URL') . '/storage',
             'visibility' => 'public',
         ],
 
+        'local' => [
+            'driver' => 'local',
+            'root' => storage_path('app'),
+            'throw' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
-            'root' => $_SERVER['DOCUMENT_ROOT'].'public/storage',
-            'url' => env('APP_URL') . 'public/storage',
+            'root' => storage_path('app/public'),
+            'url' => env('APP_URL') . '/storage',
             'visibility' => 'public',
+            'throw' => false,
         ],
 
         's3' => [
@@ -54,14 +61,10 @@ return [
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+            'throw' => false,
         ],
-        'admin' => [
-            'driver' => 'local',
-            'root' => $_SERVER['DOCUMENT_ROOT'].'/storage', 
-            'url' => env('APP_URL') . '/storage',
-            'visibility' => 'public',
-        ],
-    ],
+
+    ], 
 
     /*
     |--------------------------------------------------------------------------
