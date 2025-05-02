@@ -34,12 +34,20 @@ use function PHPUnit\Framework\fileExists;
 
 
 Route::get('test-notification', function () {
+
+    //set max execution time to unlimited
+    set_time_limit(0);
+    //set max memory to unlimited
+    ini_set('memory_limit', '-1');
+
     //777
     $done = [];
     $dups = [];
     $ans = Animal::where([
-        'administrator_id' => 777
-    ])->get();
+
+    ])->get()
+    ->orderBy('id', 'desc')
+    ->limit(1000);
 
     foreach ($ans as $key => $val) {
         $v_id = trim($val->v_id);
