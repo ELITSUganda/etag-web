@@ -220,7 +220,7 @@ class AnimalController extends AdminController
         });
 
         $grid->column('e_id', __('E-ID'))->sortable();
-        $grid->column('v_id', __('V-ID'))->sortable(); 
+        $grid->column('v_id', __('V-ID'))->sortable()->editable(); 
 
         if ($u->isRole('data-viewer')) {
             $grid->disableActions();
