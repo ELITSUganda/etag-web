@@ -7,7 +7,7 @@
  * @category  Library
  * @package   Color
  * @author    Nicola Asuni <info@tecnick.com>
- * @copyright 2015-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright 2015-2024 Nicola Asuni - Tecnick.com LTD
  * @license   http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link      https://github.com/tecnickcom/tc-lib-color
  *
@@ -28,9 +28,16 @@ use Com\Tecnick\Color\Model\Cmyk;
  * @category  Library
  * @package   Color
  * @author    Nicola Asuni <info@tecnick.com>
- * @copyright 2015-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright 2015-2024 Nicola Asuni - Tecnick.com LTD
  * @license   http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link      https://github.com/tecnickcom/tc-lib-color
+ *
+ * @phpstan-type TSpotColor array{
+ *                 'i': int,
+ *                 'n': int,
+ *                 'name': string,
+ *                 'color': Cmyk,
+ *               }
  */
 class Spot extends \Com\Tecnick\Color\Web
 {
@@ -165,14 +172,14 @@ class Spot extends \Com\Tecnick\Color\Web
     /**
      * Array of Spot colors
      *
-     * @var array<string, array{'i': int, 'n': int, 'name': string, 'color': Cmyk}>
+     * @var array<string, TSpotColor>
      */
     protected $spot_colors = [];
 
     /**
      * Returns the array of spot colors.
      *
-     * @return array<string, array{'i': int, 'n': int, 'name': string, 'color': Cmyk}>
+     * @return array<string, TSpotColor>
      */
     public function getSpotColors(): array
     {
@@ -186,7 +193,7 @@ class Spot extends \Com\Tecnick\Color\Web
      */
     public function normalizeSpotColorName(string $name): string
     {
-        $ret = preg_replace('/[^a-z0-9]*/', '', strtolower($name));
+        $ret = preg_replace('/[^a-z0-9]*+/', '', strtolower($name));
         return $ret ?? '';
     }
 
@@ -195,7 +202,7 @@ class Spot extends \Com\Tecnick\Color\Web
      *
      * @param string $name Full name of the spot color.
      *
-     * @return array{'i': int, 'n': int, 'name': string, 'color': Cmyk}
+     * @return TSpotColor
      *
      * @throws ColorException if the color is not found
      */
@@ -232,8 +239,10 @@ class Spot extends \Com\Tecnick\Color\Web
      *
      * @param string $name Full name of the spot color.
      * @param Cmyk   $cmyk CMYK color object
+     *
+     * @return string Spot color key.
      */
-    public function addSpotColor(string $name, Cmyk $cmyk): void
+    public function addSpotColor(string $name, Cmyk $cmyk): string
     {
         $key = $this->normalizeSpotColorName($name);
         $num = isset($this->spot_colors[$key]) ? $this->spot_colors[$key]['i'] : (count($this->spot_colors) + 1);
@@ -244,6 +253,8 @@ class Spot extends \Com\Tecnick\Color\Web
             'name' => $name, // color name (key)
             'color' => $cmyk, // CMYK color object
         ];
+
+        return $key;
     }
 
     /**
@@ -275,21 +286,58 @@ class Spot extends \Com\Tecnick\Color\Web
     }
 
     /**
+     * Returns the PDF command to output the provided Spot color resources.
+     *
+     * @param array<string, array{'i': int, 'n': int}> $data Spot color array.
+     *
+     * @return string PDF command
+     */
+    private function getOutPdfSpotResources(array $data): string
+    {
+        if (empty($data)) {
+            return '';
+        }
+
+        $out = '/ColorSpace <<';
+
+        foreach ($data as $spot_color) {
+            $out .= ' /CS' . $spot_color['i'] . ' ' . $spot_color['n'] . ' 0 R';
+        }
+
+        return $out . ' >>' . "\n";
+    }
+
+    /**
      * Returns the PDF command to output Spot color resources.
      *
      * @return string PDF command
      */
     public function getPdfSpotResources(): string
     {
-        if ($this->spot_colors === []) {
+        return $this->getOutPdfSpotResources($this->spot_colors);
+    }
+
+    /**
+     * Returns the PDF command to output Spot color resources.
+     *
+     * @param array<string> $keys Array of font keys.
+     *
+     * @return string PDF command
+     */
+    public function getPdfSpotResourcesByKeys(array $keys): string
+    {
+        if (empty($keys)) {
             return '';
         }
 
-        $out = '/ColorSpace << ';
-        foreach ($this->spot_colors as $spot_color) {
-            $out .= '/CS' . $spot_color['i'] . ' ' . $spot_color['n'] . ' 0 R ';
+        $data = [];
+        foreach ($keys as $key) {
+            $data[$key] = [
+                'i' => $this->spot_colors[$key]['i'],
+                'n' => $this->spot_colors[$key]['n'],
+            ];
         }
 
-        return $out . ('>>' . "\n");
+        return $this->getOutPdfSpotResources($data);
     }
 }

@@ -7,7 +7,7 @@
  * @category  Library
  * @package   Color
  * @author    Nicola Asuni <info@tecnick.com>
- * @copyright 2015-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright 2015-2024 Nicola Asuni - Tecnick.com LTD
  * @license   http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link      https://github.com/tecnickcom/tc-lib-color
  *
@@ -25,7 +25,7 @@ namespace Com\Tecnick\Color;
  * @category  Library
  * @package   Color
  * @author    Nicola Asuni <info@tecnick.com>
- * @copyright 2015-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright 2015-2024 Nicola Asuni - Tecnick.com LTD
  * @license   http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link      https://github.com/tecnickcom/tc-lib-color
  */
@@ -79,7 +79,9 @@ abstract class Model implements \Com\Tecnick\Color\Model\Template
      */
     public function getNormalizedValue(float $value, int $max): float
     {
-        return round(max(0, min($max, ($max * $value))));
+        // NOTE: The last round has been added for backward compatibility because of:
+        // https://github.com/php/php-src/issues/14332
+        return round(max(0, min($max, ($max * round($value, 14)))));
     }
 
     /**

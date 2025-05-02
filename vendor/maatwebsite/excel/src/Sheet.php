@@ -5,6 +5,7 @@ namespace Maatwebsite\Excel;
 use Closure;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\LazyCollection;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\FromGenerator;
@@ -188,10 +189,6 @@ class Sheet
                 $this->hasStrictNullComparison($sheetExport)
             );
         }
-
-        if ($sheetExport instanceof WithCharts) {
-            $this->addCharts($sheetExport->charts());
-        }
     }
 
     /**
@@ -328,7 +325,7 @@ class Sheet
      * @param  bool  $formatData
      * @return array
      */
-    public function toArray($import, int $startRow = null, $nullValue = null, $calculateFormulas = false, $formatData = false)
+    public function toArray($import, ?int $startRow = null, $nullValue = null, $calculateFormulas = false, $formatData = false)
     {
         if ($startRow > $this->worksheet->getHighestRow()) {
             return [];
@@ -379,7 +376,7 @@ class Sheet
      * @param  bool  $formatData
      * @return Collection
      */
-    public function toCollection($import, int $startRow = null, $nullValue = null, $calculateFormulas = false, $formatData = false): Collection
+    public function toCollection($import, ?int $startRow = null, $nullValue = null, $calculateFormulas = false, $formatData = false): Collection
     {
         $rows = $this->toArray($import, $startRow, $nullValue, $calculateFormulas, $formatData);
 
@@ -395,6 +392,10 @@ class Sheet
      */
     public function close($sheetExport)
     {
+        if ($sheetExport instanceof WithCharts) {
+            $this->addCharts($sheetExport->charts());
+        }
+
         if ($sheetExport instanceof WithDrawings) {
             $this->addDrawings($sheetExport->drawings());
         }
@@ -464,9 +465,39 @@ class Sheet
      */
     public function fromQuery(FromQuery $sheetExport, Worksheet $worksheet)
     {
-        $sheetExport->query()->chunk($this->getChunkSize($sheetExport), function ($chunk) use ($sheetExport) {
+        $query = $sheetExport->query();
+        if ($query instanceof \Laravel\Scout\Builder) {
+            $this->fromScout($sheetExport, $worksheet);
+
+            return;
+        }
+
+        //Operate on a clone to avoid altering the original
+        //and use the clone operator directly to support old versions of Laravel
+        //that don't have a clone method in eloquent
+        $clonedQuery = clone $query;
+        $clonedQuery->chunk($this->getChunkSize($sheetExport), function ($chunk) use ($sheetExport) {
             $this->appendRows($chunk, $sheetExport);
         });
+    }
+
+    /**
+     * @param  FromQuery  $sheetExport
+     * @param  Worksheet  $worksheet
+     */
+    public function fromScout(FromQuery $sheetExport, Worksheet $worksheet)
+    {
+        $scout     = $sheetExport->query();
+        $chunkSize = $this->getChunkSize($sheetExport);
+
+        $chunk = $scout->paginate($chunkSize);
+        // Append first page
+        $this->appendRows($chunk->items(), $sheetExport);
+
+        // Append rest of pages
+        for ($page = 2; $page <= $chunk->lastPage(); $page++) {
+            $this->appendRows($scout->paginate($chunkSize, 'page', $page)->items(), $sheetExport);
+        }
     }
 
     /**
@@ -490,7 +521,13 @@ class Sheet
      */
     public function fromIterator(FromIterator $sheetExport)
     {
-        $this->appendRows($sheetExport->iterator(), $sheetExport);
+        $iterator = class_exists(LazyCollection::class) ? new LazyCollection(function () use ($sheetExport) {
+            foreach ($sheetExport->iterator() as $row) {
+                yield $row;
+            }
+        }) : $sheetExport->iterator();
+
+        $this->appendRows($iterator, $sheetExport);
     }
 
     /**
@@ -498,7 +535,13 @@ class Sheet
      */
     public function fromGenerator(FromGenerator $sheetExport)
     {
-        $this->appendRows($sheetExport->generator(), $sheetExport);
+        $generator = class_exists(LazyCollection::class) ? new LazyCollection(function () use ($sheetExport) {
+            foreach ($sheetExport->generator() as $row) {
+                yield $row;
+            }
+        }) : $sheetExport->generator();
+
+        $this->appendRows($generator, $sheetExport);
     }
 
     /**
@@ -506,7 +549,7 @@ class Sheet
      * @param  string|null  $startCell
      * @param  bool  $strictNullComparison
      */
-    public function append(array $rows, string $startCell = null, bool $strictNullComparison = false)
+    public function append(array $rows, ?string $startCell = null, bool $strictNullComparison = false)
     {
         if (!$startCell) {
             $startCell = 'A1';
@@ -615,7 +658,9 @@ class Sheet
             $rows = $sheetExport->prepareRows($rows);
         }
 
-        $rows = (new Collection($rows))->flatMap(function ($row) use ($sheetExport) {
+        $rows = $rows instanceof LazyCollection ? $rows : new Collection($rows);
+
+        $rows->flatMap(function ($row) use ($sheetExport) {
             if ($sheetExport instanceof WithMapping) {
                 $row = $sheetExport->map($row);
             }
@@ -627,13 +672,13 @@ class Sheet
             return ArrayHelper::ensureMultipleRows(
                 static::mapArraybleRow($row)
             );
-        })->toArray();
-
-        $this->append(
-            $rows,
-            $sheetExport instanceof WithCustomStartCell ? $sheetExport->startCell() : null,
-            $this->hasStrictNullComparison($sheetExport)
-        );
+        })->chunk(1000)->each(function ($rows) use ($sheetExport) {
+            $this->append(
+                $rows->toArray(),
+                $sheetExport instanceof WithCustomStartCell ? $sheetExport->startCell() : null,
+                $this->hasStrictNullComparison($sheetExport)
+            );
+        });
     }
 
     /**

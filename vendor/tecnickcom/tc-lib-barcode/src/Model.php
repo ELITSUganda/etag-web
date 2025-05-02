@@ -7,7 +7,7 @@
  * @category  Library
  * @package   Barcode
  * @author    Nicola Asuni <info@tecnick.com>
- * @copyright 2015-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright 2015-2024 Nicola Asuni - Tecnick.com LTD
  * @license   http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link      https://github.com/tecnickcom/tc-lib-barcode
  *
@@ -29,7 +29,7 @@ use Com\Tecnick\Color\Model\Rgb;
  * @category  Library
  * @package   Barcode
  * @author    Nicola Asuni <info@tecnick.com>
- * @copyright 2015-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright 2015-2024 Nicola Asuni - Tecnick.com LTD
  * @license   http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link      https://github.com/tecnickcom/tc-lib-barcode
  */
@@ -103,11 +103,23 @@ interface Model
 
     /**
      * Get the barcode as SVG image object
+     *
+     * @param string|null $filename The file name without extension (optional).
+     *                              Only allows alphanumeric characters, underscores and hyphens.
+     *                              Defaults to a md5 hash of the data.
+     *                              The file extension is always '.svg'.
      */
-    public function getSvg(): void;
+    public function getSvg(?string $filename = null): void;
 
     /**
-     * Get the barcode as SVG code
+     * Get the barcode as inline SVG code.
+     *
+     * @return string Inline SVG code.
+     */
+    public function getInlineSvgCode(): string;
+
+    /**
+     * Get the barcode as SVG code, including the XML declaration.
      *
      * @return string SVG code
      */
@@ -122,8 +134,13 @@ interface Model
 
     /**
      * Get Barcode as PNG Image (requires GD or Imagick library)
+     *
+      * @param string|null $filename The file name without extension (optional).
+     *                              Only allows alphanumeric characters, underscores and hyphens.
+     *                              Defaults to a md5 hash of the data.
+     *                              The file extension is always '.png'.
      */
-    public function getPng(): void;
+    public function getPng(?string $filename = null): void;
 
     /**
      * Get the barcode as PNG image (requires GD or Imagick library)

@@ -13,7 +13,7 @@
 * **category**    Library
 * **package**     \Com\Tecnick\Barcode
 * **author**      Nicola Asuni <info@tecnick.com>
-* **copyright**   2001-2023 Nicola Asuni - Tecnick.com LTD
+* **copyright**   2001-2024 Nicola Asuni - Tecnick.com LTD
 * **license**     http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
 * **link**        https://github.com/tecnickcom/tc-lib-barcode
 * **SRC DOC**     https://tcpdf.org/docs/srcdoc/tc-lib-barcode
@@ -147,7 +147,7 @@ Create a composer.json in your projects root-directory:
 ```json
 {
     "require": {
-        "tecnickcom/tc-lib-barcode": "^2.0"
+        "tecnickcom/tc-lib-barcode": "^2.3"
     }
 }
 ```
@@ -155,7 +155,7 @@ Create a composer.json in your projects root-directory:
 Or add to an existing project with: 
 
 ```bash
-composer require tecnickcom/tc-lib-barcode ^2.0
+composer require tecnickcom/tc-lib-barcode ^2.3
 ```
 
 ## Packaging
@@ -166,7 +166,7 @@ this library includes make targets for building these packages (`make rpm` and `
 The packages are generated under the `target` directory.
 
 When this library is installed using an RPM or DEB package, you can use it your code by including the autoloader:
-```
+```php
 require_once ('/usr/share/php/Com/Tecnick/Barcode/autoload.php');
 ```
 

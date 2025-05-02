@@ -7,7 +7,7 @@
  * @category    Library
  * @package     Barcode
  * @author      Nicola Asuni <info@tecnick.com>
- * @copyright   2023-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright   2023-2024 Nicola Asuni - Tecnick.com LTD
  * @license     http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link        https://github.com/tecnickcom/tc-lib-barcode
  *
@@ -25,7 +25,7 @@ namespace Com\Tecnick\Barcode\Type\Square\Aztec;
  * @category    Library
  * @package     Barcode
  * @author      Nicola Asuni <info@tecnick.com>
- * @copyright   2023-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright   2023-2024 Nicola Asuni - Tecnick.com LTD
  * @license     http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link        https://github.com/tecnickcom/tc-lib-barcode
  */
@@ -90,7 +90,7 @@ class Data
     /**
      * Code character encoding for each mode.
      *
-     * @var array<int, array<int, int>>
+     * @var array<int, array<int>>
      */
     public const CHAR_ENC = [
         // MODE_UPPER (initial mode)
@@ -238,7 +238,7 @@ class Data
      *   - the carriage return '\r' character (13) that maps for modes 3,4.
      *   - the comma ',' and dot '.' characters (44,46) that map for modes 2,4.
      *
-     * @var array<int, int>
+     * @var array<int>
      */
     public const CHAR_MODES = [
         1 => 3, // '^A' (SOH)

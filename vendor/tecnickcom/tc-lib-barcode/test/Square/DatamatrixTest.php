@@ -7,7 +7,7 @@
  * @category    Library
  * @package     Barcode
  * @author      Nicola Asuni <info@tecnick.com>
- * @copyright   2015-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright   2015-2024 Nicola Asuni - Tecnick.com LTD
  * @license     http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link        https://github.com/tecnickcom/tc-lib-barcode
  *
@@ -17,6 +17,7 @@
 namespace Test\Square;
 
 use Test\TestUtil;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
  * Datamatrix Barcode class test
@@ -25,7 +26,7 @@ use Test\TestUtil;
  * @category    Library
  * @package     Barcode
  * @author      Nicola Asuni <info@tecnick.com>
- * @copyright   2015-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright   2015-2024 Nicola Asuni - Tecnick.com LTD
  * @license     http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link        https://github.com/tecnickcom/tc-lib-barcode
  */
@@ -75,9 +76,7 @@ class DatamatrixTest extends TestUtil
         $encode->encodeTXTC40($data, $enc, $temp_cw, $ptr, $epos, $charset);
     }
 
-    /**
-     * @dataProvider getGridDataProvider
-     */
+    #[DataProvider('getGridDataProvider')]
     public function testGetGrid(string $mode, string $code, mixed $expected): void
     {
         $barcode = $this->getTestObject();
@@ -391,18 +390,51 @@ class DatamatrixTest extends TestUtil
                 "\xE8" . '01034531200000111712050810ABCD1234' . "\xE8" . '4109501101020917',
                 'a29a330a01cce34a346cf7049e2259ee',
             ],
-
+            // Different encoding datamatrix
+            [
+                'DATAMATRIX,S,N,ASCII',
+                '01234567890',
+                'ac7dd9e1ebdb42d07fe928fb33cd307b'
+            ],
+            [
+                'DATAMATRIX,S,N,C40',
+                '01234567890',
+                '958a7a3bcd036d7135489eb703a25633'
+            ],
+            [
+                'DATAMATRIX,S,N,TXT',
+                '01234567890',
+                '057981dfbf527b029ae59d65fb55f61d'
+            ],
+            [
+                'DATAMATRIX,S,N,X12',
+                '01234567890',
+                '8d75b0fcfb2d0977abd95004a6ba98dd'
+            ],
+            [
+                'DATAMATRIX,S,N,EDF',
+                '01234567890',
+                '989eab3ca16c97e05dd2307bef32f64b'
+            ],
+            [
+                'DATAMATRIX,S,N,BASE256',
+                '01234567890',
+                '8b4f688a774130bc654e39dfcfadb482'
+            ],
+            [
+                'DATAMATRIX,S,GS1,C40',
+                "\xE8" . '01095011010209171719050810ABCD1234' . "\xE8" . '2110',
+                'ba117111dfa40a40e1bb968c719d2eef'
+            ]
         ];
     }
 
-    /**
-     * @dataProvider getStringDataProvider
-     */
+    #[DataProvider('getStringDataProvider')]
     public function testStrings(string $code): void
     {
         $barcode = $this->getTestObject();
         $type = $barcode->getBarcodeObj('DATAMATRIX', $code);
-        $this->assertNotNull($type);
+        $this->assertNotNull($type); // @phpstan-ignore method.alreadyNarrowedType
     }
 
     /**

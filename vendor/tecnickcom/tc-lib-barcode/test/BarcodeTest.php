@@ -7,7 +7,7 @@
  * @category    Library
  * @package     Barcode
  * @author      Nicola Asuni <info@tecnick.com>
- * @copyright   2015-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright   2015-2024 Nicola Asuni - Tecnick.com LTD
  * @license     http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link        https://github.com/tecnickcom/tc-lib-barcode
  *
@@ -23,7 +23,7 @@ namespace Test;
  * @category    Library
  * @package     Barcode
  * @author      Nicola Asuni <info@tecnick.com>
- * @copyright   2015-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright   2015-2024 Nicola Asuni - Tecnick.com LTD
  * @license     http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link        https://github.com/tecnickcom/tc-lib-barcode
  */
@@ -175,9 +175,15 @@ class BarcodeTest extends TestUtil
 
         $svg = $type->setBackgroundColor('yellow')->getSvgCode();
         $expected = '<?xml version="1.0" standalone="no" ?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg width="44.000000" height="8.000000"'
-        . ' viewBox="0 0 44.000000 8.000000" version="1.1" xmlns="http://www.w3.org/2000/svg">
+<svg'
+        . ' version="1.2"'
+        . ' baseProfile="full"'
+        . ' xmlns="http://www.w3.org/2000/svg"'
+        . ' xmlns:xlink="http://www.w3.org/1999/xlink"'
+        . ' xmlns:ev="http://www.w3.org/2001/xml-events"'
+        . ' width="44.000000"'
+        . ' height="8.000000"'
+        . ' viewBox="0 0 44.000000 8.000000">
 	<desc>01001100011100001111,10110011100011110000</desc>
 	<rect x="0" y="0" width="44.000000" height="8.000000" fill="#ffff00"'
         . ' stroke="none" stroke-width="0" stroke-linecap="square" />
@@ -300,11 +306,42 @@ class BarcodeTest extends TestUtil
             -2,
             'purple'
         );
+
+        // empty filename
         ob_start();
         $type->getSvg();
         $svg = ob_get_clean();
         $this->assertNotFalse($svg);
-        $this->assertEquals('86e0362768e8b1b26032381232c0367f', md5($svg));
+        $this->assertEquals('114f33435c265345f7c6cdf673922292', md5($svg));
+        $headers = xdebug_get_headers();
+        $this->assertEquals(
+            'Content-Disposition: inline; filename="114f33435c265345f7c6cdf673922292.svg";',
+            $headers[5]
+        );
+
+        // invalid filename
+        ob_start();
+        $type->getSvg('#~');
+        $svg = ob_get_clean();
+        $this->assertNotFalse($svg);
+        $this->assertEquals('114f33435c265345f7c6cdf673922292', md5($svg));
+        $headers = xdebug_get_headers();
+        $this->assertEquals(
+            'Content-Disposition: inline; filename="114f33435c265345f7c6cdf673922292.svg";',
+            $headers[5]
+        );
+
+        // valid filename
+        ob_start();
+        $type->getSvg('test_SVG_filename-001');
+        $svg = ob_get_clean();
+        $this->assertNotFalse($svg);
+        $this->assertEquals('114f33435c265345f7c6cdf673922292', md5($svg));
+        $headers = xdebug_get_headers();
+        $this->assertEquals(
+            'Content-Disposition: inline; filename="test_SVG_filename-001.svg";',
+            $headers[5]
+        );
     }
 
     public function testGetPng(): void
@@ -317,10 +354,35 @@ class BarcodeTest extends TestUtil
             -2,
             'purple'
         );
+
+        // empty filename
         ob_start();
         $type->getPng();
         $png = ob_get_clean();
         $this->assertNotFalse($png);
         $this->assertEquals('PNG', substr($png, 1, 3));
+        $headers = xdebug_get_headers();
+        $this->assertNotEmpty($headers[5]);
+
+        // invalid filename
+        ob_start();
+        $type->getPng('#~');
+        $png = ob_get_clean();
+        $this->assertNotFalse($png);
+        $this->assertEquals('PNG', substr($png, 1, 3));
+        $headers = xdebug_get_headers();
+        $this->assertNotEmpty($headers[5]);
+
+        // valid filename
+        ob_start();
+        $type->getPng('test_PNG_filename-001');
+        $png = ob_get_clean();
+        $this->assertNotFalse($png);
+        $this->assertEquals('PNG', substr($png, 1, 3));
+        $headers = xdebug_get_headers();
+        $this->assertEquals(
+            'Content-Disposition: inline; filename="test_PNG_filename-001.png";',
+            $headers[5]
+        );
     }
 }

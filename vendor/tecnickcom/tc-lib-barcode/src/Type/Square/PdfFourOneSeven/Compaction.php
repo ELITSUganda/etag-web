@@ -7,7 +7,7 @@
  * @category  Library
  * @package   Barcode
  * @author    Nicola Asuni <info@tecnick.com>
- * @copyright 2010-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright 2010-2024 Nicola Asuni - Tecnick.com LTD
  * @license   http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link      https://github.com/tecnickcom/tc-lib-barcode
  *
@@ -25,7 +25,7 @@ namespace Com\Tecnick\Barcode\Type\Square\PdfFourOneSeven;
  * @category  Library
  * @package   Barcode
  * @author    Nicola Asuni <info@tecnick.com>
- * @copyright 2010-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright 2010-2024 Nicola Asuni - Tecnick.com LTD
  * @license   http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link      https://github.com/tecnickcom/tc-lib-barcode
  */
@@ -149,10 +149,10 @@ abstract class Compaction extends \Com\Tecnick\Barcode\Type\Square\PdfFourOneSev
                 }
 
                 // append the result array at the end
-                $codewords = array_merge($codewords, $cw6);
+                $codewords = array_merge($codewords, $cw6); //@phpstan-ignore parameterByRef.type
             } else {
                 for ($idx = 0; $idx < $sublen; ++$idx) {
-                    $codewords[] = ord($code[$idx]);
+                    $codewords[] = ord($code[$idx]); //@phpstan-ignore parameterByRef.type
                 }
             }
 

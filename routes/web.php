@@ -126,9 +126,6 @@ Route::get('transfer-animals', function (Request $request) {
         die('Final group not found');
     }
 
-    // Set unlimited execution time and memory
-    set_time_limit(0);
-    ini_set('memory_limit', '-1');
  
 
 
@@ -138,7 +135,7 @@ Route::get('transfer-animals', function (Request $request) {
     foreach ($animals as $key => $animal) {
         $i++;
         echo "<hr> $i. Processing {$animal->id} <br>";
-        if($i == 5){
+        if($i == 10){
             break;
         }
 

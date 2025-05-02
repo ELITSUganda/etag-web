@@ -7,7 +7,7 @@
  * @category  Library
  * @package   Barcode
  * @author    Nicola Asuni <info@tecnick.com>
- * @copyright 2015-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright 2015-2024 Nicola Asuni - Tecnick.com LTD
  * @license   http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link      https://github.com/tecnickcom/tc-lib-barcode
  *
@@ -30,11 +30,11 @@ use Com\Tecnick\Color\Pdf;
  * @category  Library
  * @package   Barcode
  * @author    Nicola Asuni <info@tecnick.com>
- * @copyright 2015-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright 2015-2024 Nicola Asuni - Tecnick.com LTD
  * @license   http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link      https://github.com/tecnickcom/tc-lib-barcode
  *
- * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
+ * @SuppressWarnings("PHPMD.ExcessiveClassComplexity")
  */
 abstract class Type extends \Com\Tecnick\Barcode\Type\Convert implements Model
 {
@@ -85,8 +85,6 @@ abstract class Type extends \Com\Tecnick\Barcode\Type\Convert implements Model
 
     /**
      * Set the bars array
-     *
-     * @throws BarcodeException in case of error
      */
     protected function setBars(): void
     {
@@ -140,7 +138,7 @@ abstract class Type extends \Com\Tecnick\Barcode\Type\Convert implements Model
      */
     protected function setPadding(array $padding): static
     {
-        if (! is_array($padding) || (count($padding) != 4)) {
+        if (count($padding) != 4) {
             throw new BarcodeException(
                 'Invalid padding, expecting an array of 4 numbers (top, right, bottom, left)'
             );
@@ -269,31 +267,60 @@ abstract class Type extends \Com\Tecnick\Barcode\Type\Convert implements Model
     }
 
     /**
-     * Get the barcode as SVG image object
+     * Sends the data as file to the browser.
+     *
+     * @param string $data The file data.
+     * @param string $mime The file MIME type (i.e. 'application/svg+xml' or 'image/png').
+     * @param string $fileext The file extension (i.e. 'svg' or 'png').
+     * @param string|null $filename The file name without extension (optional).
+     *                              Only allows alphanumeric characters, underscores and hyphens.
+     *                              Defaults to a md5 hash of the data.
+     *
+     * @return void
      */
-    public function getSvg(): void
-    {
-        $svgCode = $this->getSvgCode();
-        header('Content-Type: application/svg+xml');
+    protected function getHTTPFile(
+        string $data,
+        string $mime,
+        string $fileext,
+        ?string $filename = null,
+    ): void {
+        if (is_null($filename) || (preg_match('/^[a-zA-Z0-9_\-]{1,250}$/', $filename) !== 1)) {
+            $filename = md5($data);
+        }
+
+        header('Content-Type: ' . $mime);
         header('Cache-Control: private, must-revalidate, post-check=0, pre-check=0, max-age=1');
         header('Pragma: public');
         header('Expires: Thu, 04 jan 1973 00:00:00 GMT'); // Date in the past
         header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-        header('Content-Disposition: inline; filename="' . md5($svgCode) . '.svg";');
+        header('Content-Disposition: inline; filename="' . $filename . '.' . $fileext . '";');
         if (empty($_SERVER['HTTP_ACCEPT_ENCODING'])) {
             // the content length may vary if the server is using compression
-            header('Content-Length: ' . strlen($svgCode));
+            header('Content-Length: ' . strlen($data));
         }
 
-        echo $svgCode;
+        echo $data;
     }
 
     /**
-     * Get the barcode as SVG code
+     * Get the barcode as SVG image object.
      *
-     * @return string SVG code
+     * @param string|null $filename The file name without extension (optional).
+     *                              Only allows alphanumeric characters, underscores and hyphens.
+     *                              Defaults to a md5 hash of the data.
+     *                              The file extension is always '.svg'.
      */
-    public function getSvgCode(): string
+    public function getSvg(?string $filename = null): void
+    {
+        $this->getHTTPFile($this->getSvgCode(), 'application/svg+xml', 'svg', $filename);
+    }
+
+    /**
+     * Get the barcode as inline SVG code.
+     *
+     * @return string Inline SVG code.
+     */
+    public function getInlineSvgCode(): string
     {
         // flags for htmlspecialchars
         $hflag = ENT_NOQUOTES;
@@ -303,15 +330,16 @@ abstract class Type extends \Com\Tecnick\Barcode\Type\Convert implements Model
 
         $width = sprintf('%F', ($this->width + $this->padding['L'] + $this->padding['R']));
         $height = sprintf('%F', ($this->height + $this->padding['T'] + $this->padding['B']));
-        $svg = '<?xml version="1.0" standalone="no" ?>' . "\n"
-            . '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">'
-            . "\n"
-            . '<svg'
+
+        $svg = '<svg'
+            . ' version="1.2"'
+            . ' baseProfile="full"'
+            . ' xmlns="http://www.w3.org/2000/svg"'
+            . ' xmlns:xlink="http://www.w3.org/1999/xlink"'
+            . ' xmlns:ev="http://www.w3.org/2001/xml-events"'
             . ' width="' . $width . '"'
             . ' height="' . $height . '"'
             . ' viewBox="0 0 ' . $width . ' ' . $height . '"'
-            . ' version="1.1"'
-            . ' xmlns="http://www.w3.org/2000/svg"'
             . '>' . "\n"
             . "\t" . '<desc>' . htmlspecialchars($this->code, $hflag, 'UTF-8') . '</desc>' . "\n";
         if ($this->bg_color_obj instanceof \Com\Tecnick\Color\Model\Rgb) {
@@ -340,6 +368,18 @@ abstract class Type extends \Com\Tecnick\Barcode\Type\Convert implements Model
 
         return $svg . ('	</g>' . "\n"
             . '</svg>' . "\n");
+    }
+
+    /**
+     * Get the barcode as SVG code, including the XML declaration.
+     *
+     * @return string SVG code
+     */
+    public function getSvgCode(): string
+    {
+        return '<?xml version="1.0" standalone="no" ?>'
+            . "\n"
+            . $this->getInlineSvgCode();
     }
 
     /**
@@ -380,22 +420,15 @@ abstract class Type extends \Com\Tecnick\Barcode\Type\Convert implements Model
 
     /**
      * Get Barcode as PNG Image (requires GD or Imagick library)
+     *
+     * @param string|null $filename The file name without extension (optional).
+     *                              Only allows alphanumeric characters, underscores and hyphens.
+     *                              Defaults to a md5 hash of the data.
+     *                              The file extension is always '.png'.
      */
-    public function getPng(): void
+    public function getPng(?string $filename = null): void
     {
-        $pngData = $this->getPngData();
-        header('Content-Type: image/png');
-        header('Cache-Control: private, must-revalidate, post-check=0, pre-check=0, max-age=1');
-        header('Pragma: public');
-        header('Expires: Thu, 04 jan 1973 00:00:00 GMT'); // Date in the past
-        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-        header('Content-Disposition: inline; filename="' . md5($pngData) . '.png";');
-        if (empty($_SERVER['HTTP_ACCEPT_ENCODING'])) {
-            // the content length may vary if the server is using compression
-            header('Content-Length: ' . strlen($pngData));
-        }
-
-        echo $pngData;
+        $this->getHTTPFile($this->getPngData(), 'image/png', 'png', $filename);
     }
 
     /**
@@ -459,8 +492,8 @@ abstract class Type extends \Com\Tecnick\Barcode\Type\Convert implements Model
      */
     public function getGd(): \GdImage
     {
-        $width = (int) ceil($this->width + $this->padding['L'] + $this->padding['R']);
-        $height = (int) ceil($this->height + $this->padding['T'] + $this->padding['B']);
+        $width = max(1, (int) ceil($this->width + $this->padding['L'] + $this->padding['R']));
+        $height = max(1, (int) ceil($this->height + $this->padding['T'] + $this->padding['B']));
         $img = imagecreate($width, $height);
         if ($img === false) {
             throw new BarcodeException('Unable to create GD image');
@@ -471,9 +504,9 @@ abstract class Type extends \Com\Tecnick\Barcode\Type\Convert implements Model
             $rgbcolor = $bgobj->invertColor()->getNormalizedArray(255);
             $background_color = imagecolorallocate(
                 $img,
-                (int) round($rgbcolor['R']),
-                (int) round($rgbcolor['G']),
-                (int) round($rgbcolor['B']),
+                (int) round($rgbcolor['R']), // @phpstan-ignore argument.type
+                (int) round($rgbcolor['G']), // @phpstan-ignore argument.type
+                (int) round($rgbcolor['B']), // @phpstan-ignore argument.type
             );
             if ($background_color === false) {
                 throw new BarcodeException('Unable to allocate default GD background color');
@@ -483,9 +516,9 @@ abstract class Type extends \Com\Tecnick\Barcode\Type\Convert implements Model
             $rgbcolor = $this->bg_color_obj->getNormalizedArray(255);
             $bg_color = imagecolorallocate(
                 $img,
-                (int) round($rgbcolor['R']),
-                (int) round($rgbcolor['G']),
-                (int) round($rgbcolor['B']),
+                (int) round($rgbcolor['R']),  // @phpstan-ignore argument.type
+                (int) round($rgbcolor['G']), // @phpstan-ignore argument.type
+                (int) round($rgbcolor['B']), // @phpstan-ignore argument.type
             );
             if ($bg_color === false) {
                 throw new BarcodeException('Unable to allocate GD background color');
@@ -496,9 +529,9 @@ abstract class Type extends \Com\Tecnick\Barcode\Type\Convert implements Model
         $rgbcolor = $this->color_obj->getNormalizedArray(255);
         $bar_color = imagecolorallocate(
             $img,
-            (int) round($rgbcolor['R']),
-            (int) round($rgbcolor['G']),
-            (int) round($rgbcolor['B']),
+            (int) round($rgbcolor['R']), // @phpstan-ignore argument.type
+            (int) round($rgbcolor['G']), // @phpstan-ignore argument.type
+            (int) round($rgbcolor['B']), // @phpstan-ignore argument.type
         );
         if ($bar_color === false) {
             throw new BarcodeException('Unable to allocate GD foreground color');

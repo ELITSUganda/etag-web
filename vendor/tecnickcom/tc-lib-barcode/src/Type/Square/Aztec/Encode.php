@@ -7,7 +7,7 @@
  * @category    Library
  * @package     Barcode
  * @author      Nicola Asuni <info@tecnick.com>
- * @copyright   2023-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright   2023-2024 Nicola Asuni - Tecnick.com LTD
  * @license     http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link        https://github.com/tecnickcom/tc-lib-barcode
  *
@@ -27,7 +27,7 @@ use Com\Tecnick\Barcode\Exception as BarcodeException;
  * @category    Library
  * @package     Barcode
  * @author      Nicola Asuni <info@tecnick.com>
- * @copyright   2023-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright   2023-2024 Nicola Asuni - Tecnick.com LTD
  * @license     http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link        https://github.com/tecnickcom/tc-lib-barcode
  */
@@ -36,7 +36,7 @@ class Encode extends \Com\Tecnick\Barcode\Type\Square\Aztec\Bitstream
     /**
      * Bidimensional grid containing the encoded data.
      *
-     * @var array<int, array<int, int>>
+     * @var array<int, array<int>>
      */
     protected array $grid = [];
 
@@ -77,7 +77,7 @@ class Encode extends \Com\Tecnick\Barcode\Type\Square\Aztec\Bitstream
     /**
      * Returns the bidimensional grid containing the encoded data.
      *
-     * @return array<int, array<int, int>>
+     * @return array<int, array<int>>
      */
     public function getGrid(): array
     {
@@ -200,8 +200,8 @@ class Encode extends \Com\Tecnick\Barcode\Type\Square\Aztec\Bitstream
      *
      * @param int $numcdw Number of data codewords.
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @SuppressWarnings("PHPMD.CyclomaticComplexity")
+     * @SuppressWarnings("PHPMD.NPathComplexity")
      */
     protected function drawMode(int $numcdw): void
     {

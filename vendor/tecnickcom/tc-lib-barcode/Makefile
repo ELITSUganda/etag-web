@@ -4,12 +4,15 @@
 # @category    Library
 # @package     Barcode
 # @author      Nicola Asuni <info@tecnick.com>
-# @copyright   2015-2023 Nicola Asuni - Tecnick.com LTD
+# @copyright   2015-2024 Nicola Asuni - Tecnick.com LTD
 # @license     http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE)
 # @link        https://github.com/tecnickcom/tc-lib-barcode
 #
 # This file is part of tc-lib-barcode software library.
 # ----------------------------------------------------------------------------------------------------------------------
+
+SHELL=/bin/bash
+.SHELLFLAGS=-o pipefail -c
 
 # Project owner
 OWNER=tecnickcom
@@ -111,6 +114,9 @@ help:
 .PHONY: all
 all: help
 
+# Full build and test sequence
+.PHONY: x
+x: buildall
 
 # Full build and test sequence
 .PHONY: buildall
@@ -163,7 +169,7 @@ endif
 deps: ensuretarget
 	rm -rf ./vendor/*
 	($(COMPOSER) install -vvv --no-interaction)
-	curl --silent --show-error --fail --location --output ./vendor/phpstan.phar https://github.com/phpstan/phpstan/releases/download/1.10.41/phpstan.phar \
+	curl --silent --show-error --fail --location --output ./vendor/phpstan.phar https://github.com/phpstan/phpstan/releases/download/2.1.2/phpstan.phar \
 	&& chmod +x ./vendor/phpstan.phar
 
 # Generate source code documentation
@@ -205,8 +211,8 @@ endif
 .PHONY: lint
 lint:
 	./vendor/bin/phpcs --ignore="./vendor/" --standard=phpcs.xml src test
-	./vendor/bin/phpmd src text codesize,unusedcode,naming,design --exclude vendor
-	./vendor/bin/phpmd test text unusedcode,naming
+	./vendor/bin/phpmd src text codesize,unusedcode,naming,design --exclude */vendor/*
+	./vendor/bin/phpmd test text unusedcode,naming,design --exclude */vendor/*
 	php -r 'exit((int)version_compare(PHP_MAJOR_VERSION, "7", ">"));' || ./vendor/phpstan.phar analyse
 
 # Run all tests and reports
@@ -254,11 +260,16 @@ tag:
 .PHONY: test
 test:
 	cp phpunit.xml.dist phpunit.xml
-	./vendor/bin/phpunit --migrate-configuration || true
-	./vendor/bin/phpunit --stderr test
+	#./vendor/bin/phpunit --migrate-configuration || true
+	XDEBUG_MODE=coverage ./vendor/bin/phpunit --stderr test
 
 # Remove all installed files
 .PHONY: uninstall
 uninstall:
 	rm -rf $(PATHINSTBIN)
 	rm -rf $(PATHINSTDOC)
+
+# Increase the version patch number
+.PHONY: versionup
+versionup:
+	echo ${VERSION} | gawk -F. '{printf("%d.%d.%d\n",$$1,$$2,(($$3+1)));}' > VERSION

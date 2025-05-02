@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Berkayk\OneSignal\OneSignalFacade;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Facades\Admin;
@@ -666,7 +667,7 @@ duplicate_results
 
 
     public static function send_sms($phone_number, $message)
-    { 
+    {
         if (!Utils::validateUgandanPhoneNumber($phone_number)) {
             return "$phone_number is not a valid phone number.";
         }
@@ -2035,13 +2036,8 @@ duplicate_results
         }
 
 
-        /* 
-
-        $table->text('')->nullable();
-        $table->string('')->nullable();
-        */
         try {
-            \OneSignal::addParams(
+            $resp =  OneSignalFacade::addParams(
                 [
                     'android_channel_id' => 'f3469729-c2b4-4fce-89da-78550d5a2dd1',
                     'large_icon' => 'https://u-lits.com/logo-1.png',
@@ -2056,8 +2052,8 @@ duplicate_results
                     $buttons = $buttons,
                     $schedule = $schedule,
                     $headings = $headings
-                );
-        } catch (\Throwable $th) {
+                ); 
+        } catch (\Throwable $th) { 
             throw $th;
         }
 
@@ -2503,7 +2499,7 @@ duplicate_results
         try {
             $num = "UGX " . number_format($amount);
         } catch (\Throwable $th) {
-            return $amount; 
+            return $amount;
         }
         return $num;
     }

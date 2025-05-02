@@ -7,7 +7,7 @@
  * @category  Library
  * @package   Color
  * @author    Nicola Asuni <info@tecnick.com>
- * @copyright 2015-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright 2015-2024 Nicola Asuni - Tecnick.com LTD
  * @license   http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link      https://github.com/tecnickcom/tc-lib-color
  *
@@ -27,7 +27,7 @@ use Com\Tecnick\Color\Exception as ColorException;
  * @category  Library
  * @package   Color
  * @author    Nicola Asuni <info@tecnick.com>
- * @copyright 2015-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright 2015-2024 Nicola Asuni - Tecnick.com LTD
  * @license   http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link      https://github.com/tecnickcom/tc-lib-color
  */
@@ -67,7 +67,7 @@ class Pdf extends \Com\Tecnick\Color\Spot
                 return $colobj->getJsPdfColor();
             }
         } catch (ColorException $colorException) {
-            assert(true); // noop
+            // assert(true); // noop
         }
 
         // default transparent color
@@ -84,13 +84,13 @@ class Pdf extends \Com\Tecnick\Color\Spot
         try {
             return $this->getSpotColorObj($color);
         } catch (ColorException $colorException) {
-            assert(true); // noop
+            // assert(true); // noop
         }
 
         try {
             return $this->getColorObj($color);
         } catch (ColorException $colorException) {
-            assert(true); // noop
+            // assert(true); // noop
         }
 
         return null;
@@ -115,7 +115,7 @@ class Pdf extends \Com\Tecnick\Color\Spot
 
             return sprintf('/CS%d %s' . "\n", $col['i'], $tint);
         } catch (ColorException $colorException) {
-            assert(true); // noop
+            // assert(true); // noop
         }
 
         try {
@@ -124,7 +124,7 @@ class Pdf extends \Com\Tecnick\Color\Spot
                 return $col->getPdfColor($stroke);
             }
         } catch (ColorException $colorException) {
-            assert(true); // noop
+            // assert(true); // noop
         }
 
         return '';

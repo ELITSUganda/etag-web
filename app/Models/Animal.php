@@ -168,15 +168,7 @@ class Animal extends Model
             return $model;
         });
 
-
-        self::created(function ($an) {
-            self::send_sms($an);
-            
-        });
-
-        self::updated(function ($an) {
-
-        });
+        self::updated(function ($an) {});
 
         self::deleting(function ($model) {
             /* if ($model->events != null) {
@@ -657,39 +649,5 @@ class Animal extends Model
         }
         $new_an = Animal::find($an->id);
         return $new_an;
-    }
-
-    public static function send_sms($an)
-    {
-        $f = Farm::find($an->farm_id);
-        if ($f == null) {
-            return;
-        }
-        $owner = Administrator::find($f->administrator_id);
-        if ($owner == null) {
-            return;
-        }
-
-        $phone = $owner->phone_number;
-        if ($phone == null || strlen($phone) < 5) {
-            return;
-        }
-        $dob = null;
-        try {
-            $dob = Carbon::parse($an->dob);
-        } catch (\Throwable $th) {
-            $dob = null;
-        }
-        $msg = "Animal {$an->v_id}";
-        if($dob != null) {
-            $msg .= " born on {$dob->format('d M, Y')}";
-        }
-        $msg .= " has been added to your farm {$f->holding_code}.\n";
-        $msg .= "Check your U-LITS app for more details.\n";
-        try {
-            Utils::send_sms($phone, $msg); 
-        } catch (\Throwable $th) {
-            //throw $th;
-        }
     }
 }

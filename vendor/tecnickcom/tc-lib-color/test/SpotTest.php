@@ -7,7 +7,7 @@
  * @category  Library
  * @package   Color
  * @author    Nicola Asuni <info@tecnick.com>
- * @copyright 2015-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright 2015-2024 Nicola Asuni - Tecnick.com LTD
  * @license   http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link      https://github.com/tecnickcom/tc-lib-color
  *
@@ -23,7 +23,7 @@ namespace Test;
  * @category  Library
  * @package   Color
  * @author    Nicola Asuni <info@tecnick.com>
- * @copyright 2015-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright 2015-2024 Nicola Asuni - Tecnick.com LTD
  * @license   http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link      https://github.com/tecnickcom/tc-lib-color
  */
@@ -99,7 +99,9 @@ class SpotTest extends TestUtil
                 'alpha' => 0.65,
             ]
         );
-        $spot->addSpotColor('test', $cmyk);
+        $key = $spot->addSpotColor('test', $cmyk);
+        $this->assertEquals('test', $key);
+
         $res = $spot->getSpotColors();
         $this->assertArrayHasKey('test', $res);
         $this->assertEquals(1, $res['test']['i']);
@@ -170,5 +172,8 @@ class SpotTest extends TestUtil
 
         $res = $spot->getPdfSpotResources();
         $this->assertEquals('/ColorSpace << /CS1 2 0 R /CS2 3 0 R /CS3 4 0 R /CS4 5 0 R /CS5 6 0 R >>' . "\n", $res);
+
+        $resk = $spot->getPdfSpotResourcesByKeys(['cyan','yellow']);
+        $this->assertEquals('/ColorSpace << /CS2 3 0 R /CS4 5 0 R >>' . "\n", $resk);
     }
 }

@@ -7,7 +7,7 @@
  * @category    Library
  * @package     Barcode
  * @author      Nicola Asuni <info@tecnick.com>
- * @copyright   2010-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright   2010-2024 Nicola Asuni - Tecnick.com LTD
  * @license     http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link        https://github.com/tecnickcom/tc-lib-barcode
  *
@@ -23,11 +23,11 @@ namespace Com\Tecnick\Barcode\Type\Square\QrCode;
  * @category    Library
  * @package     Barcode
  * @author      Nicola Asuni <info@tecnick.com>
- * @copyright   2010-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright   2010-2024 Nicola Asuni - Tecnick.com LTD
  * @license     http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link        https://github.com/tecnickcom/tc-lib-barcode
  *
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @SuppressWarnings("PHPMD.TooManyPublicMethods")
  */
 abstract class SpecRs
 {
@@ -220,7 +220,7 @@ abstract class SpecRs
      * @param int    $xpos       X position
      * @param int    $ypos       Y position
      * @param string $repl    Value to replace
-     * @param int    $replLen Length of the repl string
+     * @param int|null    $replLen Length of the repl string
      *
      * @return array<int, string> srctab
      */
@@ -229,7 +229,7 @@ abstract class SpecRs
         int $xpos,
         int $ypos,
         string $repl,
-        int $replLen = null
+        ?int $replLen = null
     ): array {
         $srctab[$ypos] = substr_replace(
             $srctab[$ypos],

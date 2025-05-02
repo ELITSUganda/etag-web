@@ -7,7 +7,7 @@
  * @category    Library
  * @package     Barcode
  * @author      Nicola Asuni <info@tecnick.com>
- * @copyright   2010-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright   2010-2024 Nicola Asuni - Tecnick.com LTD
  * @license     http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link        https://github.com/tecnickcom/tc-lib-barcode
  *
@@ -23,7 +23,7 @@ namespace Com\Tecnick\Barcode\Type\Square\QrCode;
  * @category    Library
  * @package     Barcode
  * @author      Nicola Asuni <info@tecnick.com>
- * @copyright   2010-2023 Nicola Asuni - Tecnick.com LTD
+ * @copyright   2010-2024 Nicola Asuni - Tecnick.com LTD
  * @license     http://www.gnu.org/copyleft/lesser.html GNU-LGPL v3 (see LICENSE.TXT)
  * @link        https://github.com/tecnickcom/tc-lib-barcode
  *
@@ -142,7 +142,7 @@ class Spec extends \Com\Tecnick\Barcode\Type\Square\QrCode\SpecRs
         $bv2 = Data::ECC_TABLE[$version][$level][1];
         $data = $this->getDataLength($version, $level);
         $ecc = $this->getECCLength($version, $level);
-        if ($bv2 == 0) {
+        if ($bv2 === 0) {
             $spec[0] = $bv1;
             $spec[1] = (int) ($data / $bv1); /* @phpstan-ignore-line */
             $spec[2] = (int) ($ecc / $bv1); /* @phpstan-ignore-line */
