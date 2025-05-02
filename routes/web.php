@@ -33,6 +33,37 @@ use Milon\Barcode\DNS1D;
 use function PHPUnit\Framework\fileExists;
 
 
+Route::get('test-notification', function () {
+    //777
+    $done = [];
+    $dups = [];
+    $ans = Animal::where([
+        'administrator_id' => 777
+    ])->get();
+    echo "<table border='1' style='border-collapse: collapse;'>";
+    echo "<tr><th style='text-align: left;'>VID</th><th>Image</th></tr>";
+    foreach ($ans as $key => $val) {
+        $v_id = trim($val->v_id);
+        if (in_array($v_id, $done)) {
+            $dups[] = $v_id;
+            $img = url('storage/' . $val->photo);
+            echo "<tr>";
+            echo "<td>";
+            echo '<b>'.$val->id."</b><br>";
+            echo '<u>'.$val->created_at."</u><br>";
+            echo $val->v_id."<br>";
+            echo $val->e_id."<br>";
+            echo "</td>";
+            echo "<td style='text-align: center;'><img src='$img' width='100' height='100' alt=''></td>";
+            echo "</tr>";
+            continue;
+        }
+        $done[] = $val->v_id;
+    }
+    echo "</table>";
+    die('as');
+
+});
 Route::get('/process-tag-orders', function () {
     $rec = FamerTagsOrder::find(1);
     $rec->name = 'John Doe';
