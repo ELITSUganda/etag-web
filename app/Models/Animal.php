@@ -34,18 +34,18 @@ class Animal extends Model
         parent::boot();
         self::creating(function ($model) {
 
-            if ($model->e_id != null && strlen($model->e_id) > 4) {
-                $animal = Animal::where('e_id', $model->e_id)->first();
-                if ($animal != null) {
-                    throw new Exception("Animal with same elecetronic ID ($model->e_id) aready exist in the system.", 1);
-                    return false;
-                }
-                $animal = Animal::where('v_id', $model->v_id)->first();
-                if ($animal != null) {
-                    throw new Exception("Animal with same v-ID ($model->v_id) aready exist in the system.");
-                    return false;
-                }
+
+            $animal = Animal::where('e_id', $model->e_id)->first();
+            if ($animal != null) {
+                throw new Exception("Animal with same elecetronic ID ($model->e_id) aready exist in the system.", 1);
+                return false;
             }
+            $animal = Animal::where('v_id', $model->v_id)->first();
+            if ($animal != null) {
+                throw new Exception("Animal with same v-ID ($model->v_id) aready exist in the system.");
+                return false;
+            }
+           
             //$animal = Animal::where('v_id', $model->v_id)->first();
             /*  if ($animal != null) {
                 die("Animal with same Tag ID aready exist in the system.");
