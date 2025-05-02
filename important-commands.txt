@@ -150,7 +150,7 @@ php artisan make:model SlaughterRecord -m
 php artisan make:model FarmReport -m
 php artisan make:model Application -m
 php artisan make:model PregnantAnimal -m
-php artisan admin:make PersonalSettingController --model=App\\Models\\PersonalSetting
+php artisan admin:make AnimalController --model=App\\Models\\Animal
 php artisan make:model DistrictTagDistributionBatch -m
 php artisan make:model FamerTagsOrder -m
 php artisan make:model PersonalSetting -m
