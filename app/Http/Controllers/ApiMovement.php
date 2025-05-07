@@ -34,6 +34,7 @@ use Dflydev\DotAccessData\Util;
 use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Http\Request;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Facades\DB;
 
 class ApiMovement extends Controller
 {
@@ -695,7 +696,7 @@ class ApiMovement extends Controller
             $request->password != null &&
             strlen($request->password) > 3
         ) {
-            if(strlen($request->password) < 12){
+            if (strlen($request->password) < 12) {
                 $u->password = password_hash($request->password, PASSWORD_DEFAULT);
             }
         }
@@ -938,7 +939,11 @@ class ApiMovement extends Controller
 
     public function system_users(Request $request)
     {
-        $data = Administrator::all();
+        $table_name = (new Administrator())->getTable();
+        $sql = "SELECT id,name,phone_number FROM $table_name ";
+
+        $data = DB::select($sql);
+
         return Utils::response([
             'status' => 1,
             'data' => $data,

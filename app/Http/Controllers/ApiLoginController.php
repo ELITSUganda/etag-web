@@ -12,10 +12,151 @@ use Encore\Admin\Auth\Database\Administrator;
 use Hamcrest\Util;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Schema;
 use Throwable;
 
 class ApiLoginController extends Controller
 {
+
+
+
+    public function dynamic_list(Request $request)
+    {
+        $u = auth('api')->user();
+        $administrator_id = ((int) (Utils::get_user_id($request)));
+        $u = Administrator::find($administrator_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found."
+            ]);
+        }
+
+
+        $modelName = $request->get('model');
+        if (!$modelName) return $this->error("Missing 'model' parameter.");
+
+        $modelClass = "\\App\\Models\\" . Str::studly($modelName);
+        if (!class_exists($modelClass)) return $this->error("Model [{$modelName}] does not exist.");
+
+        $modelInstance = new $modelClass;
+        $table = $modelInstance->getTable();
+        if (!Schema::hasTable($table)) return $this->error("Table [{$table}] does not exist.");
+
+        $validColumns = Schema::getColumnListing($table);
+        $query = $modelClass::query();
+
+      
+
+        $isNotForUser = $request->query('is_not_for_user');
+        if ($isNotForUser !== 'yes' && !$u->isRole('super-admin')) {
+            if (in_array('administrator_id', $validColumns)) {
+                $query->where('administrator_id', $u->id);
+            } elseif (in_array('user_id', $validColumns)) {
+                $query->where('user_id', $u->id);
+            }
+        }
+
+        //check if model is MovieModel , set status =active
+        if ($modelName == 'MovieModel') {
+            if (
+                !$request->filled('is_first_episode')
+                && !$request->filled('type')
+                && !$request->filled('category_id')
+            ) {
+                $query->where('type', 'Movie');
+            }
+            if ($request->filled('is_first_episode')) {
+                $query->where('is_first_episode', $request->get('is_first_episode'));
+                $query->where('type', 'Series');
+            }
+            // $query->where('status', 'Active'); 
+            //make order by created_at desc
+            // add these 
+
+            /* //if type is set type to Series
+            if ($request->has('type')) {
+                $query->where('type', $request->get('type'));
+                //get only unique by category_id
+                $query->groupBy('category_id');
+            } */
+        }
+
+        $query->orderBy('id', 'desc');
+        $reservedKeys = [
+            'model',
+            'sort_by',
+            'sort_dir',
+            'page',
+            'per_page',
+            'is_not_for_company',
+            'is_not_for_user',
+            'fields',
+
+        ];
+        foreach ($request->query() as $param => $value) {
+            if (in_array($param, $reservedKeys)) continue;
+
+            if (preg_match('/^(.*)_like$/', $param, $matches)) {
+                $field = $matches[1];
+                if (in_array($field, $validColumns)) $query->where($field, 'LIKE', "%{$value}%");
+            } elseif (preg_match('/^(.*)_gt$/', $param, $matches)) {
+                $field = $matches[1];
+                if (in_array($field, $validColumns)) $query->where($field, '>', $value);
+            } elseif (preg_match('/^(.*)_lt$/', $param, $matches)) {
+                $field = $matches[1];
+                if (in_array($field, $validColumns)) $query->where($field, '<', $value);
+            } elseif (preg_match('/^(.*)_gte$/', $param, $matches)) {
+                $field = $matches[1];
+                if (in_array($field, $validColumns)) $query->where($field, '>=', $value);
+            } elseif (preg_match('/^(.*)_lte$/', $param, $matches)) {
+                $field = $matches[1];
+                if (in_array($field, $validColumns)) $query->where($field, '<=', $value);
+            } elseif (in_array($param, $validColumns)) {
+                $query->where($param, '=', $value);
+            }
+        }
+
+        $sortBy = $request->get('sort_by');
+        $sortDir = strtolower($request->get('sort_dir', 'asc'));
+        if ($sortBy && in_array($sortBy, $validColumns)) {
+            if (!in_array($sortDir, ['asc', 'desc'])) $sortDir = 'asc';
+            $query->orderBy($sortBy, $sortDir);
+        }
+
+        $perPage = (int) $request->get('per_page', 21);
+        $results = $query->paginate($perPage);
+
+        $fields = $request->query('fields');
+        if ($request->has('fields') && is_string($fields)) {
+            $fields = json_decode($fields, true);
+        } elseif ($request->has('fields') && is_array($fields)) {
+            $fields = $fields;
+        } else {
+            $fields = null;
+        }
+
+        $items = collect($results->items())->map(function ($item) use ($fields) {
+            $data = $item->toArray();
+            return $fields ? collect($data)->only($fields)->toArray() : $data;
+        });
+
+        $responseData = [
+            'items' => $items,
+            'pagination' => [
+                'current_page' => $results->currentPage(),
+                'per_page' => $results->perPage(),
+                'total' => $results->total(),
+                'last_page' => $results->lastPage(),
+            ]
+        ];
+
+        return $this->success($responseData, "Data retrieved successfully.");
+    }
+
+
+
     public function me(Request $r)
     {
         $administrator_id = ((int) (Utils::get_user_id($r)));

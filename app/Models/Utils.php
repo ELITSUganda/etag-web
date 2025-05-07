@@ -353,28 +353,7 @@ language
             $farm->save();
             echo $key . ". sAVED FARM: $val[8] belonging to $val[1] <br>";
         }
-        /* 
-			
-	
-	
-	
- 	
-	
-name	
-	
-	
-
-farm_owner_is_new	
-is_processed	
-	
-
-	
-local_id	
-registered_id	
-duplicate_checked	
-duplicate_results	
-	 
-*/
+   
         die("done.");
     }
     public static function process_duplicate_farms()

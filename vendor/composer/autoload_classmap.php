@@ -9,6 +9,7 @@ return array(
     'App\\Admin\\Controllers\\AdminRoleUserController' => $baseDir . '/app/Admin/Controllers/AdminRoleUserController.php',
     'App\\Admin\\Controllers\\Animal1Controller' => $baseDir . '/app/Admin/Controllers/Animal1Controller.php',
     'App\\Admin\\Controllers\\AnimalController' => $baseDir . '/app/Admin/Controllers/AnimalController.php',
+    'App\\Admin\\Controllers\\AnimalNewController' => $baseDir . '/app/Admin/Controllers/AnimalNewController.php',
     'App\\Admin\\Controllers\\AnimalSalesController' => $baseDir . '/app/Admin/Controllers/AnimalSalesController.php',
     'App\\Admin\\Controllers\\ApplicationController' => $baseDir . '/app/Admin/Controllers/ApplicationController.php',
     'App\\Admin\\Controllers\\ApplicationTypeController' => $baseDir . '/app/Admin/Controllers/ApplicationTypeController.php',

@@ -447,17 +447,7 @@ class V2ApiMainController extends Controller
                 return $this->error("Failed to update farm because " . $e->getMessage());
             } //end
         }
-        /* 	
-			
-local_id	
-registered_id	
-duplicate_checked	
-duplicate_results	
-	
-Edit Edit
-Copy Copy
-
-        */
+         
 
 
         if ($farm != null) {

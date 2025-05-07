@@ -804,6 +804,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'App\\Admin\\Controllers\\AdminRoleUserController' => __DIR__ . '/../..' . '/app/Admin/Controllers/AdminRoleUserController.php',
         'App\\Admin\\Controllers\\Animal1Controller' => __DIR__ . '/../..' . '/app/Admin/Controllers/Animal1Controller.php',
         'App\\Admin\\Controllers\\AnimalController' => __DIR__ . '/../..' . '/app/Admin/Controllers/AnimalController.php',
+        'App\\Admin\\Controllers\\AnimalNewController' => __DIR__ . '/../..' . '/app/Admin/Controllers/AnimalNewController.php',
         'App\\Admin\\Controllers\\AnimalSalesController' => __DIR__ . '/../..' . '/app/Admin/Controllers/AnimalSalesController.php',
         'App\\Admin\\Controllers\\ApplicationController' => __DIR__ . '/../..' . '/app/Admin/Controllers/ApplicationController.php',
         'App\\Admin\\Controllers\\ApplicationTypeController' => __DIR__ . '/../..' . '/app/Admin/Controllers/ApplicationTypeController.php',

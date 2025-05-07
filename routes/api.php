@@ -212,6 +212,7 @@ Route::POST('vet-profile', [ApiLoginController::class, 'vet_profile']);
 Route::POST('update-profile', [ApiLoginController::class, 'update_profile']);
 Route::get('me', [ApiLoginController::class, 'me']);
 Route::POST('login/create-account', [ApiLoginController::class, 'create_account']);
+Route::get('dynamic-list', [ApiLoginController::class, 'dynamic_list']);
 // ========== lofin ends ============== //
 
 
