@@ -127,7 +127,7 @@ class ApiFarmController extends Controller
 
         $access_ids[] = $user_id;
         $access_records = UserHasFarmPermission::where([
-            'user_id' => $u->id,
+            'user_id' => $user_id
         ])->get();
         foreach ($access_records as $key => $value) {
             if ($value->farm_id != null) {
@@ -138,7 +138,10 @@ class ApiFarmController extends Controller
         if ($u != null) {
             if (
                 $u->isRole('dvo') ||
-                $u->isRole('scvo')
+                $u->isRole('administrator') ||
+                $u->isRole('scvo') ||
+                $u->isRole('clo') ||
+                $u->isRole('admin')
             ) {
                 $dov_roles = AdminRoleUser::where('user_id', $user_id)->get();
                 foreach ($dov_roles as $key => $value) {
@@ -157,8 +160,8 @@ class ApiFarmController extends Controller
             $data = Farm::where($where)->get();
         } else {
             //where owner is in the list of access_ids
+            $data = Farm::whereIn('administrator_id', $access_ids)->get();
         }
-        $data = Farm::whereIn('administrator_id', $access_ids)->get();
 
 
         return Utils::response([
