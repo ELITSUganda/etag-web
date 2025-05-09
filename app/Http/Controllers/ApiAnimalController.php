@@ -4142,8 +4142,6 @@ class ApiAnimalController extends Controller
         $data = Event::whereIn('farm_id', $access_ids)
             ->where(
                 $access_records
-            )->where(
-                $conds
             )
             ->where('id', '>', $last_id)
             ->orderBy('id', 'asc')
