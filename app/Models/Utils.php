@@ -668,6 +668,7 @@ duplicate_results
 
     public static function send_sms($phone_number, $message)
     {
+        return true; 
         if (!Utils::validateUgandanPhoneNumber($phone_number)) {
             return "$phone_number is not a valid phone number.";
         }
@@ -2052,8 +2053,8 @@ duplicate_results
                     $buttons = $buttons,
                     $schedule = $schedule,
                     $headings = $headings
-                ); 
-        } catch (\Throwable $th) { 
+                );
+        } catch (\Throwable $th) {
             throw $th;
         }
 

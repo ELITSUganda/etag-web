@@ -115,7 +115,7 @@ Route::put('districts/{id}', [DistrictController::class, 'update']);
 Route::delete('districts/{id}', [DistrictController::class, 'delete']);
 
 // sub_counties
-Route::get('sub_counties', [UtilsController::class, 'sub_counties']);
+Route::get('sub_counties', [ApiFarmController::class, 'locations']);
 //Utils
 
 

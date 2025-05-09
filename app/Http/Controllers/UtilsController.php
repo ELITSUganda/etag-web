@@ -16,8 +16,11 @@ class UtilsController extends Controller
             unset($value->created_at);
             unset($value->updated_at);
             unset($value->detail);
-            $value->name = $value->name.", ".$value->district->name;
-  
+            if ($value->district == null) {
+                continue;
+            }
+            $value->name = $value->name . ", " . $value->district->name;
+
             $data[] = $value;
         }
         return $data;
@@ -27,7 +30,7 @@ class UtilsController extends Controller
     {
         return District::paginate()->withQueryString()->items();
     }
- 
+
     public function show($id)
     {
         return District::find($id);
@@ -53,5 +56,4 @@ class UtilsController extends Controller
 
         return 204;
     }
-    
 }
