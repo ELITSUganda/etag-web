@@ -4096,24 +4096,9 @@ class ApiAnimalController extends Controller
 
 
         $user_id = Utils::get_user_id($request);
-        $access_ids = [];
-
-        $ownFarms = Farm::where([
+        $conds = [
             'administrator_id' => $user_id
-        ])->get();
-        foreach ($ownFarms as $key => $value) {
-            if ($value->id != null) {
-                $access_ids[] = (int)$value->id;
-            }
-        }
-        $access_records = UserHasFarmPermission::where([
-            'user_id' => $user_id
-        ])->get();
-        foreach ($access_records as $key => $value) {
-            if ($value->farm_id != null) {
-                $access_ids[] = (int)$value->farm_id;
-            }
-        }
+        ]; 
 
         $last_id = 0;
         if ($request->last_id != null) {
@@ -4138,11 +4123,11 @@ class ApiAnimalController extends Controller
                 $per_page = 10000000;
             }
         }
+        $conds['administrator_id'] = $user_id;
 
-        $data = Event::whereIn('farm_id', $access_ids)
-            ->where(
-                $access_records
-            )
+        $data = Event::where(
+            $conds
+        )
             ->where('id', '>', $last_id)
             ->orderBy('id', 'asc')
             ->limit($per_page)
