@@ -4113,7 +4113,7 @@ class ApiAnimalController extends Controller
                 $access_ids[] = $value->farm_id;
             }
         }
- 
+
 
         $last_id = 0;
         if ($request->last_id != null) {
@@ -4140,9 +4140,7 @@ class ApiAnimalController extends Controller
         }
         $conds['administrator_id'] = $user_id;
 
-        $data = Event::where(
-            $conds
-        )
+        $data = Event::wherein('farm_id', $access_ids)
             ->where('id', '>', $last_id)
             ->orderBy('id', 'asc')
             ->limit($per_page)
