@@ -3421,7 +3421,15 @@ class ApiAnimalController extends Controller
 
         $user_id = Utils::get_user_id($request);
 
-        $access_ids[] = $user_id;
+        $access_ids = [];
+        $ownFarms = Farm::where([
+            'administrator_id' => $user_id
+        ])->get();
+        foreach ($ownFarms as $key => $value) {
+            if ($value->id != null) {
+                $access_ids[] = $value->id;
+            }
+        }
         $access_records = UserHasFarmPermission::where([
             'user_id' => $user_id
         ])->get();
@@ -3431,7 +3439,7 @@ class ApiAnimalController extends Controller
             }
         }
 
-        $query = Animal::whereIn('administrator_id', $access_ids)->orderBy('id', 'desc')->limit(2000);
+        $query = Animal::whereIn('farm_id', $access_ids)->orderBy('id', 'desc')->limit(2000);
 
         if ($request->updated_at != null) {
             //$query->whereDate('updated_at', '>', Carbon::parse($request->updated_at));

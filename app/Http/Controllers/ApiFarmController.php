@@ -125,7 +125,15 @@ class ApiFarmController extends Controller
             'administrator_id' => $user_id
         ];
 
-        $access_ids[] = $user_id;
+        $access_ids = [];
+        $ownFarms = Farm::where([
+            'administrator_id' => $user_id
+        ])->get();
+        foreach ($ownFarms as $key => $value) {
+            if ($value->id != null) {
+                $access_ids[] = $value->id;
+            }
+        }
         $access_records = UserHasFarmPermission::where([
             'user_id' => $user_id
         ])->get();
@@ -159,7 +167,7 @@ class ApiFarmController extends Controller
                 $data = Farm::where($where)->get();
             } else {
                 //where owner is in the list of access_ids
-                $data = Farm::whereIn('administrator_id', $access_ids)->get();
+                $data = Farm::whereIn('id', $access_ids)->get();
             }
         }
 
