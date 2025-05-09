@@ -157,8 +157,8 @@ class ApiFarmController extends Controller
             $data = Farm::where($where)->get();
         } else {
             //where owner is in the list of access_ids
-            $data = Farm::whereIn('administrator_id', $access_ids)->get();
         }
+        $data = Farm::whereIn('administrator_id', $access_ids)->get();
 
 
         return Utils::response([
