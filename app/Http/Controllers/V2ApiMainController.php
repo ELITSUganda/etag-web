@@ -440,6 +440,11 @@ class V2ApiMainController extends Controller
             $farm->duplicate_checked = ($r->duplicate_checked != null && (strlen($r->duplicate_checked) > 0)) ? $r->duplicate_checked : $farm->duplicate_checked;
             //duplicate_results
             $farm->duplicate_results = ($r->duplicate_results != null && (strlen($r->duplicate_results) > 0)) ? $r->duplicate_results : $farm->duplicate_results;
+
+            if(isset($r->permissions)){
+                $farm->permissions = $r->permissions;
+            }
+            
             try {
                 $farm->save();
                 return $this->success("Farm updated successfully.");

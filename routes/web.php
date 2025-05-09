@@ -34,6 +34,8 @@ use function PHPUnit\Framework\fileExists;
 
 
 Route::get('test-notification', function () {
+    /* Utils::send_sms("+256783204665", "Hello Muhindo");
+    die('done'); */
 
     //set max execution time to unlimited
     set_time_limit(0);
