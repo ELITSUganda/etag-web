@@ -138,10 +138,7 @@ class ApiFarmController extends Controller
         if ($u != null) {
             if (
                 $u->isRole('dvo') ||
-                $u->isRole('administrator') ||
-                $u->isRole('scvo') ||
-                $u->isRole('clo') ||
-                $u->isRole('admin')
+                $u->isRole('scvo')
             ) {
                 $dov_roles = AdminRoleUser::where('user_id', $user_id)->get();
                 foreach ($dov_roles as $key => $value) {
