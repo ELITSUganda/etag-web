@@ -4103,7 +4103,7 @@ class ApiAnimalController extends Controller
         ])->get();
         foreach ($ownFarms as $key => $value) {
             if ($value->id != null) {
-                $access_ids[] = $value->id;
+                $access_ids[] = (int)$value->id;
             }
         }
         $access_records = UserHasFarmPermission::where([
@@ -4111,7 +4111,7 @@ class ApiAnimalController extends Controller
         ])->get();
         foreach ($access_records as $key => $value) {
             if ($value->farm_id != null) {
-                $access_ids[] = $value->farm_id;
+                $access_ids[] = (int)$value->farm_id;
             }
         }
 
