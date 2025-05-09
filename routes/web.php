@@ -34,6 +34,13 @@ use function PHPUnit\Framework\fileExists;
 
 
 Route::get('test-notification', function () {
+    $firstFirm = Farm::find(1);
+    Farm::do_finalize($firstFirm);
+    die('done');
+    dd($firstFirm); 
+
+    dd('test-notification');
+    die();
     /* Utils::send_sms("+256783204665", "Hello Muhindo");
     die('done'); */
 
@@ -45,26 +52,24 @@ Route::get('test-notification', function () {
     //777
     $done = [];
     $dups = [];
-    $ans = Animal::where([
-
-    ])
-    ->limit(100000)
-    ->orderBy('id', 'desc')
-    ->get(); 
+    $ans = Animal::where([])
+        ->limit(100000)
+        ->orderBy('id', 'desc')
+        ->get();
 
     foreach ($ans as $key => $val) {
         $v_id = trim($val->v_id);
         if (in_array($v_id, $done)) {
             $dups[] = $v_id;
-            if(isset($_GET['DO_REMOVE'])){
-                if($_GET['DO_REMOVE'] == 'YES'){
+            if (isset($_GET['DO_REMOVE'])) {
+                if ($_GET['DO_REMOVE'] == 'YES') {
                     Utils::archive_animal([
                         'animal_id' => $val->id,
                         'reason' => 'Duplicate animal',
                         'details' => 'This animal was found to be a duplicate of another animal',
                     ]);
                     echo "<br>Removed duplicate animal: $val->id <br>";
-                    continue; 
+                    continue;
                 }
             }
             continue;
@@ -81,31 +86,30 @@ Route::get('test-notification', function () {
             'v_id' => $dup_vid
         ])->get();
         $v_id = trim($val->v_id);
-        echo '<b>'.$i.'. Found '.$vals->count().' duplicates for V-ID<code>'.$dup_vid.'</code></b>';  
+        echo '<b>' . $i . '. Found ' . $vals->count() . ' duplicates for V-ID<code>' . $dup_vid . '</code></b>';
         echo "<table border='1' style='border-collapse: collapse;'> <hr>";
         echo "<tr><th style='text-align: left;'>VID</th><th>Image</th></tr>";
         foreach ($vals as $key => $val) {
-         
 
-        if (in_array($v_id, $done)) {
-            $dups[] = $v_id;
-            $img = url('storage/' . $val->photo);
-            echo "<tr>";
-            echo "<td>";
-            echo '<b>'.$val->id."</b><br>";
-            echo '<u>'.$val->created_at."</u><br>";
-            echo $val->v_id."<br>";
-            echo $val->e_id."<br>";
-            echo "</td>";
-            echo "<td style='text-align: center;'><img src='$img' width='100' height='100' alt=''></td>";
-            echo "</tr>"; 
-         } 
 
-        }          echo "</table>";
+            if (in_array($v_id, $done)) {
+                $dups[] = $v_id;
+                $img = url('storage/' . $val->photo);
+                echo "<tr>";
+                echo "<td>";
+                echo '<b>' . $val->id . "</b><br>";
+                echo '<u>' . $val->created_at . "</u><br>";
+                echo $val->v_id . "<br>";
+                echo $val->e_id . "<br>";
+                echo "</td>";
+                echo "<td style='text-align: center;'><img src='$img' width='100' height='100' alt=''></td>";
+                echo "</tr>";
+            }
+        }
+        echo "</table>";
     }
 
     die('as');
-
 });
 Route::get('/process-tag-orders', function () {
     $rec = FamerTagsOrder::find(1);
@@ -200,7 +204,7 @@ Route::get('transfer-animals', function (Request $request) {
         die('Final group not found');
     }
 
- 
+
 
 
     $i = 0;
@@ -209,7 +213,7 @@ Route::get('transfer-animals', function (Request $request) {
     foreach ($animals as $key => $animal) {
         $i++;
         echo "<hr> $i. Processing {$animal->id} <br>";
-        if($i == 10){
+        if ($i == 10) {
             break;
         }
 
@@ -222,7 +226,7 @@ Route::get('transfer-animals', function (Request $request) {
         }
     }
     echo "<hr>Success: " . count($success) . "<br><pre>";
-    
+
     die("done");
 
 
@@ -269,15 +273,15 @@ Route::get('print-drrugs-report', function (Request $request) {
     if ($report == null) {
         return abort(404);
     }
- 
-    if($report->pdf_generated != 'Yes'){
+
+    if ($report->pdf_generated != 'Yes') {
         $report = DrugReport::do_process($report);
     }
 
-    $report = DrugReport::find($report_id); 
+    $report = DrugReport::find($report_id);
     $url = url('storage/' . $report->pdf_path);
- 
-    return redirect($url); 
+
+    return redirect($url);
     die();
 
     return $report;

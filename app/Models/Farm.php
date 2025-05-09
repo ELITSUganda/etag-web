@@ -171,36 +171,38 @@ class Farm extends Model
             if (is_array($permissions_list)) {
                 $user_ids = [];
                 foreach ($permissions_list as $key => $value) {
-                    if ($value == null || $value->user_id == null) {
+                    if ($value == null || $value->id == null) {
                         continue;
                     }
-                    $user_ids[] = $value->user_id;
+                    $value->user_id = $value->id;
+                    $user_ids[] = $value->id;
                 }
                 $existing = UserHasFarmPermission::where([
                     'farm_id' => $model->id
                 ])->get();
                 foreach ($existing as $key => $value) {
-                    if (!in_array($value->user_id, $user_ids)) {
+                    if (!in_array($value->id, $user_ids)) {
                         $value->delete();
                     }
                 }
                 foreach ($permissions_list as $key => $value) {
-                    if ($value == null || $value->user_id == null) {
+                    if ($value == null || $value->id == null) {
                         continue;
                     }
                     $current = UserHasFarmPermission::where([
-                        'user_id' => $value->user_id,
+                        'user_id' => $value->id,
                         'farm_id' => $model->id
                     ])->first();
                     if ($current == null) {
                         $current = new UserHasFarmPermission();
-                        $current->user_id = $value->user_id;
+                        $current->user_id = $value->id;
                         $current->farm_id = $model->id;
                     }
                     if ($current != null) {
-                        $current->permissions = json_encode($value->permissions);
+                        $current->permissions = json_encode($value);
                         $current->name = $value->name;
                         $current->phone_number = $value->phone_number;
+
                         $current->save();
                     }
                 }
