@@ -4096,9 +4096,24 @@ class ApiAnimalController extends Controller
 
 
         $user_id = Utils::get_user_id($request);
-        $conds = [
+        $access_ids = [];
+        $ownFarms = Farm::where([
             'administrator_id' => $user_id
-        ]; 
+        ])->get();
+        foreach ($ownFarms as $key => $value) {
+            if ($value->id != null) {
+                $access_ids[] = $value->id;
+            }
+        }
+        $access_records = UserHasFarmPermission::where([
+            'user_id' => $user_id
+        ])->get();
+        foreach ($access_records as $key => $value) {
+            if ($value->farm_id != null) {
+                $access_ids[] = $value->farm_id;
+            }
+        }
+ 
 
         $last_id = 0;
         if ($request->last_id != null) {
