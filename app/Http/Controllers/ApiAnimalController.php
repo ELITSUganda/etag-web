@@ -21,6 +21,7 @@ use App\Models\SlaughterDistributionRecord;
 use App\Models\SlaughterHouse;
 use App\Models\SlaughterRecord;
 use App\Models\User;
+use App\Models\UserHasFarmPermission;
 use App\Models\Utils;
 use App\Models\VaccinationProgram;
 use App\Models\VaccinationSchedule;
@@ -2943,13 +2944,13 @@ class ApiAnimalController extends Controller
             }
 
             //medicine_quantity
-           /*  if ($request->medicine_quantity == null || strlen($request->medicine_quantity) < 1) {
+            /*  if ($request->medicine_quantity == null || strlen($request->medicine_quantity) < 1) {
                 return Utils::response([
                     'status' => 0,
                     'message' => "Medicine quantity must be provided.",
                 ]);
             } */
-           /*  if (floatval($request->medicine_quantity) < 1) {
+            /*  if (floatval($request->medicine_quantity) < 1) {
                 return Utils::response([
                     'status' => 0,
                     'message' => "Medicine quantity must be greater than 0.",
@@ -3420,12 +3421,17 @@ class ApiAnimalController extends Controller
 
         $user_id = Utils::get_user_id($request);
 
+        $access_ids[] = $user_id;
+        $access_records = UserHasFarmPermission::where([
+            'user_id' => $user_id
+        ])->get();
+        foreach ($access_records as $key => $value) {
+            if ($value->farm_id != null) {
+                $access_ids[] = $value->farm_id;
+            }
+        }
 
-        $query = Animal::where([
-            'administrator_id' => $user_id
-        ])
-            ->orderBy('id', 'desc')
-            ->limit(2000);
+        $query = Animal::whereIn('administrator_id', $access_ids)->orderBy('id', 'desc')->limit(2000);
 
         if ($request->updated_at != null) {
             //$query->whereDate('updated_at', '>', Carbon::parse($request->updated_at));
