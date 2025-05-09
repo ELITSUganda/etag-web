@@ -555,6 +555,9 @@ class V2ApiMainController extends Controller
         $farm->has_fmd = $r->has_fmd;
         $farm->local_id = $r->local_id;
         $farm->registered_id = $r->registered_id;
+        if(isset($r->permissions)){
+            $farm->permissions = $r->permissions;
+        }
         $farm->is_processed = 'Yes';
         try {
             $farm->save();

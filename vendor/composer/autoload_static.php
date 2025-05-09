@@ -968,6 +968,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'App\\Models\\Trip' => __DIR__ . '/../..' . '/app/Models/Trip.php',
         'App\\Models\\TripRecord' => __DIR__ . '/../..' . '/app/Models/TripRecord.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
+        'App\\Models\\UserHasFarmPermission' => __DIR__ . '/../..' . '/app/Models/UserHasFarmPermission.php',
         'App\\Models\\Utils' => __DIR__ . '/../..' . '/app/Models/Utils.php',
         'App\\Models\\VaccinationOrder' => __DIR__ . '/../..' . '/app/Models/VaccinationOrder.php',
         'App\\Models\\VaccinationProgram' => __DIR__ . '/../..' . '/app/Models/VaccinationProgram.php',

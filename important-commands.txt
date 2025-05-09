@@ -153,7 +153,7 @@ php artisan make:model PregnantAnimal -m
 php artisan admin:make AnimalController --model=App\\Models\\Animal
 php artisan make:model DistrictTagDistributionBatch -m
 php artisan make:model FamerTagsOrder -m
-php artisan make:model PersonalSetting -m
+php artisan make:model UserHasFarmPermission -m
 
 composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs

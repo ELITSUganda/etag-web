@@ -173,6 +173,7 @@ return array(
     'App\\Models\\Trip' => $baseDir . '/app/Models/Trip.php',
     'App\\Models\\TripRecord' => $baseDir . '/app/Models/TripRecord.php',
     'App\\Models\\User' => $baseDir . '/app/Models/User.php',
+    'App\\Models\\UserHasFarmPermission' => $baseDir . '/app/Models/UserHasFarmPermission.php',
     'App\\Models\\Utils' => $baseDir . '/app/Models/Utils.php',
     'App\\Models\\VaccinationOrder' => $baseDir . '/app/Models/VaccinationOrder.php',
     'App\\Models\\VaccinationProgram' => $baseDir . '/app/Models/VaccinationProgram.php',

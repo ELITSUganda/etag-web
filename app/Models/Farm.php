@@ -105,6 +105,12 @@ class Farm extends Model
         //created
         self::created(function ($model) {
             try {
+                self::do_finalize($model);
+            } catch (Exception $e) {
+                throw new Exception("Error creating farm permissions. " . $e->getMessage());
+            }
+
+            try {
                 Utils::process_duplicate_farms();
             } catch (Exception $e) {
                 //do nothing
@@ -117,7 +123,11 @@ class Farm extends Model
         });
 
         self::updated(function ($model) {
-
+            try {
+                self::do_finalize($model);
+            } catch (Exception $e) {
+                throw new Exception("Error creating farm permissions. " . $e->getMessage());
+            }
             if ($model->animals != null) {
                 foreach ($model->animals as $key => $animal) {
                     $animal->administrator_id = $model->administrator_id;
@@ -148,6 +158,62 @@ class Farm extends Model
 
     }
 
+
+    public static function do_finalize($model)
+    {
+        if ($model->permissions != null && strlen($model->permissions) > 4) {
+            $permissions_list  = [];
+            try {
+                $permissions_list = json_decode($model->permissions);
+            } catch (\Throwable $th) {
+                $permissions_list = [];
+            }
+            if (is_array($permissions_list)) {
+                $user_ids = [];
+                foreach ($permissions_list as $key => $value) {
+                    if ($value == null || $value->user_id == null) {
+                        continue;
+                    }
+                    $user_ids[] = $value->user_id;
+                }
+                $existing = UserHasFarmPermission::where([
+                    'farm_id' => $model->id
+                ])->get();
+                foreach ($existing as $key => $value) {
+                    if (!in_array($value->user_id, $user_ids)) {
+                        $value->delete();
+                    }
+                }
+                foreach ($permissions_list as $key => $value) {
+                    if ($value == null || $value->user_id == null) {
+                        continue;
+                    }
+                    $current = UserHasFarmPermission::where([
+                        'user_id' => $value->user_id,
+                        'farm_id' => $model->id
+                    ])->first();
+                    if ($current == null) {
+                        $current = new UserHasFarmPermission();
+                        $current->user_id = $value->user_id;
+                        $current->farm_id = $model->id;
+                    }
+                    if ($current != null) {
+                        $current->permissions = json_encode($value->permissions);
+                        $current->name = $value->name;
+                        $current->phone_number = $value->phone_number;
+                        $current->save();
+                    }
+                }
+            }
+        }
+        return $model;
+    }
+
+
+    /* $current = UserHasFarmPermission::where([
+        'user_id' => $value->user_id,
+        'farm_id' => $model->id
+    ])->first(); */
 
     public static function my_update($m)
     {
