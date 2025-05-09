@@ -6,6 +6,7 @@ use App\Models\AdminRoleUser;
 use App\Models\DrugStockBatch;
 use App\Models\Farm;
 use App\Models\Location;
+use App\Models\UserHasFarmPermission;
 use App\Models\Utils;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
@@ -92,10 +93,12 @@ class ApiFarmController extends Controller
         $drugs = [];
         $user_id = Utils::get_user_id($request);
 
-        foreach (DrugStockBatch::where([
-            /*    'administrator_id' => $user_id */])
-            ->where('current_quantity', '>', 0)
-            ->get() as $key => $v) {
+        foreach (
+            DrugStockBatch::where([
+                /*    'administrator_id' => $user_id */])
+                ->where('current_quantity', '>', 0)
+                ->get() as $key => $v
+        ) {
 
             $unit = "";
             if ($v->category != null) {
@@ -122,6 +125,16 @@ class ApiFarmController extends Controller
             'administrator_id' => $user_id
         ];
 
+        $access_ids[] = $user_id;
+        $access_records = UserHasFarmPermission::where([
+            'user_id' => $user_id
+        ])->get();
+        foreach ($access_records as $key => $value) {
+            if ($value->farm_id != null) {
+                $access_ids[] = $value->farm_id;
+            }
+        }
+
         if ($u != null) {
             if (
                 $u->isRole('dvo') ||
@@ -144,9 +157,12 @@ class ApiFarmController extends Controller
                     }
                 }
             }
+            $data = Farm::where($where)->get();
+        } else {
+            //where owner is in the list of access_ids
+            $data = Farm::whereIn('administrator_id', $access_ids)->get();
         }
 
-        $data = Farm::where($where)->get();
 
         return Utils::response([
             'status' => 1,
