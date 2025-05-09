@@ -127,7 +127,7 @@ class ApiFarmController extends Controller
 
         $access_ids[] = $user_id;
         $access_records = UserHasFarmPermission::where([
-            'user_id' => $user_id
+            'user_id' => $u->id,
         ])->get();
         foreach ($access_records as $key => $value) {
             if ($value->farm_id != null) {
