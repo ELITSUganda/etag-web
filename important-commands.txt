@@ -159,7 +159,7 @@ composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs
 
 
-php artisan make:migration add_permissions_to_farms --table=farms
+php artisan make:migration add_stage_id_to_transport_subscriptions --table=transport_subscriptions
 ``.``
 
 CREATE DATABASE etag

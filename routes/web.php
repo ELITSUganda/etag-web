@@ -33,11 +33,18 @@ use Milon\Barcode\DNS1D;
 use function PHPUnit\Framework\fileExists;
 
 
+Route::get('send-sms', function () {
+    Utils::send_sms("+256783204665", "Hello Muhindo 2");
+    die('done');
+});
 Route::get('test-notification', function () {
     $firstFirm = Farm::find(1);
     Farm::do_finalize($firstFirm);
     die('done');
-    dd($firstFirm); 
+    dd($firstFirm);
+    //784
+    //783
+
 
     dd('test-notification');
     die();
