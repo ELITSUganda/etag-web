@@ -33,6 +33,17 @@ use Milon\Barcode\DNS1D;
 use function PHPUnit\Framework\fileExists;
 
 
+Route::get('test-route', function () {
+
+    $farms = Farm::all()->count();
+
+    $sql = "SELECT * FROM farms WHERE is_;processed = 'No' AND sub_county_id = 1002007";
+    echo "<pre>";
+    print_r($sql);
+    die();
+
+    return 'test-route ' . $farms;
+});
 Route::get('send-sms', function () {
     Utils::send_sms("+256783204665", "Hello Muhindo 2");
     die('done');
@@ -264,10 +275,47 @@ Route::get('farm-report-print', function (Request $request) {
         return abort(404);
     }
 
-    if ($report->pdf_prepared == 'No') {
+    $pdf = null;
+
+    if ($report->pdf != null && strlen($report->pdf) > 2) {
+
+        $pdf = $report->pdf;
+        $path = public_path('storage/' . $report->pdf);
+
+
+        //check if file exists
+        if (!file_exists($path)) {
+            // FarmReport::do_process($report);
+        }
+        $url = url('storage/' . $report->pdf);
+        $report = FarmReport::find($report_id);
+
+        $html = "<a href='$url' target='_blank'>Download PDF</a><br>";
+        return $html;
+        $report = FarmReport::find($report_id);
+        $path = public_path('storage/' . $report->p);
+        if (!file_exists($path)) {
+            return abort(404, 'PDF file not found');
+        }
+    }
+
+    if ($report->pdf_generated != 'Yes') {
         $report = FarmReport::do_process($report);
     }
 
+
+    //return the PDF file
+    $report = FarmReport::find($report_id);
+    $url = url('storage/' . $report->pdf);
+    if ($report->pdf == null || $report->pdf == '') {
+        return abort(404, 'PDF file not found');
+    }
+
+    if (!file_exists(public_path('storage/' . $report->pdf))) {
+        return abort(404, 'PDF file not found');
+    }
+
+    return redirect($url);
     return  $report;
 });
 

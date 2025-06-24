@@ -93,6 +93,10 @@ class EventController extends AdminController
                 'inseminator_3',
                 'medicine_id',
                 'description',
+                'detail',
+                'milk',
+                'weight',
+                
             ]);
             $export->originalValue([
                 'created_at',
@@ -105,6 +109,10 @@ class EventController extends AdminController
                 'inseminator_3',
                 'medicine_id',
                 'description',
+                'detail',
+                'milk',
+                'weight',
+
             ]);
 
             $export->originalValue(['id', 'created_at', 'type', 'description', 'detail']);

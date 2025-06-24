@@ -87,10 +87,19 @@ class FarmReportController extends AdminController
         $u = auth()->user();
 
         //my farms
-        $farms = \App\Models\Farm::where('administrator_id', $u->id)
-            ->get()
-            ->pluck('holding_code', 'id');
+        $_farms = \App\Models\Farm::where('administrator_id', $u->id)
+            ->get();
 
+        $farms = [];
+        foreach ($_farms as $f) {
+            //SubCountyText
+            $sub_county_text = $f->sub_county_text;
+            $name = $f->holding_code;
+            if ($sub_county_text) {
+                $name = $sub_county_text . ' - ' . $name;
+            }
+            $farms[$f->id] = $name;
+        }
 
         $form->select('farm_id', __('Farm'))
             ->options($farms)
