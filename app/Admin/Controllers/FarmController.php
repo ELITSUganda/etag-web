@@ -351,6 +351,11 @@ class FarmController extends AdminController
                 return $u->phone_number;
             });
 
+        $grid->column('animals_count', __('Animals Count'))->hide()
+            ->display(function () {
+                return $this->animals_count;
+            });
+
         return $grid;
     }
 

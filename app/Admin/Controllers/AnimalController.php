@@ -76,20 +76,20 @@ class AnimalController extends AdminController
             $u->isRole('admin') ||
             $u->isRole('dvo') ||
             $u->isRole('nda') ||
-            $u->isRole('maaif') 
-            ) {
+            $u->isRole('maaif')
+        ) {
             $isAdmin = true;
-        } 
-        if(!$isAdmin){
+        }
+        if (!$isAdmin) {
             $grid->model()->where('administrator_id', '=', $u->id);
         }
-          
+
         if ($u->isRole('data-viewer')) {
             $grid->disableActions();
             $grid->disableCreateButton();
         }
 
-       
+
 
         $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
         $dis = null;
@@ -220,14 +220,14 @@ class AnimalController extends AdminController
         });
 
         $grid->column('e_id', __('E-ID'))->sortable();
-        $grid->column('v_id', __('V-ID'))->sortable(); 
+        $grid->column('v_id', __('V-ID'))->sortable();
 
         if ($u->isRole('data-viewer')) {
             $grid->disableActions();
             $grid->disableCreateButton();
         }
         //$grid->column('updated_at_text', __('Last Update'));
-      
+
         $grid->model()->orderBy('created_at', 'DESC');
         $grid->column('photo', __('Photo'))
             ->display(function ($photo) {
@@ -246,20 +246,20 @@ class AnimalController extends AdminController
                 if ($url == null) {
                     return '<img src="' . url('images/logo.png') . '" style="width: 60px; height: 60px;" />';
                 }
-                
+
 
                 return '<img src="' . $url . '" style="width: 60px; height: 60px;" />';
             })
             //->image(, 60, 60)
             //->lightbox(['width' => 60, 'height' => 60])
             ->sortable();
- 
+
         $grid->column('type', __('Species'))->sortable();
         $grid->column('breed', __('Breed'))->sortable();
         $grid->column('sex', __('Sex'))->sortable();
         // Colour
         $grid->column('colour', __('Colour'))->sortable();
-     /*    $grid->column('weight', __('Weight'))->display(function () {
+        /*    $grid->column('weight', __('Weight'))->display(function () {
             return $this->weight_text;
         })->sortable()->hide();
         $grid->column('average_milk', __('Average milk'))->display(function () {
@@ -274,7 +274,7 @@ class AnimalController extends AdminController
             return Utils::my_date($y);
         })->sortable();
         $grid->column('fmd', __('Last FMD'))->sortable();
-        $grid->column('lhc', __('LHC'))->sortable(); 
+        $grid->column('lhc', __('LHC'))->sortable();
 
 
 
@@ -282,7 +282,7 @@ class AnimalController extends AdminController
             ->display(function ($id) {
                 return Utils::get_object(Location::class, $id)->name_text;
             })->sortable(); */
-   /*      $grid->column('sub_county_id', __('Sub county'))
+        /*      $grid->column('sub_county_id', __('Sub county'))
             ->display(function ($id) {
                 return Utils::get_object(Location::class, $id)->name_text;
             })->sortable()
@@ -319,7 +319,7 @@ class AnimalController extends AdminController
             ->display(function ($c) {
                 return Utils::my_date($c);
             });
-
+  
         return $grid;
     }
 
@@ -373,7 +373,7 @@ class AnimalController extends AdminController
     protected function form()
     {
         $form = new Form(new Animal());
-        if($form->isCreating()){
+        if ($form->isCreating()) {
             return $form;
         }
         //$form->setWidth(8, 4);
@@ -404,7 +404,7 @@ class AnimalController extends AdminController
 
         $u = Admin::user();
 
-      /*   $form->select('farm_id', 'Select Farm')
+        /*   $form->select('farm_id', 'Select Farm')
             ->options(function ($id) {
                 $parent = Farm::find($id);
                 if ($parent != null) {
