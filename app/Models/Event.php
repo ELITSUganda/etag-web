@@ -166,38 +166,45 @@ class Event extends Model
                             if ($medicine != null) {
 
                                 $medicine_quantity = ((float)($model->medicine_quantity));
-                                if ($medicine->current_quantity < $medicine_quantity) {
-                                    throw new Exception("Failed to created event because available drug quantity is less than what you have entered.");
-                                }
                                 $ok = true;
-                                /* $record = new DrugS  tockBatchRecord();
-                                $record->record_type = 'animal_event';
-                                $record->administrator_id = $animal->administrator_id;
-                                $record->drug_stock_batch_id = $medicine->id;
-                                $record->batch_number = $medicine->batch_number;
-                                $record->receiver_account = null;
-                                $record->other_explantion = $model->detail; 
-                                $record->buyer_info = null;
-                                $record->is_generated = 'no';
-                                $record->event_animal_id = $animal->id;
-                                $record->quantity = $medicine_quantity;
-                                $record->description = "Applied Quantity: {$medicine_quantity} {$medicine->category->unit} of  Drug: {$medicine->category->name}, Stock ID: #{$medicine->id}, Batch number: {$medicine->batch_number} to Animal ID: {$animal->id}, E-ID:  {$animal->e_id}, V-ID:  {$animal->v_id}.";
-                                $model->description = $record->description;
+                                if ($medicine->current_quantity < $medicine_quantity) {
+                                    // throw new Exception("Failed to created event because available drug quantity is less than what you have entered.");
+                                    $ok = false;
+                                }
+                                if ($ok) {
+                                    $record = new DrugStockBatchRecord();
+                                    $record->record_type = 'animal_event';
+                                    $record->administrator_id = $animal->administrator_id;
+                                    $record->drug_stock_batch_id = $medicine->id;
+                                    $record->batch_number = $medicine->batch_number;
+                                    $record->receiver_account = null;
+                                    $record->other_explantion = $model->detail;
+                                    $record->buyer_info = null;
+                                    $record->is_generated = 'no';
+                                    $record->event_animal_id = $animal->id;
+                                    $record->quantity = $medicine_quantity;
+                                    $record->description = "Applied Quantity: {$medicine_quantity} {$medicine->category->unit} of  Drug: {$medicine->category->name}, Stock ID: #{$medicine->id}, Batch number: {$medicine->batch_number} to Animal ID: {$animal->id}, E-ID:  {$animal->e_id}, V-ID:  {$animal->v_id}.";
+                                    $model->description = $record->description;
 
-                                $model->short_description = "Applied {$medicine->category->name} {$animal->id}, E-ID:  {$animal->e_id}, V-ID:  {$animal->v_id}.";
+                                    $model->short_description = "Applied {$medicine->category->name} {$animal->id}, E-ID:  {$animal->e_id}, V-ID:  {$animal->v_id}.";
 
-                                $model->medicine_text = $medicine->category->name;
-                                $model->medicine_quantity = "{$medicine_quantity} {$medicine->category->unit}";
+                                    $model->medicine_text = $medicine->category->name;
+                                    $model->medicine_quantity = "{$medicine_quantity} {$medicine->category->unit}";
 
-                                $model->medicine_name = $medicine->name;
-                                $model->medicine_batch_number = $medicine->batch_number;
-                                $model->medicine_supplier = $medicine->source_text;
-                                $model->medicine_manufacturer = $medicine->manufacturer;
-                                $model->medicine_expiry_date = $medicine->expiry_date;
-                                $model->medicine_image = $medicine->image;
-                                $worth = ($medicine_quantity / $medicine->original_quantity) * $medicine->selling_price;
-                                $model->drug_worth = $worth;
-                                $record->save(); */
+                                    $model->medicine_name = $medicine->name;
+                                    $model->medicine_batch_number = $medicine->batch_number;
+                                    $model->medicine_supplier = $medicine->source_text;
+                                    $model->medicine_manufacturer = $medicine->manufacturer;
+                                    $model->medicine_expiry_date = $medicine->expiry_date;
+                                    $model->medicine_image = $medicine->image;
+                                    $worth = ($medicine_quantity / $medicine->original_quantity) * $medicine->selling_price;
+                                    $model->drug_worth = $worth;
+                                    try {
+                                        $record->save();
+                                    } catch (\Throwable $th) {
+                                        //throw $th;
+                                    }
+                                }
                             }
                         }
                     }
@@ -328,7 +335,7 @@ class Event extends Model
 
             $animal = Animal::find($model->animal_id);
             if ($animal == null) {
-                throw new Exception("Animal not found.", 1);
+                throw new Exception("Animal not found ($model->animal_id).", 1);
                 return false;
             }
 

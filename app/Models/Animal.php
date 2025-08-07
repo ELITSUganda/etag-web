@@ -44,7 +44,7 @@ class Animal extends Model
                 throw new Exception("Animal with same v-ID ($model->v_id) aready exist in the system.");
                 return false;
             }
-           
+
             //$animal = Animal::where('v_id', $model->v_id)->first();
             /*  if ($animal != null) {
                 die("Animal with same Tag ID aready exist in the system.");
@@ -127,20 +127,20 @@ class Animal extends Model
             }
 
             //check for duplicate of v_id or e_id
-            if($model->v_id != null && strlen($model->v_id) > 3){
+            if ($model->v_id != null && strlen($model->v_id) > 3) {
                 $animal = Animal::where('v_id', $model->v_id)->where('id', '!=', $model->id)->first();
                 if ($animal != null) {
                     throw new Exception("Animal with same v-ID ($model->v_id) aready exist in the system.");
                     return false;
                 }
             }
-            if($model->e_id != null && strlen($model->e_id) > 3){
+            if ($model->e_id != null && strlen($model->e_id) > 3) {
                 $animal = Animal::where('e_id', $model->e_id)->where('id', '!=', $model->id)->first();
                 if ($animal != null) {
                     throw new Exception("Animal with same elecetronic ID ($model->e_id) aready exist in the system.", 1);
                     return false;
                 }
-            } 
+            }
 
             $f = Farm::find($model->farm_id);
             if ($f == null) {
@@ -520,6 +520,7 @@ class Animal extends Model
     //getter for profile_updated
     public function getProfileUpdatedAttribute($val)
     {
+        return 'Yes';
         $last_updated = null;
         if ($this->last_profile_update_date != null) {
             try {

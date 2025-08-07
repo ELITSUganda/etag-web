@@ -213,7 +213,7 @@ class AnimalNewController extends AdminController
         $show->field('wean_off_weight', __('Wean off weight'));
         $show->field('wean_off_age', __('Wean off age'));
         $show->field('last_profile_update_date', __('Last profile update date'));
-        $show->field('profile_updated', __('Profile updated'));
+        // $show->field('profile_updated', __('Profile updated'));
         $show->field('birth_position', __('Birth position'));
         $show->field('age', __('Age'));
         $show->field('service_type', __('Service type'));
@@ -300,7 +300,7 @@ class AnimalNewController extends AdminController
         $form->decimal('wean_off_weight', __('Wean off weight'));
         $form->decimal('wean_off_age', __('Wean off age'));
         $form->datetime('last_profile_update_date', __('Last profile update date'))->default(date('Y-m-d H:i:s'));
-        $form->text('profile_updated', __('Profile updated'))->default('No');
+        // $form->text('profile_updated', __('Profile updated'))->default('No');
         $form->number('birth_position', __('Birth position'));
         $form->number('age', __('Age'));
         $form->text('service_type', __('Service type'));
