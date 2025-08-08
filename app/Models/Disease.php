@@ -39,7 +39,8 @@ class Disease extends Model
         });
 
         self::deleting(function ($m) {
-            throw new Exception('Ooops! You cannot delete this item.');
+            // throw new Exception('Ooops! You cannot delete this item.');
+            return true;
         });
     }
 }
