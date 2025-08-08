@@ -25,7 +25,7 @@ class DiseaseController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new Disease());
-        $grid->disableBatchActions();
+        // $grid->disableBatchActions();
         $grid->quickSearch('name')->placeholder('Search by name');
 
         $grid->column('id', __('Id'))
