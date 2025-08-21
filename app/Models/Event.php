@@ -33,6 +33,8 @@ class Event extends Model
                 return false;
             }
 
+            $isMale = strtolower(trim($animal->sex)) == 'male';
+
 
             $model->district_id = $animal->district_id;
             $model->sub_county_id = $animal->sub_county_id;
@@ -49,48 +51,31 @@ class Event extends Model
             $model->administrator_id = $animal->farm->administrator_id;
             $model->type = trim($model->type);
 
-
-
-            if ($model->type == 'Pregnancy check') {
-                /* $ok = false;
-                if (
-                    isset($model->pregnancy_check_method) &&
-                    isset($model->pregnancy_check_results)
-                ) {
-                    $pregnancy = new PregnantAnimal();
-                    $pregnancy->administrator_id = $animal->farm->administrator_id;
-                    $pregnancy->animal_id = $animal->id;
-                    $pregnancy->district_id = $animal->farm->district_id;
-                    $pregnancy->sub_county_id = $animal->farm->sub_county_id;
-                    $pregnancy->original_status = $model->pregnancy_check_results;
-                    $pregnancy->current_status = $model->pregnancy_check_results;
-                    $pregnancy->fertilization_method = 'Natural breeding';
-                    $pregnancy->expected_sex = 'Unknown';
-                    $pregnancy->details = $model->detail;
-
-                    if (isset($model->pregnancy_fertilization_method)) {
-                        if ($model->pregnancy_fertilization_method != null) {
-                            $pregnancy->fertilization_method = $model->pregnancy_fertilization_method;
-                        }
-                    }
-
-                    if (isset($model->pregnancy_check_method)) {
-                        if ($model->pregnancy_check_method != null) {
-                            $pregnancy->pregnancy_check_method = $model->pregnancy_check_method;
-                        }
-                    }
-                    if (isset($model->pregnancy_expected_sex)) {
-                        if ($model->pregnancy_expected_sex != null) {
-                            $pregnancy->expected_sex = $model->pregnancy_expected_sex;
-                        }
-                    }
-                    $model->description = "Pregnancy check for animal {$animal->v_id} by {$pregnancy->pregnancy_check_method} method and found {$pregnancy->original_status}";
-                    $pregnancy->save();
-                    $ok = true;
+            if ($model->type == 'Calving') {
+                if ($isMale) {
+                    throw new Exception("Only female animals can undergo calving.");
                 }
-                if (!$ok) {
-                    throw new Exception("enter valid Pregnancy check parametters");
-                } */
+            } else if ($model->type == 'Service') {
+                if ($isMale) {
+                    throw new Exception("Only female animals can undergo service.");
+                }
+                $model->status = 'Pending';
+                if ($model->service_type == null || $model->service_type == '') {
+                    throw new Exception("Service type is required for service events.");
+                }
+                //service_date
+                if ($model->service_date == null || $model->service_date == '') {
+                    throw new Exception("Service date is required for service events.");
+                }
+                
+            } else if ($model->type == 'Weaning') {
+                if ($isMale) {
+                    throw new Exception("Only female animals can undergo weaning.");
+                }
+            } else if ($model->type == 'Pregnancy check') {
+                if ($isMale) {
+                    throw new Exception("Only female animals can undergo pregnancy checks.");
+                }
             } else if ($model->type == 'Disease test') {
                 /* if (isset($model->disease_id)) {
                     if ($model->disease_id != null) {

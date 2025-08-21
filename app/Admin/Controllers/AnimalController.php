@@ -219,6 +219,7 @@ class AnimalController extends AdminController
             $filter->equal('v_id', "V-ID");
         });
 
+        $grid->column('id', __('ID'))->sortable();
         $grid->column('e_id', __('E-ID'))->sortable();
         $grid->column('v_id', __('V-ID'))->sortable();
 
@@ -319,7 +320,7 @@ class AnimalController extends AdminController
             ->display(function ($c) {
                 return Utils::my_date($c);
             });
-  
+
         return $grid;
     }
 

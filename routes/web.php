@@ -33,16 +33,69 @@ use Milon\Barcode\DNS1D;
 use function PHPUnit\Framework\fileExists;
 
 
-Route::get('test-route', function () {
+Route::get('test-event-creation', function () {
 
-    $farms = Farm::all()->count();
+    $animal = Animal::find(21150);
+    $event = new Event();
+    $event->animal_id = $animal->id;
+    $event->administrator_id = $animal->administrator_id;
+    $event->type = 'Pregnancy check';
+    $event->save();
+    dd($event);
+    /* 
 
-    $sql = "SELECT * FROM farms WHERE is_;processed = 'No' AND sub_county_id = 1002007";
-    echo "<pre>";
-    print_r($sql);
-    die();
 
-    return 'test-route ' . $farms;
+    "" => "Disease test"
+    "approved_by" => null
+    "detail" => "just for testing"
+    "animal_type" => "Cattle"
+    "disease_id" => "9"
+    "vaccine_id" => null
+    "medicine_id" => null
+    "is_batch_import" => 0
+    "time_stamp" => null
+    "import_file" => null
+    "description" => "just for testing"
+    "temperature" => null
+    "e_id" => "800000000022451"
+    "v_id" => "22451"
+    "status" => "Positive"
+    "disease_text" => null
+    "short_description" => "Disease test"
+    "medicine_text" => null
+    "medicine_quantity" => null
+    "medicine_name" => null
+    "medicine_batch_number" => null
+    "medicine_supplier" => null
+    "medicine_manufacturer" => null
+    "medicine_expiry_date" => null
+    "medicine_image" => null
+    "vaccination" => null
+    "weight" => null
+    "milk" => null
+    "photo" => null
+    "session_id" => "1755011514777-5119455-1898888-8749603"
+    "is_present" => "0"
+    "drug_worth" => 0.0
+    "price" => 1000
+    "reproduction_type" => null
+    "service_type" => null
+    "service_date" => null
+    "male_id" => null
+    "male_breed" => null
+    "simen_code" => null
+    "inseminator" => null
+    "calving_date" => null
+    "calf_id" => null
+    "calf_sex" => null
+    "calf_weight" => null
+    "wean_date" => null
+    "wean_weight" => null
+    "wean_milk" => null
+  ]
+    */
+
+    return $event;
 });
 Route::get('send-sms', function () {
     Utils::send_sms("+256783204665", "Hello Muhindo 2");

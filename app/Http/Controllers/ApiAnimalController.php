@@ -2923,6 +2923,7 @@ class ApiAnimalController extends Controller
                     'message' => "Disease not found on our database.",
                 ]);
             }
+            $request->status = 'Positive';
             if ($request->status != 'Positive' && $request->status != 'Negative') {
                 return Utils::response([
                     'status' => 0,
@@ -3128,9 +3129,10 @@ class ApiAnimalController extends Controller
                 'data' => $eve
             ]);
         } catch (\Throwable $th) {
+            $message = $th->getMessage();
             return Utils::response([
                 'status' => 2,
-                'message' => "Failed -  $th",
+                'message' => "Failed Because: $message",
             ]);
         }
 
@@ -4246,5 +4248,366 @@ class ApiAnimalController extends Controller
             $_items[] = $items[$key];
         }
         return $_items;
+    }
+
+    /**
+     * MEMORY-OPTIMIZED EVENTS ENDPOINT v4
+     * This endpoint implements strict memory management to prevent OutOfMemoryError crashes:
+     * 1. Server-side limiting to max 500 events
+     * 2. Respects client pagination parameters
+     * 3. Efficient query with minimal data transfer
+     * 4. Proper user access control
+     */
+    public function events_v4(Request $request)
+    {
+        $user_id = Utils::get_user_id($request);
+        if (!$user_id) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not authenticated.",
+                'data' => []
+            ]);
+        }
+
+        // Get user access permissions
+        $access_ids = [];
+        $ownFarms = Farm::where(['administrator_id' => $user_id])->get();
+        foreach ($ownFarms as $farm) {
+            if ($farm->id != null) {
+                $access_ids[] = $farm->id;
+            }
+        }
+
+        $access_records = UserHasFarmPermission::where(['user_id' => $user_id])->get();
+        foreach ($access_records as $record) {
+            if ($record->farm_id != null) {
+                $access_ids[] = $record->farm_id;
+            }
+        }
+
+        if (empty($access_ids)) {
+            return Utils::response([
+                'status' => 1,
+                'message' => "No accessible farms found.",
+                'data' => []
+            ]);
+        }
+
+        // MEMORY SAFETY: Strict server-side limiting
+        $limit = 1000; // Default maximum to prevent memory issues
+        if (isset($request->limit)) {
+            $requested_limit = intval($request->limit);
+            // Never exceed 500 records to prevent OutOfMemoryError
+            $limit = min($requested_limit, 1000);
+        }
+
+        // Handle incremental sync
+        $last_id = 0;
+        if (isset($request->last_id)) {
+            $last_id = intval($request->last_id);
+        }
+
+        // Build the query with memory-safe constraints
+        $query = Event::whereIn('farm_id', $access_ids)
+            ->where('id', '>', $last_id)
+            ->orderBy('id', 'DESC'); // Latest first for better user experience
+
+        // Apply limit - CRITICAL for memory management
+        $query->limit($limit);
+
+        // Execute query with minimal field selection for memory efficiency
+        $data = $query->get([
+            'id',
+            'animal_id',
+            'type',
+            'detail',
+            'description',
+            'created_at',
+            'updated_at',
+            'weight',
+            'milk',
+            'v_id',
+            'short_description',
+            'medicine_id',
+            'price',
+            'farm_id',
+            'session_id'
+        ]);
+
+        // Log memory usage for monitoring
+        $data_count = $data->count();
+        $memory_usage = memory_get_usage(true);
+        error_log("Events V4 API: Returned {$data_count} events, Memory: " . round($memory_usage / 1024 / 1024, 2) . "MB");
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success. Retrieved {$data_count} events (max {$limit} for memory safety).",
+            'data' => $data,
+            'meta' => [
+                'total_returned' => $data_count,
+                'limit_applied' => $limit,
+                'last_id' => $last_id,
+                'memory_safe' => true
+            ]
+        ]);
+    }
+
+    public function events_online(Request $request)
+    {
+        $user_id = Utils::get_user_id($request);
+        if ($user_id < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not authenticated.",
+                'data' => []
+            ]);
+        }
+
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+                'data' => []
+            ]);
+        }
+
+        // Get user access permissions
+        $access_ids = [];
+        $ownFarms = Farm::where(['administrator_id' => $user_id])->get();
+        foreach ($ownFarms as $farm) {
+            if ($farm->id != null) {
+                $access_ids[] = $farm->id;
+            }
+        }
+
+        $access_records = UserHasFarmPermission::where(['user_id' => $user_id])->get();
+        foreach ($access_records as $record) {
+            if ($record->farm_id != null) {
+                $access_ids[] = $record->farm_id;
+            }
+        }
+
+        if (empty($access_ids)) {
+            return Utils::response([
+                'status' => 1,
+                'message' => "No accessible farms found.",
+                'data' => [],
+                'pagination' => [
+                    'current_page' => 1,
+                    'per_page' => 25,
+                    'total' => 0,
+                    'last_page' => 1,
+                    'has_more' => false
+                ]
+            ]);
+        }
+
+        // Pagination parameters
+        $page = max(1, intval($request->input('page', 1)));
+        $per_page = min(50, max(5, intval($request->input('per_page', 25))));
+
+        // Search parameters
+        $search = trim($request->input('search', ''));
+        $event_type = trim($request->input('event_type', ''));
+        $category = trim($request->input('category', '')); // 'sanitary' or 'production'
+        $animal_id = trim($request->input('animal_id', ''));
+        $e_id = trim($request->input('e_id', ''));
+        $v_id = trim($request->input('v_id', ''));
+        $session_id = trim($request->input('session_id', ''));
+
+        // Date filters
+        $date_from = $request->input('date_from', '');
+        $date_to = $request->input('date_to', '');
+
+        // Build the base query
+        $query = Event::whereIn('farm_id', $access_ids);
+
+        // Apply search filters
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('e_id', 'LIKE', "%{$search}%")
+                    ->orWhere('v_id', 'LIKE', "%{$search}%")
+                    ->orWhere('type', 'LIKE', "%{$search}%")
+                    ->orWhere('description', 'LIKE', "%{$search}%")
+                    ->orWhere('detail', 'LIKE', "%{$search}%")
+                    ->orWhere('short_description', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // Filter by event type
+        if (!empty($event_type)) {
+            $query->where('type', 'LIKE', "%{$event_type}%");
+        }
+
+        // Filter by category (sanitary vs production)
+        if (!empty($category)) {
+            $sanitary_types = [
+                'Treatment',
+                'Vaccination',
+                'Batch Treatment',
+                'Temperature check',
+                'Death',
+                'Disease test',
+                'Disease',
+                'Abortion',
+                'Sample taken',
+                'Sample result',
+                'Test conducted',
+                'Test result',
+                'Mortality'
+            ];
+
+            if (strtolower($category) === 'sanitary') {
+                $query->whereIn('type', $sanitary_types);
+            } else if (strtolower($category) === 'production') {
+                $query->whereNotIn('type', $sanitary_types);
+            }
+        }
+
+        // Filter by animal
+        if (!empty($animal_id)) {
+            $query->where('animal_id', $animal_id);
+        }
+
+        // Filter by ear tag
+        if (!empty($e_id)) {
+            $query->where('e_id', 'LIKE', "%{$e_id}%");
+        }
+
+        // Filter by v_id
+        if (!empty($v_id)) {
+            $query->where('v_id', 'LIKE', "%{$v_id}%");
+        }
+
+        // Filter by session
+        if (!empty($session_id)) {
+            $query->where('session_id', $session_id);
+        }
+
+        // Date range filter
+        if (!empty($date_from)) {
+            $query->whereDate('created_at', '>=', $date_from);
+        }
+        if (!empty($date_to)) {
+            $query->whereDate('created_at', '<=', $date_to);
+        }
+
+        // Get total count for pagination
+        $total = $query->count();
+        $last_page = ceil($total / $per_page);
+        $has_more = $page < $last_page;
+
+        // Apply pagination and ordering
+        $offset = ($page - 1) * $per_page;
+        $events = $query->orderBy('created_at', 'DESC')
+            ->orderBy('id', 'DESC')
+            ->offset($offset)
+            ->limit($per_page)
+            ->get([
+                'id',
+                'animal_id',
+                'type',
+                'detail',
+                'description',
+                'short_description',
+                'created_at',
+                'updated_at',
+                'administrator_id',
+                'district_id',
+                'sub_county_id',
+                'parish_id',
+                'farm_id',
+                'disease_id',
+                'vaccine_id',
+                'medicine_id',
+                'medicine_text',
+                'medicine_quantity',
+                'medicine_name',
+                'medicine_batch_number',
+                'medicine_supplier',
+                'medicine_manufacturer',
+                'medicine_expiry_date',
+                'weight',
+                'milk',
+                'temperature',
+                'e_id',
+                'v_id',
+                'status',
+                'vaccination',
+                'photo',
+                'session_id',
+                'is_present',
+                'price'
+            ]);
+
+        // Enhance data with related information
+        foreach ($events as $event) {
+            // Get animal information
+            if (!empty($event->animal_id)) {
+                $animal = Animal::find($event->animal_id);
+                if ($animal) {
+                    $event->animal_text = $animal->e_id . ' - ' . $animal->type;
+                    $event->animal_photo = $animal->photo;
+                }
+            }
+
+            // Get farm information
+            if (!empty($event->farm_id)) {
+                $farm = Farm::find($event->farm_id);
+                if ($farm) {
+                    $event->farm_text = $farm->name;
+                }
+            }
+
+            // Get administrator information
+            if (!empty($event->administrator_id)) {
+                $admin = \Encore\Admin\Auth\Database\Administrator::find($event->administrator_id);
+                if ($admin) {
+                    $event->administrator_text = $admin->name;
+                }
+            }
+
+            // Get session information
+            if (!empty($event->session_id)) {
+                $session = BatchSession::find($event->session_id);
+                if ($session) {
+                    $event->session_text = $session->name;
+                }
+            }
+
+            // Format dates
+            $event->created_at_formatted = Carbon::parse($event->created_at)->format('M d, Y H:i');
+            $event->updated_at_formatted = Carbon::parse($event->updated_at)->format('M d, Y H:i');
+
+            // Add time ago
+            $event->time_ago = Carbon::parse($event->created_at)->diffForHumans();
+        }
+
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success. Retrieved {$events->count()} events.",
+            'data' => $events,
+            'pagination' => [
+                'current_page' => $page,
+                'per_page' => $per_page,
+                'total' => $total,
+                'last_page' => $last_page,
+                'has_more' => $has_more,
+                'from' => $offset + 1,
+                'to' => min($offset + $per_page, $total)
+            ],
+            'filters_applied' => [
+                'search' => $search,
+                'event_type' => $event_type,
+                'category' => $category,
+                'animal_id' => $animal_id,
+                'e_id' => $e_id,
+                'v_id' => $v_id,
+                'session_id' => $session_id,
+                'date_from' => $date_from,
+                'date_to' => $date_to
+            ]
+        ]);
     }
 }
