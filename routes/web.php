@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FarmAnalysisController;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\MarketController;
 use App\Http\Controllers\PrintController;
@@ -7,6 +8,7 @@ use App\Http\Controllers\PrintController2;
 use App\Http\Controllers\WebController;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Models\Animal;
+use App\Models\ArchivedAnimal;
 use App\Models\DrugReport;
 use App\Models\DrugStockBatch;
 use App\Models\Event;
@@ -33,15 +35,53 @@ use Milon\Barcode\DNS1D;
 use function PHPUnit\Framework\fileExists;
 
 
+Route::get('analytics-test', function (Request $request) {
+    $an = Animal::where([
+        'v_id' => '000024311'
+    ])->first();
+    $farm = Farm::find($an->farm_id);
+
+    $groups = Group::where([
+        'administrator_id' => $farm->administrator_id,
+        'name' => 'Main Group'
+    ])->get();
+
+    //set all animals of this farm owner to be with group_id of main
+    $changes = Animal::where('administrator_id', $farm->administrator_id)
+        ->update(['group_id' => $groups->first()->id]);
+
+    dd($changes);
+
+
+    dd($farm);
+
+    dd($an);
+
+    $obj = new FarmAnalysisController($request);
+
+    $obj->farm_analysis($request);
+
+    dd('analytics-test');
+});
 Route::get('test-event-creation', function () {
 
-    $animal = Animal::find(21150);
+    $recs = ArchivedAnimal::where([])->orderBy('id', 'desc')->limit(10000)->get();
+
+
+    die("time to test");
+
+    // $animal = Animal::find(21150);//male
+    $animal = Animal::find(21149);
     $event = new Event();
     $event->animal_id = $animal->id;
     $event->administrator_id = $animal->administrator_id;
     $event->type = 'Pregnancy check';
+    $event->pregnancy_check_results = 'Pregnant';
+    $event->pregnancy_delivery_expected_date = Carbon::now()->addMonths(9);
     $event->save();
-    dd($event);
+
+
+    dd($event->id);
     /* 
 
 

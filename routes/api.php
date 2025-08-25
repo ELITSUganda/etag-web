@@ -13,6 +13,7 @@ use App\Http\Controllers\ApiShopController;
 use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\UtilsController;
 use App\Http\Controllers\ApiUserController;
+use App\Http\Controllers\FarmAnalysisController;
 use App\Http\Controllers\V2ApiMainController;
 use App\Models\Animal;
 use App\Models\Disease;
@@ -45,6 +46,8 @@ Route::POST('v2-pregnant-animals-create', [V2ApiMainController::class, 'v2_pregn
 Route::GET('v2-pregnant-animals', [V2ApiMainController::class, 'v2_pregnant_animals_list']);
 Route::GET('v2-farm-reports', [V2ApiMainController::class, 'v2_farm_reports']);
 Route::get('animals/{id}', [V2ApiMainController::class, 'animal_view']);
+Route::post('farm-analysis', [FarmAnalysisController::class, 'farm_analysis']);
+
 
 
 

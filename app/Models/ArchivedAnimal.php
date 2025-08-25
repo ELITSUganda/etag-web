@@ -9,6 +9,19 @@ class ArchivedAnimal extends Model
 {
     use HasFactory;
 
+    //boot
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            $animal = Animal::find($model->animal_id);
+            if ($animal) {
+                $model->farm_id = $animal->farm_id;
+            }
+        });
+    }
+
     //get archived animal by id
     public static function get_animal($id)
     {

@@ -3,15 +3,44 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Dflydev\DotAccessData\Util;
 use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Excel;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class Event extends Model
 {
     use HasFactory;
+
+    public const ACCEPTED_EVENT_TYPES = [
+        'Milking',
+        'Treatment',
+        'Weight check',
+        'Death',
+        'Roll call',
+        'Vaccination',
+        'Temperature check',
+        'Picture',
+        'Note',
+        'Batch Treatment',
+        'Ownership Transfer',
+        'Check point',
+        'Slaughter',
+        'Disease test',
+        'Sample taken',
+        'Sample result',
+        'Test conducted',
+        'Test result',
+        'Calving',
+        'Weaning',
+        'Service',
+        'Pregnancy check',
+        'Abortion',
+        'Mortality',
+    ];
 
     public static function boot()
     {
@@ -19,6 +48,10 @@ class Event extends Model
 
         self::creating(function ($model) {
 
+            //first change if type is in ACCEPTED_EVENT_TYPES
+            if (!in_array($model->type, self::ACCEPTED_EVENT_TYPES)) {
+                throw new Exception("Event type {$model->type} is not accepted.");
+            }
 
             if ($model->is_batch_import) {
                 //$model->import_file = 'public/storage/files/1.xls';
@@ -55,6 +88,39 @@ class Event extends Model
                 if ($isMale) {
                     throw new Exception("Only female animals can undergo calving.");
                 }
+                if ($animal->is_pregnant != 'Yes') {
+                    throw new Exception("Animal is not marked as pregnant. First create a Pregnancy Check event and mark the animal as pregnant before recording calving.");
+                }
+                // Get last Pregnancy check event that is marked Pregnant
+                $lastPregnancyCheck = DB::selectOne(
+                    "SELECT * FROM events WHERE animal_id = ? AND type = ? AND status = ? ORDER BY id DESC LIMIT 1",
+                    [$animal->id, 'Pregnancy check', 'Pregnant']
+                );
+                if (!$lastPregnancyCheck) {
+                    throw new Exception("Animal is not marked as pregnant. First create a Pregnancy Check event and mark the animal as pregnant before recording calving.");
+                }
+
+                $calf = Animal::find($model->calf_id);
+                if ($calf == null) {
+                    throw new Exception("Calf ID {$model->calf_id} not found.");
+                }
+
+                if ($calf->id == $animal->id) {
+                    throw new Exception("Calf ID cannot be the same as the mother ID.");
+                }
+
+                //copy all pregnancy_check_results to the new event
+                $model->service_type = $lastPregnancyCheck->service_type;
+                $model->service_date = $lastPregnancyCheck->service_date;
+                $model->male_id = $lastPregnancyCheck->male_id;
+                $model->male_breed = $lastPregnancyCheck->male_breed;
+                $model->simen_code = $lastPregnancyCheck->simen_code;
+                $model->inseminator = $lastPregnancyCheck->inseminator;
+                $model->calving_date = $lastPregnancyCheck->calving_date;
+                $model->calf_id = $lastPregnancyCheck->calf_id;
+                $model->calf_sex = $lastPregnancyCheck->calf_sex;
+                $model->calf_weight = $lastPregnancyCheck->calf_weight;
+                $model->wean_date = $lastPregnancyCheck->wean_date;
             } else if ($model->type == 'Service') {
                 if ($isMale) {
                     throw new Exception("Only female animals can undergo service.");
@@ -67,14 +133,78 @@ class Event extends Model
                 if ($model->service_date == null || $model->service_date == '') {
                     throw new Exception("Service date is required for service events.");
                 }
-                
             } else if ($model->type == 'Weaning') {
                 if ($isMale) {
                     throw new Exception("Only female animals can undergo weaning.");
                 }
+            } else if ($model->type == 'Abortion') {
+                if ($isMale) {
+                    throw new Exception("Only female animals can undergo abortion.");
+                }
+                //animal that is not pregnant cant abort
+                $lastPregnancyCheck = DB::selectOne(
+                    "SELECT * FROM events WHERE animal_id = ? AND type = ? AND status = ? ORDER BY id DESC LIMIT 1",
+                    [$animal->id, 'Pregnancy check', 'Pregnant']
+                );
+                if (!$lastPregnancyCheck) {
+                    throw new Exception("Animal is not marked as pregnant. First create a Pregnancy Check event and mark the animal as pregnant before recording abortion.");
+                } 
             } else if ($model->type == 'Pregnancy check') {
                 if ($isMale) {
                     throw new Exception("Only female animals can undergo pregnancy checks.");
+                }
+                $accepted_pregnancy_check_results = [
+                    'Pregnant',
+                    'Not Pregnant',
+                    'Retest',
+                ];
+                //check if pregnancy_check_results is not in
+                if (!in_array($model->pregnancy_check_results, $accepted_pregnancy_check_results)) {
+                    throw new Exception("Invalid pregnancy check result: {$model->pregnancy_check_results}");
+                }
+
+                //pregnancy_delivery_expected_date is required
+                if ($model->pregnancy_check_results == 'Pregnant') {
+                    if ($model->pregnancy_delivery_expected_date == null || strlen($model->pregnancy_delivery_expected_date) < 3) {
+                        throw new Exception("Pregnancy delivery expected date is required for pregnancy check events.");
+                    }
+                    $model->pregnancy_delivery_expected_date = Carbon::parse($model->pregnancy_delivery_expected_date);
+                    $model->status = 'Pregnant';
+                    //check if is already pregnant
+                    $sql = "SELECT * FROM events WHERE animal_id = {$animal->id} AND type = 'Pregnancy check' ORDER BY id DESC LIMIT 1";
+                    $existing = DB::select($sql);
+                    if (!empty($existing)) {
+                        $last = $existing[0];
+                        if (isset($last->status) && strtolower($last->status) === 'pregnant') {
+                            throw new Exception("Animal {$animal->id} already has an active pregnancy (status: Pregnant). Record a Calving or Abortion event before creating another Pregnant result.");
+                        }
+                    }
+
+                    $service_event = Event::where([
+                        'animal_id' => $animal->id,
+                        'type' => 'Service',
+                        'status' => 'Pending'
+                    ])->orderBy('id', 'desc')->first();
+                    if ($service_event != null) {
+                        //copy service fields
+                        $model->service_type = $service_event->service_type;
+                        $model->service_date = $service_event->service_date;
+                        $model->male_id = $service_event->male_id;
+                        $model->male_breed = $service_event->male_breed;
+                        $model->simen_code = $service_event->simen_code;
+                        $model->inseminator = $service_event->inseminator;
+                        $model->calving_date = $service_event->calving_date;
+                        $model->calf_id = $service_event->calf_id;
+                        $model->calf_sex = $service_event->calf_sex;
+                        $model->calf_weight = $service_event->calf_weight;
+                        $model->wean_date = $service_event->wean_date;
+                    } else {
+                        $model->has_error = 'Yes';
+                        $model->error_code = 'EVENT_SERVICE_NOT_FOUND';
+                        $error = Utils::get_error($model->error_code);
+                        $model->error_message = $error['error_message'];
+                        $model->error_solution = $error['error_solution'];
+                    }
                 }
             } else if ($model->type == 'Disease test') {
                 /* if (isset($model->disease_id)) {
@@ -219,7 +349,6 @@ class Event extends Model
 
             unset($model->disease_test_results);
             unset($model->pregnancy_check_method);
-            unset($model->pregnancy_check_results);
             unset($model->pregnancy_fertilization_method);
             unset($model->pregnancy_expected_sex);
 
@@ -247,13 +376,101 @@ class Event extends Model
             } else if ($model->type == 'Weight check') {
                 $animal->weight = $model->weight;
                 $animal->save();
+                try {
+                    $animal->processWeightChange();
+                } catch (\Throwable $th) {
+                    //throw $th;
+                }
+            } else if ($model->type == 'Pregnancy check') {
+                //pregnancy_delivery_expected_date is required
+                if ($model->pregnancy_check_results == 'Pregnant') {
+                    //get service event for pregnancy check
+                    $serviceEvent = DB::selectOne(
+                        "SELECT id FROM events WHERE animal_id = ? AND type = ? AND status = ? ORDER BY id DESC LIMIT 1",
+                        [$animal->id, 'Pregnancy check', 'Pending']
+                    );
+
+                    if ($serviceEvent) {
+                        DB::update("UPDATE events SET status = ? WHERE id = ?", ['Pregnant', $model->id]);
+                        $model->status = 'Pregnant';
+                    }
+
+                    //update the animal of following
+                    $animal->is_pregnant = 'Yes';
+                    $animal->pregnancy_delivery_expected_date = $model->pregnancy_delivery_expected_date;
+                    $animal->service_date = $model->service_date;
+                    $animal->save();
+                } else {
+                    //set not pregnant
+                    $animal->is_pregnant = 'No';
+                    $animal->pregnancy_delivery_expected_date = null;
+                    $animal->service_date = null;
+                    $animal->save();
+                }
+            } else if ($model->type == 'Calving') {
+
+                $serviceEvent = DB::selectOne(
+                    "SELECT id FROM events WHERE animal_id = ? AND type = ? AND status = ? ORDER BY id DESC LIMIT 1",
+                    [$animal->id, 'Pregnancy check', 'Pregnant']
+                );
+
+                if ($serviceEvent) {
+                    DB::update("UPDATE events SET status = ? WHERE id = ?", ['Pregnant', $model->id]);
+                    $model->status = 'Not Pregnant';
+                }
+                $animal->is_pregnant = 'No';
+                $animal->pregnancy_delivery_expected_date = null;
+                $animal->service_date = null;
+                $animal->save();
+
+                $calf = Animal::find($model->calf_id);
+                if ($calf != null) {
+                    $calf->parent_id = $animal->id;
+                    $calf->has_parent = 'Yes';
+                    $calf->stage = 'Calf';
+                    $calf->save();
+                }
+
+                // Close the previous active pregnancy (if any) so new pregnancies can be recorded
+                $previousPregnancy = Event::where('animal_id', $animal->id)
+                    ->where('type', 'Pregnancy check')
+                    ->where('status', 'Pregnant')
+                    ->orderByDesc('id')
+                    ->first();
+
+                if ($previousPregnancy) {
+                    $previousPregnancy->status = 'Not Pregnant';
+                    $previousPregnancy->save();
+                }
+            } else if ($model->type == 'Abortion') {
+
+                $serviceEvent = DB::selectOne(
+                    "SELECT id FROM events WHERE animal_id = ? AND type = ? AND status = ? ORDER BY id DESC LIMIT 1",
+                    [$animal->id, 'Pregnancy check', 'Pregnant']
+                );
+
+                if ($serviceEvent) {
+                    DB::update("UPDATE events SET status = ? WHERE id = ?", ['Pregnant', $model->id]);
+                    $model->status = 'Not Pregnant';
+                }
+                $animal->is_pregnant = 'No';
+                $animal->pregnancy_delivery_expected_date = null;
+                $animal->service_date = null;
+                $animal->save();
+
+                // Close the previous active pregnancy (if any) so new pregnancies can be recorded
+                $previousPregnancy = Event::where('animal_id', $animal->id)
+                    ->where('type', 'Pregnancy check')
+                    ->where('status', 'Pregnant')
+                    ->orderByDesc('id')
+                    ->first();
+
+                if ($previousPregnancy) {
+                    $previousPregnancy->status = 'Not Pregnant';
+                    $previousPregnancy->save();
+                }
             }
 
-            try {
-                $animal->processWeightChange();
-            } catch (\Throwable $th) {
-                //throw $th;
-            }
 
             $type = trim($model->type);
             $events = ['Stolen', 'Home slaughter', 'Death'];
@@ -295,6 +512,10 @@ class Event extends Model
 
         self::updating(function ($model) {
 
+            //first change if type is in ACCEPTED_EVENT_TYPES
+            if (!in_array($model->type, self::ACCEPTED_EVENT_TYPES)) {
+                throw new Exception("Event type {$model->type} is not accepted.");
+            }
 
             if (isset($model->disease_id)) {
                 unset($model->disease_id);

@@ -31,6 +31,7 @@ use Dflydev\DotAccessData\Util;
 use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Monolog\Handler\Slack\SlackRecord;
 
 class ApiAnimalController extends Controller
@@ -2874,28 +2875,7 @@ class ApiAnimalController extends Controller
             $animal_ids[] = $animal->id;
         }
 
-        $accepted_events = [
-            'Vaccination',
-            'Treatment',
-            'Disease test',
-            'Pregnancy check',
-            'Service',
-            'Temperature check',
-            'Home slaughter',
-            'Stolen',
-            'Mortality',
-            'Note',
-            'Weight check',
-            'Milking',
-            'Other',
-            'Calving',
-            'Weaning',
-            'Abortion',
-            'Sample taken',
-            'Sample result',
-            'Test conducted',
-            'Test conducted',
-        ];
+        $accepted_events = Event::ACCEPTED_EVENT_TYPES;
 
 
         if (!in_array($request->type, $accepted_events)) {
@@ -2906,6 +2886,35 @@ class ApiAnimalController extends Controller
         }
 
         $event = new Event();
+
+        $table_name = $event->getTable();
+        $cols = Schema::getColumnListing($table_name);
+
+        $except = [
+            'created_at',
+            'updated_at',
+            'deleted_at',
+            'online_id',
+            'id',
+            'administrator_id',
+            'user_id',
+            'created_by',
+            'updated_by',
+        ];
+
+        foreach ($_POST as $key => $value) {
+            if (in_array($key, $except)) {
+                continue;
+            }
+            if (!in_array($key, $cols)) {
+                continue;
+            }
+            if ($value == null || strlen($value) < 1) {
+                continue;
+            }
+            $event->$key = $value;
+        }
+
         $event->session_id = $request->id;
         if ($request->created_at != null && strlen($request->created_at) > 3) {
             try {
@@ -2969,23 +2978,16 @@ class ApiAnimalController extends Controller
                     'message' => "Vaccination must be provided.",
                 ]);
             } */
-            if ($request->disease_id == null || strlen($request->disease_id) < 1) {
+            if ($request->inseminator == null || strlen($request->inseminator) < 1) {
                 return Utils::response([
                     'status' => 0,
                     'message' => "Disease must be provided.",
                 ]);
             }
-            $disease = Disease::find(((int)($request->disease_id)));
-            if ($disease == null) {
-                return Utils::response([
-                    'status' => 0,
-                    'message' => "Disease not found on our database.",
-                ]);
-            }
             //created description text that explain vaccine used and disease name vaccinated against
-            $event->description = 'Vaccined against ' . $disease->name . ' using ' . $request->vaccination . ' Vaccine.';
-            $event->disease_text = $disease->name;
-            $event->disease_id = $request->disease_id;
+            $event->description = 'Vaccined against ' . $request->inseminator;
+            $event->disease_text = $request->inseminator;
+            $event->disease_id = $request->inseminator;
         } else if ($request->type == 'Abortion') {
             if (!isset($request->wean_date)) {
                 return Utils::response([

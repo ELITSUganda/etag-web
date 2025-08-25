@@ -5,10 +5,10 @@ php artisan migrate
 
 php artisan make:migration create_power_stations_table
 php artisan make:migration create_engines_table
-php artisan make:migration create_archived_animals_table
+php artisan make:migration create_archived_archived_animals_table
 php artisan make:migration create_images_table
-php artisan make:migration create_sick_animals_table
-php artisan make:migration create_pregnant_animals_table
+php artisan make:migration create_sick_archived_animals_table
+php artisan make:migration create_pregnant_archived_animals_table
 php artisan make:migration create_finance_categories_table
 php artisan make:migration create_transactions_table
 php artisan make:migration create_movement_routes_table
@@ -16,7 +16,7 @@ php artisan make:migration create_wholesale_orders_table
 php artisan make:migration create_wholesale_order_items_table
 
 
-ALTER TABLE `animals` ADD 
+ALTER TABLE `archived_animals` ADD 
 `has_more_info` VARCHAR(250) NULL DEFAULT NULL,
 `was_purchases` VARCHAR(250) NULL DEFAULT NULL,
 `purchase_date` VARCHAR(250) NULL DEFAULT NULL,
@@ -159,8 +159,7 @@ composer require simplesoftwareio/simple-qrcode "~4"
 composer install --ignore-platform-reqs
 
 
-php artisan make:migration change_temperature_type_in_events --table=events
-``.``
+php artisan make:migration add_farm_id_to_archived_animals --table=archived_animals
 
 CREATE DATABASE etag
 mysql -u root -p etag < /home/tudeekakasujja23/ulits_db_1.sql

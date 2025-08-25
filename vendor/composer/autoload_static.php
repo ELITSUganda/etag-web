@@ -888,6 +888,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'App\\Http\\Controllers\\ApiUserController' => __DIR__ . '/../..' . '/app/Http/Controllers/ApiUserController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
         'App\\Http\\Controllers\\DistrictController' => __DIR__ . '/../..' . '/app/Http/Controllers/DistrictController.php',
+        'App\\Http\\Controllers\\FarmAnalysisController' => __DIR__ . '/../..' . '/app/Http/Controllers/FarmAnalysisController.php',
         'App\\Http\\Controllers\\MainController' => __DIR__ . '/../..' . '/app/Http/Controllers/MainController.php',
         'App\\Http\\Controllers\\MarketController' => __DIR__ . '/../..' . '/app/Http/Controllers/MarketController.php',
         'App\\Http\\Controllers\\PrintController' => __DIR__ . '/../..' . '/app/Http/Controllers/PrintController.php',

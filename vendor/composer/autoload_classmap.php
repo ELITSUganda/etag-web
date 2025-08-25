@@ -93,6 +93,7 @@ return array(
     'App\\Http\\Controllers\\ApiUserController' => $baseDir . '/app/Http/Controllers/ApiUserController.php',
     'App\\Http\\Controllers\\Controller' => $baseDir . '/app/Http/Controllers/Controller.php',
     'App\\Http\\Controllers\\DistrictController' => $baseDir . '/app/Http/Controllers/DistrictController.php',
+    'App\\Http\\Controllers\\FarmAnalysisController' => $baseDir . '/app/Http/Controllers/FarmAnalysisController.php',
     'App\\Http\\Controllers\\MainController' => $baseDir . '/app/Http/Controllers/MainController.php',
     'App\\Http\\Controllers\\MarketController' => $baseDir . '/app/Http/Controllers/MarketController.php',
     'App\\Http\\Controllers\\PrintController' => $baseDir . '/app/Http/Controllers/PrintController.php',

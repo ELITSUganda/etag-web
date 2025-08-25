@@ -321,6 +321,28 @@ class AnimalController extends AdminController
                 return Utils::my_date($c);
             });
 
+        $grid->column('is_pregnant', __('Pregnant?'))
+            ->sortable()
+            ->hide()
+            ->label([
+                'Yes' => 'success',
+                'No' => 'primary',
+            ]);
+
+        $grid->column('pregnancy_delivery_expected_date', __('Expected Delivery'))
+            ->display(function ($v) {
+                return Utils::my_date($v);
+            })
+            ->sortable()
+            ->hide();
+
+        $grid->column('service_date', __('Service Date'))
+            ->display(function ($v) {
+                return Utils::my_date($v);
+            })
+            ->sortable()
+            ->hide();
+
         return $grid;
     }
 

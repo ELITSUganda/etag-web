@@ -19,6 +19,25 @@ use Milon\Barcode\DNS2D;
 class Utils extends Model
 {
 
+
+
+
+    public static function get_error($error_code)
+    {
+        $error = [
+            'error_code' => $error_code,
+            'error_message' => null,
+            'error_solution' => null,
+        ];
+
+        if ($error_code == 'EVENT_SERVICE_NOT_FOUND') {
+            $error['error_message'] = 'Before creating a pregnancy check event, a service event must be created. It tells the system important information about the animal\'s pregnancy.';
+            $error['error_solution'] = 'You need to first delete this pregnancy check event, then create a service event and after that, create the pregnancy check event.';
+            return $error;
+        }
+
+        return $error;
+    }
     public static function get_seg()
     {
         //$_SERVER['HTTP_HOST'];
@@ -669,7 +688,7 @@ duplicate_results
     public static function send_sms($phone_number, $message)
     {
 
-        return; 
+        return;
         if (!Utils::validateUgandanPhoneNumber($phone_number)) {
             return "$phone_number is not a valid phone number.";
         }
