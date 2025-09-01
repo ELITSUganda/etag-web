@@ -47,10 +47,10 @@ Route::get('analytics-test', function (Request $request) {
     ])->get();
 
     //set all animals of this farm owner to be with group_id of main
-    $changes = Animal::where('administrator_id', $farm->administrator_id)
+    $changes = Animal::where('administrator_id', $farm->id)
         ->update(['group_id' => $groups->first()->id]);
 
-    dd($changes);
+    dd($groups);
 
 
     dd($farm);

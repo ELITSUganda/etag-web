@@ -52,6 +52,9 @@ class FarmAnalysisController extends Controller
         // Calculate KPIs with comparison data
         $kpis = $this->compute_kpis($animals, $events, $prevEvents, $prevArchivedAnimals, $rangeFrom, $rangeTo, $prevRangeFrom, $prevRangeTo);
 
+        // Add enhanced dashboard items
+        $kpis['dashboard_items'] = $this->generateDashboardItems($kpis, $animals, $events);
+
         $kpis['farm_id'] = $farm->id;
         $kpis['as_of'] = Carbon::now()->toIso8601String();
         $kpis['range_from'] = $rangeFrom->toIso8601String();
@@ -177,7 +180,7 @@ class FarmAnalysisController extends Controller
 
         return [
             'total_animals' => $totalAnimals,
-            'species_count' => $speciesCount,
+            'species_count' => $speciesCount->isEmpty() ? (object)[] : $speciesCount,
             'archived_animals' => $this->compareValues($archivedCount, $prevArchivedCount, true),
             'youngstock_count' => $youngstockCount,
             'herd_growth' => $this->compareValues($herdGrowth, $prevHerdGrowth),
@@ -231,8 +234,8 @@ class FarmAnalysisController extends Controller
             ->where('is_pregnant', 'Yes')->count();
 
         return [
-            'breed_count' => $breedCount,
-            'sex_count' => $sexCount,
+            'breed_count' => $breedCount->isEmpty() ? (object)[] : $breedCount,
+            'sex_count' => $sexCount->isEmpty() ? (object)[] : $sexCount,
             'age_bands' => $ageBands,
             'lactating_cows' => $lactatingCows,
             'pregnant_cows' => $pregnantCows,
@@ -371,13 +374,22 @@ class FarmAnalysisController extends Controller
      */
     private function computeMilkProduction($events, $prevEvents, $animals)
     {
-        // Milking events
+        // Milking events - use existing detail field to extract milk quantity
         $milkingEvents = $events->where('type', 'Milking');
-        $totalMilk = $milkingEvents->sum('milk');
+        $totalMilk = 0;
+        foreach ($milkingEvents as $event) {
+            // Extract milk quantity from detail field (format: "X liters" or just number)
+            $milk = $this->extractMilkQuantity($event->detail ?? '0');
+            $totalMilk += $milk;
+        }
         $avgMilkPerEvent = $milkingEvents->count() > 0 ? $totalMilk / $milkingEvents->count() : 0;
 
         $prevMilkingEvents = $prevEvents->where('type', 'Milking');
-        $prevTotalMilk = $prevMilkingEvents->sum('milk');
+        $prevTotalMilk = 0;
+        foreach ($prevMilkingEvents as $event) {
+            $milk = $this->extractMilkQuantity($event->detail ?? '0');
+            $prevTotalMilk += $milk;
+        }
         $prevAvgMilkPerEvent = $prevMilkingEvents->count() > 0 ? $prevTotalMilk / $prevMilkingEvents->count() : 0;
 
         // Lactating animals (cattle only)
@@ -409,9 +421,19 @@ class FarmAnalysisController extends Controller
         $treatmentCount = $treatmentEvents->count();
         $prevTreatmentCount = $prevEvents->where('type', 'Treatment')->count();
 
-        // Treatment cost
-        $treatmentCost = $treatmentEvents->sum('drug_worth');
-        $prevTreatmentCost = $prevEvents->where('type', 'Treatment')->sum('drug_worth');
+        // Treatment cost - use helper method
+        $treatmentCost = 0;
+        foreach ($treatmentEvents as $event) {
+            $cost = $this->extractTreatmentCost($event->detail ?? '', $event->price ?? 0);
+            $treatmentCost += $cost;
+        }
+
+        $prevTreatmentCost = 0;
+        $prevTreatmentEvents = $prevEvents->where('type', 'Treatment');
+        foreach ($prevTreatmentEvents as $event) {
+            $cost = $this->extractTreatmentCost($event->detail ?? '', $event->price ?? 0);
+            $prevTreatmentCost += $cost;
+        }
 
         // Average treatment cost
         $avgTreatmentCost = $treatmentCount > 0 ? $treatmentCost / $treatmentCount : 0;
@@ -437,13 +459,37 @@ class FarmAnalysisController extends Controller
      */
     private function computeFinancialMetrics($events, $prevEvents, $animals)
     {
-        // Milk value (assuming $0.5 per liter)
-        $milkValue = $events->where('type', 'Milking')->sum('milk') * 0.5;
-        $prevMilkValue = $prevEvents->where('type', 'Milking')->sum('milk') * 0.5;
+        // Milk value - use price field from events table and extract milk quantity from detail
+        $milkValue = 0;
+        $milkingEvents = $events->where('type', 'Milking');
+        foreach ($milkingEvents as $event) {
+            $milkQuantity = $this->extractMilkQuantity($event->detail ?? '0');
+            $pricePerLiter = ($event->price ?? 1000) / 1000; // Convert from UGX to reasonable unit
+            $milkValue += $milkQuantity * $pricePerLiter;
+        }
 
-        // Treatment cost
-        $treatmentCost = $events->where('type', 'Treatment')->sum('drug_worth');
-        $prevTreatmentCost = $prevEvents->where('type', 'Treatment')->sum('drug_worth');
+        $prevMilkValue = 0;
+        $prevMilkingEvents = $prevEvents->where('type', 'Milking');
+        foreach ($prevMilkingEvents as $event) {
+            $milkQuantity = $this->extractMilkQuantity($event->detail ?? '0');
+            $pricePerLiter = ($event->price ?? 1000) / 1000;
+            $prevMilkValue += $milkQuantity * $pricePerLiter;
+        }
+
+        // Treatment cost - use price field or extract from detail
+        $treatmentCost = 0;
+        $treatmentEvents = $events->where('type', 'Treatment');
+        foreach ($treatmentEvents as $event) {
+            $cost = $this->extractTreatmentCost($event->detail ?? '', $event->price ?? 0);
+            $treatmentCost += $cost;
+        }
+
+        $prevTreatmentCost = 0;
+        $prevTreatmentEvents = $prevEvents->where('type', 'Treatment');
+        foreach ($prevTreatmentEvents as $event) {
+            $cost = $this->extractTreatmentCost($event->detail ?? '', $event->price ?? 0);
+            $prevTreatmentCost += $cost;
+        }
 
         // Net profit (milk value - treatment cost)
         $netProfit = $milkValue - $treatmentCost;
@@ -560,5 +606,251 @@ class FarmAnalysisController extends Controller
             'diff' => $diff,
             'status' => $status
         ];
+    }
+
+    /**
+     * Extract milk quantity from event detail field
+     */
+    private function extractMilkQuantity($detail)
+    {
+        // Try to extract number from detail field
+        // Common formats: "10 liters", "10L", "10", "Milked 10 liters"
+        preg_match('/(\d+(?:\.\d+)?)\s*(?:liters?|l|L)?/', $detail, $matches);
+        return isset($matches[1]) ? floatval($matches[1]) : 0;
+    }
+
+    /**
+     * Extract treatment cost from event detail field
+     */
+    private function extractTreatmentCost($detail, $priceField = 0)
+    {
+        // First try to use price field if available
+        if ($priceField > 0) {
+            return floatval($priceField);
+        }
+
+        // Extract cost from detail field
+        // Common formats: "Cost: 5000", "$50", "UGX 5000"
+        preg_match('/(?:cost|price|worth)[:\s]*(?:ugx|usd|[sUGX$])\s*(\d+(?:\.\d+)?)/i', $detail, $matches);
+        if (isset($matches[1])) {
+            return floatval($matches[1]);
+        }
+
+        // Try to extract any number as fallback
+        preg_match('/(\d+(?:\.\d+)?)/', $detail, $matches);
+        return isset($matches[1]) ? floatval($matches[1]) : 0;
+    }
+
+    /**
+     * Generate enhanced dashboard items for mobile app
+     */
+    private function generateDashboardItems($kpis, $animals, $events)
+    {
+        $items = [];
+
+        // Total Animals (High Priority)
+        $speciesBreakdown = $this->buildSpeciesBreakdown($kpis['herd_overview']['species_count'] ?? []);
+        $items[] = [
+            'id' => 'total_animals',
+            'name' => 'Total Animals',
+            'count' => strval($kpis['herd_overview']['total_animals'] ?? 0),
+            'description' => $speciesBreakdown,
+            'icon' => 'pets',
+            'type' => 'total_animals',
+            'is_clickable' => true,
+            'route' => '/animals',
+            'is_high_priority' => true,
+            'trend' => null,
+            'trend_value' => null,
+        ];
+
+        // Cattle (High Priority)
+        $genderBreakdown = $this->buildGenderBreakdown($kpis['animal_demographics']['sex_count'] ?? []);
+        $items[] = [
+            'id' => 'cattle',
+            'name' => 'Cattle',
+            'count' => strval($kpis['animal_demographics']['total_cattle'] ?? 0),
+            'description' => $genderBreakdown,
+            'icon' => 'agriculture',
+            'type' => 'cattle',
+            'is_clickable' => true,
+            'route' => '/animals',
+            'route_data' => ['filter' => 'cattle'],
+            'is_high_priority' => true,
+            'trend' => null,
+            'trend_value' => null,
+        ];
+
+        // Milk Production (High Priority)
+        $milkData = $kpis['milk_production']['total_milk_production'] ?? null;
+        $items[] = [
+            'id' => 'milk_production',
+            'name' => 'Milk Production',
+            'count' => ($milkData['current'] ?? 0) . ' L',
+            'description' => 'This period total',
+            'icon' => 'water_drop',
+            'type' => 'milk_production',
+            'is_clickable' => false,
+            'is_high_priority' => true,
+            'trend' => $this->getTrendDirection($milkData),
+            'trend_value' => $this->getTrendValue($milkData),
+        ];
+
+        // Lactating Cows
+        $items[] = [
+            'id' => 'lactating_cows',
+            'name' => 'Lactating Cows',
+            'count' => strval($kpis['animal_demographics']['lactating_cows'] ?? 0),
+            'description' => 'Currently producing milk',
+            'icon' => 'local_drink',
+            'type' => 'lactating_cows',
+            'is_clickable' => false,
+            'is_high_priority' => false,
+            'trend' => null,
+            'trend_value' => null,
+        ];
+
+        // Pregnant Cows
+        $items[] = [
+            'id' => 'pregnant_cows',
+            'name' => 'Pregnant Cows',
+            'count' => strval($kpis['animal_demographics']['pregnant_cows'] ?? 0),
+            'description' => 'Expected calvings',
+            'icon' => 'pregnant_woman',
+            'type' => 'pregnant_cows',
+            'is_clickable' => false,
+            'is_high_priority' => false,
+            'trend' => null,
+            'trend_value' => null,
+        ];
+
+        // Young Stock
+        $ageBandsData = $kpis['animal_demographics']['age_bands'] ?? [];
+        $ageBreakdown = $this->buildAgeBreakdown($ageBandsData);
+        $herdGrowthData = $kpis['herd_overview']['herd_growth'] ?? null;
+        $items[] = [
+            'id' => 'youngstock',
+            'name' => 'Young Stock',
+            'count' => strval($kpis['herd_overview']['youngstock_count'] ?? 0),
+            'description' => $ageBreakdown,
+            'icon' => 'child_friendly',
+            'type' => 'young_stock',
+            'is_clickable' => false,
+            'is_high_priority' => false,
+            'trend' => $this->getTrendDirection($herdGrowthData),
+            'trend_value' => $this->getTrendValue($herdGrowthData),
+        ];
+
+        // Births
+        $birthsData = $kpis['herd_overview']['births'] ?? null;
+        $items[] = [
+            'id' => 'births',
+            'name' => 'Births',
+            'count' => strval($birthsData['current'] ?? 0),
+            'description' => 'This period',
+            'icon' => 'baby_changing_station',
+            'type' => 'births',
+            'is_clickable' => false,
+            'is_high_priority' => false,
+            'trend' => $this->getTrendDirection($birthsData),
+            'trend_value' => $this->getTrendValue($birthsData),
+        ];
+
+        // Deaths
+        $deathsData = $kpis['herd_overview']['deaths'] ?? null;
+        $items[] = [
+            'id' => 'deaths',
+            'name' => 'Deaths',
+            'count' => strval($deathsData['current'] ?? 0),
+            'description' => 'This period',
+            'icon' => 'sentiment_very_dissatisfied',
+            'type' => 'deaths',
+            'is_clickable' => false,
+            'is_high_priority' => false,
+            'trend' => $this->getTrendDirection($deathsData),
+            'trend_value' => $this->getTrendValue($deathsData),
+        ];
+
+        return $items;
+    }
+
+    private function buildSpeciesBreakdown($speciesCount)
+    {
+        if (empty($speciesCount)) {
+            return 'No breakdown available';
+        }
+
+        $breakdown = [];
+        foreach ($speciesCount as $species => $count) {
+            if ($count > 0) {
+                $breakdown[] = "$species: $count";
+            }
+        }
+
+        return !empty($breakdown) ? implode(', ', $breakdown) : 'No animals';
+    }
+
+    private function buildGenderBreakdown($sexCount)
+    {
+        if (empty($sexCount)) {
+            return 'No breakdown available';
+        }
+
+        $breakdown = [];
+        foreach ($sexCount as $sex => $count) {
+            if ($count > 0) {
+                $breakdown[] = "$sex: $count";
+            }
+        }
+
+        return !empty($breakdown) ? implode(', ', $breakdown) : 'No breakdown';
+    }
+
+    private function buildAgeBreakdown($ageBands)
+    {
+        if (empty($ageBands)) {
+            return 'Animals under 2 years';
+        }
+
+        $breakdown = [];
+        $ageLabels = [
+            '0_6m' => '0-6m',
+            '6_12m' => '6-12m', 
+            '12_24m' => '12-24m',
+            '24m_plus' => '24m+',
+        ];
+
+        foreach ($ageBands as $key => $count) {
+            if ($count > 0 && isset($ageLabels[$key])) {
+                $breakdown[] = $ageLabels[$key] . ": $count";
+            }
+        }
+
+        return !empty($breakdown) ? implode(', ', $breakdown) : 'Animals under 2 years';
+    }
+
+    private function getTrendDirection($comparisonData)
+    {
+        if (!is_array($comparisonData) || !isset($comparisonData['change'])) {
+            return null;
+        }
+
+        $change = $comparisonData['change'];
+        if ($change > 0) return 'up';
+        if ($change < 0) return 'down';
+        return 'neutral';
+    }
+
+    private function getTrendValue($comparisonData)
+    {
+        if (!is_array($comparisonData) || !isset($comparisonData['percentage'])) {
+            return null;
+        }
+
+        $percentage = round($comparisonData['percentage'], 1);
+        $change = $comparisonData['change'] ?? 0;
+        $sign = $change >= 0 ? '+' : '';
+        
+        return "$sign{$percentage}%";
     }
 }
