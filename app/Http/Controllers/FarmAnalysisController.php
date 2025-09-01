@@ -38,16 +38,21 @@ class FarmAnalysisController extends Controller
         // Fetch farm details
         $farm = Farm::find($validated['farm_id']);
         if (!$farm) {
-            return response()->json(['error' => 'Farm not found'], 404);
+            return Utils::response([
+                'status' => 0,
+                'data' => [],
+                'message' => 'Farm not found'
+            ]);
         }
 
         // Get all data in bulk to minimize DB queries
-        $animals = $this->getFarmAnimals($validated['farm_id']);
+        $animals = $this->getFarmAnimals($farm->id);
         $events = $this->getFarmEvents($validated['farm_id'], $rangeFrom, $rangeTo);
 
         // Get previous period data
         $prevEvents = $this->getFarmEvents($validated['farm_id'], $prevRangeFrom, $prevRangeTo);
         $prevArchivedAnimals = $this->getArchivedAnimals($validated['farm_id'], $prevRangeFrom, $prevRangeTo);
+        dd($prevEvents->count());
 
         // Calculate KPIs with comparison data
         $kpis = $this->compute_kpis($animals, $events, $prevEvents, $prevArchivedAnimals, $rangeFrom, $rangeTo, $prevRangeFrom, $prevRangeTo);
@@ -66,20 +71,19 @@ class FarmAnalysisController extends Controller
             'status' => 1,
             'data' => [[
                 'id' => 1,
-                'last_update' => Carbon::now()->toIso8601String(), 
+                'last_update' => Carbon::now()->toIso8601String(),
                 'data' => json_encode($kpis)
             ]],
             'message' => 'Success'
         ]);
     }
-// 000024311,  00002457
+    // 000024311,  00002457
     /**
      * Get all animals for the farm
      */
     private function getFarmAnimals($farmId)
     {
-        return DB::table('animals')
-            ->where('farm_id', $farmId)
+        return Animal::where('farm_id', $farmId)
             ->get();
     }
 
@@ -815,7 +819,7 @@ class FarmAnalysisController extends Controller
         $breakdown = [];
         $ageLabels = [
             '0_6m' => '0-6m',
-            '6_12m' => '6-12m', 
+            '6_12m' => '6-12m',
             '12_24m' => '12-24m',
             '24m_plus' => '24m+',
         ];
@@ -850,7 +854,7 @@ class FarmAnalysisController extends Controller
         $percentage = round($comparisonData['percentage'], 1);
         $change = $comparisonData['change'] ?? 0;
         $sign = $change >= 0 ? '+' : '';
-        
+
         return "$sign{$percentage}%";
     }
 }

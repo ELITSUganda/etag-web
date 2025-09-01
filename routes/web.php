@@ -37,7 +37,7 @@ use function PHPUnit\Framework\fileExists;
 
 Route::get('analytics-test', function (Request $request) {
     $an = Animal::where([
-        'v_id' => '000024311'
+        'v_id' => '11636831'
     ])->first();
     $farm = Farm::find($an->farm_id);
 
@@ -49,6 +49,23 @@ Route::get('analytics-test', function (Request $request) {
     //set all animals of this farm owner to be with group_id of main
     $changes = Animal::where('administrator_id', $farm->id)
         ->update(['group_id' => $groups->first()->id]);
+
+    $start_time  = Carbon::now()->subMonth()->format('Y-m-d');
+    $end_time = Carbon::now()->format('Y-m-d');
+
+    $requestData = [
+        'farm_id' => $farm->id,
+        'range_from' => $start_time,
+        'range_to' => $end_time,
+    ];
+    $dummyRequest = new Request($requestData);
+
+    $controller = new FarmAnalysisController();
+    $result = $controller->farm_analysis($dummyRequest);
+    die("done");
+    dd($result);
+
+    dd($result);
 
     dd($groups);
 

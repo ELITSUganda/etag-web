@@ -171,6 +171,16 @@ class AnimalController extends AdminController
                 ->ajax(
                     url('api/ajax-users')
                 );
+
+            $admin_id  = Admin::user()->id;
+            $farms_data = Farm::where('administrator_id', $admin_id)->get();
+            $farms = [];
+            foreach ($farms_data as $farm) {
+                $farms[$farm->id] = $farm->district_text . ", " . $farm->sub_county_text . " - " . $farm->holding_code;
+            }
+            $filter->equal('farm_id', 'Filter by farm')->select($farms);
+
+
             $filter->equal('sex', "Sex")->select([
                 'Male' => 'Male',
                 'Female' => 'Female',
