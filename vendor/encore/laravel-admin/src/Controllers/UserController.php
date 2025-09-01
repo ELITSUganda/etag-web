@@ -25,7 +25,7 @@ class UserController extends AdminController
     protected function grid()
     {
         $userModel = config('admin.database.users_model');
- 
+
 
         $grid = new Grid(new $userModel());
 
@@ -107,7 +107,8 @@ class UserController extends AdminController
             ->updateRules(['required', "unique:{$connection}.{$userTable},username,{{id}}"]);
 
         $form->text('name', trans('admin.name'))->rules('required');
-        $form->image('avatar', trans('admin.avatar'));
+        $form->image('avatar', 'Photo')
+            ->rules('mimes:jpeg,png,jpg,gif,svg|max:2048');
         $form->multipleSelect('roles', trans('admin.roles'))->options($roleModel::all()->pluck('name', 'id'));
         $form->password('password', trans('admin.password'))->rules('required|confirmed');
         $form->password('password_confirmation', trans('admin.password_confirmation'))->rules('required')
