@@ -11,8 +11,41 @@ use App\Models\Utils;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * FarmAnalysisController - Comprehensive Farm KPI Calculator
+ * 
+ * KEY CALCULATION METHODS:
+ * - Deaths/Mortality: Calculated from archived_animals where last_event = 'Mortality'
+ * - Lactating Cows: Count unique animal_ids from milking events in date range
+ * - Data Quality: Checks cattle only, validates null/length < 4 for key fields
+ * - Treatment Cost: Uses drug_worth column, includes both Treatment & Batch Treatment
+ * - Milk Pricing: Uses price column from milking events (not static)
+ * - Number Formatting: xxx,xxx,xxx,xxx.xx format with 2 decimal precision
+ * - All divisions rounded to 2 decimal places for consistency
+ * 
+ * EVENTS TABLE STRUCTURE UTILIZED:
+ * - type: Event category (Milking, Treatment, Batch Treatment, etc.)
+ * - milk: Milk quantity for milking events
+ * - price: Event value/price (used for milk sales)
+ * - drug_worth: Treatment cost for treatment events
+ * - animal_id: Links events to specific animals
+ * - created_at: Event timestamp for date range filtering
+ */
+
 class FarmAnalysisController extends Controller
 {
+    /**
+     * Format numeric values with thousand separators and 2 decimal places
+     * Format: xxx,xxx,xxx,xxx.xx
+     */
+    private function formatNumber($number)
+    {
+        if (!is_numeric($number)) {
+            return '0.00';
+        }
+        return number_format((float)$number, 2, '.', ',');
+    }
+
     /**
      * Endpoint to get farm analysis data
      */
@@ -45,17 +78,25 @@ class FarmAnalysisController extends Controller
             ]);
         }
 
+        //set all events type with Death to Mortality
+        Event::where('type', 'Death')
+            ->update(['type' => 'Mortality']);
+        ArchivedAnimal::where('type', 'Death')
+            ->update(['last_event' => 'Mortality']);
+
         // Get all data in bulk to minimize DB queries
         $animals = $this->getFarmAnimals($farm->id);
         $events = $this->getFarmEvents($validated['farm_id'], $rangeFrom, $rangeTo);
 
+        // Get archived animals for current and previous periods
+        $archivedAnimals = $this->getArchivedAnimals($validated['farm_id'], $rangeFrom, $rangeTo);
+        $prevArchivedAnimals = $this->getArchivedAnimals($validated['farm_id'], $prevRangeFrom, $prevRangeTo);
+
         // Get previous period data
         $prevEvents = $this->getFarmEvents($validated['farm_id'], $prevRangeFrom, $prevRangeTo);
-        $prevArchivedAnimals = $this->getArchivedAnimals($validated['farm_id'], $prevRangeFrom, $prevRangeTo);
-        dd($prevEvents->count());
 
         // Calculate KPIs with comparison data
-        $kpis = $this->compute_kpis($animals, $events, $prevEvents, $prevArchivedAnimals, $rangeFrom, $rangeTo, $prevRangeFrom, $prevRangeTo);
+        $kpis = $this->compute_kpis($animals, $events, $prevEvents, $archivedAnimals, $prevArchivedAnimals, $rangeFrom, $rangeTo, $prevRangeFrom, $prevRangeTo);
 
         // Add enhanced dashboard items
         $kpis['dashboard_items'] = $this->generateDashboardItems($kpis, $animals, $events);
@@ -67,6 +108,7 @@ class FarmAnalysisController extends Controller
         $kpis['prev_range_from'] = $prevRangeFrom->toIso8601String();
         $kpis['prev_range_to'] = $prevRangeTo->toIso8601String();
 
+
         return Utils::response([
             'status' => 1,
             'data' => [[
@@ -77,7 +119,7 @@ class FarmAnalysisController extends Controller
             'message' => 'Success'
         ]);
     }
-    // 000024311,  00002457
+
     /**
      * Get all animals for the farm
      */
@@ -121,14 +163,14 @@ class FarmAnalysisController extends Controller
     /**
      * Compute all KPIs from the provided data with comparison to previous period
      */
-    private function compute_kpis($animals, $events, $prevEvents, $prevArchivedAnimals, $from, $to, $prevFrom, $prevTo)
+    private function compute_kpis($animals, $events, $prevEvents, $archivedAnimals, $prevArchivedAnimals, $from, $to, $prevFrom, $prevTo)
     {
         return [
             // Herd Overview - current snapshot without comparison
-            'herd_overview' => $this->computeHerdOverview($animals, $events, $prevEvents, $prevArchivedAnimals, $from, $to, $prevFrom, $prevTo),
+            'herd_overview' => $this->computeHerdOverview($animals, $events, $prevEvents, $archivedAnimals, $prevArchivedAnimals, $from, $to, $prevFrom, $prevTo),
 
             // Animal Structure & Demographics - current snapshot without comparison
-            'animal_demographics' => $this->computeAnimalDemographics($animals),
+            'animal_demographics' => $this->computeAnimalDemographics($animals, $events),
 
             // Registration & Data Completeness - current snapshot without comparison
             'data_completeness' => $this->computeDataCompleteness($animals),
@@ -136,8 +178,8 @@ class FarmAnalysisController extends Controller
             // Reproduction & Fertility - event-based with comparison
             'reproduction_fertility' => $this->computeReproductionFertility($events, $prevEvents),
 
-            // Health & Disease - event-based with comparison
-            'health_disease' => $this->computeHealthDisease($events, $prevEvents, $animals),
+            // Health & Disease - event-based with comparison (but mortality from archived)
+            'health_disease' => $this->computeHealthDisease($events, $prevEvents, $animals, $archivedAnimals, $prevArchivedAnimals),
 
             // Milk Production - event-based with comparison
             'milk_production' => $this->computeMilkProduction($events, $prevEvents, $animals),
@@ -153,30 +195,36 @@ class FarmAnalysisController extends Controller
     /**
      * Compute herd overview KPIs
      */
-    private function computeHerdOverview($animals, $events, $prevEvents, $prevArchivedAnimals, $from, $to, $prevFrom, $prevTo)
+    private function computeHerdOverview($animals, $events, $prevEvents, $archivedAnimals, $prevArchivedAnimals, $from, $to, $prevFrom, $prevTo)
     {
         $totalAnimals = $animals->count();
 
         // Count by species
         $speciesCount = $animals->groupBy('type')->map->count();
 
-        // Archived animals (with comparison)
-        $archivedCount = $this->getArchivedAnimals($animals->first()->farm_id ?? 0, $from, $to)->count();
+        // Archived animals (with comparison) - all archived animals in period
+        $archivedCount = $archivedAnimals->count();
         $prevArchivedCount = $prevArchivedAnimals->count();
 
         // Youngstock (calves < 1 year, cattle only)
         $youngstockCount = $animals->where('type', 'Cattle')
             ->filter(function ($animal) {
+                if ($animal->dob == null || strlen($animal->dob) < 4) {
+                    return false;
+                }
                 return $this->calculateAgeInMonths($animal->dob) < 12;
             })->count();
 
-        // Herd growth (births - deaths) with comparison
-        $births = $this->getEventCount($events, 'Calving');
-        $deaths = $this->getEventCount($events, 'Mortality');
-        $herdGrowth = $births - $deaths;
+        // Deaths from archived animals where last_event = 'Mortality'
+        $deaths = $archivedAnimals->where('last_event', 'Mortality')->count();
+        $prevDeaths = $prevArchivedAnimals->where('last_event', 'Mortality')->count();
 
+        // Births from events (still from events as births don't cause archiving)
+        $births = $this->getEventCount($events, 'Calving');
         $prevBirths = $this->getEventCount($prevEvents, 'Calving');
-        $prevDeaths = $this->getEventCount($prevEvents, 'Mortality');
+
+        // Herd growth (births - deaths) with comparison
+        $herdGrowth = $births - $deaths;
         $prevHerdGrowth = $prevBirths - $prevDeaths;
 
         // Data quality score
@@ -196,8 +244,9 @@ class FarmAnalysisController extends Controller
 
     /**
      * Compute animal demographics (cattle only)
+     * Lactating cows calculated from unique animal_ids with milking events in date range
      */
-    private function computeAnimalDemographics($animals)
+    private function computeAnimalDemographics($animals, $events)
     {
         // For cattle only
         $cattle = $animals->where('type', 'Cattle');
@@ -230,10 +279,13 @@ class FarmAnalysisController extends Controller
             }
         }
 
-        // Cattle production status
-        $lactatingCows = $cattle->where('sex', 'Female')
-            ->where('lactation_status', 'Lactating')->count();
+        // Lactating cows: Count unique animal_ids from milking events in date range
+        $lactatingCows = $events->where('type', 'Milking')
+                               ->pluck('animal_id')
+                               ->unique()
+                               ->count();
 
+        // Pregnant cows (keep existing logic)
         $pregnantCows = $cattle->where('sex', 'Female')
             ->where('is_pregnant', 'Yes')->count();
 
@@ -248,23 +300,63 @@ class FarmAnalysisController extends Controller
     }
 
     /**
-     * Compute data completeness metrics
+     * Compute data completeness metrics for cattle only
+     * Checks for null values or string length < 4 for key fields
      */
     private function computeDataCompleteness($animals)
     {
-        $totalAnimals = $animals->count();
+        // Filter to cattle only as per requirements
+        $cattle = $animals->where('type', 'Cattle');
+        $totalCattle = $cattle->count();
 
-        // Animals missing photo
-        $missingPhoto = $animals->where('photo', '')->count();
+        if ($totalCattle === 0) {
+            return [
+                'missing_photo' => 0,
+                'missing_eid' => 0,
+                'missing_vid' => 0,
+                'missing_species' => 0,
+                'missing_sex' => 0,
+                'missing_dob' => 0,
+                'completeness_score' => 0.00,
+            ];
+        }
 
-        // Animals missing E-ID or V-ID
-        $missingEid = $animals->where('e_id', '')->count();
-        $missingVid = $animals->where('v_id', '')->count();
+        // Count missing fields (null or string length < 4)
+        $missingPhoto = $cattle->filter(function($animal) {
+            return is_null($animal->photo) || strlen(trim($animal->photo ?? '')) < 4;
+        })->count();
 
-        // Animals missing species, sex, or DoB
-        $missingSpecies = $animals->where('type', '')->count();
-        $missingSex = $animals->where('sex', '')->count();
-        $missingDob = $animals->where('dob', '')->count();
+        $missingEid = $cattle->filter(function($animal) {
+            return is_null($animal->e_id) || strlen(trim($animal->e_id ?? '')) < 4;
+        })->count();
+
+        $missingVid = $cattle->filter(function($animal) {
+            return is_null($animal->v_id) || strlen(trim($animal->v_id ?? '')) < 4;
+        })->count();
+
+        $missingSpecies = $cattle->filter(function($animal) {
+            return is_null($animal->type) || strlen(trim($animal->type ?? '')) < 4;
+        })->count();
+
+        $missingSex = $cattle->filter(function($animal) {
+            return is_null($animal->sex) || strlen(trim($animal->sex ?? '')) < 4;
+        })->count();
+
+        $missingDob = $cattle->filter(function($animal) {
+            return is_null($animal->dob) || strlen(trim($animal->dob ?? '')) < 4;
+        })->count();
+
+        // Calculate completeness score (round to 2 decimal places)
+        $completeRecords = $cattle->filter(function($animal) {
+            return !is_null($animal->photo) && strlen(trim($animal->photo ?? '')) >= 4 &&
+                   !is_null($animal->e_id) && strlen(trim($animal->e_id ?? '')) >= 4 &&
+                   !is_null($animal->v_id) && strlen(trim($animal->v_id ?? '')) >= 4 &&
+                   !is_null($animal->type) && strlen(trim($animal->type ?? '')) >= 4 &&
+                   !is_null($animal->sex) && strlen(trim($animal->sex ?? '')) >= 4 &&
+                   !is_null($animal->dob) && strlen(trim($animal->dob ?? '')) >= 4;
+        })->count();
+
+        $completenessScore = round(($completeRecords / $totalCattle) * 100, 2);
 
         return [
             'missing_photo' => $missingPhoto,
@@ -273,12 +365,13 @@ class FarmAnalysisController extends Controller
             'missing_species' => $missingSpecies,
             'missing_sex' => $missingSex,
             'missing_dob' => $missingDob,
-            'completeness_score' => $this->calculateDataQualityScore($animals),
+            'completeness_score' => $completenessScore,
         ];
     }
 
     /**
      * Compute reproduction and fertility metrics with comparison
+     * All percentages and ratios rounded to 2 decimal places
      */
     private function computeReproductionFertility($events, $prevEvents)
     {
@@ -302,9 +395,9 @@ class FarmAnalysisController extends Controller
         $prevNotPregnant = $prevPregnancyChecks->where('is_present', 'Not Pregnant')->count();
         $prevRetest = $prevPregnancyChecks->where('is_present', 'Retest')->count();
 
-        // Conception rate
-        $conceptionRate = $services->count() > 0 ? ($pregnant / $services->count()) * 100 : 0;
-        $prevConceptionRate = $prevServices->count() > 0 ? ($prevPregnant / $prevServices->count()) * 100 : 0;
+        // Conception rate - round to 2 decimal places
+        $conceptionRate = $services->count() > 0 ? round(($pregnant / $services->count()) * 100, 2) : 0.00;
+        $prevConceptionRate = $prevServices->count() > 0 ? round(($prevPregnant / $prevServices->count()) * 100, 2) : 0.00;
 
         // Calvings in period
         $calvings = $events->where('type', 'Calving')->count();
@@ -326,7 +419,7 @@ class FarmAnalysisController extends Controller
                 'retest' => $this->compareValues($retest, $prevRetest, true),
                 'total' => $this->compareValues($pregnancyChecks->count(), $prevPregnancyChecks->count()),
             ],
-            'conception_rate' => $this->compareValues(round($conceptionRate, 2), round($prevConceptionRate, 2)),
+            'conception_rate' => $this->compareValues($conceptionRate, $prevConceptionRate),
             'calvings' => $this->compareValues($calvings, $prevCalvings),
             'abortions' => $this->compareValues($abortions, $prevAbortions, true),
         ];
@@ -334,183 +427,183 @@ class FarmAnalysisController extends Controller
 
     /**
      * Compute health and disease metrics with comparison
+     * Treatment events include both 'Treatment' and 'Batch Treatment'
+     * Mortality calculated from archived animals with last_event = 'Mortality'
      */
-    private function computeHealthDisease($events, $prevEvents, $animals)
+    private function computeHealthDisease($events, $prevEvents, $animals, $archivedAnimals, $prevArchivedAnimals)
     {
         // Disease events
         $diseaseEvents = $events->where('type', 'Disease test');
         $diseaseCount = $diseaseEvents->count();
         $prevDiseaseCount = $prevEvents->where('type', 'Disease test')->count();
 
-        // Treatment events
-        $treatmentEvents = $events->where('type', 'Treatment');
+        // Treatment events (both Treatment and Batch Treatment)
+        $treatmentEvents = $events->whereIn('type', ['Treatment', 'Batch Treatment']);
         $treatmentCount = $treatmentEvents->count();
-        $prevTreatmentCount = $prevEvents->where('type', 'Treatment')->count();
+        $prevTreatmentCount = $prevEvents->whereIn('type', ['Treatment', 'Batch Treatment'])->count();
 
         // Vaccination events
         $vaccinationEvents = $events->where('type', 'Vaccination');
         $vaccinationCount = $vaccinationEvents->count();
         $prevVaccinationCount = $prevEvents->where('type', 'Vaccination')->count();
 
-        // Mortality events
-        $mortalityEvents = $events->where('type', 'Mortality');
-        $mortalityCount = $mortalityEvents->count();
-        $prevMortalityCount = $prevEvents->where('type', 'Mortality')->count();
+        // Mortality from archived animals where last_event = 'Mortality'
+        $mortalityCount = $archivedAnimals->where('last_event', 'Mortality')->count();
+        $prevMortalityCount = $prevArchivedAnimals->where('last_event', 'Mortality')->count();
 
-        // Disease incidence rate
+        // Disease incidence rate (round to 2 decimal places)
         $avgHeadcount = $animals->count();
-        $diseaseIncidenceRate = $avgHeadcount > 0 ? ($diseaseCount / $avgHeadcount) * 100 : 0;
+        $diseaseIncidenceRate = $avgHeadcount > 0 ? round(($diseaseCount / $avgHeadcount) * 100, 2) : 0.00;
 
         $prevAvgHeadcount = $this->getFarmAnimalsAtDate($animals, $prevEvents->last()->created_at ?? Carbon::now()->subYear())->count();
-        $prevDiseaseIncidenceRate = $prevAvgHeadcount > 0 ? ($prevDiseaseCount / $prevAvgHeadcount) * 100 : 0;
+        $prevDiseaseIncidenceRate = $prevAvgHeadcount > 0 ? round(($prevDiseaseCount / $prevAvgHeadcount) * 100, 2) : 0.00;
 
         return [
             'disease_events' => $this->compareValues($diseaseCount, $prevDiseaseCount, true),
             'treatment_events' => $this->compareValues($treatmentCount, $prevTreatmentCount, true),
             'vaccination_events' => $this->compareValues($vaccinationCount, $prevVaccinationCount),
             'mortality_events' => $this->compareValues($mortalityCount, $prevMortalityCount, true),
-            'disease_incidence_rate' => $this->compareValues(round($diseaseIncidenceRate, 2), round($prevDiseaseIncidenceRate, 2), true),
+            'disease_incidence_rate' => $this->compareValues($diseaseIncidenceRate, $prevDiseaseIncidenceRate, true),
         ];
     }
 
     /**
      * Compute milk production metrics with comparison
+     * Uses milk quantity from 'milk' column and price from 'price' column
      */
     private function computeMilkProduction($events, $prevEvents, $animals)
     {
-        // Milking events - use existing detail field to extract milk quantity
+        // Milking events - use 'milk' column for quantity and 'price' column for pricing
         $milkingEvents = $events->where('type', 'Milking');
         $totalMilk = 0;
         foreach ($milkingEvents as $event) {
-            // Extract milk quantity from detail field (format: "X liters" or just number)
-            $milk = $this->extractMilkQuantity($event->detail ?? '0');
+            // Use milk column directly, fallback to extracting from detail if needed
+            $milk = (float)($event->milk ?? $this->extractMilkQuantity($event->detail ?? '0'));
             $totalMilk += $milk;
         }
-        $avgMilkPerEvent = $milkingEvents->count() > 0 ? $totalMilk / $milkingEvents->count() : 0;
+        $avgMilkPerEvent = $milkingEvents->count() > 0 ? round($totalMilk / $milkingEvents->count(), 2) : 0.00;
 
         $prevMilkingEvents = $prevEvents->where('type', 'Milking');
         $prevTotalMilk = 0;
         foreach ($prevMilkingEvents as $event) {
-            $milk = $this->extractMilkQuantity($event->detail ?? '0');
+            $milk = (float)($event->milk ?? $this->extractMilkQuantity($event->detail ?? '0'));
             $prevTotalMilk += $milk;
         }
-        $prevAvgMilkPerEvent = $prevMilkingEvents->count() > 0 ? $prevTotalMilk / $prevMilkingEvents->count() : 0;
+        $prevAvgMilkPerEvent = $prevMilkingEvents->count() > 0 ? round($prevTotalMilk / $prevMilkingEvents->count(), 2) : 0.00;
 
-        // Lactating animals (cattle only)
-        $lactatingAnimals = $animals->where('type', 'Cattle')
-            ->where('lactation_status', 'Lactating')->count();
-        $avgMilkPerLactatingAnimal = $lactatingAnimals > 0 ? $totalMilk / $lactatingAnimals : 0;
+        // Lactating animals: Count unique animal_ids from milking events in date range
+        $lactatingAnimals = $milkingEvents->pluck('animal_id')->unique()->count();
+        $avgMilkPerLactatingAnimal = $lactatingAnimals > 0 ? round($totalMilk / $lactatingAnimals, 2) : 0.00;
 
-        $prevLactatingAnimals = $this->getFarmAnimalsAtDate($animals, $prevEvents->last()->created_at ?? Carbon::now()->subYear())
-            ->where('type', 'Cattle')
-            ->where('lactation_status', 'Lactating')->count();
-        $prevAvgMilkPerLactatingAnimal = $prevLactatingAnimals > 0 ? $prevTotalMilk / $prevLactatingAnimals : 0;
+        $prevLactatingAnimals = $prevMilkingEvents->pluck('animal_id')->unique()->count();
+        $prevAvgMilkPerLactatingAnimal = $prevLactatingAnimals > 0 ? round($prevTotalMilk / $prevLactatingAnimals, 2) : 0.00;
 
         return [
-            'total_milk_production' => $this->compareValues($totalMilk, $prevTotalMilk),
+            'total_milk_production' => $this->compareValues(round($totalMilk, 2), round($prevTotalMilk, 2)),
             'milking_events' => $this->compareValues($milkingEvents->count(), $prevMilkingEvents->count()),
-            'avg_milk_per_event' => $this->compareValues(round($avgMilkPerEvent, 2), round($prevAvgMilkPerEvent, 2)),
+            'avg_milk_per_event' => $this->compareValues($avgMilkPerEvent, $prevAvgMilkPerEvent),
             'lactating_animals' => $this->compareValues($lactatingAnimals, $prevLactatingAnimals),
-            'avg_milk_per_lactating_animal' => $this->compareValues(round($avgMilkPerLactatingAnimal, 2), round($prevAvgMilkPerLactatingAnimal, 2)),
+            'avg_milk_per_lactating_animal' => $this->compareValues($avgMilkPerLactatingAnimal, $prevAvgMilkPerLactatingAnimal),
         ];
     }
 
     /**
      * Compute treatment metrics with comparison
+     * Includes both 'Treatment' and 'Batch Treatment' events
+     * Uses drug_worth column for cost calculations
      */
     private function computeTreatmentMetrics($events, $prevEvents, $animals)
     {
-        // Treatment events
-        $treatmentEvents = $events->where('type', 'Treatment');
+        // Treatment events (both Treatment and Batch Treatment)
+        $treatmentEvents = $events->whereIn('type', ['Treatment', 'Batch Treatment']);
         $treatmentCount = $treatmentEvents->count();
-        $prevTreatmentCount = $prevEvents->where('type', 'Treatment')->count();
+        $prevTreatmentCount = $prevEvents->whereIn('type', ['Treatment', 'Batch Treatment'])->count();
 
-        // Treatment cost - use helper method
+        // Treatment cost from drug_worth column
         $treatmentCost = 0;
         foreach ($treatmentEvents as $event) {
-            $cost = $this->extractTreatmentCost($event->detail ?? '', $event->price ?? 0);
+            $cost = (float)($event->drug_worth ?? 0);
             $treatmentCost += $cost;
         }
 
         $prevTreatmentCost = 0;
-        $prevTreatmentEvents = $prevEvents->where('type', 'Treatment');
+        $prevTreatmentEvents = $prevEvents->whereIn('type', ['Treatment', 'Batch Treatment']);
         foreach ($prevTreatmentEvents as $event) {
-            $cost = $this->extractTreatmentCost($event->detail ?? '', $event->price ?? 0);
+            $cost = (float)($event->drug_worth ?? 0);
             $prevTreatmentCost += $cost;
         }
 
-        // Average treatment cost
-        $avgTreatmentCost = $treatmentCount > 0 ? $treatmentCost / $treatmentCount : 0;
-        $prevAvgTreatmentCost = $prevTreatmentCount > 0 ? $prevTreatmentCost / $prevTreatmentCount : 0;
+        // Average treatment cost (round to 2 decimal places)
+        $avgTreatmentCost = $treatmentCount > 0 ? round($treatmentCost / $treatmentCount, 2) : 0.00;
+        $prevAvgTreatmentCost = $prevTreatmentCount > 0 ? round($prevTreatmentCost / $prevTreatmentCount, 2) : 0.00;
 
-        // Treatment rate (treatments per animal)
+        // Treatment rate (treatments per animal) - round to 2 decimal places
         $animalCount = $animals->count();
-        $treatmentRate = $animalCount > 0 ? $treatmentCount / $animalCount : 0;
+        $treatmentRate = $animalCount > 0 ? round($treatmentCount / $animalCount, 2) : 0.00;
 
         $prevAnimalCount = $this->getFarmAnimalsAtDate($animals, $prevEvents->last()->created_at ?? Carbon::now()->subYear())->count();
-        $prevTreatmentRate = $prevAnimalCount > 0 ? $prevTreatmentCount / $prevAnimalCount : 0;
+        $prevTreatmentRate = $prevAnimalCount > 0 ? round($prevTreatmentCount / $prevAnimalCount, 2) : 0.00;
 
         return [
             'treatment_count' => $this->compareValues($treatmentCount, $prevTreatmentCount, true),
-            'treatment_cost' => $this->compareValues($treatmentCost, $prevTreatmentCost, true),
-            'avg_treatment_cost' => $this->compareValues(round($avgTreatmentCost, 2), round($prevAvgTreatmentCost, 2), true),
-            'treatment_rate' => $this->compareValues(round($treatmentRate, 2), round($prevTreatmentRate, 2), true),
+            'treatment_cost' => $this->compareValues(round($treatmentCost, 2), round($prevTreatmentCost, 2), true),
+            'avg_treatment_cost' => $this->compareValues($avgTreatmentCost, $prevAvgTreatmentCost, true),
+            'treatment_rate' => $this->compareValues($treatmentRate, $prevTreatmentRate, true),
         ];
     }
 
     /**
      * Compute financial metrics with comparison
+     * Uses price column from milking events and drug_worth from treatment events
      */
     private function computeFinancialMetrics($events, $prevEvents, $animals)
     {
-        // Milk value - use price field from events table and extract milk quantity from detail
+        // Milk value - use price field from events table directly
         $milkValue = 0;
         $milkingEvents = $events->where('type', 'Milking');
         foreach ($milkingEvents as $event) {
-            $milkQuantity = $this->extractMilkQuantity($event->detail ?? '0');
-            $pricePerLiter = ($event->price ?? 1000) / 1000; // Convert from UGX to reasonable unit
-            $milkValue += $milkQuantity * $pricePerLiter;
+            $price = (float)($event->price ?? 0);
+            $milkValue += $price;
         }
 
         $prevMilkValue = 0;
         $prevMilkingEvents = $prevEvents->where('type', 'Milking');
         foreach ($prevMilkingEvents as $event) {
-            $milkQuantity = $this->extractMilkQuantity($event->detail ?? '0');
-            $pricePerLiter = ($event->price ?? 1000) / 1000;
-            $prevMilkValue += $milkQuantity * $pricePerLiter;
+            $price = (float)($event->price ?? 0);
+            $prevMilkValue += $price;
         }
 
-        // Treatment cost - use price field or extract from detail
+        // Treatment cost from drug_worth column (both Treatment and Batch Treatment)
         $treatmentCost = 0;
-        $treatmentEvents = $events->where('type', 'Treatment');
+        $treatmentEvents = $events->whereIn('type', ['Treatment', 'Batch Treatment']);
         foreach ($treatmentEvents as $event) {
-            $cost = $this->extractTreatmentCost($event->detail ?? '', $event->price ?? 0);
+            $cost = (float)($event->drug_worth ?? 0);
             $treatmentCost += $cost;
         }
 
         $prevTreatmentCost = 0;
-        $prevTreatmentEvents = $prevEvents->where('type', 'Treatment');
+        $prevTreatmentEvents = $prevEvents->whereIn('type', ['Treatment', 'Batch Treatment']);
         foreach ($prevTreatmentEvents as $event) {
-            $cost = $this->extractTreatmentCost($event->detail ?? '', $event->price ?? 0);
+            $cost = (float)($event->drug_worth ?? 0);
             $prevTreatmentCost += $cost;
         }
 
-        // Net profit (milk value - treatment cost)
-        $netProfit = $milkValue - $treatmentCost;
-        $prevNetProfit = $prevMilkValue - $prevTreatmentCost;
+        // Net profit (milk value - treatment cost) - round to 2 decimal places
+        $netProfit = round($milkValue - $treatmentCost, 2);
+        $prevNetProfit = round($prevMilkValue - $prevTreatmentCost, 2);
 
-        // Profit per animal
+        // Profit per animal - round to 2 decimal places
         $animalCount = $animals->count();
-        $profitPerAnimal = $animalCount > 0 ? $netProfit / $animalCount : 0;
+        $profitPerAnimal = $animalCount > 0 ? round($netProfit / $animalCount, 2) : 0.00;
 
         $prevAnimalCount = $this->getFarmAnimalsAtDate($animals, $prevEvents->last()->created_at ?? Carbon::now()->subYear())->count();
-        $prevProfitPerAnimal = $prevAnimalCount > 0 ? $prevNetProfit / $prevAnimalCount : 0;
+        $prevProfitPerAnimal = $prevAnimalCount > 0 ? round($prevNetProfit / $prevAnimalCount, 2) : 0.00;
 
         return [
-            'milk_value' => $this->compareValues($milkValue, $prevMilkValue),
-            'treatment_cost' => $this->compareValues($treatmentCost, $prevTreatmentCost, true),
+            'milk_value' => $this->compareValues(round($milkValue, 2), round($prevMilkValue, 2)),
+            'treatment_cost' => $this->compareValues(round($treatmentCost, 2), round($prevTreatmentCost, 2), true),
             'net_profit' => $this->compareValues($netProfit, $prevNetProfit),
-            'profit_per_animal' => $this->compareValues(round($profitPerAnimal, 2), round($prevProfitPerAnimal, 2)),
+            'profit_per_animal' => $this->compareValues($profitPerAnimal, $prevProfitPerAnimal),
         ];
     }
 
@@ -540,30 +633,28 @@ class FarmAnalysisController extends Controller
     }
 
     /**
-     * Calculate data quality score
+     * Calculate data quality score for cattle only
+     * Checks for null values or string length < 4 for key fields
+     * Returns percentage rounded to 2 decimal places
      */
     private function calculateDataQualityScore($animals)
     {
-        $totalAnimals = $animals->count();
-        if ($totalAnimals === 0) return 0;
+        // Filter to cattle only
+        $cattle = $animals->where('type', 'Cattle');
+        $totalCattle = $cattle->count();
+        
+        if ($totalCattle === 0) return 0.00;
 
-        $completeRecords = 0;
+        $completeRecords = $cattle->filter(function ($animal) {
+            return !is_null($animal->photo) && strlen(trim($animal->photo ?? '')) >= 4 &&
+                   !is_null($animal->e_id) && strlen(trim($animal->e_id ?? '')) >= 4 &&
+                   !is_null($animal->v_id) && strlen(trim($animal->v_id ?? '')) >= 4 &&
+                   !is_null($animal->type) && strlen(trim($animal->type ?? '')) >= 4 &&
+                   !is_null($animal->sex) && strlen(trim($animal->sex ?? '')) >= 4 &&
+                   !is_null($animal->dob) && strlen(trim($animal->dob ?? '')) >= 4;
+        })->count();
 
-        foreach ($animals as $animal) {
-            // Check if animal has all required data
-            if (
-                !empty($animal->photo) &&
-                !empty($animal->e_id) &&
-                !empty($animal->v_id) &&
-                !empty($animal->type) &&
-                !empty($animal->sex) &&
-                !empty($animal->dob)
-            ) {
-                $completeRecords++;
-            }
-        }
-
-        return ($completeRecords / $totalAnimals) * 100;
+        return round(($completeRecords / $totalCattle) * 100, 2);
     }
 
     /**
@@ -647,6 +738,7 @@ class FarmAnalysisController extends Controller
 
     /**
      * Generate enhanced dashboard items for mobile app
+     * Uses formatted numbers and correct data sources
      */
     private function generateDashboardItems($kpis, $animals, $events)
     {
@@ -657,7 +749,7 @@ class FarmAnalysisController extends Controller
         $items[] = [
             'id' => 'total_animals',
             'name' => 'Total Animals',
-            'count' => strval($kpis['herd_overview']['total_animals'] ?? 0),
+            'count' => $this->formatNumber($kpis['herd_overview']['total_animals'] ?? 0),
             'description' => $speciesBreakdown,
             'icon' => 'pets',
             'type' => 'total_animals',
@@ -673,7 +765,7 @@ class FarmAnalysisController extends Controller
         $items[] = [
             'id' => 'cattle',
             'name' => 'Cattle',
-            'count' => strval($kpis['animal_demographics']['total_cattle'] ?? 0),
+            'count' => $this->formatNumber($kpis['animal_demographics']['total_cattle'] ?? 0),
             'description' => $genderBreakdown,
             'icon' => 'agriculture',
             'type' => 'cattle',
@@ -690,7 +782,7 @@ class FarmAnalysisController extends Controller
         $items[] = [
             'id' => 'milk_production',
             'name' => 'Milk Production',
-            'count' => ($milkData['current'] ?? 0) . ' L',
+            'count' => $this->formatNumber($milkData['value'] ?? 0) . ' L',
             'description' => 'This period total',
             'icon' => 'water_drop',
             'type' => 'milk_production',
@@ -700,11 +792,11 @@ class FarmAnalysisController extends Controller
             'trend_value' => $this->getTrendValue($milkData),
         ];
 
-        // Lactating Cows
+        // Lactating Cows (from milking events)
         $items[] = [
             'id' => 'lactating_cows',
             'name' => 'Lactating Cows',
-            'count' => strval($kpis['animal_demographics']['lactating_cows'] ?? 0),
+            'count' => $this->formatNumber($kpis['animal_demographics']['lactating_cows'] ?? 0),
             'description' => 'Currently producing milk',
             'icon' => 'local_drink',
             'type' => 'lactating_cows',
@@ -718,7 +810,7 @@ class FarmAnalysisController extends Controller
         $items[] = [
             'id' => 'pregnant_cows',
             'name' => 'Pregnant Cows',
-            'count' => strval($kpis['animal_demographics']['pregnant_cows'] ?? 0),
+            'count' => $this->formatNumber($kpis['animal_demographics']['pregnant_cows'] ?? 0),
             'description' => 'Expected calvings',
             'icon' => 'pregnant_woman',
             'type' => 'pregnant_cows',
@@ -735,7 +827,7 @@ class FarmAnalysisController extends Controller
         $items[] = [
             'id' => 'youngstock',
             'name' => 'Young Stock',
-            'count' => strval($kpis['herd_overview']['youngstock_count'] ?? 0),
+            'count' => $this->formatNumber($kpis['herd_overview']['youngstock_count'] ?? 0),
             'description' => $ageBreakdown,
             'icon' => 'child_friendly',
             'type' => 'young_stock',
@@ -750,7 +842,7 @@ class FarmAnalysisController extends Controller
         $items[] = [
             'id' => 'births',
             'name' => 'Births',
-            'count' => strval($birthsData['current'] ?? 0),
+            'count' => $this->formatNumber($birthsData['value'] ?? 0),
             'description' => 'This period',
             'icon' => 'baby_changing_station',
             'type' => 'births',
@@ -760,12 +852,12 @@ class FarmAnalysisController extends Controller
             'trend_value' => $this->getTrendValue($birthsData),
         ];
 
-        // Deaths
+        // Deaths (from archived animals)
         $deathsData = $kpis['herd_overview']['deaths'] ?? null;
         $items[] = [
             'id' => 'deaths',
             'name' => 'Deaths',
-            'count' => strval($deathsData['current'] ?? 0),
+            'count' => $this->formatNumber($deathsData['value'] ?? 0),
             'description' => 'This period',
             'icon' => 'sentiment_very_dissatisfied',
             'type' => 'deaths',
@@ -835,26 +927,663 @@ class FarmAnalysisController extends Controller
 
     private function getTrendDirection($comparisonData)
     {
-        if (!is_array($comparisonData) || !isset($comparisonData['change'])) {
+        if (!is_array($comparisonData) || !isset($comparisonData['diff'])) {
             return null;
         }
 
-        $change = $comparisonData['change'];
-        if ($change > 0) return 'up';
-        if ($change < 0) return 'down';
+        $diff = $comparisonData['diff'];
+        if ($diff > 0) return 'up';
+        if ($diff < 0) return 'down';
         return 'neutral';
     }
 
     private function getTrendValue($comparisonData)
     {
-        if (!is_array($comparisonData) || !isset($comparisonData['percentage'])) {
+        if (!is_array($comparisonData) || !isset($comparisonData['diff'])) {
             return null;
         }
 
-        $percentage = round($comparisonData['percentage'], 1);
-        $change = $comparisonData['change'] ?? 0;
-        $sign = $change >= 0 ? '+' : '';
+        $diff = $comparisonData['diff'];
+        if ($diff == 0) return null;
+        
+        $sign = $diff >= 0 ? '+' : '';
+        return "$sign$diff";
+    }
 
-        return "$sign{$percentage}%";
+    // ===============================================
+    // CONSOLIDATED DASHBOARD API ENDPOINTS
+    // ===============================================
+
+    /**
+     * Get ALL KPI/COUNT data in single endpoint for dashboard numbers/metrics
+     * GET /api/farm-analysis/{farm_id}/dashboard-kpis
+     */
+    public function dashboardKpis(Request $request)
+    {
+        $validated = $request->validate([
+            'farm_id' => 'required|integer',
+            'range_from' => 'nullable|date',
+            'range_to' => 'nullable|date',
+        ]);
+
+        $farmId = $validated['farm_id'];
+        $rangeFrom = isset($validated['range_from']) ? Carbon::parse($validated['range_from'])->startOfDay() : Carbon::now()->subMonth()->startOfDay();
+        $rangeTo = isset($validated['range_to']) ? Carbon::parse($validated['range_to'])->endOfDay() : Carbon::now()->endOfDay();
+
+        try {
+            // Get base data
+            $animals = $this->getFarmAnimals($farmId);
+            $events = $this->getFarmEvents($farmId, $rangeFrom, $rangeTo);
+            $archivedAnimals = $this->getArchivedAnimals($farmId, $rangeFrom, $rangeTo);
+
+            // Calculate previous period for trends
+            $daysDiff = $rangeFrom->diffInDays($rangeTo);
+            $prevRangeFrom = $rangeFrom->copy()->subDays($daysDiff + 1);
+            $prevRangeTo = $rangeTo->copy()->subDays($daysDiff + 1);
+            $prevEvents = $this->getFarmEvents($farmId, $prevRangeFrom, $prevRangeTo);
+            $prevArchivedAnimals = $this->getArchivedAnimals($farmId, $prevRangeFrom, $prevRangeTo);
+
+            // Calculate ALL KPIs and metrics in one place
+            $kpis = $this->compute_kpis($animals, $events, $prevEvents, $archivedAnimals, $prevArchivedAnimals, $rangeFrom, $rangeTo, $prevRangeFrom, $prevRangeTo);
+
+            // Additional dashboard-specific calculations
+            $totalAnimals = count($animals);
+            $lactatingCows = $this->getLactatingCows($events);
+            $lactatingPercentage = $totalAnimals > 0 ? round(($lactatingCows / $totalAnimals) * 100, 2) : 0;
+            
+            // Milk calculations
+            $milkEvents = collect($events)->where('type', 'Milking');
+            $dailyMilk = $milkEvents->sum('milk') / max($daysDiff, 1);
+            $milkPerCow = $lactatingCows > 0 ? $dailyMilk / $lactatingCows : 0;
+
+            // Reproduction calculations
+            $services = collect($events)->whereIn('type', ['AI', 'Natural mating'])->count();
+            $pregnantAnimals = DB::table('pregnant_animals')
+                ->where('farm_id', $farmId)
+                ->where('current_status', 'Pregnant')
+                ->count();
+            $conceptionRate = $services > 0 ? round(($pregnantAnimals / $services) * 100, 2) : 0;
+
+            // Disease incidence (per 100 animals per month)
+            $diseaseEvents = collect($events)->whereNotNull('disease_text')->count();
+            $diseaseIncidence = $totalAnimals > 0 ? round(($diseaseEvents / $totalAnimals) * 100 * (30 / max($daysDiff, 1)), 2) : 0;
+
+            // Vaccination coverage
+            $vaccinatedCount = DB::table('farm_vaccination_records')
+                ->where('farm_id', $farmId)
+                ->whereBetween('created_at', [$rangeFrom, $rangeTo])
+                ->sum('number_of_animals_vaccinated');
+            $vaccCoverage = $totalAnimals > 0 ? min(round(($vaccinatedCount / $totalAnimals) * 100, 2), 100) : 0;
+
+            // Mortality rate
+            $deaths = collect($archivedAnimals)->where('last_event', 'Mortality')->count();
+            $mortalityRate = $totalAnimals > 0 ? round(($deaths / ($totalAnimals + $deaths)) * 100, 2) : 0;
+
+            // Data quality score
+            $dataQuality = $this->calculateDataQuality($animals);
+
+            // Calculate trends
+            $prevLactating = $this->getLactatingCows($prevEvents);
+            $prevDeaths = collect($prevArchivedAnimals)->where('last_event', 'Mortality')->count();
+            $growthThisMonth = $totalAnimals - ($totalAnimals - $prevLactating + $prevDeaths);
+
+            // Species breakdown for demographics
+            $speciesBreakdown = DB::table('animals')
+                ->where('farm_id', $farmId)
+                ->whereNull('deleted_at')
+                ->selectRaw('
+                    type,
+                    COUNT(*) as count
+                ')
+                ->groupBy('type')
+                ->get()
+                ->pluck('count', 'type')
+                ->toArray();
+
+            // Normalize species names and get counts
+            $cattle = $speciesBreakdown['Cattle'] ?? $speciesBreakdown['cattle'] ?? 0;
+            $goats = $speciesBreakdown['Goats'] ?? $speciesBreakdown['goat'] ?? $speciesBreakdown['Goat'] ?? 0;
+            $sheep = $speciesBreakdown['Sheep'] ?? $speciesBreakdown['sheep'] ?? 0;
+            $pigs = $speciesBreakdown['Pigs'] ?? $speciesBreakdown['pig'] ?? $speciesBreakdown['Pig'] ?? 0;
+
+            // Calculate age bands
+            $animals_with_dob = DB::table('animals')
+                ->where('farm_id', $farmId)
+                ->whereNull('deleted_at')
+                ->whereNotNull('dob')
+                ->select('dob', 'sex', 'breed')
+                ->get();
+
+            $ageBands = [
+                'calves_0_6_months' => 0,
+                'young_6_12_months' => 0,
+                'growing_12_24_months' => 0,
+                'mature_over_24_months' => 0
+            ];
+
+            $genderDistribution = ['male' => 0, 'female' => 0];
+            $breedCounts = [];
+
+            foreach ($animals_with_dob as $animal) {
+                // Age calculation
+                $dob = Carbon::parse($animal->dob);
+                $ageInMonths = $dob->diffInMonths(now());
+
+                if ($ageInMonths <= 6) {
+                    $ageBands['calves_0_6_months']++;
+                } elseif ($ageInMonths <= 12) {
+                    $ageBands['young_6_12_months']++;
+                } elseif ($ageInMonths <= 24) {
+                    $ageBands['growing_12_24_months']++;
+                } else {
+                    $ageBands['mature_over_24_months']++;
+                }
+
+                // Gender distribution
+                $sex = strtolower($animal->sex ?? '');
+                if (in_array($sex, ['male', 'm', 'bull'])) {
+                    $genderDistribution['male']++;
+                } elseif (in_array($sex, ['female', 'f', 'cow'])) {
+                    $genderDistribution['female']++;
+                }
+
+                // Breed counting
+                if (!empty($animal->breed)) {
+                    $breed = trim($animal->breed);
+                    $breedCounts[$breed] = ($breedCounts[$breed] ?? 0) + 1;
+                }
+            }
+
+            // Top 5 breeds
+            arsort($breedCounts);
+            $topBreeds = array_map(function($breed, $count) {
+                return ['breed' => $breed, 'count' => $count];
+            }, array_keys($breedCounts), $breedCounts);
+            $topBreeds = array_slice($topBreeds, 0, 5);
+
+            // Reproduction funnel data
+            $pdChecksDone = DB::table('events')
+                ->where('farm_id', $farmId)
+                ->whereNotNull('pregnancy_check_results')
+                ->whereBetween('created_at', [$rangeFrom, $rangeTo])
+                ->count();
+
+            $dueForCalving = DB::table('pregnant_animals')
+                ->where('farm_id', $farmId)
+                ->where('current_status', 'Pregnant')
+                ->whereBetween('expected_calving_date', [now(), now()->addDays(60)])
+                ->count();
+
+            $servicesPerConception = $pregnantAnimals > 0 ? round($services / $pregnantAnimals, 2) : 0;
+            $pdCompletionRate = $services > 0 ? round(($pdChecksDone / $services) * 100, 2) : 0;
+
+            $abortions = DB::table('pregnant_animals')
+                ->where('farm_id', $farmId)
+                ->where('did_animal_abort', 'Yes')
+                ->whereBetween('updated_at', [$rangeFrom, $rangeTo])
+                ->count();
+            $totalPregnancies = $pregnantAnimals + $abortions;
+            $abortionRate = $totalPregnancies > 0 ? round(($abortions / $totalPregnancies) * 100, 2) : 0;
+
+            // Upcoming events
+            $calvingsNext30Days = DB::table('pregnant_animals')
+                ->where('farm_id', $farmId)
+                ->where('current_status', 'Pregnant')
+                ->whereBetween('expected_calving_date', [now(), now()->addDays(30)])
+                ->count();
+
+            $pdChecksDue = DB::table('animals')
+                ->where('farm_id', $farmId)
+                ->where('is_pregnant', 'No')
+                ->where('sex', 'Female')
+                ->whereRaw('DATEDIFF(NOW(), service_date) >= 60')
+                ->whereRaw('service_date IS NOT NULL')
+                ->count();
+
+            // RETURN ALL DATA IN ONE CONSOLIDATED RESPONSE
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    // MAIN KPI DATA (for KPI tiles/cards)
+                    'kpis' => [
+                        'total_animals' => $totalAnimals,
+                        'lactating_cows' => $lactatingCows,
+                        'lactating_percentage' => $lactatingPercentage,
+                        'daily_milk_liters' => round($dailyMilk, 2),
+                        'milk_per_cow' => round($milkPerCow, 2),
+                        'conception_rate' => $conceptionRate,
+                        'disease_incidence' => $diseaseIncidence,
+                        'vaccination_coverage' => $vaccCoverage,
+                        'mortality_rate' => $mortalityRate,
+                        'data_quality_score' => $dataQuality,
+                        'growth_this_month' => max($growthThisMonth, 0),
+                        'vaccination_due' => $this->getVaccinationDue($farmId),
+                        'missing_tags' => $this->getMissingTagsCount($animals)
+                    ],
+
+                    // ORIGINAL FARM ANALYSIS DATA (formatted numbers)
+                    'farm_analysis' => $kpis,
+
+                    // DEMOGRAPHICS COUNTS
+                    'demographics' => [
+                        'species_breakdown' => [
+                            'cattle' => $cattle,
+                            'goats' => $goats,
+                            'sheep' => $sheep,
+                            'pigs' => $pigs
+                        ],
+                        'age_bands' => $ageBands,
+                        'gender_distribution' => $genderDistribution,
+                        'top_breeds' => $topBreeds,
+                        'total_animals' => array_sum($speciesBreakdown)
+                    ],
+
+                    // REPRODUCTION FUNNEL COUNTS
+                    'reproduction_funnel' => [
+                        'funnel_data' => [
+                            'services_given' => $services,
+                            'pd_checks_done' => $pdChecksDone,
+                            'currently_pregnant' => $pregnantAnimals,
+                            'due_for_calving' => $dueForCalving
+                        ],
+                        'performance_metrics' => [
+                            'services_per_conception' => $servicesPerConception,
+                            'conception_rate' => $conceptionRate,
+                            'pd_completion_rate' => $pdCompletionRate,
+                            'abortion_rate' => $abortionRate
+                        ],
+                        'upcoming_events' => [
+                            'calvings_next_30_days' => $calvingsNext30Days,
+                            'pd_checks_due' => $pdChecksDue,
+                            'services_scheduled' => 0
+                        ]
+                    ]
+                ],
+                'metadata' => [
+                    'farm_id' => $farmId,
+                    'generated_at' => now()->toISOString(),
+                    'date_range' => [
+                        'from' => $rangeFrom->toDateString(),
+                        'to' => $rangeTo->toDateString()
+                    ],
+                    'endpoint_type' => 'dashboard_kpis_consolidated'
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error calculating dashboard KPI data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get ALL GRAPH data in single endpoint for dashboard charts/visualizations
+     * GET /api/farm-analysis/{farm_id}/dashboard-graphs
+     */
+    public function dashboardGraphs(Request $request)
+    {
+        $validated = $request->validate([
+            'farm_id' => 'required|integer',
+            'range_from' => 'nullable|date',
+            'range_to' => 'nullable|date',
+        ]);
+
+        $farmId = $validated['farm_id'];
+        $rangeFrom = isset($validated['range_from']) ? Carbon::parse($validated['range_from'])->startOfDay() : Carbon::now()->subMonth()->startOfDay();
+        $rangeTo = isset($validated['range_to']) ? Carbon::parse($validated['range_to'])->endOfDay() : Carbon::now()->endOfDay();
+
+        try {
+            // Get all base data for graphs
+            $animals = $this->getFarmAnimals($farmId);
+            $events = $this->getFarmEvents($farmId, $rangeFrom, $rangeTo);
+            $archivedAnimals = $this->getArchivedAnimals($farmId, $rangeFrom, $rangeTo);
+
+            // GRAPH 1: MILK PRODUCTION TREND DATA (30 days)
+            $milkTrendData = [];
+            $endDate = Carbon::now();
+            $startDate = $endDate->copy()->subDays(29);
+            
+            for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+                $dayMilk = DB::table('events')
+                    ->where('farm_id', $farmId)
+                    ->where('type', 'Milking')
+                    ->whereDate('created_at', $date->toDateString())
+                    ->sum('milk');
+
+                $lactatingCows = $this->getLactatingCows(
+                    DB::table('events')
+                        ->where('farm_id', $farmId)
+                        ->where('created_at', '<=', $date->endOfDay())
+                        ->get()
+                        ->toArray()
+                );
+
+                $avgPerCow = $lactatingCows > 0 ? $dayMilk / $lactatingCows : 0;
+
+                $milkTrendData[] = [
+                    'date' => $date->format('Y-m-d'),
+                    'total_milk' => round($dayMilk, 2),
+                    'lactating_cows' => $lactatingCows,
+                    'avg_per_cow' => round($avgPerCow, 2),
+                    'day_name' => $date->format('l')
+                ];
+            }
+
+            // GRAPH 2: SPECIES DEMOGRAPHICS PIE CHART DATA
+            $speciesData = DB::table('animals')
+                ->where('farm_id', $farmId)
+                ->whereNull('deleted_at')
+                ->selectRaw('
+                    CASE 
+                        WHEN LOWER(type) IN ("cattle", "cow") THEN "Cattle"
+                        WHEN LOWER(type) IN ("goat", "goats") THEN "Goats"
+                        WHEN LOWER(type) IN ("sheep") THEN "Sheep"
+                        WHEN LOWER(type) IN ("pig", "pigs") THEN "Pigs"
+                        ELSE "Other"
+                    END as species,
+                    COUNT(*) as count
+                ')
+                ->groupBy('species')
+                ->get()
+                ->map(function($item) {
+                    return [
+                        'species' => $item->species,
+                        'count' => $item->count,
+                        'percentage' => 0 // Will be calculated
+                    ];
+                })->toArray();
+
+            // Calculate percentages for species
+            $totalSpeciesCount = array_sum(array_column($speciesData, 'count'));
+            foreach ($speciesData as &$species) {
+                $species['percentage'] = $totalSpeciesCount > 0 ? round(($species['count'] / $totalSpeciesCount) * 100, 2) : 0;
+            }
+
+            // GRAPH 3: AGE DISTRIBUTION BAR CHART DATA
+            $ageDistribution = [];
+            $animals_with_dob = DB::table('animals')
+                ->where('farm_id', $farmId)
+                ->whereNull('deleted_at')
+                ->whereNotNull('dob')
+                ->select('dob')
+                ->get();
+
+            $ageBands = [
+                'Calves (0-6 months)' => 0,
+                'Young (6-12 months)' => 0,
+                'Growing (12-24 months)' => 0,
+                'Mature (24+ months)' => 0
+            ];
+
+            foreach ($animals_with_dob as $animal) {
+                $dob = Carbon::parse($animal->dob);
+                $ageInMonths = $dob->diffInMonths(now());
+
+                if ($ageInMonths <= 6) {
+                    $ageBands['Calves (0-6 months)']++;
+                } elseif ($ageInMonths <= 12) {
+                    $ageBands['Young (6-12 months)']++;
+                } elseif ($ageInMonths <= 24) {
+                    $ageBands['Growing (12-24 months)']++;
+                } else {
+                    $ageBands['Mature (24+ months)']++;
+                }
+            }
+
+            // Convert to chart format
+            foreach ($ageBands as $band => $count) {
+                $ageDistribution[] = [
+                    'age_band' => $band,
+                    'count' => $count,
+                    'percentage' => $animals_with_dob->count() > 0 ? round(($count / $animals_with_dob->count()) * 100, 2) : 0
+                ];
+            }
+
+            // GRAPH 4: REPRODUCTION FUNNEL CHART DATA
+            $services = DB::table('events')
+                ->where('farm_id', $farmId)
+                ->whereIn('type', ['AI', 'Natural mating'])
+                ->whereBetween('created_at', [$rangeFrom, $rangeTo])
+                ->count();
+
+            $pdChecksDone = DB::table('events')
+                ->where('farm_id', $farmId)
+                ->whereNotNull('pregnancy_check_results')
+                ->whereBetween('created_at', [$rangeFrom, $rangeTo])
+                ->count();
+
+            $pregnantAnimals = DB::table('pregnant_animals')
+                ->where('farm_id', $farmId)
+                ->where('current_status', 'Pregnant')
+                ->count();
+
+            $dueForCalving = DB::table('pregnant_animals')
+                ->where('farm_id', $farmId)
+                ->where('current_status', 'Pregnant')
+                ->whereBetween('expected_calving_date', [now(), now()->addDays(60)])
+                ->count();
+
+            $reproductionFunnelData = [
+                ['stage' => 'Services Given', 'count' => $services, 'percentage' => 100],
+                ['stage' => 'PD Checks Done', 'count' => $pdChecksDone, 'percentage' => $services > 0 ? round(($pdChecksDone / $services) * 100, 2) : 0],
+                ['stage' => 'Currently Pregnant', 'count' => $pregnantAnimals, 'percentage' => $services > 0 ? round(($pregnantAnimals / $services) * 100, 2) : 0],
+                ['stage' => 'Due for Calving', 'count' => $dueForCalving, 'percentage' => $services > 0 ? round(($dueForCalving / $services) * 100, 2) : 0]
+            ];
+
+            // GRAPH 5: HEALTH STATUS DISTRIBUTION (Disease Events by Type)
+            $healthEvents = DB::table('events')
+                ->where('farm_id', $farmId)
+                ->whereNotNull('disease_text')
+                ->whereBetween('created_at', [$rangeFrom, $rangeTo])
+                ->selectRaw('
+                    COALESCE(disease_text, "Unknown Disease") as disease,
+                    COUNT(*) as count
+                ')
+                ->groupBy('disease_text')
+                ->orderByDesc('count')
+                ->limit(10)
+                ->get()
+                ->map(function($item) {
+                    return [
+                        'disease' => $item->disease,
+                        'count' => $item->count
+                    ];
+                })->toArray();
+
+            // GRAPH 6: VACCINATION STATUS PIE CHART
+            $totalAnimals = count($animals);
+            $vaccinatedCount = DB::table('farm_vaccination_records')
+                ->where('farm_id', $farmId)
+                ->whereBetween('created_at', [$rangeFrom->subMonths(3), $rangeTo]) // Last 3 months
+                ->sum('number_of_animals_vaccinated');
+
+            $vaccinationStatus = [
+                ['status' => 'Vaccinated', 'count' => min($vaccinatedCount, $totalAnimals), 'color' => '#4CAF50'],
+                ['status' => 'Not Vaccinated', 'count' => max(0, $totalAnimals - $vaccinatedCount), 'color' => '#F44336']
+            ];
+
+            // GRAPH 7: MONTHLY MILK TREND (Last 12 months)
+            $monthlyMilkTrend = [];
+            for ($i = 11; $i >= 0; $i--) {
+                $monthStart = Carbon::now()->subMonths($i)->startOfMonth();
+                $monthEnd = Carbon::now()->subMonths($i)->endOfMonth();
+                
+                $monthlyMilk = DB::table('events')
+                    ->where('farm_id', $farmId)
+                    ->where('type', 'Milking')
+                    ->whereBetween('created_at', [$monthStart, $monthEnd])
+                    ->sum('milk');
+
+                $monthlyMilkTrend[] = [
+                    'month' => $monthStart->format('M Y'),
+                    'month_short' => $monthStart->format('M'),
+                    'total_milk' => round($monthlyMilk, 2),
+                    'avg_per_day' => round($monthlyMilk / $monthStart->daysInMonth, 2)
+                ];
+            }
+
+            // RETURN ALL GRAPH DATA IN ONE CONSOLIDATED RESPONSE
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    // MILK PRODUCTION TREND (Line Chart - 30 days)
+                    'milk_trend' => [
+                        'chart_type' => 'line',
+                        'title' => 'Daily Milk Production (30 Days)',
+                        'data' => $milkTrendData,
+                        'summary' => [
+                            'total_days' => count($milkTrendData),
+                            'avg_daily_milk' => round(array_sum(array_column($milkTrendData, 'total_milk')) / count($milkTrendData), 2),
+                            'avg_lactating_cows' => round(array_sum(array_column($milkTrendData, 'lactating_cows')) / count($milkTrendData), 0)
+                        ]
+                    ],
+
+                    // SPECIES DEMOGRAPHICS (Pie Chart)
+                    'species_demographics' => [
+                        'chart_type' => 'pie',
+                        'title' => 'Animal Species Distribution',
+                        'data' => $speciesData,
+                        'total_count' => $totalSpeciesCount
+                    ],
+
+                    // AGE DISTRIBUTION (Bar Chart)
+                    'age_distribution' => [
+                        'chart_type' => 'bar',
+                        'title' => 'Age Group Distribution',
+                        'data' => $ageDistribution,
+                        'total_animals_with_dob' => $animals_with_dob->count()
+                    ],
+
+                    // REPRODUCTION FUNNEL (Funnel/Bar Chart)
+                    'reproduction_funnel' => [
+                        'chart_type' => 'funnel',
+                        'title' => 'Reproduction Performance Funnel',
+                        'data' => $reproductionFunnelData,
+                        'conversion_rates' => [
+                            'service_to_pd' => $services > 0 ? round(($pdChecksDone / $services) * 100, 2) : 0,
+                            'service_to_pregnant' => $services > 0 ? round(($pregnantAnimals / $services) * 100, 2) : 0,
+                            'pregnant_to_calving' => $pregnantAnimals > 0 ? round(($dueForCalving / $pregnantAnimals) * 100, 2) : 0
+                        ]
+                    ],
+
+                    // HEALTH EVENTS (Bar Chart)
+                    'health_distribution' => [
+                        'chart_type' => 'bar',
+                        'title' => 'Disease Events Distribution',
+                        'data' => $healthEvents,
+                        'total_disease_events' => array_sum(array_column($healthEvents, 'count'))
+                    ],
+
+                    // VACCINATION STATUS (Pie Chart)
+                    'vaccination_status' => [
+                        'chart_type' => 'pie',
+                        'title' => 'Vaccination Coverage Status',
+                        'data' => $vaccinationStatus,
+                        'coverage_percentage' => $totalAnimals > 0 ? round(($vaccinatedCount / $totalAnimals) * 100, 2) : 0
+                    ],
+
+                    // MONTHLY MILK TREND (Line Chart - 12 months)
+                    'monthly_milk_trend' => [
+                        'chart_type' => 'line',
+                        'title' => 'Monthly Milk Production Trend (12 Months)',
+                        'data' => $monthlyMilkTrend,
+                        'total_12_months' => array_sum(array_column($monthlyMilkTrend, 'total_milk'))
+                    ]
+                ],
+                'metadata' => [
+                    'farm_id' => $farmId,
+                    'generated_at' => now()->toISOString(),
+                    'date_range' => [
+                        'from' => $rangeFrom->toDateString(),
+                        'to' => $rangeTo->toDateString()
+                    ],
+                    'total_graphs' => 7,
+                    'endpoint_type' => 'dashboard_graphs_consolidated'
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error generating dashboard graph data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // Helper methods for calculations
+    private function getLactatingCows($events)
+    {
+        // Count animals that have had milking events or calving events recently
+        $lactatingAnimals = collect($events)
+            ->filter(function($event) {
+                return in_array($event->type, ['Milking', 'Calving']) || 
+                       (isset($event->pregnancy_check_results) && $event->pregnancy_check_results === 'Lactating');
+            })
+            ->pluck('animal_id')
+            ->unique()
+            ->count();
+        
+        return $lactatingAnimals;
+    }
+
+    private function calculateDataQuality($animals)
+    {
+        $totalAnimals = count($animals);
+        if ($totalAnimals === 0) return 100;
+
+        $quality_score = 0;
+        $complete_profiles = 0;
+
+        foreach ($animals as $animal) {
+            $score = 0;
+            
+            // Basic info (40 points)
+            if (!empty($animal->tag_number)) $score += 10;
+            if (!empty($animal->name)) $score += 5;
+            if (!empty($animal->dob)) $score += 15;
+            if (!empty($animal->sex)) $score += 10;
+            
+            // Detailed info (35 points)
+            if (!empty($animal->breed)) $score += 10;
+            if (!empty($animal->sire)) $score += 5;
+            if (!empty($animal->dam)) $score += 5;
+            if (!empty($animal->color)) $score += 5;
+            if (!empty($animal->registration_number)) $score += 10;
+            
+            // Health info (25 points)
+            if (!empty($animal->vaccination_status)) $score += 10;
+            if (!empty($animal->health_status)) $score += 15;
+            
+            if ($score >= 80) $complete_profiles++;
+            $quality_score += $score;
+        }
+
+        return round($quality_score / $totalAnimals, 1);
+    }
+
+    private function getVaccinationDue($farmId)
+    {
+        // Get animals that haven't been vaccinated in the last 6 months
+        $due_count = DB::table('animals')
+            ->leftJoin('farm_vaccination_records', function($join) use ($farmId) {
+                $join->on('animals.id', '=', 'farm_vaccination_records.animal_id')
+                     ->where('farm_vaccination_records.farm_id', $farmId)
+                     ->where('farm_vaccination_records.created_at', '>', now()->subMonths(6));
+            })
+            ->where('animals.farm_id', $farmId)
+            ->whereNull('animals.deleted_at')
+            ->whereNull('farm_vaccination_records.id')
+            ->count();
+
+        return $due_count;
+    }
+
+    private function getMissingTagsCount($animals)
+    {
+        return collect($animals)->filter(function($animal) {
+            return empty($animal->tag_number) || $animal->tag_number === null;
+        })->count();
     }
 }

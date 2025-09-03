@@ -148,7 +148,7 @@ class Event extends Model
                 );
                 if (!$lastPregnancyCheck) {
                     throw new Exception("Animal is not marked as pregnant. First create a Pregnancy Check event and mark the animal as pregnant before recording abortion.");
-                } 
+                }
             } else if ($model->type == 'Pregnancy check') {
                 if ($isMale) {
                     throw new Exception("Only female animals can undergo pregnancy checks.");
@@ -473,7 +473,7 @@ class Event extends Model
 
 
             $type = trim($model->type);
-            $events = ['Stolen', 'Home slaughter', 'Death'];
+            $events = ['Stolen', 'Home slaughter', 'Death', 'Mortality'];
             $user = Administrator::find($model->administrator_id);
             if (in_array($type, $events)) {
                 if ($user == null) {

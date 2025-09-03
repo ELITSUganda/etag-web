@@ -53,6 +53,8 @@ Route::get('analytics-test', function (Request $request) {
     $start_time  = Carbon::now()->subMonth()->format('Y-m-d');
     $end_time = Carbon::now()->format('Y-m-d');
 
+    echo "Start time: $start_time , End time: $end_time <br>";
+
     $requestData = [
         'farm_id' => $farm->id,
         'range_from' => $start_time,

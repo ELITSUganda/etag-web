@@ -48,6 +48,10 @@ Route::GET('v2-farm-reports', [V2ApiMainController::class, 'v2_farm_reports']);
 Route::get('animals/{id}', [V2ApiMainController::class, 'animal_view']);
 Route::post('farm-analysis', [FarmAnalysisController::class, 'farm_analysis']);
 
+// CONSOLIDATED DASHBOARD API ENDPOINTS (2 endpoints only as requested)
+Route::get('/farm-analysis/{farm_id}/dashboard-kpis', [FarmAnalysisController::class, 'dashboardKpis']); // All KPI numbers/metrics
+Route::get('/farm-analysis/{farm_id}/dashboard-graphs', [FarmAnalysisController::class, 'dashboardGraphs']); // All graph data
+
 
 
 
