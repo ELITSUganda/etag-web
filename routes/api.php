@@ -31,6 +31,12 @@ Route::post('test-2', function (Request $r) {
     die("test POST #1");
 });
 
+Route::post('test-onesignal', function (Request $r) {
+    $user_id = $r->user_id ?? '709'; // Default test user
+    $result = \App\Models\Utils::testOneSignalConnection($user_id);
+    return response()->json($result);
+});
+
 Route::POST('animal-connect-parent', [V2ApiMainController::class, 'animal_connect_parent']);
 Route::GET('v2-farmer-tags-orders', [V2ApiMainController::class, 'v2_farmer_tags_orders']);
 Route::GET('v2-personal-settings', [V2ApiMainController::class, 'v2_personal_settings']);
@@ -181,6 +187,7 @@ Route::get('events/{id}', [ApiAnimalController::class, 'show']);
 Route::POST('farms', [ApiFarmController::class, 'create']);
 Route::get('farms/{id}', [ApiFarmController::class, 'show']);
 Route::get('farms', [ApiFarmController::class, 'index']);
+Route::POST('farms-gps-update', [ApiFarmController::class, 'update_gps']);
 Route::get('my-drugs', [ApiFarmController::class, 'my_drugs']);
 Route::get('locations', [ApiFarmController::class, 'locations']);
 

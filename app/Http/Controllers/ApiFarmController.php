@@ -307,6 +307,118 @@ class ApiFarmController extends Controller
         ]);
     }
 
+    public function update_gps(Request $request)
+    {
+        // Get the authenticated user
+        $user_id = Utils::get_user_id($request);
+        $user = Administrator::find($user_id);
+
+        if ($user == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found."
+            ]);
+        }
+
+        // Validate required parameters
+        if (!isset($request->farm_id) || empty($request->farm_id)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Farm ID is required."
+            ]);
+        }
+
+        if (!isset($request->latitude) || !isset($request->longitude)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Latitude and longitude are required."
+            ]);
+        }
+
+        // Find the farm
+        $farm = Farm::find($request->farm_id);
+        if ($farm == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Farm not found."
+            ]);
+        }
+
+        // Check if user has permission to update this farm
+        $has_permission = false;
+        
+        // Check if user is the administrator of this farm
+        if ($farm->administrator_id == $user_id) {
+            $has_permission = true;
+        }
+
+        // Check if user has farm permissions
+        $permission = UserHasFarmPermission::where([
+            'user_id' => $user_id,
+            'farm_id' => $farm->id
+        ])->first();
+        
+        if ($permission != null) {
+            $has_permission = true;
+        }
+
+        // Check if user is admin or super admin
+        $user_role = Utils::get_role($user);
+        if (in_array($user_role, ['administrator', 'admin'])) {
+            $has_permission = true;
+        }
+
+        if (!$has_permission) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "You don't have permission to update this farm's GPS location."
+            ]);
+        }
+
+        // Validate latitude and longitude ranges
+        $latitude = (float) $request->latitude;
+        $longitude = (float) $request->longitude;
+
+        if ($latitude < -90 || $latitude > 90) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Latitude must be between -90 and 90 degrees."
+            ]);
+        }
+
+        if ($longitude < -180 || $longitude > 180) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Longitude must be between -180 and 180 degrees."
+            ]);
+        }
+
+        // Update the farm GPS coordinates
+        $farm->latitude = $request->latitude;
+        $farm->longitude = $request->longitude;
+        
+        try {
+            $farm->save();
+            
+            return Utils::response([
+                'status' => 1,
+                'message' => "Farm GPS location updated successfully.",
+                'data' => [
+                    'farm_id' => $farm->id,
+                    'holding_code' => $farm->holding_code,
+                    'latitude' => $farm->latitude,
+                    'longitude' => $farm->longitude,
+                    'updated_at' => $farm->updated_at
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Failed to update farm GPS location: " . $e->getMessage()
+            ]);
+        }
+    }
+
     public function update(Request $request, $id)
     {
         $Farm = Farm::findOrFail($id);

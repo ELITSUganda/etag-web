@@ -262,10 +262,14 @@ class Movement extends Model
     }
     public function getAnimalsAttribute()
     {
-        $has_animals = MovementHasMovementAnimal::where(['movement_id' => $this->id])->get();
         $ans = [];
-        foreach ($has_animals as  $an) {
-            $ans[] = $an->animal;
+        $animals = DB::table('animals')
+            ->join('movement_has_movement_animals', 'animals.id', '=', 'movement_has_movement_animals.movement_animal_id')
+            ->where('movement_has_movement_animals.movement_id', $this->id)
+            ->select('animals.id', 'animals.v_id', 'animals.e_id', 'animals.photo')
+            ->get();
+        foreach ($animals as $animal) {
+            $ans[] = $animal;
         }
         return  $ans;
     }
@@ -363,7 +367,7 @@ class Movement extends Model
         return $this->belongsTo(Farm::class, 'to');
     }
     protected $appends = [
-        'animals', 'destination_farm_text',
+        'destination_farm_text',
         'subcounty_from_text',
         'subcounty_to_text',
         'endpoints_text',

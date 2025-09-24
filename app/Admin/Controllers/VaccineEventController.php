@@ -114,20 +114,13 @@ class VaccineEventController extends AdminController
 
 
 
-            $admins = [];
-            foreach (Administrator::all() as $key => $v) {
-                if (!$v->isRole('farmer')) {
-                    continue;
-                }
-                $admins[$v->id] = $v->name . " - " . $v->id;
-            }
 
-            $animals = [];
-            foreach (Animal::all() as $key => $v) {
-                $animals[$v->id] = $v->e_id . " - " . $v->v_id;
-            }
 
-            $filter->equal('administrator_id', "Owner")->select($admins);
+ 
+            $filter->equal('administrator_id', "Owner")->select()
+                ->ajax(
+                    url('/api/ajax-users')
+                );
 
             $filter->equal('type', "Animal type")->select(array(
                 'Cattle' => "Cattle",
@@ -159,7 +152,6 @@ class VaccineEventController extends AdminController
                     url('/api/sub-counties')
                 );
 
-            $filter->like('animal_id', "Animal")->select($animals);
             $filter->equal('type', "Event type")->select(array(
                 'Milking' => 'Milking',
                 'Disease test' => 'Disease',

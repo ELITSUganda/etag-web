@@ -110,38 +110,40 @@ class MovementController extends AdminController
         if (
             Admin::user()->isRole('dvo')
         ) {
-            $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
+            if (isset($u)) {
+                $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
 
-            if ($r != null) {
-                $dis = null;
-                if($r != null){
-                    $dis = Location::find($r->type_id);
-                }
-                if ($dis != null) {
-
-                    $grid->header(function ($query) {
-                        $r = AdminRoleUser::where(['user_id' => Admin::user()->id, 'role_id' => 7])->first();
+                if ($r != null) {
+                    $dis = null;
+                    if ($r != null) {
                         $dis = Location::find($r->type_id);
-                        $move = Movement::where(
-                            [
-                                'district_from' => $dis->id,
-                                'status' => 'pending'
-                            ]
-                        )->first();
-                        if ($move != null) {
+                    }
+                    if ($dis != null) {
 
-                            $content  = '';
-                            $content  = 'There is a movement permit application that is prending for verification.';
-                            $content .= '<p><a href="' . admin_url('movements/' . $move->id . '/edit') . '" class="btn btn-success  ">Review Application</a></p>';
+                        $grid->header(function ($query) {
+                            $r = AdminRoleUser::where(['user_id' => Admin::user()->id, 'role_id' => 7])->first();
+                            $dis = Location::find($r->type_id);
+                            $move = Movement::where(
+                                [
+                                    'district_from' => $dis->id,
+                                    'status' => 'pending'
+                                ]
+                            )->first();
+                            if ($move != null) {
 
-                            if ($content != "") {
-                                $box = new Box('Confirm pending movement - form #' . $move->id, $content);
-                                $box->style('danger');
-                                $box->solid();
-                                return $box;
+                                $content  = '';
+                                $content  = 'There is a movement permit application that is prending for verification.';
+                                $content .= '<p><a href="' . admin_url('movements/' . $move->id . '/edit') . '" class="btn btn-success  ">Review Application</a></p>';
+
+                                if ($content != "") {
+                                    $box = new Box('Confirm pending movement - form #' . $move->id, $content);
+                                    $box->style('danger');
+                                    $box->solid();
+                                    return $box;
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                 }
             }
         } else {
@@ -155,13 +157,13 @@ class MovementController extends AdminController
             $u->isRole('admin') ||
             $u->isRole('dvo') ||
             $u->isRole('nda') ||
-            $u->isRole('maaif') 
-            ) {
+            $u->isRole('maaif')
+        ) {
             $isAdmin = true;
-        } 
-        if(!$isAdmin){
+        }
+        if (!$isAdmin) {
             $grid->model()->where('administrator_id', '=', $u->id);
-        } 
+        }
 
         $grid->column('id', __('ID'))->sortable();
         $grid->column('created_at', __('Date'))
@@ -189,7 +191,7 @@ class MovementController extends AdminController
                 return "-";
             }
             return $_user->name;
-        })->sortable(); 
+        })->sortable();
         $grid->column('transporter_name', __('Transporter'))->sortable();
         $grid->column('vehicle', __('Vehicle Reg. No.'));
 
@@ -463,7 +465,7 @@ Expand/CollapseStructurevaccines
 
                 ))
                 ->required()
-                ->when('To farm', function (Form $form) {
+                /* ->when('To farm', function (Form $form) {
                     $farms = [];
                     foreach (Farm::all() as $key => $f) {
                         $farms[$f->id] = $f->holding_code . " - " . $f->owner()->username . " - " . $f->owner()->name;
@@ -471,7 +473,7 @@ Expand/CollapseStructurevaccines
                     $form->select('destination_farm', __('Select Farm'))
                         ->rules('required')
                         ->options($farms);
-                })
+                }) */
                 ->when('To slaughter', function (Form $form) {
                     $houses = SlaughterHouse::all();
                     $_farms = [];
@@ -515,10 +517,12 @@ Expand/CollapseStructurevaccines
 
 
             $_items = [];
-            foreach (Animal::where('administrator_id', '=', Admin::user()->id)
-                ->where('status', '!=', 'sold')
-                ->where('trader', '<', 1)
-                ->get()  as $key => $item) {
+            foreach (
+                Animal::where('administrator_id', '=', Admin::user()->id)
+                    ->where('status', '!=', 'sold')
+                    ->where('trader', '<', 1)
+                    ->get()  as $key => $item
+            ) {
                 $_items[$item->id] = $item->e_id . " - " . $item->v_id;
             }
 

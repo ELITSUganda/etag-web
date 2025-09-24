@@ -93,7 +93,7 @@ class AnimalSalesController extends AdminController
 
             $sub_counties = [];
             foreach (SubCounty::all() as $key => $p) {
-                $sub_counties[$p->id] = $p->name_text ;
+                $sub_counties[$p->id] = $p->name_text;
             }
 
             $districts = [];
@@ -101,7 +101,7 @@ class AnimalSalesController extends AdminController
                 $districts[$p->id] = $p->name . "m  ";
             }
 
-  
+
             $filter->equal('type', "Livestock species")->select(array(
                 'Cattle' => "Cattle",
                 'Goat' => "Goat",
@@ -110,7 +110,7 @@ class AnimalSalesController extends AdminController
 
             $filter->equal('district_id', "District")->select($districts);
             $filter->equal('sub_county_id', "Sub county")->select($sub_counties);
- 
+
             $filter->equal('e_id', "E-ID");
             $filter->equal('v_id', "V-ID");
         });
@@ -126,7 +126,7 @@ class AnimalSalesController extends AdminController
         $grid->column('breed', __('Breed'))->sortable();
         $grid->column('sex', __('Sex'))->sortable();
         $grid->column('dob', __('Year born'))->sortable();
-        $grid->column('fmd', __('Last FMD'))->sortable(); 
+        $grid->column('fmd', __('Last FMD'))->sortable();
 
 
         $grid->column('created_at', __('Created'))
@@ -161,9 +161,9 @@ class AnimalSalesController extends AdminController
                 }
                 return $u->name;
             })->sortable();
-            
-            
-            $grid->disableActions();
+
+
+        $grid->disableActions();
         return $grid;
     }
 
@@ -215,57 +215,59 @@ class AnimalSalesController extends AdminController
         $form->password('password');
         $form->text('name'); */
 
-        
-        
+
+
         $form = new Form(new Animal());
         $form->submitted(function (Form $form) {
-            if(
+            if (
                 isset($_POST['animals']) &&
-                isset($_POST['trader']) 
-            
-            ){
+                isset($_POST['trader'])
+
+            ) {
                 $trader = (int)($_POST['trader']);
                 foreach ($_POST['animals'] as $key => $value) {
                     $id = (int)($value);
                     $an = Animal::find($id);
-                    if($an==null){
+                    if ($an == null) {
                         continue;
                     }
                     $an->status = "sold";
                     $an->trader = $trader;
-                    $an->save(); 
+                    $an->save();
                 }
             }
             return redirect(admin_url("sales"));
         });
 
-        $admins = [];
-        foreach (Administrator::all() as $key => $v) {
-            if (!$v->isRole('trader')) {
-                continue;
-            }
-            $admins[$v->id] = $v->name . " - " . $v->id;
-        }
-        
-        $form->select('trader', __('Select trader'))
-        ->options($admins)
-        ->required();
+
+        $form->select('administrator_id', 'Select user')
+            ->options(function ($id) {
+                $parent = Administrator::find($id);
+                if ($parent != null) {
+                    return [$parent->id =>  $parent->name];
+                }
+            })
+            ->rules('required')
+            ->ajax(
+                url('/api/ajax-users')
+            ); 
 
 
         $_items = [];
         foreach (
             Animal::where('administrator_id', '=', Admin::user()->id)
-            ->where('status', '!=', 'sold')->get()  as $key => $item) {
+                ->where('status', '!=', 'sold')->get()  as $key => $item
+        ) {
             $_items[$item->id] = $item->e_id . " - " . $item->v_id;
         }
         $form->multipleSelect('animals', __('Select animals'))
-        ->options($_items)
-        ->required();
+            ->options($_items)
+            ->required();
 
-        $form->checkbox('accept',"Are sure you selected right trader and right animals?")->options([1 => 'Yes'])->required();
-       
+        $form->checkbox('accept', "Are sure you selected right trader and right animals?")->options([1 => 'Yes'])->required();
 
- 
+
+
         $form->disableEditingCheck();
         $form->disableCreatingCheck();
         $form->disableViewCheck();

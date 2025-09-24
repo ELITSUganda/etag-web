@@ -25,7 +25,7 @@ class DistrictController extends AdminController
      */
     protected function grid()
     {
-       
+
 
         $grid = new Grid(new District());
         $grid->disableBatchActions();
@@ -72,25 +72,24 @@ class DistrictController extends AdminController
     {
         $form = new Form(new District());
         $form->setWidth(8, 4);
-        $admins = [];
-        foreach (Administrator::all() as $key => $v) {
-            if (!$v->isRole('dvo')) {
-                continue;
-            }
-            $_dvo = ((int)($v->dvo));
-            if($_dvo > 0){
-                continue;
-            }
-
-            $admins[$v->id] = $v->name . " - " . $v->id;
-        }
 
 
         $form->text('name', __('Name'))->required();
         $form->text('code', __('ISO-CODE'))->required();
-        $form->select('administrator_id', __('District veterinary officer'))
-            ->options($admins)
-            ->required();
+
+
+
+        $form->select('administrator_id', 'District veterinary officer')
+            ->options(function ($id) {
+                $parent = Administrator::find($id);
+                if ($parent != null) {
+                    return [$parent->id =>  $parent->name];
+                }
+            })
+            ->rules('required')
+            ->ajax(
+                url('/api/ajax-users')
+            );
 
         $form->textarea('detail', __('Detail'));
 

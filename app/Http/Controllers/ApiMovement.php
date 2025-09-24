@@ -1005,6 +1005,8 @@ class ApiMovement extends Controller
         $permits = [];
         $done_ids = [];
 
+
+
         if (isset($_POST['temp_worker_id'])) {
             unset($_POST['temp_worker_id']);
         }
@@ -1039,17 +1041,28 @@ class ApiMovement extends Controller
                 || $user->isRole('scvo')
                 || $user->isRole('slaughter')
             ) {
+
                 //dvo 
                 //$_permits = Movement::where(['district_from' => $_role->type_id])->orderBy('id','desc')->get();
-                $_permits = Movement::where([])->orderBy('id', 'desc')->get();
+                $_permits = Movement::where([])->orderBy('id', 'desc')
+                    ->limit(500)
+                    ->get();
                 foreach ($_permits as $_permit) {
                     if (in_array($_permit->id, $done_ids)) {
                         continue;
                     }
+                    $_permit->v_ids = json_encode($_permit->animals);
                     $done_ids[] = $_permit->id;
                     $permits[] = $_permit;
                 }
             }
+
+            //retun roles
+            return Utils::response([
+                'status' => 1,
+                'data' => $permits,
+                'message' => 'Success'
+            ]);
 
             if (
                 $user->isRole('transporter')

@@ -22,6 +22,7 @@ use App\Models\Image;
 use App\Models\Image as ModelsImage;
 use App\Models\ImageModel;
 use App\Models\Location;
+use App\Models\Movement;
 use App\Models\PregnantAnimal;
 use App\Models\Utils;
 use Carbon\Carbon;
@@ -35,6 +36,15 @@ use Milon\Barcode\DNS1D;
 use function PHPUnit\Framework\fileExists;
 
 
+Route::get('moves-test', function (Request $request) {
+    $momvenets = Movement::all();
+    foreach ($momvenets as $key => $mv) {
+        dd($mv);
+    }
+
+    dd($momvenets);
+    die("moves tests");
+});
 Route::get('analytics-test', function (Request $request) {
     $an = Animal::where([
         'v_id' => '11636831'

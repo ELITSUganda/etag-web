@@ -5,6 +5,7 @@ namespace App\Models;
 use Berkayk\OneSignal\OneSignalFacade;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
+use Illuminate\Support\Facades\Log;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Grid\Model;
 use Exception;
@@ -1958,7 +1959,7 @@ duplicate_results
         }
 
         try {
-            \OneSignal::addParams(
+            OneSignalFacade::addParams(
                 [
                     'android_channel_id' => 'f3469729-c2b4-4fce-89da-78550d5a2dd1',
                     'large_icon' => 'https://u-lits.com/logo-1.png',
@@ -1975,6 +1976,8 @@ duplicate_results
                     $headings = $noti->title
                 );
         } catch (\Throwable $th) {
+            // Log the error for debugging
+            Log::error('OneSignal CreateNotification Error: ' . $th->getMessage() . ' for user ' . $noti->reciever_id);
             $noti->delete();
             throw $th;
         }
@@ -2059,7 +2062,7 @@ duplicate_results
 
 
         try {
-            $resp =  OneSignalFacade::addParams(
+            $resp = OneSignalFacade::addParams(
                 [
                     'android_channel_id' => 'f3469729-c2b4-4fce-89da-78550d5a2dd1',
                     'large_icon' => 'https://u-lits.com/logo-1.png',
@@ -2075,13 +2078,44 @@ duplicate_results
                     $schedule = $schedule,
                     $headings = $headings
                 );
+            
+            // Log successful notification for debugging
+            Log::info('OneSignal notification sent successfully to user: ' . $receiver);
         } catch (\Throwable $th) {
+            // Log the error for debugging 
+            Log::error('OneSignal sendNotification Error: ' . $th->getMessage() . ' for user ' . $receiver);
             throw $th;
         }
 
 
         return;
     }
+
+    public static function testOneSignalConnection($user_id) {
+        try {
+            $response = OneSignalFacade::addParams([
+                'android_channel_id' => 'f3469729-c2b4-4fce-89da-78550d5a2dd1',
+                'large_icon' => 'https://u-lits.com/logo-1.png',
+                'small_icon' => 'logo_1',
+            ])
+            ->sendNotificationToExternalUser(
+                "Test notification from U-LITS system",
+                "$user_id",
+                null,
+                [],
+                null,
+                null,
+                "U-LITS Test"
+            );
+            
+            Log::info('OneSignal test notification sent successfully to user: ' . $user_id);
+            return ['status' => 'success', 'message' => 'Test notification sent successfully', 'response' => $response];
+        } catch (\Throwable $th) {
+            Log::error('OneSignal test notification failed: ' . $th->getMessage() . ' for user ' . $user_id);
+            return ['status' => 'error', 'message' => $th->getMessage()];
+        }
+    }
+
     public static function getTableColumns($obj)
     {
         $table = $obj->getTable();

@@ -226,10 +226,7 @@ vaccination	 */
         $admins = [];
         $f = Faker::create();
         $statuses = Utils::case_statuses();
-
-        foreach (Administrator::all() as $key => $u) {
-            $admins[] = $u->id;
-        }
+ 
         $sub_counties = [];
 
         foreach (Location::get_sub_counties() as $v) {
@@ -280,15 +277,7 @@ vaccination	 */
     public static function make_users($max = 20)
     {
 
-        $f = Faker::create();
-
-        /*         foreach (Administrator::all() as $key => $u) {
-            $u->phone_number_1 =   $f->phoneNumber(2);
-            $u->phone_number_2 =   $f->phoneNumber(3);
-            $u->avatar = rand(1, 30) . ".jpg";
-            $u->save();
-        }
-        dd("done"); */
+        $f = Faker::create(); 
 
         $sex = ['Male', 'Female'];
         $sub_counties = [];

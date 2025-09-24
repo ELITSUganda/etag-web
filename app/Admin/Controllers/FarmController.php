@@ -29,14 +29,8 @@ class FarmController extends AdminController
     protected function form()
     {
         $form = new Form(new Farm());
-        $admins = [];
+
         $u = Admin::user();
-        foreach (Administrator::all() as $key => $v) {
-            if (!$v->isRole('farmer')) {
-                continue;
-            }
-            $admins[$v->id] = $v->name . " - " . $v->id . " - ({$v->username})";
-        }
 
 
 
@@ -50,25 +44,34 @@ class FarmController extends AdminController
                 Admin::user()->isRole('admin')
             ) {
 
-                $form->select('administrator_id', 'Farm owner')->options(function ($id) {
-                    $a = Administrator::find($id);
-                    if ($a) {
-                        return [$a->id => "#" . $a->id . " - " . $a->name];
-                    }
-                })
+
+
+                $form->select('administrator_id', 'Select user')
+                    ->options(function ($id) {
+                        $parent = Administrator::find($id);
+                        if ($parent != null) {
+                            return [$parent->id =>  $parent->name];
+                        }
+                    })
                     ->rules('required')
-                    ->ajax(url(
-                        '/api/ajax?'
-                            . "&search_by_1=name"
-                            . "&search_by_2=id"
-                            . "&model=User"
-                    ));
+                    ->ajax(
+                        url('/api/ajax-users')
+                    );
             } else {
                 $form->hidden('administrator_id', __('Farm owner'))
                     ->default($u->id)
                     ->value($u->id)
                     ->required();
             }
+        } else {
+            //just display owner's name
+            $form->display('administrator_id', __('Farm owner'))->with(function ($id) {
+                $user = Administrator::find($id);
+                if ($user == null) {
+                    return 'N/A';
+                }
+                return $user->name . " - " . $user->username;
+            });
         }
 
 
@@ -135,6 +138,12 @@ class FarmController extends AdminController
             HTML;
         }); */
 
+        $grid->export(function ($export) {
+            $export->column('longitude', function ($model) {
+                return $model->latitude . ',' . $model->longitude;
+            });
+        });
+
         $u = Auth::user();
         $r = AdminRoleUser::where(['user_id' => $u->id, 'role_id' => 7])->first();
         $dis = null;
@@ -158,9 +167,13 @@ class FarmController extends AdminController
             if ($r != null) {
                 $dis = Location::find($r->type_id);
             }
-            $grid->model()->where([
-                'district_id' => $dis->id
-            ])->orderBy('id', 'DESC');
+            if ($dis != null) {
+
+
+                $grid->model()->where([
+                    'district_id' => $dis->id
+                ])->orderBy('id', 'DESC');
+            }
         }
 
         if ($u->isRole('data-viewer')) {
@@ -176,10 +189,7 @@ class FarmController extends AdminController
 
 
 
-
-            $filter->equal('holding_code', "LHC")->select(Farm::all()->pluck('holding_code', 'holding_code'));
-
-
+ 
             $filter->equal('administrator_id', 'Filter by farm owner')->select(function ($id) {
                 $a = User::find($id);
                 if ($a) {
@@ -271,7 +281,12 @@ class FarmController extends AdminController
             });
 
         $grid->column('longitude', __('GPS'))->display(function ($id) {
-            return $this->latitude . "," . $this->longitude;
+            $google_gps_pin_url = "https://www.google.com/maps/search/?api=1&query={$this->latitude},{$this->longitude}";
+            $url_text = $this->latitude . "," . $this->longitude;
+
+            return "<a
+            title=\"View on google maps\"
+            href='{$google_gps_pin_url}' target='_blank'>{$url_text}</a>";
         })->sortable();
 
 

@@ -42,10 +42,7 @@ class FarmVaccinationRecordController extends AdminController
         $grid->filter(function ($filter) {
             $filter->disableIdFilter();
 
-            $items = [];
-            foreach (Farm::all() as $key => $f) {
-                $items[$f->id] = $f->holding_code;
-            }
+            
 
             $district_vaccine_stocks = [];
             foreach (DistrictVaccineStock::all() as $stock) {
@@ -59,7 +56,7 @@ class FarmVaccinationRecordController extends AdminController
             //vaccine_main_stock_id
             $filter->equal('vaccine_main_stock_id', __('Filter by Central Vaccine'))->select($main_vaccines);
             $filter->equal('district_vaccine_stock_id', __('Filter by District stock'))->select($district_vaccine_stocks);
-            $filter->equal('farm_id', __('Farm'))->select($items);
+            
             $filter->equal('created_by_id', __('Created by'))->select(Admin::user()->pluck('name', 'id'));
             $filter->like('vaccination_batch_number', 'Batch number');
             $filter->between('created_at', 'Entry date')->date();
@@ -194,18 +191,13 @@ class FarmVaccinationRecordController extends AdminController
     {
         $form = new Form(new FarmVaccinationRecord());
 
-        $items = [];
-        foreach (Farm::all() as $key => $f) {
-            $items[$f->id] = $f->holding_code;
-        }
+       
 
         $district_vaccine_stocks = [];
         foreach (DistrictVaccineStock::all() as $stock) {
             $district_vaccine_stocks[$stock->id] = $stock->district->name . " - " . $stock->drug_stock->batch_number . " Available: " . $stock->current_quantity;
         }
-        $form->select('farm_id', __('Farm'))
-            ->options($items)
-            ->required();
+ 
         $form->select('district_vaccine_stock_id', __('Select Vaccine Stock'))
             ->options($district_vaccine_stocks)
             ->required();

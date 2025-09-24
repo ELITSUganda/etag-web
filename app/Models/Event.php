@@ -89,38 +89,90 @@ class Event extends Model
                     throw new Exception("Only female animals can undergo calving.");
                 }
                 if ($animal->is_pregnant != 'Yes') {
-                    throw new Exception("Animal is not marked as pregnant. First create a Pregnancy Check event and mark the animal as pregnant before recording calving.");
+                    // throw new Exception("Animal is not marked as pregnant. First create a Pregnancy Check event and mark the animal as pregnant before recording calving.");
                 }
                 // Get last Pregnancy check event that is marked Pregnant
                 $lastPregnancyCheck = DB::selectOne(
                     "SELECT * FROM events WHERE animal_id = ? AND type = ? AND status = ? ORDER BY id DESC LIMIT 1",
                     [$animal->id, 'Pregnancy check', 'Pregnant']
                 );
-                if (!$lastPregnancyCheck) {
-                    throw new Exception("Animal is not marked as pregnant. First create a Pregnancy Check event and mark the animal as pregnant before recording calving.");
+                if ($lastPregnancyCheck != null) {
+                    //copy all pregnancy_check_results to the new event
+                    $model->service_type = $lastPregnancyCheck->service_type;
+                    $model->service_date = $lastPregnancyCheck->service_date;
+                    $model->male_id = $lastPregnancyCheck->male_id;
+                    $model->male_breed = $lastPregnancyCheck->male_breed;
+                    $model->simen_code = $lastPregnancyCheck->simen_code;
+                    $model->inseminator = $lastPregnancyCheck->inseminator;
+                    $model->calving_date = $lastPregnancyCheck->calving_date;
+                    $model->calf_id = $lastPregnancyCheck->calf_id;
+                    $model->calf_sex = $lastPregnancyCheck->calf_sex;
+                    $model->calf_weight = $lastPregnancyCheck->calf_weight;
+                    $model->wean_date = $lastPregnancyCheck->wean_date;
                 }
 
-                $calf = Animal::find($model->calf_id);
+
+                $calf  = null;
+                if ($model->calf_id != null && (strlen($model->calf_id) > 0)) {
+                    $calf = Animal::find($model->calf_id);
+                }
+
+                if ($calf == null) {
+                    if ($model->vaccine_id == null) {
+                        throw new Exception("Calf V-ID is missing.", 1);
+                    }
+                    if (strlen($model->vaccine_id) < 2) {
+                        throw new Exception("Calf V-ID is too short.", 1);
+                    }
+                    if ($model->medicine_name == null) {
+                        throw new Exception("Calf E-ID is missing.", 1);
+                    }
+                    if (strlen($model->medicine_name) < 2) {
+                        throw new Exception("Calf E-ID is too short.", 1);
+                    }
+
+                    $calfExising = Animal::where(['e_id' => $model->medicine_name])->first();
+                    if ($calfExising != null) {
+                        throw new Exception("Calf with same E-ID is already existing. ($model->medicine_name)", 1);
+                    }
+                    $newAnimal = new Animal();
+                    $newAnimal->administrator_id = $model->administrator_id;
+                    $newAnimal->farm_id = $animal->farm_id;
+                    $newAnimal->type = $animal->type;
+                    $newAnimal->status = 'Active';
+                    $newAnimal->e_id = $model->medicine_name;
+                    $newAnimal->v_id = $model->vaccine_id; 
+                    $newAnimal->sex = $model->calf_sex;
+                    $newAnimal->dob = $model->calving_date;
+                    $newAnimal->details = $model->detail;
+                    $newAnimal->weight = $model->calf_weight;
+                    $newAnimal->weight_text = $model->calf_weight . " Kg";
+                    $newAnimal->parent_id = $animal->id;
+                    $newAnimal->is_a_calf = 'Yes';
+                    $newAnimal->has_parent = 'Yes';
+                    $newAnimal->stage = 'Calf';
+                    try {
+                        $newAnimal->save();
+                    } catch (\Throwable $th) {
+                        throw $th;
+                    }
+                    $model->calf_id = $newAnimal->id;
+                    $calf = Animal::find($newAnimal->id);
+                }
+
+
+                if ($calf == null) {
+                    $calf = Animal::find($model->calf_id);
+                }
+
                 if ($calf == null) {
                     throw new Exception("Calf ID {$model->calf_id} not found.");
                 }
 
+
                 if ($calf->id == $animal->id) {
                     throw new Exception("Calf ID cannot be the same as the mother ID.");
                 }
-
-                //copy all pregnancy_check_results to the new event
-                $model->service_type = $lastPregnancyCheck->service_type;
-                $model->service_date = $lastPregnancyCheck->service_date;
-                $model->male_id = $lastPregnancyCheck->male_id;
-                $model->male_breed = $lastPregnancyCheck->male_breed;
-                $model->simen_code = $lastPregnancyCheck->simen_code;
-                $model->inseminator = $lastPregnancyCheck->inseminator;
-                $model->calving_date = $lastPregnancyCheck->calving_date;
-                $model->calf_id = $lastPregnancyCheck->calf_id;
-                $model->calf_sex = $lastPregnancyCheck->calf_sex;
-                $model->calf_weight = $lastPregnancyCheck->calf_weight;
-                $model->wean_date = $lastPregnancyCheck->wean_date;
             } else if ($model->type == 'Service') {
                 if ($isMale) {
                     throw new Exception("Only female animals can undergo service.");

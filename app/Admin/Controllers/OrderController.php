@@ -194,22 +194,31 @@ Copy Cop
             if (!$pro) {
                 dd("Order not found.");
             }
-            $users = [];
-            foreach (Administrator::all() as $key => $value) {
-                $users[$value->id] = $value->name . " - " . $value->id;
-            }
 
-            $form->select('administrator_id', __('Seller'))
-                ->options($users)
-                ->value($pro->administrator_id)
-                ->readonly()
-                ->default($pro->administrator_id);
+            $form->select('administrator_id', 'Seller')
+                ->options(function ($id) {
+                    $parent = Administrator::find($id);
+                    if ($parent != null) {
+                        return [$parent->id =>  $parent->name];
+                    }
+                })
+                ->rules('required')
+                ->ajax(
+                    url('/api/ajax-users')
+                );
 
-            $form->select('order_by', __('Buyer'))
-                ->options($users)
-                ->value(Admin::user()->id)
-                ->readonly()
-                ->default(Admin::user()->id);
+            $form->select('order_by', 'Buyer')
+                ->options(function ($id) {
+                    $parent = Administrator::find($id);
+                    if ($parent != null) {
+                        return [$parent->id =>  $parent->name];
+                    }
+                })
+                ->rules('required')
+                ->ajax(
+                    url('/api/ajax-users')
+                );
+
             $product = DrugStockBatch::find($pro->product_id);
 
             if ($product) {
@@ -303,22 +312,30 @@ Copy Cop
                 return admin_error('Out of sock.', "This product is out of stock.");
             }
 
-            $users = [];
-            foreach (Administrator::all() as $key => $value) {
-                $users[$value->id] = $value->name . " - " . $value->id;
-            }
 
-            $form->select('administrator_id', __('Seller'))
-                ->options($users)
-                ->value($pro->administrator_id)
-                ->readonly()
-                ->default($pro->administrator_id);
+            $form->select('administrator_id', 'Seller')
+                ->options(function ($id) {
+                    $parent = Administrator::find($id);
+                    if ($parent != null) {
+                        return [$parent->id =>  $parent->name];
+                    }
+                })
+                ->rules('required')
+                ->ajax(
+                    url('/api/ajax-users')
+                );
 
-            $form->select('order_by', __('Buyer'))
-                ->options($users)
-                ->value(Admin::user()->id)
-                ->readonly()
-                ->default(Admin::user()->id);
+            $form->select('order_by', 'Buyer')
+                ->options(function ($id) {
+                    $parent = Administrator::find($id);
+                    if ($parent != null) {
+                        return [$parent->id =>  $parent->name];
+                    }
+                })
+                ->rules('required')
+                ->ajax(
+                    url('/api/ajax-users')
+                );
 
 
             $form->display('type', __('Product category'))->default(

@@ -89,13 +89,15 @@ class SlaughterHouseController extends AdminController
             ->required();
 
         $houses = [];
-        foreach (AdminRoleUser::where([
-            'role_id' => 5
-        ])->get() as $key => $v) {
+        foreach (
+            AdminRoleUser::where([
+                'role_id' => 5
+            ])->get() as $key => $v
+        ) {
             if ($v->owner == null) {
                 continue;
             }
-            $houses[$v->user_id] = $v->owner->name;
+            $houses[$v->user_id] = $v->owner->name . " - " . $v->owner->username . ' - #' . $v->owner->id;
         }
 
         $form->select('administrator_id', 'Abattoir administrator')->options(
