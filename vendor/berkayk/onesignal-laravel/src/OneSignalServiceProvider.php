@@ -35,8 +35,17 @@ class OneSignalServiceProvider extends ServiceProvider
             if (is_null($config)) {
                 $config = $app['config']['onesignal'] ?: $app['config']['onesignal::config'];
             }
-
-            return new OneSignalClient($config['app_id'], $config['rest_api_key'], $config['user_auth_key'] , $config['guzzle_client_timeout'], $config['rest_api_url']);
+            // Provide default value for rest_api_url if not set
+            if (!isset($config['rest_api_url']) || empty($config['rest_api_url'])) {
+                $config['rest_api_url'] = 'https://onesignal.com/api/v1/';
+            }
+            return new OneSignalClient(
+                $config['app_id'],
+                $config['rest_api_key'],
+                $config['user_auth_key'],
+                $config['guzzle_client_timeout'],
+                $config['rest_api_url']
+            );
         });
 
         $this->app->alias('onesignal', 'Berkayk\OneSignal\OneSignalClient');
