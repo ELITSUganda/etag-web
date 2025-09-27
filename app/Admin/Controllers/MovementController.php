@@ -402,7 +402,7 @@ Expand/CollapseStructurevaccines
             $_d = "<ol>";
             $_i = 0;
             foreach ($m->animals as $an) {
-                $animal = Animal::find($an->animal_id);
+                $animal = Animal::find($an->movement_animal_id);
                 if ($animal == null) {
                     continue;
                 }
