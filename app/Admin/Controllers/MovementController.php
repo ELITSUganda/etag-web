@@ -402,6 +402,11 @@ Expand/CollapseStructurevaccines
             $_d = "<ol>";
             $_i = 0;
             foreach ($m->animals as $an) {
+                $animal = Animal::find($an->animal_id);
+                if ($animal == null) {
+                    continue;
+                }
+                $an = $animal;
                 $_i++;
                 $_d .= "<li>  <b>V-ID:</b> $an->v_id, <b>E-ID:</b> $an->e_id, <b>SPECIES:</b> $an->type, - SEX: $an->sex  - <a 
                 target=\"_blank\"
