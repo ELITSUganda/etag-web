@@ -339,6 +339,8 @@ Expand/CollapseStructurevaccines
 
         if (
             Admin::user()->isRole('dvo') ||
+            Admin::user()->isRole('administrator') ||
+            Admin::user()->isRole('admin') ||
             Admin::user()->isRole('svo')
         ) {
 
