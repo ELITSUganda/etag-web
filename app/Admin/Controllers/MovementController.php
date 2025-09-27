@@ -402,16 +402,27 @@ Expand/CollapseStructurevaccines
             $_d = "<ol>";
             $_i = 0;
             foreach ($m->animals as $an) {
-                $animal = Animal::find($an->movement_animal_id);
+                // Safely get the animal ID
+                $animal_id = null;
+                if (isset($an->movement_animal_id)) {
+                    $animal_id = $an->movement_animal_id;
+                } elseif (isset($an->animal_id)) {
+                    $animal_id = $an->animal_id;
+                } elseif (isset($an->id)) {
+                    $animal_id = $an->id;
+                }
+                if (!$animal_id) {
+                    continue;
+                }
+                $animal = Animal::find($animal_id);
                 if ($animal == null) {
                     continue;
                 }
-                $an = $animal;
                 $_i++;
-                $_d .= "<li>  <b>V-ID:</b> $an->v_id, <b>E-ID:</b> $an->e_id, <b>SPECIES:</b> $an->type, - SEX: $an->sex  - <a 
+                $_d .= "<li>  <b>V-ID:</b> $animal->v_id, <b>E-ID:</b> $animal->e_id, <b>SPECIES:</b> $animal->type, - SEX: $animal->sex  - <a 
                 target=\"_blank\"
                 href=\"" .
-                    admin_url('animals/' . $an->id)
+                    admin_url('animals/' . $animal->id)
                     . "\">veiw details</a></li>";
             }
             $_d .= "</ol>";
