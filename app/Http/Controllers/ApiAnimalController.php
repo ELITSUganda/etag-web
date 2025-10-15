@@ -1482,6 +1482,51 @@ class ApiAnimalController extends Controller
         ]);
     }
 
+
+    public function slaughter_record_assign_carcus_owner(Request $r)
+    {
+
+        $user_id = Utils::get_user_id($r);
+
+        $sr = SlaughterRecord::find($r->slaughter_record_id);
+        if ($sr == null) {
+            return Utils::response([
+                'data' => $sr,
+                'status' => 0,
+                'message' => "Record not found.",
+            ]);
+        }
+        $owner = Administrator::find($r->carcus_owen_id);
+        if ($owner == null) {
+            return Utils::response([
+                'data' => $sr,
+                'status' => 0,
+                'message' => "Carcus owner not found.",
+            ]);
+        }
+        $sr->carcus_owen_id = $owner->id;
+        $sr->carcus_owen_assigned = 'Yes';
+        $sr->carcus_owen_name = $owner->name;
+
+        try {
+            $sr->save();
+        } catch (\Throwable $th) {
+            return Utils::response([
+                'data' => $sr,
+                'status' => 0,
+                'message' => "Failed to save record. {$th->getMessage()}",
+            ]);
+        }
+
+        $sr = SlaughterRecord::find($sr->id);
+        return Utils::response([
+            'data' => $sr,
+            'status' => 1,
+            'message' => "Carcase owner assigned successfully.",
+        ]);
+    }
+
+
     public function create_slaughter_distribution_record(Request $r)
     {
 
@@ -1511,12 +1556,12 @@ class ApiAnimalController extends Controller
         }
 
         $receiver = Administrator::find($r->receiver_id);
-        if ($receiver == null) {
-            return Utils::response([
-                'status' => 0,
-                'message' => "Receiver not found.",
-            ]);
-        }
+        // if ($receiver == null) {
+        //     return Utils::response([
+        //         'status' => 0,
+        //         'message' => "Receiver not found.",
+        //     ]);
+        // }
 
 
         if ($sr->available_weight == null || (strlen($sr->available_weight) < 1)) {
@@ -1556,11 +1601,19 @@ class ApiAnimalController extends Controller
         $rec->source_id = $sr->id;
         $rec->source_name = $u->name;
         $rec->source_phone = $u->phone_number;
-        $rec->receiver_id = $receiver->id;
-        $rec->receiver_type = "Trader";
-        $rec->receiver_name = $receiver->name;
-        $rec->receiver_address = $receiver->address;
-        $rec->receiver_phone = $receiver->phone_number;
+        if ($receiver != null) {
+            $rec->receiver_id = $receiver->id;
+            $rec->receiver_type = "Trader";
+            $rec->receiver_name = $receiver->name;
+            $rec->receiver_address = $receiver->address;
+            $rec->receiver_phone = $receiver->phone_number;
+        } else {
+            $rec->receiver_id = 1;
+            $rec->receiver_type = "Trader";
+            $rec->receiver_name = "Unknown";
+            $rec->receiver_address = "Unknown";
+            $rec->receiver_phone = "Unknown";
+        }
         $rec->lhc = $sr->lhc;
         $rec->v_id = $sr->v_id;
         $rec->e_id = $sr->e_id;
@@ -3539,7 +3592,9 @@ class ApiAnimalController extends Controller
         }
 
 
-        $items = SlaughterRecord::where('administrator_id', $user_id)->get();
+        $items = SlaughterRecord::where('administrator_id', $user_id)
+            ->orWhere('carcus_owen_id', $user_id)
+            ->get();
         return Utils::response([
             'status' => 1,
             'message' => "Success.",
