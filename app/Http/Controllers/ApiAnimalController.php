@@ -3480,7 +3480,7 @@ class ApiAnimalController extends Controller
         // ===== OPTIMIZATION 1: Fetch all farm IDs in a single UNION query =====
         // Instead of 2 separate queries (ownFarms + permissions), use UNION for better performance
         $farm_ids_query = "
-            SELECT id as farm_id FROM farms WHERE administrator_id = ? AND deleted_at IS NULL
+            SELECT id as farm_id FROM farms WHERE administrator_id = ?
             UNION
             SELECT farm_id FROM user_has_farm_permissions WHERE user_id = ?
         ";
@@ -3506,7 +3506,6 @@ class ApiAnimalController extends Controller
 
         // ===== OPTIMIZATION 2: Use raw DB query with only needed columns =====
         // Select only columns needed by frontend, avoid triggering Eloquent accessors
-        // Exclude deleted animals
         $farm_ids_str = implode(',', array_map('intval', $access_ids));
         
         $animals_query = "
@@ -3546,8 +3545,7 @@ class ApiAnimalController extends Controller
                 profile_updated,
                 last_profile_update_date
             FROM animals 
-            WHERE farm_id IN ($farm_ids_str) 
-            AND deleted_at IS NULL
+            WHERE farm_id IN ($farm_ids_str)
             ORDER BY id DESC 
             LIMIT 2000
         ";
