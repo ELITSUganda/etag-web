@@ -3533,7 +3533,6 @@ class ApiAnimalController extends Controller
                 group_id,
                 local_id,
                 age,
-                last_seen,
                 for_sale,
                 has_fmd,
                 fmd,
