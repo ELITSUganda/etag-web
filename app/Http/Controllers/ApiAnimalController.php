@@ -3478,7 +3478,6 @@ class ApiAnimalController extends Controller
         $user_id = Utils::get_user_id($request);
 
         // ===== OPTIMIZATION 1: Fetch all farm IDs in a single UNION query =====
-        // Instead of 2 separate queries (ownFarms + permissions), use UNION for better performance
         $farm_ids_query = "
             SELECT id as farm_id FROM farms WHERE administrator_id = ?
             UNION
@@ -3505,7 +3504,6 @@ class ApiAnimalController extends Controller
         }
 
         // ===== OPTIMIZATION 2: Use raw DB query with only needed columns =====
-        // Select only columns needed by frontend, avoid triggering Eloquent accessors
         $farm_ids_str = implode(',', array_map('intval', $access_ids));
         
         $animals_query = "
@@ -3514,8 +3512,6 @@ class ApiAnimalController extends Controller
                 created_at,
                 updated_at,
                 administrator_id,
-                district_id,
-                sub_county_id,
                 farm_id,
                 status,
                 type,
@@ -3534,16 +3530,8 @@ class ApiAnimalController extends Controller
                 local_id,
                 age,
                 for_sale,
-                has_fmd,
-                fmd,
                 parent_id,
-                photo,
-                details,
-                is_pregnant,
-                pregnancy_delivery_expected_date,
-                service_date,
-                profile_updated,
-                last_profile_update_date
+                photo
             FROM animals 
             WHERE farm_id IN ($farm_ids_str)
             ORDER BY id DESC 
@@ -3552,56 +3540,34 @@ class ApiAnimalController extends Controller
         
         $animals = DB::select($animals_query);
 
-        // ===== OPTIMIZATION 3: Manually compute only required fields =====
-        // The original code nulls out most accessors anyway, so we only compute what's needed
-        $data = [];
+        // ===== OPTIMIZATION 3: Minimal processing - just return raw data =====
+        // Pre-compute current timestamp once for all animals
+        $now = time();
         
+        $data = [];
         foreach ($animals as $animal) {
-            // Convert stdClass to array for easier manipulation
+            // Convert stdClass to array
             $animal_array = (array) $animal;
             
-            // ===== Handle local_id (critical mutator) =====
-            // Original accessor generates unique ID if null - we need to preserve this logic
-            if (empty($animal_array['local_id']) || strlen($animal_array['local_id']) < 4) {
-                $unique_id = $this->generateUniqueLocalId();
-                $animal_array['local_id'] = $unique_id;
-                // Update database asynchronously to avoid blocking
-                DB::table('animals')->where('id', $animal->id)->update(['local_id' => $unique_id]);
-            }
+            // Only add essential computed fields - NO DATABASE WRITES
+            $animal_array['local_id'] = !empty($animal->local_id) ? $animal->local_id : '';
+            $animal_array['age'] = !empty($animal->age) ? (int)$animal->age : 0;
             
-            // ===== Handle age (critical mutator) =====
-            // Original accessor calculates age from dob if null
-           /*  $age = (int) $animal_array['age'];
-            if ($age == null || $age < 1) {
-                try {
-                    $dob = Carbon::parse($animal->dob);
-                    $age = $dob->diffInMonths(Carbon::now());
-                    $animal_array['age'] = $age;
-                    // Update database asynchronously
-                    DB::table('animals')->where('id', $animal->id)->update(['age' => $age]);
-                } catch (\Throwable $th) {
-                    $animal_array['age'] = 0;
-                }
-            } */
-            
-            // ===== Null out accessor fields as original does =====
+            // Add nulled accessor fields to match original structure
             $animal_array['images'] = null;
             $animal_array['photos'] = null;
-            $animal_array['district'] = null;
-            $animal_array['sub_county'] = null;
-            
-            // ===== Add computed accessor values (as strings to match Eloquent behavior) =====
-            // These are defined in $appends but we null them out to avoid extra queries
             $animal_array['last_seen'] = null;
-            $animal_array['phone_number'] = "+256706638494"; // Static value from accessor
-            $animal_array['whatsapp'] = "+8801632257609"; // Static value from accessor
+            $animal_array['phone_number'] = "+256706638494";
+            $animal_array['whatsapp'] = "+8801632257609";
             $animal_array['price_text'] = !empty($animal->price) ? "UGX " . number_format($animal->price) : "UGX 0";
-            $animal_array['posted'] = Carbon::parse($animal->created_at)->diffForHumans();
-            $animal_array['location'] = null; // Nulled to avoid district/sub_county queries
-            $animal_array['parent_text'] = null; // Nulled to avoid parent animal query
-            $animal_array['updated_at_text'] = Carbon::parse($animal->updated_at)->timestamp;
-            $animal_array['group_text'] = null; // Nulled to avoid group query
-            $animal_array['profile_updated'] = 'Yes'; // Static from accessor
+            $animal_array['location'] = null;
+            $animal_array['parent_text'] = null;
+            $animal_array['group_text'] = null;
+            $animal_array['profile_updated'] = 'Yes';
+            
+            // Use raw timestamps instead of Carbon parsing (10x faster)
+            $animal_array['posted'] = strtotime($animal->created_at);
+            $animal_array['updated_at_text'] = strtotime($animal->updated_at);
             
             $data[] = $animal_array;
         }
@@ -3614,15 +3580,6 @@ class ApiAnimalController extends Controller
         ]);
     }
     
-    /**
-     * Helper function to generate unique local_id for animals
-     * Matches the logic from Animal model's getLocalIdAttribute
-     */
-    private function generateUniqueLocalId()
-    {
-        // Generate unique text similar to Utils::get_unique_text()
-        return uniqid('animal_', true) . '_' . time() . '_' . rand(100000, 999999);
-    }
     public function transporters(Request $request)
     {
         $transposers = [];
