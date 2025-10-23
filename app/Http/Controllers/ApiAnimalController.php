@@ -4387,19 +4387,18 @@ class ApiAnimalController extends Controller
             ]);
         }
 
-        // Get user access permissions
+        // ===== OPTIMIZATION 1: Single UNION query for farm access =====
+        $farm_ids_query = "
+            SELECT id as farm_id FROM farms WHERE administrator_id = ?
+            UNION
+            SELECT farm_id FROM user_has_farm_permissions WHERE user_id = ?
+        ";
+        $access_ids_raw = DB::select($farm_ids_query, [$user_id, $user_id]);
+        
         $access_ids = [];
-        $ownFarms = Farm::where(['administrator_id' => $user_id])->get();
-        foreach ($ownFarms as $farm) {
-            if ($farm->id != null) {
-                $access_ids[] = $farm->id;
-            }
-        }
-
-        $access_records = UserHasFarmPermission::where(['user_id' => $user_id])->get();
-        foreach ($access_records as $record) {
-            if ($record->farm_id != null) {
-                $access_ids[] = $record->farm_id;
+        foreach ($access_ids_raw as $row) {
+            if (!empty($row->farm_id)) {
+                $access_ids[] = $row->farm_id;
             }
         }
 
@@ -4411,12 +4410,11 @@ class ApiAnimalController extends Controller
             ]);
         }
 
-        // MEMORY SAFETY: Strict server-side limiting
-        $limit = 1000; // Default maximum to prevent memory issues
+        // ===== OPTIMIZATION 2: Memory safety with configurable limits =====
+        $limit = 3000; // Default maximum
         if (isset($request->limit)) {
             $requested_limit = intval($request->limit);
-            // Never exceed 500 records to prevent OutOfMemoryError
-            $limit = min($requested_limit, 1000);
+            $limit = min($requested_limit, 3000); // Never exceed 3000
         }
 
         // Handle incremental sync
@@ -4425,41 +4423,47 @@ class ApiAnimalController extends Controller
             $last_id = intval($request->last_id);
         }
 
-        // Build the query with memory-safe constraints
-        $query = Event::whereIn('farm_id', $access_ids)
-            ->where('id', '>', $last_id)
-            ->orderBy('id', 'DESC'); // Latest first for better user experience
+        // ===== OPTIMIZATION 3: Raw SQL query for maximum speed =====
+        $farm_ids_str = implode(',', array_map('intval', $access_ids));
+        
+        $events_query = "
+            SELECT 
+                id,
+                animal_id,
+                type,
+                detail,
+                description,
+                created_at,
+                updated_at,
+                weight,
+                milk,
+                v_id,
+                e_id,
+                short_description,
+                medicine_id,
+                price,
+                farm_id,
+                session_id
+            FROM events 
+            WHERE farm_id IN ($farm_ids_str)
+            AND id > ?
+            ORDER BY id DESC 
+            LIMIT ?
+        ";
+        
+        $events = DB::select($events_query, [$last_id, $limit]);
 
-        // Apply limit - CRITICAL for memory management
-        $query->limit($limit);
+        // ===== OPTIMIZATION 4: Minimal processing - convert to arrays =====
+        $data = [];
+        foreach ($events as $event) {
+            $data[] = (array) $event;
+        }
 
-        // Execute query with minimal field selection for memory efficiency
-        $data = $query->get([
-            'id',
-            'animal_id',
-            'type',
-            'detail',
-            'description',
-            'created_at',
-            'updated_at',
-            'weight',
-            'milk',
-            'v_id',
-            'short_description',
-            'medicine_id',
-            'price',
-            'farm_id',
-            'session_id'
-        ]);
-
-        // Log memory usage for monitoring
-        $data_count = $data->count();
-        $memory_usage = memory_get_usage(true);
-        error_log("Events V4 API: Returned {$data_count} events, Memory: " . round($memory_usage / 1024 / 1024, 2) . "MB");
+        $data_count = count($data);
 
         return Utils::response([
             'status' => 1,
-            'message' => "Success. Retrieved {$data_count} events (max {$limit} for memory safety).",
+            'message' => "Success. Retrieved {$data_count} events.",
             'data' => $data,
             'meta' => [
                 'total_returned' => $data_count,
