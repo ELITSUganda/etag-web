@@ -3484,7 +3484,7 @@ class ApiAnimalController extends Controller
             SELECT farm_id FROM user_has_farm_permissions WHERE user_id = ?
         ";
         $access_ids_raw = DB::select($farm_ids_query, [$user_id, $user_id]);
-
+        
         // Extract farm IDs into simple array
         $access_ids = [];
         foreach ($access_ids_raw as $row) {
@@ -3505,11 +3505,12 @@ class ApiAnimalController extends Controller
 
         // ===== OPTIMIZATION 2: Use raw DB query with only needed columns =====
         $farm_ids_str = implode(',', array_map('intval', $access_ids));
-
+        
         $animals_query = "
             SELECT 
                 id,
                 created_at,
+                updated_at,
                 administrator_id,
                 farm_id,
                 status,
@@ -3535,22 +3536,22 @@ class ApiAnimalController extends Controller
             ORDER BY id DESC 
             LIMIT 2000
         ";
-
+        
         $animals = DB::select($animals_query);
 
         // ===== OPTIMIZATION 3: Minimal processing - just return raw data =====
         // Pre-compute current timestamp once for all animals
         $now = time();
-
+        
         $data = [];
         foreach ($animals as $animal) {
             // Convert stdClass to array
             $animal_array = (array) $animal;
-
+            
             // Only add essential computed fields - NO DATABASE WRITES
             $animal_array['local_id'] = !empty($animal->local_id) ? $animal->local_id : '';
             // $animal_array['age'] = !empty($animal->age) ? (int)$animal->age : 0;
-
+            
             // Add nulled accessor fields to match original structure
             $animal_array['images'] = null;
             $animal_array['photos'] = null;
@@ -3562,11 +3563,11 @@ class ApiAnimalController extends Controller
             $animal_array['parent_text'] = null;
             $animal_array['group_text'] = null;
             $animal_array['profile_updated'] = 'Yes';
-
+            
             // Use raw timestamps instead of Carbon parsing (10x faster)
             $animal_array['posted'] = strtotime($animal->created_at);
             $animal_array['updated_at_text'] = strtotime($animal->updated_at);
-
+            
             $data[] = $animal_array;
         }
 
@@ -3577,7 +3578,7 @@ class ApiAnimalController extends Controller
             'data' => $data
         ]);
     }
-
+    
     public function transporters(Request $request)
     {
         $transposers = [];
