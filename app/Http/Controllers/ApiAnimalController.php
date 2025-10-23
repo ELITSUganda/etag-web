@@ -4485,28 +4485,18 @@ class ApiAnimalController extends Controller
             ]);
         }
 
-        $u = Administrator::find($user_id);
-        if ($u == null) {
-            return Utils::response([
-                'status' => 0,
-                'message' => "User not found.",
-                'data' => []
-            ]);
-        }
-
-        // Get user access permissions
+        // ===== OPTIMIZATION 1: Fast farm access check with UNION =====
+        $farm_ids_query = "
+            SELECT id as farm_id FROM farms WHERE administrator_id = ?
+            UNION
+            SELECT farm_id FROM user_has_farm_permissions WHERE user_id = ?
+        ";
+        $access_ids_raw = DB::select($farm_ids_query, [$user_id, $user_id]);
+        
         $access_ids = [];
-        $ownFarms = Farm::where(['administrator_id' => $user_id])->get();
-        foreach ($ownFarms as $farm) {
-            if ($farm->id != null) {
-                $access_ids[] = $farm->id;
-            }
-        }
-
-        $access_records = UserHasFarmPermission::where(['user_id' => $user_id])->get();
-        foreach ($access_records as $record) {
-            if ($record->farm_id != null) {
-                $access_ids[] = $record->farm_id;
+        foreach ($access_ids_raw as $row) {
+            if (!empty($row->farm_id)) {
+                $access_ids[] = $row->farm_id;
             }
         }
 
@@ -4525,198 +4515,174 @@ class ApiAnimalController extends Controller
             ]);
         }
 
-        // Pagination parameters
+        // ===== OPTIMIZATION 2: Pagination parameters with limits =====
         $page = max(1, intval($request->input('page', 1)));
         $per_page = min(50, max(5, intval($request->input('per_page', 25))));
+        $offset = ($page - 1) * $per_page;
 
-        // Search parameters
+        // ===== OPTIMIZATION 3: Search/filter parameters =====
         $search = trim($request->input('search', ''));
         $event_type = trim($request->input('event_type', ''));
-        $category = trim($request->input('category', '')); // 'sanitary' or 'production'
-        $animal_id = trim($request->input('animal_id', ''));
+        $category = trim($request->input('category', ''));
+        $animal_id = intval($request->input('animal_id', 0));
         $e_id = trim($request->input('e_id', ''));
         $v_id = trim($request->input('v_id', ''));
         $session_id = trim($request->input('session_id', ''));
-
-        // Date filters
         $date_from = $request->input('date_from', '');
         $date_to = $request->input('date_to', '');
 
-        // Build the base query
-        $query = Event::whereIn('farm_id', $access_ids);
+        // ===== OPTIMIZATION 4: Build raw SQL with dynamic WHERE clauses =====
+        $farm_ids_str = implode(',', array_map('intval', $access_ids));
+        
+        // Base WHERE clause
+        $where_clauses = ["farm_id IN ($farm_ids_str)"];
+        $bind_params = [];
 
-        // Apply search filters
+        // Search filter
         if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('e_id', 'LIKE', "%{$search}%")
-                    ->orWhere('v_id', 'LIKE', "%{$search}%")
-                    ->orWhere('type', 'LIKE', "%{$search}%")
-                    ->orWhere('description', 'LIKE', "%{$search}%")
-                    ->orWhere('detail', 'LIKE', "%{$search}%")
-                    ->orWhere('short_description', 'LIKE', "%{$search}%");
-            });
+            $where_clauses[] = "(e_id LIKE ? OR v_id LIKE ? OR type LIKE ? OR description LIKE ? OR detail LIKE ?)";
+            $search_param = "%{$search}%";
+            $bind_params = array_merge($bind_params, [$search_param, $search_param, $search_param, $search_param, $search_param]);
         }
 
-        // Filter by event type
+        // Event type filter
         if (!empty($event_type)) {
-            $query->where('type', 'LIKE', "%{$event_type}%");
+            $where_clauses[] = "type LIKE ?";
+            $bind_params[] = "%{$event_type}%";
         }
 
-        // Filter by category (sanitary vs production)
+        // Category filter (sanitary vs production)
         if (!empty($category)) {
             $sanitary_types = [
-                'Treatment',
-                'Vaccination',
-                'Batch Treatment',
-                'Temperature check',
-                'Death',
-                'Disease test',
-                'Disease',
-                'Abortion',
-                'Sample taken',
-                'Sample result',
-                'Test conducted',
-                'Test result',
-                'Mortality'
+                'Treatment', 'Vaccination', 'Batch Treatment', 'Temperature check',
+                'Death', 'Disease test', 'Disease', 'Abortion', 'Sample taken',
+                'Sample result', 'Test conducted', 'Test result', 'Mortality'
             ];
-
+            
             if (strtolower($category) === 'sanitary') {
-                $query->whereIn('type', $sanitary_types);
+                $types_str = "'" . implode("','", $sanitary_types) . "'";
+                $where_clauses[] = "type IN ($types_str)";
             } else if (strtolower($category) === 'production') {
-                $query->whereNotIn('type', $sanitary_types);
+                $types_str = "'" . implode("','", $sanitary_types) . "'";
+                $where_clauses[] = "type NOT IN ($types_str)";
             }
         }
 
-        // Filter by animal
-        if (!empty($animal_id)) {
-            $query->where('animal_id', $animal_id);
+        // Animal ID filter
+        if ($animal_id > 0) {
+            $where_clauses[] = "animal_id = ?";
+            $bind_params[] = $animal_id;
         }
 
-        // Filter by ear tag
+        // E-ID filter
         if (!empty($e_id)) {
-            $query->where('e_id', 'LIKE', "%{$e_id}%");
+            $where_clauses[] = "e_id LIKE ?";
+            $bind_params[] = "%{$e_id}%";
         }
 
-        // Filter by v_id
+        // V-ID filter
         if (!empty($v_id)) {
-            $query->where('v_id', 'LIKE', "%{$v_id}%");
+            $where_clauses[] = "v_id LIKE ?";
+            $bind_params[] = "%{$v_id}%";
         }
 
-        // Filter by session
+        // Session filter
         if (!empty($session_id)) {
-            $query->where('session_id', $session_id);
+            $where_clauses[] = "session_id = ?";
+            $bind_params[] = $session_id;
         }
 
-        // Date range filter
+        // Date filters
         if (!empty($date_from)) {
-            $query->whereDate('created_at', '>=', $date_from);
+            $where_clauses[] = "DATE(created_at) >= ?";
+            $bind_params[] = $date_from;
         }
         if (!empty($date_to)) {
-            $query->whereDate('created_at', '<=', $date_to);
+            $where_clauses[] = "DATE(created_at) <= ?";
+            $bind_params[] = $date_to;
         }
 
-        // Get total count for pagination
-        $total = $query->count();
-        $last_page = ceil($total / $per_page);
+        $where_sql = implode(' AND ', $where_clauses);
+
+        // ===== OPTIMIZATION 5: Get total count efficiently =====
+        $count_query = "SELECT COUNT(*) as total FROM events WHERE {$where_sql}";
+        $total_result = DB::select($count_query, $bind_params);
+        $total = $total_result[0]->total ?? 0;
+        $last_page = $total > 0 ? ceil($total / $per_page) : 1;
         $has_more = $page < $last_page;
 
-        // Apply pagination and ordering
-        $offset = ($page - 1) * $per_page;
-        $events = $query->orderBy('created_at', 'DESC')
-            ->orderBy('id', 'DESC')
-            ->offset($offset)
-            ->limit($per_page)
-            ->get([
-                'id',
-                'animal_id',
-                'type',
-                'detail',
-                'description',
-                'short_description',
-                'created_at',
-                'updated_at',
-                'administrator_id',
-                'district_id',
-                'sub_county_id',
-                'parish_id',
-                'farm_id',
-                'disease_id',
-                'vaccine_id',
-                'medicine_id',
-                'medicine_text',
-                'medicine_quantity',
-                'medicine_name',
-                'medicine_batch_number',
-                'medicine_supplier',
-                'medicine_manufacturer',
-                'medicine_expiry_date',
-                'weight',
-                'milk',
-                'temperature',
-                'e_id',
-                'v_id',
-                'status',
-                'vaccination',
-                'photo',
-                'session_id',
-                'is_present',
-                'price'
-            ]);
+        // ===== OPTIMIZATION 6: Raw SQL query for events =====
+        $events_query = "
+            SELECT 
+                id,
+                animal_id,
+                type,
+                detail,
+                description,
+                short_description,
+                created_at,
+                updated_at,
+                administrator_id,
+                farm_id,
+                disease_id,
+                vaccine_id,
+                medicine_id,
+                medicine_text,
+                medicine_quantity,
+                medicine_name,
+                weight,
+                milk,
+                temperature,
+                e_id,
+                v_id,
+                status,
+                vaccination,
+                photo,
+                session_id,
+                is_present,
+                price
+            FROM events 
+            WHERE {$where_sql}
+            ORDER BY created_at DESC, id DESC
+            LIMIT ? OFFSET ?
+        ";
+        
+        $bind_params[] = $per_page;
+        $bind_params[] = $offset;
+        
+        $events = DB::select($events_query, $bind_params);
 
-        // Enhance data with related information
+        // ===== OPTIMIZATION 7: Minimal post-processing =====
+        $data = [];
         foreach ($events as $event) {
-            // Get animal information
-            if (!empty($event->animal_id)) {
-                $animal = Animal::find($event->animal_id);
-                if ($animal) {
-                    $event->animal_text = $animal->e_id . ' - ' . $animal->type;
-                    $event->animal_photo = $animal->photo;
-                }
-            }
-
-            // Get farm information
-            if (!empty($event->farm_id)) {
-                $farm = Farm::find($event->farm_id);
-                if ($farm) {
-                    $event->farm_text = $farm->name;
-                }
-            }
-
-            // Get administrator information
-            if (!empty($event->administrator_id)) {
-                $admin = \Encore\Admin\Auth\Database\Administrator::find($event->administrator_id);
-                if ($admin) {
-                    $event->administrator_text = $admin->name;
-                }
-            }
-
-            // Get session information
-            if (!empty($event->session_id)) {
-                $session = BatchSession::find($event->session_id);
-                if ($session) {
-                    $event->session_text = $session->name;
-                }
-            }
-
-            // Format dates
-            $event->created_at_formatted = Carbon::parse($event->created_at)->format('M d, Y H:i');
-            $event->updated_at_formatted = Carbon::parse($event->updated_at)->format('M d, Y H:i');
-
-            // Add time ago
-            $event->time_ago = Carbon::parse($event->created_at)->diffForHumans();
+            $event_array = (array) $event;
+            
+            // Add minimal computed fields - NO DATABASE LOOKUPS
+            $event_array['animal_text'] = null;
+            $event_array['animal_photo'] = null;
+            $event_array['farm_text'] = null;
+            $event_array['administrator_text'] = null;
+            $event_array['session_text'] = null;
+            
+            // Use timestamps instead of Carbon formatting (faster)
+            $event_array['created_at_formatted'] = date('M d, Y H:i', strtotime($event->created_at));
+            $event_array['updated_at_formatted'] = date('M d, Y H:i', strtotime($event->updated_at));
+            $event_array['time_ago'] = $this->timeAgo(strtotime($event->created_at));
+            
+            $data[] = $event_array;
         }
 
         return Utils::response([
             'status' => 1,
-            'message' => "Success. Retrieved {$events->count()} events.",
-            'data' => $events,
+            'message' => "Success. Retrieved " . count($data) . " events.",
+            'data' => $data,
             'pagination' => [
                 'current_page' => $page,
                 'per_page' => $per_page,
                 'total' => $total,
                 'last_page' => $last_page,
                 'has_more' => $has_more,
-                'from' => $offset + 1,
+                'from' => $total > 0 ? $offset + 1 : 0,
                 'to' => min($offset + $per_page, $total)
             ],
             'filters_applied' => [
@@ -4731,5 +4697,21 @@ class ApiAnimalController extends Controller
                 'date_to' => $date_to
             ]
         ]);
+    }
+
+    /**
+     * Helper function to generate human-readable time ago
+     */
+    private function timeAgo($timestamp)
+    {
+        $diff = time() - $timestamp;
+        
+        if ($diff < 60) return $diff . ' seconds ago';
+        if ($diff < 3600) return floor($diff / 60) . ' minutes ago';
+        if ($diff < 86400) return floor($diff / 3600) . ' hours ago';
+        if ($diff < 604800) return floor($diff / 86400) . ' days ago';
+        if ($diff < 2592000) return floor($diff / 604800) . ' weeks ago';
+        if ($diff < 31536000) return floor($diff / 2592000) . ' months ago';
+        return floor($diff / 31536000) . ' years ago';
     }
 }
