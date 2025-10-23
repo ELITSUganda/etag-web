@@ -3571,7 +3571,7 @@ class ApiAnimalController extends Controller
             
             // ===== Handle age (critical mutator) =====
             // Original accessor calculates age from dob if null
-            $age = (int) $animal_array['age'];
+           /*  $age = (int) $animal_array['age'];
             if ($age == null || $age < 1) {
                 try {
                     $dob = Carbon::parse($animal->dob);
@@ -3582,7 +3582,7 @@ class ApiAnimalController extends Controller
                 } catch (\Throwable $th) {
                     $animal_array['age'] = 0;
                 }
-            }
+            } */
             
             // ===== Null out accessor fields as original does =====
             $animal_array['images'] = null;
