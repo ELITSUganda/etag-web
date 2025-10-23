@@ -4476,11 +4476,6 @@ class ApiAnimalController extends Controller
 
     public function events_online(Request $request)
     {
-        return Utils::response([
-            'status' => 0,
-            'message' => "This endpoint is deprecated. Please use /events_v4 instead.",
-            'data' => []
-        ]);
         $user_id = Utils::get_user_id($request);
         if ($user_id < 1) {
             return Utils::response([
