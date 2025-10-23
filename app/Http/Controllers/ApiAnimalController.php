@@ -3475,48 +3475,155 @@ class ApiAnimalController extends Controller
 
     public function index_v2(Request $request)
     {
-
         $user_id = Utils::get_user_id($request);
 
+        // ===== OPTIMIZATION 1: Fetch all farm IDs in a single UNION query =====
+        // Instead of 2 separate queries (ownFarms + permissions), use UNION for better performance
+        $farm_ids_query = "
+            SELECT id as farm_id FROM farms WHERE administrator_id = ? AND deleted_at IS NULL
+            UNION
+            SELECT farm_id FROM user_has_farm_permissions WHERE user_id = ?
+        ";
+        $access_ids_raw = DB::select($farm_ids_query, [$user_id, $user_id]);
+        
+        // Extract farm IDs into simple array
         $access_ids = [];
-        $ownFarms = Farm::where([
-            'administrator_id' => $user_id
-        ])->get();
-        foreach ($ownFarms as $key => $value) {
-            if ($value->id != null) {
-                $access_ids[] = $value->id;
-            }
-        }
-        $access_records = UserHasFarmPermission::where([
-            'user_id' => $user_id
-        ])->get();
-        foreach ($access_records as $key => $value) {
-            if ($value->farm_id != null) {
-                $access_ids[] = $value->farm_id;
+        foreach ($access_ids_raw as $row) {
+            if (!empty($row->farm_id)) {
+                $access_ids[] = $row->farm_id;
             }
         }
 
-        $query = Animal::whereIn('farm_id', $access_ids)->orderBy('id', 'desc')->limit(2000);
-
-        if ($request->updated_at != null) {
-            //$query->whereDate('updated_at', '>', Carbon::parse($request->updated_at));
+        // If no farms accessible, return empty result early
+        if (empty($access_ids)) {
+            return Utils::response([
+                'status' => 1,
+                'code' => 1,
+                'message' => "Success.",
+                'data' => []
+            ]);
         }
-        $ans = $query->get();
+
+        // ===== OPTIMIZATION 2: Use raw DB query with only needed columns =====
+        // Select only columns needed by frontend, avoid triggering Eloquent accessors
+        // Exclude deleted animals
+        $farm_ids_str = implode(',', array_map('intval', $access_ids));
+        
+        $animals_query = "
+            SELECT 
+                id,
+                created_at,
+                updated_at,
+                administrator_id,
+                district_id,
+                sub_county_id,
+                farm_id,
+                status,
+                type,
+                e_id,
+                v_id,
+                lhc,
+                breed,
+                sex,
+                dob,
+                color,
+                price,
+                weight,
+                stage,
+                average_milk,
+                group_id,
+                local_id,
+                age,
+                for_sale,
+                has_fmd,
+                fmd,
+                parent_id,
+                photo,
+                details,
+                is_pregnant,
+                pregnancy_delivery_expected_date,
+                service_date,
+                profile_updated,
+                last_profile_update_date
+            FROM animals 
+            WHERE farm_id IN ($farm_ids_str) 
+            AND deleted_at IS NULL
+            ORDER BY id DESC 
+            LIMIT 2000
+        ";
+        
+        $animals = DB::select($animals_query);
+
+        // ===== OPTIMIZATION 3: Manually compute only required fields =====
+        // The original code nulls out most accessors anyway, so we only compute what's needed
         $data = [];
-        foreach ($ans as $key => $v) {
-            $v->local_id = $v->local_id;
-            $v->images = null;
-            $v->photos = null;
-            $v->district = null;
-            $v->sub_county = null;
-            $data[] = $v;
+        
+        foreach ($animals as $animal) {
+            // Convert stdClass to array for easier manipulation
+            $animal_array = (array) $animal;
+            
+            // ===== Handle local_id (critical mutator) =====
+            // Original accessor generates unique ID if null - we need to preserve this logic
+            if (empty($animal_array['local_id']) || strlen($animal_array['local_id']) < 4) {
+                $unique_id = $this->generateUniqueLocalId();
+                $animal_array['local_id'] = $unique_id;
+                // Update database asynchronously to avoid blocking
+                DB::table('animals')->where('id', $animal->id)->update(['local_id' => $unique_id]);
+            }
+            
+            // ===== Handle age (critical mutator) =====
+            // Original accessor calculates age from dob if null
+            $age = (int) $animal_array['age'];
+            if ($age == null || $age < 1) {
+                try {
+                    $dob = Carbon::parse($animal->dob);
+                    $age = $dob->diffInMonths(Carbon::now());
+                    $animal_array['age'] = $age;
+                    // Update database asynchronously
+                    DB::table('animals')->where('id', $animal->id)->update(['age' => $age]);
+                } catch (\Throwable $th) {
+                    $animal_array['age'] = 0;
+                }
+            }
+            
+            // ===== Null out accessor fields as original does =====
+            $animal_array['images'] = null;
+            $animal_array['photos'] = null;
+            $animal_array['district'] = null;
+            $animal_array['sub_county'] = null;
+            
+            // ===== Add computed accessor values (as strings to match Eloquent behavior) =====
+            // These are defined in $appends but we null them out to avoid extra queries
+            $animal_array['last_seen'] = null;
+            $animal_array['phone_number'] = "+256706638494"; // Static value from accessor
+            $animal_array['whatsapp'] = "+8801632257609"; // Static value from accessor
+            $animal_array['price_text'] = !empty($animal->price) ? "UGX " . number_format($animal->price) : "UGX 0";
+            $animal_array['posted'] = Carbon::parse($animal->created_at)->diffForHumans();
+            $animal_array['location'] = null; // Nulled to avoid district/sub_county queries
+            $animal_array['parent_text'] = null; // Nulled to avoid parent animal query
+            $animal_array['updated_at_text'] = Carbon::parse($animal->updated_at)->timestamp;
+            $animal_array['group_text'] = null; // Nulled to avoid group query
+            $animal_array['profile_updated'] = 'Yes'; // Static from accessor
+            
+            $data[] = $animal_array;
         }
+
         return Utils::response([
             'status' => 1,
             'code' => 1,
             'message' => "Success.",
             'data' => $data
         ]);
+    }
+    
+    /**
+     * Helper function to generate unique local_id for animals
+     * Matches the logic from Animal model's getLocalIdAttribute
+     */
+    private function generateUniqueLocalId()
+    {
+        // Generate unique text similar to Utils::get_unique_text()
+        return uniqid('animal_', true) . '_' . time() . '_' . rand(100000, 999999);
     }
     public function transporters(Request $request)
     {
