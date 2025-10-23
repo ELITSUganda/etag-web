@@ -176,7 +176,9 @@ Route::POST('v3-animal-records', [ApiAnimalController::class, 'store_event_2']);
 Route::get('events-v3', [ApiAnimalController::class, 'events_v3']);
 // MEMORY-OPTIMIZED ENDPOINT - Prevents OutOfMemoryError by limiting to 500 records max
 Route::get('events-v4', [ApiAnimalController::class, 'events_v4']);
-// ONLINE EVENTS ENDPOINT - Direct API access with pagination, search, and filters
+// PAGINATED EVENTS ENDPOINT - Direct API access with pagination, search, and filters
+Route::get('events-paginated', [ApiAnimalController::class, 'events_online']);
+// LEGACY ENDPOINT (may be blocked by WAF) - Use events-paginated instead
 Route::get('events-online', [ApiAnimalController::class, 'events_online']);
 Route::POST('events', [ApiAnimalController::class, 'store_event']);
 Route::POST('batch-events', [ApiAnimalController::class, 'store_batch_event']);
