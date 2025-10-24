@@ -3478,7 +3478,7 @@ class ApiAnimalController extends Controller
     public function index_v2(Request $request)
     {
         try {
-            // Utils::archive_soft_deleted_animals();
+            Utils::archive_soft_deleted_animals();
         } catch (\Throwable $th) {
             //throw $th;
         }
