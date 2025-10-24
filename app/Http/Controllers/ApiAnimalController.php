@@ -3342,7 +3342,7 @@ class ApiAnimalController extends Controller
 
             $data[] = $x;
         }
-        
+
 
         return Utils::response([
             'status' => 1,
@@ -3478,12 +3478,12 @@ class ApiAnimalController extends Controller
     public function index_v2(Request $request)
     {
         try {
-            Utils::archive_soft_deleted_animals();
+            // Utils::archive_soft_deleted_animals();
         } catch (\Throwable $th) {
             //throw $th;
         }
 
-        $user_id = Utils::get_user_id($request);        
+        $user_id = Utils::get_user_id($request);
         $animals_query = "
             SELECT 
                 id,
@@ -3514,7 +3514,7 @@ class ApiAnimalController extends Controller
             ORDER BY id DESC 
             LIMIT 2000
         ";
-        
+
         $animals = DB::select($animals_query);
         return Utils::response([
             'status' => 1,
@@ -3526,16 +3526,16 @@ class ApiAnimalController extends Controller
         // ===== OPTIMIZATION 3: Minimal processing - just return raw data =====
         // Pre-compute current timestamp once for all animals
         $now = time();
-        
+
         $data = [];
         foreach ($animals as $animal) {
             // Convert stdClass to array
             $animal_array = (array) $animal;
-            
+
             // Only add essential computed fields - NO DATABASE WRITES
             $animal_array['local_id'] = !empty($animal->local_id) ? $animal->local_id : '';
             // $animal_array['age'] = !empty($animal->age) ? (int)$animal->age : 0;
-            
+
             // Add nulled accessor fields to match original structure
             $animal_array['images'] = null;
             $animal_array['photos'] = null;
@@ -3547,11 +3547,11 @@ class ApiAnimalController extends Controller
             $animal_array['parent_text'] = null;
             $animal_array['group_text'] = null;
             $animal_array['profile_updated'] = 'Yes';
-            
+
             // Use raw timestamps instead of Carbon parsing (10x faster)
             $animal_array['posted'] = strtotime($animal->created_at);
             $animal_array['updated_at_text'] = strtotime($animal->updated_at);
-            
+
             $data[] = $animal_array;
         }
 
@@ -3562,7 +3562,7 @@ class ApiAnimalController extends Controller
             'data' => $data
         ]);
     }
-    
+
     public function transporters(Request $request)
     {
         $transposers = [];
@@ -4378,7 +4378,7 @@ class ApiAnimalController extends Controller
             SELECT farm_id FROM user_has_farm_permissions WHERE user_id = ?
         ";
         $access_ids_raw = DB::select($farm_ids_query, [$user_id, $user_id]);
-        
+
         $access_ids = [];
         foreach ($access_ids_raw as $row) {
             if (!empty($row->farm_id)) {
@@ -4409,7 +4409,7 @@ class ApiAnimalController extends Controller
 
         // ===== OPTIMIZATION 3: Raw SQL query for maximum speed =====
         $farm_ids_str = implode(',', array_map('intval', $access_ids));
-        
+
         $events_query = "
             SELECT 
                 id,
@@ -4434,7 +4434,7 @@ class ApiAnimalController extends Controller
             ORDER BY id DESC 
             LIMIT ?
         ";
-        
+
         $events = DB::select($events_query, [$last_id, $limit]);
 
         // ===== OPTIMIZATION 4: Minimal processing - convert to arrays =====
@@ -4476,7 +4476,7 @@ class ApiAnimalController extends Controller
             SELECT farm_id FROM user_has_farm_permissions WHERE user_id = ?
         ";
         $access_ids_raw = DB::select($farm_ids_query, [$user_id, $user_id]);
-        
+
         $access_ids = [];
         foreach ($access_ids_raw as $row) {
             if (!empty($row->farm_id)) {
@@ -4517,7 +4517,7 @@ class ApiAnimalController extends Controller
 
         // ===== OPTIMIZATION 4: Build raw SQL with dynamic WHERE clauses =====
         $farm_ids_str = implode(',', array_map('intval', $access_ids));
-        
+
         // Base WHERE clause
         $where_clauses = ["farm_id IN ($farm_ids_str)"];
         $bind_params = [];
@@ -4538,11 +4538,21 @@ class ApiAnimalController extends Controller
         // Category filter (sanitary vs production)
         if (!empty($category)) {
             $sanitary_types = [
-                'Treatment', 'Vaccination', 'Batch Treatment', 'Temperature check',
-                'Death', 'Disease test', 'Disease', 'Abortion', 'Sample taken',
-                'Sample result', 'Test conducted', 'Test result', 'Mortality'
+                'Treatment',
+                'Vaccination',
+                'Batch Treatment',
+                'Temperature check',
+                'Death',
+                'Disease test',
+                'Disease',
+                'Abortion',
+                'Sample taken',
+                'Sample result',
+                'Test conducted',
+                'Test result',
+                'Mortality'
             ];
-            
+
             if (strtolower($category) === 'sanitary') {
                 $types_str = "'" . implode("','", $sanitary_types) . "'";
                 $where_clauses[] = "type IN ($types_str)";
@@ -4630,29 +4640,29 @@ class ApiAnimalController extends Controller
             ORDER BY created_at DESC, id DESC
             LIMIT ? OFFSET ?
         ";
-        
+
         $bind_params[] = $per_page;
         $bind_params[] = $offset;
-        
+
         $events = DB::select($events_query, $bind_params);
 
         // ===== OPTIMIZATION 7: Minimal post-processing =====
         $data = [];
         foreach ($events as $event) {
             $event_array = (array) $event;
-            
+
             // Add minimal computed fields - NO DATABASE LOOKUPS
             $event_array['animal_text'] = null;
             $event_array['animal_photo'] = null;
             $event_array['farm_text'] = null;
             $event_array['administrator_text'] = null;
             $event_array['session_text'] = null;
-            
+
             // Use timestamps instead of Carbon formatting (faster)
             $event_array['created_at_formatted'] = date('M d, Y H:i', strtotime($event->created_at));
             $event_array['updated_at_formatted'] = date('M d, Y H:i', strtotime($event->updated_at));
             $event_array['time_ago'] = $this->timeAgo(strtotime($event->created_at));
-            
+
             $data[] = $event_array;
         }
 
@@ -4689,7 +4699,7 @@ class ApiAnimalController extends Controller
     private function timeAgo($timestamp)
     {
         $diff = time() - $timestamp;
-        
+
         if ($diff < 60) return $diff . ' seconds ago';
         if ($diff < 3600) return floor($diff / 60) . ' minutes ago';
         if ($diff < 86400) return floor($diff / 3600) . ' hours ago';

@@ -36,6 +36,22 @@ use Milon\Barcode\DNS1D;
 use function PHPUnit\Framework\fileExists;
 
 
+Route::get('archive-soft-deleted-animals', function (Request $request) {
+
+    $limit = 100;
+    $deleted_animals = Animal::whereNotNull('deleted_at')->limit($limit)->get();
+    foreach ($deleted_animals as $key => $animal) {
+        try {
+            Utils::archive_animal(['animal_id' => $animal->id]);
+            echo "<br>Archived animal: {$animal->id} <br>";
+        } catch (Exception $e) {
+            // Log::error("Failed to archive animal: {$animal->id}, Error: {$e->getMessage()}");
+        }
+    }
+    $animalsRemaining = Animal::whereNotNull('deleted_at')->count();
+    return "Processed " . count($deleted_animals) . " animals. Remaining: $animalsRemaining";
+ 
+});
 Route::get('moves-test', function (Request $request) {
     $momvenets = Movement::all();
     foreach ($momvenets as $key => $mv) {
