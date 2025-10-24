@@ -7,12 +7,10 @@ use Encore\Admin\Auth\Database\Administrator;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 
 class Animal extends Model
 {
-    use SoftDeletes;
     use HasFactory;
     protected $fillable = [
         'administrator_id',
@@ -39,7 +37,11 @@ class Animal extends Model
                 throw new Exception("Animal with same elecetronic ID ($model->e_id) aready exist in the system.", 1);
                 return false;
             }
-         /*    $animal = Animal::where('v_id', $model->v_id)->first();
+
+            //deleted_at
+            $model->deleted_at = null;
+
+            /*    $animal = Animal::where('v_id', $model->v_id)->first();
             if ($animal != null) {
                 throw new Exception("Animal with same v-ID ($model->v_id) aready exist in the system.");
                 return false;

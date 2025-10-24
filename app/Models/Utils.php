@@ -22,6 +22,19 @@ class Utils extends Model
 
 
 
+    //archive soft deleted animals
+    public static function archive_soft_deleted_animals()
+    {
+        $deleted_animals = Animal::whereNotNull('deleted_at')->get();
+
+        foreach ($deleted_animals as $animal) {
+            try {
+                Utils::archive_animal(['animal_id' => $animal->id]);
+            } catch (Exception $e) {
+                Log::error("Failed to archive animal: {$animal->id}, Error: {$e->getMessage()}");
+            } 
+        }
+    }
 
     public static function get_error($error_code)
     {
@@ -1645,7 +1658,16 @@ duplicate_results
             Event::where([
                 'animal_id' => $animal_id
             ])->delete();
-            $animal->delete();
+            //hard delete animal
+            try {
+                $animal->forceDelete();
+            } catch (Exception $x) {
+                try {
+                    $animal->delete();
+                } catch (Exception $y) {
+                    return false;
+                }
+            }
             return true;
         }
         return true;
@@ -2078,7 +2100,7 @@ duplicate_results
                     $schedule = $schedule,
                     $headings = $headings
                 );
-            
+
             // Log successful notification for debugging
             Log::info('OneSignal notification sent successfully to user: ' . $receiver);
         } catch (\Throwable $th) {
@@ -2091,23 +2113,24 @@ duplicate_results
         return;
     }
 
-    public static function testOneSignalConnection($user_id) {
+    public static function testOneSignalConnection($user_id)
+    {
         try {
             $response = OneSignalFacade::addParams([
                 'android_channel_id' => 'f3469729-c2b4-4fce-89da-78550d5a2dd1',
                 'large_icon' => 'https://u-lits.com/logo-1.png',
                 'small_icon' => 'logo_1',
             ])
-            ->sendNotificationToExternalUser(
-                "Test notification from U-LITS system",
-                "$user_id",
-                null,
-                [],
-                null,
-                null,
-                "U-LITS Test"
-            );
-            
+                ->sendNotificationToExternalUser(
+                    "Test notification from U-LITS system",
+                    "$user_id",
+                    null,
+                    [],
+                    null,
+                    null,
+                    "U-LITS Test"
+                );
+
             Log::info('OneSignal test notification sent successfully to user: ' . $user_id);
             return ['status' => 'success', 'message' => 'Test notification sent successfully', 'response' => $response];
         } catch (\Throwable $th) {

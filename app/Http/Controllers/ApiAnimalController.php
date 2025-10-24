@@ -3477,37 +3477,13 @@ class ApiAnimalController extends Controller
 
     public function index_v2(Request $request)
     {
-        $user_id = Utils::get_user_id($request);
-
-        // ===== OPTIMIZATION 1: Fetch all farm IDs in a single UNION query =====
-        $farm_ids_query = "
-            SELECT id as farm_id FROM farms WHERE administrator_id = ?
-            UNION
-            SELECT farm_id FROM user_has_farm_permissions WHERE user_id = ?
-        ";
-        $access_ids_raw = DB::select($farm_ids_query, [$user_id, $user_id]);
-        
-        // Extract farm IDs into simple array
-        $access_ids = [];
-        foreach ($access_ids_raw as $row) {
-            if (!empty($row->farm_id)) {
-                $access_ids[] = $row->farm_id;
-            }
+        try {
+            Utils::archive_soft_deleted_animals();
+        } catch (\Throwable $th) {
+            //throw $th;
         }
 
-        // If no farms accessible, return empty result early
-        if (empty($access_ids)) {
-            return Utils::response([
-                'status' => 1,
-                'code' => 1,
-                'message' => "Success.",
-                'data' => []
-            ]);
-        }
-
-        // ===== OPTIMIZATION 2: Use raw DB query with only needed columns =====
-        $farm_ids_str = implode(',', array_map('intval', $access_ids));
-        
+        $user_id = Utils::get_user_id($request);        
         $animals_query = "
             SELECT 
                 id,
@@ -3534,12 +3510,18 @@ class ApiAnimalController extends Controller
                 parent_id,
                 photo
             FROM animals 
-            WHERE farm_id IN ($farm_ids_str)
+            WHERE administrator_id = $user_id && deleted_at IS NULL
             ORDER BY id DESC 
             LIMIT 2000
         ";
         
         $animals = DB::select($animals_query);
+        return Utils::response([
+            'status' => 1,
+            'code' => 1,
+            'message' => "Success. Count => " . count($animals),
+            'data' => $animals
+        ]);
 
         // ===== OPTIMIZATION 3: Minimal processing - just return raw data =====
         // Pre-compute current timestamp once for all animals
@@ -3576,7 +3558,7 @@ class ApiAnimalController extends Controller
         return Utils::response([
             'status' => 1,
             'code' => 1,
-            'message' => "Success.",
+            'message' => "Success. Count: " . count($data),
             'data' => $data
         ]);
     }
