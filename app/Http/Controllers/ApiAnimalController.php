@@ -3280,6 +3280,7 @@ class ApiAnimalController extends Controller
     public function index(Request $request)
     {
 
+
         $user_id = Utils::get_user_id($request);
         $data = [];
 
@@ -3341,10 +3342,11 @@ class ApiAnimalController extends Controller
 
             $data[] = $x;
         }
+        
 
         return Utils::response([
             'status' => 1,
-            'message' => "Success.",
+            'message' => "Success. count: " . count($data),
             'data' => $data
         ]);
 
