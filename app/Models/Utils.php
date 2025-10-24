@@ -25,7 +25,8 @@ class Utils extends Model
     //archive soft deleted animals
     public static function archive_soft_deleted_animals()
     {
-        $deleted_animals = Animal::whereNotNull('deleted_at')->get();
+        $limit = 50;
+        $deleted_animals = Animal::whereNotNull('deleted_at')->limit($limit)->get();
 
         foreach ($deleted_animals as $animal) {
             try {
