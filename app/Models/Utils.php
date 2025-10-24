@@ -32,7 +32,7 @@ class Utils extends Model
             try {
                 Utils::archive_animal(['animal_id' => $animal->id]);
             } catch (Exception $e) {
-                Log::error("Failed to archive animal: {$animal->id}, Error: {$e->getMessage()}");
+                // Log::error("Failed to archive animal: {$animal->id}, Error: {$e->getMessage()}");
             } 
         }
     }
