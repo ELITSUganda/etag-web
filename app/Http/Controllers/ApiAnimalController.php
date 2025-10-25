@@ -31,6 +31,7 @@ use Dflydev\DotAccessData\Util;
 use Encore\Admin\Auth\Database\Administrator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Monolog\Handler\Slack\SlackRecord;
 
@@ -4458,75 +4459,158 @@ class ApiAnimalController extends Controller
         ]);
     }
 
+    /**
+     * Get paginated events with advanced filtering (Optimized endpoint)
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * 
+     * Query Parameters:
+     * - page: int (default: 1, min: 1)
+     * - per_page: int (default: 25, min: 5, max: 50)
+     * - search: string (searches in e_id, v_id, type, description, detail)
+     * - event_type: string (exact match on event type)
+     * - category: string (sanitary|production)
+     * - animal_id: int (filter by specific animal)
+     * - e_id: string (partial match)
+     * - v_id: string (partial match)
+     * - date_from: string (YYYY-MM-DD format)
+     * - date_to: string (YYYY-MM-DD format)
+     */
     public function events_online(Request $request)
     {
-        $user_id = Utils::get_user_id($request);
-        if ($user_id < 1) {
-            return Utils::response([
-                'status' => 0,
-                'message' => "User not authenticated.",
-                'data' => []
-            ]);
-        }
-
-        // ===== OPTIMIZATION 1: Fast farm access check with UNION =====
-        $farm_ids_query = "
-            SELECT id as farm_id FROM farms WHERE administrator_id = ?
-            UNION
-            SELECT farm_id FROM user_has_farm_permissions WHERE user_id = ?
-        ";
-        $access_ids_raw = DB::select($farm_ids_query, [$user_id, $user_id]);
-
-        $access_ids = [];
-        foreach ($access_ids_raw as $row) {
-            if (!empty($row->farm_id)) {
-                $access_ids[] = $row->farm_id;
+        try {
+            // ===== AUTHENTICATION CHECK =====
+            $user_id = Utils::get_user_id($request);
+            if ($user_id < 1) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "User not authenticated. Please login again.",
+                    'data' => [],
+                    'error_code' => 'AUTH_REQUIRED'
+                ]);
             }
-        }
 
-        if (empty($access_ids)) {
-            return Utils::response([
-                'status' => 1,
-                'message' => "No accessible farms found.",
-                'data' => [],
-                'pagination' => [
-                    'current_page' => 1,
-                    'per_page' => 25,
-                    'total' => 0,
-                    'last_page' => 1,
-                    'has_more' => false
-                ]
-            ]);
-        }
-
-        // ===== OPTIMIZATION 2: Pagination parameters with limits =====
-        $page = max(1, intval($request->input('page', 1)));
-        $per_page = min(50, max(5, intval($request->input('per_page', 25))));
-        $offset = ($page - 1) * $per_page;
-
-        // ===== OPTIMIZATION 3: Search/filter parameters =====
-        $search = trim($request->input('search', ''));
-        $event_type = null;
-        //check if event_type is set
-        if ($request->has('event_type')) {
-            $event_type = trim($request->input('event_type', ''));
-            if (strlen($event_type) < 2) {
-                $event_type = null;
+            // ===== OPTIMIZATION 1: Fast farm access check with UNION =====
+            try {
+                $farm_ids_query = "
+                    SELECT id as farm_id FROM farms WHERE administrator_id = ?
+                    UNION
+                    SELECT farm_id FROM user_has_farm_permissions WHERE user_id = ?
+                ";
+                $access_ids_raw = DB::select($farm_ids_query, [$user_id, $user_id]);
+            } catch (\Exception $e) {
+                Log::error("Farm access query failed: " . $e->getMessage());
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Failed to retrieve farm access permissions.",
+                    'data' => [],
+                    'error_code' => 'DATABASE_ERROR'
+                ]);
             }
-        }
-        $category = trim($request->input('category', ''));
-        $animal_id = intval($request->input('animal_id', 0));
-        $e_id = trim($request->input('e_id', ''));
-        $v_id = trim($request->input('v_id', '')); 
-        $date_from = $request->input('date_from', '');
-        $date_to = $request->input('date_to', '');
 
-        // ===== OPTIMIZATION 4: Build raw SQL with dynamic WHERE clauses =====
-        $farm_ids_str = implode(',', array_map('intval', $access_ids));
+            // ===== PROCESS FARM ACCESS IDS =====
+            $access_ids = [];
+            foreach ($access_ids_raw as $row) {
+                if (!empty($row->farm_id) && is_numeric($row->farm_id)) {
+                    $access_ids[] = intval($row->farm_id);
+                }
+            }
 
-        // Base WHERE clause
-        $where_clauses = ["farm_id IN ($farm_ids_str)"];
-        $bind_params = [];
+            // Remove duplicates
+            $access_ids = array_unique($access_ids);
+
+            if (empty($access_ids)) {
+                return Utils::response([
+                    'status' => 1,
+                    'message' => "No accessible farms found. Please contact administrator.",
+                    'data' => [],
+                    'pagination' => [
+                        'current_page' => 1,
+                        'per_page' => 25,
+                        'total' => 0,
+                        'last_page' => 1,
+                        'has_more' => false
+                    ],
+                    'warning' => 'NO_FARMS_ACCESSIBLE'
+                ]);
+            }
+
+            // ===== OPTIMIZATION 2: Pagination parameters with validation =====
+            $page = max(1, intval($request->input('page', 1)));
+            $per_page = min(50, max(5, intval($request->input('per_page', 25))));
+            
+            // Prevent excessive offset (security measure)
+            if ($page > 10000) {
+                $page = 10000;
+            }
+            
+            $offset = ($page - 1) * $per_page;
+
+            // ===== OPTIMIZATION 3: Search/filter parameters with validation =====
+            $search = trim($request->input('search', ''));
+            
+            // Prevent SQL injection via excessively long search strings
+            if (strlen($search) > 200) {
+                $search = substr($search, 0, 200);
+            }
+            
+            $event_type = null;
+            if ($request->has('event_type')) {
+                $event_type = trim($request->input('event_type', ''));
+                // Validate event type length
+                if (strlen($event_type) < 2 || strlen($event_type) > 100) {
+                    $event_type = null;
+                }
+            }
+            
+            $category = trim($request->input('category', ''));
+            // Validate category - only allow specific values
+            if (!in_array(strtolower($category), ['sanitary', 'production', ''])) {
+                $category = '';
+            }
+            
+            $animal_id = intval($request->input('animal_id', 0));
+            // Validate animal_id is reasonable
+            if ($animal_id < 0) {
+                $animal_id = 0;
+            }
+            
+            $e_id = trim($request->input('e_id', ''));
+            if (strlen($e_id) > 100) {
+                $e_id = substr($e_id, 0, 100);
+            }
+            
+            $v_id = trim($request->input('v_id', ''));
+            if (strlen($v_id) > 100) {
+                $v_id = substr($v_id, 0, 100);
+            }
+            
+            // Validate and sanitize date inputs
+            $date_from = $request->input('date_from', '');
+            $date_to = $request->input('date_to', '');
+            
+            // Validate date format (YYYY-MM-DD)
+            if (!empty($date_from) && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date_from)) {
+                $date_from = '';
+            }
+            if (!empty($date_to) && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date_to)) {
+                $date_to = '';
+            }
+            
+            // Ensure date_from is not after date_to
+            if (!empty($date_from) && !empty($date_to) && strtotime($date_from) > strtotime($date_to)) {
+                $temp = $date_from;
+                $date_from = $date_to;
+                $date_to = $temp;
+            }
+
+            // ===== OPTIMIZATION 4: Build raw SQL with dynamic WHERE clauses =====
+            $farm_ids_str = implode(',', array_map('intval', $access_ids));
+
+            // Base WHERE clause
+            $where_clauses = ["farm_id IN ($farm_ids_str)"];
+            $bind_params = [];
 
         // Search filter
         if (!empty($search)) {
@@ -4586,35 +4670,47 @@ class ApiAnimalController extends Controller
             $bind_params[] = "%{$v_id}%";
         }
 
-        // Date filters
-        if (!empty($date_from) && strlen($date_from) >= 5) {
-            $where_clauses[] = "DATE(created_at) >= ?";
-            $bind_params[] = $date_from;
-        }
-        if (!empty($date_to) && strlen($date_to) >= 5) {
-            $where_clauses[] = "DATE(created_at) <= ?";
-            $bind_params[] = $date_to;
-        }
+            // Date filters - with proper validation
+            if (!empty($date_from) && strlen($date_from) >= 10) {
+                $where_clauses[] = "DATE(created_at) >= ?";
+                $bind_params[] = $date_from;
+            }
+            if (!empty($date_to) && strlen($date_to) >= 10) {
+                $where_clauses[] = "DATE(created_at) <= ?";
+                $bind_params[] = $date_to;
+            }
 
-        $where_sql = implode(' AND ', $where_clauses);
+            $where_sql = implode(' AND ', $where_clauses);
 
-        // ===== OPTIMIZATION 5: Get total count efficiently =====
-        $count_query = "SELECT COUNT(*) as total FROM events WHERE {$where_sql}";
-        $total_result = DB::select($count_query, $bind_params);
-        $total = $total_result[0]->total ?? 0;
-        $last_page = $total > 0 ? ceil($total / $per_page) : 1;
-        $has_more = $page < $last_page;
+            // ===== OPTIMIZATION 5: Get total count efficiently with error handling =====
+            try {
+                $count_query = "SELECT COUNT(*) as total FROM events WHERE {$where_sql}";
+                $total_result = DB::select($count_query, $bind_params);
+                $total = $total_result[0]->total ?? 0;
+            } catch (\Exception $e) {
+                Log::error("Count query failed: " . $e->getMessage());
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Failed to count events.",
+                    'data' => [],
+                    'error_code' => 'QUERY_ERROR'
+                ]);
+            }
+            
+            $last_page = $total > 0 ? ceil($total / $per_page) : 1;
+            $has_more = $page < $last_page;
 
-        // ===== OPTIMIZATION 6: Raw SQL query for events =====
-        $events_query = "
-            SELECT 
-                id,
-                animal_id,
-                type,
-                detail,
-                description,
-                short_description,
-                created_at,
+            // ===== OPTIMIZATION 6: Raw SQL query for events with error handling =====
+            try {
+                $events_query = "
+                    SELECT 
+                        id,
+                        animal_id,
+                        type,
+                        detail,
+                        description,
+                        short_description,
+                        created_at,
                 updated_at,
                 administrator_id,
                 farm_id,
@@ -4630,73 +4726,122 @@ class ApiAnimalController extends Controller
                 e_id,
                 v_id,
                 status,
-                vaccination,
-                photo, 
-                is_present,
-                price
-            FROM events 
-            WHERE {$where_sql}
-            ORDER BY created_at DESC, id DESC
-            LIMIT ? OFFSET ?
-        ";
+                        photo, 
+                        is_present,
+                        price
+                    FROM events 
+                    WHERE {$where_sql}
+                    ORDER BY created_at DESC, id DESC
+                    LIMIT ? OFFSET ?
+                ";
 
-        $bind_params[] = $per_page;
-        $bind_params[] = $offset;
+                $bind_params_with_limit = array_merge($bind_params, [$per_page, $offset]);
+                $events = DB::select($events_query, $bind_params_with_limit);
+                
+            } catch (\Exception $e) {
+                Log::error("Events query failed: " . $e->getMessage());
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Failed to retrieve events.",
+                    'data' => [],
+                    'error_code' => 'QUERY_ERROR'
+                ]);
+            }
 
-        $events = DB::select($events_query, $bind_params);
+            // ===== OPTIMIZATION 7: Minimal post-processing with safety checks =====
+            $data = [];
+            foreach ($events as $event) {
+                try {
+                    $event_array = (array) $event;
 
-        // ===== OPTIMIZATION 7: Minimal post-processing =====
-        $data = [];
-        foreach ($events as $event) {
-            $event_array = (array) $event;
+                    // Add minimal computed fields - NO DATABASE LOOKUPS
+                    $event_array['animal_text'] = null;
+                    $event_array['animal_photo'] = null;
+                    $event_array['farm_text'] = null;
+                    $event_array['administrator_text'] = null;
+                    $event_array['session_text'] = null;
 
-            // Add minimal computed fields - NO DATABASE LOOKUPS
-            $event_array['animal_text'] = null;
-            $event_array['animal_photo'] = null;
-            $event_array['farm_text'] = null;
-            $event_array['administrator_text'] = null;
-            $event_array['session_text'] = null;
+                    // Use timestamps instead of Carbon formatting (faster) with safety checks
+                    if (!empty($event->created_at)) {
+                        $created_timestamp = strtotime($event->created_at);
+                        $event_array['created_at_formatted'] = date('M d, Y H:i', $created_timestamp);
+                        $event_array['time_ago'] = $this->timeAgo($created_timestamp);
+                    } else {
+                        $event_array['created_at_formatted'] = 'Unknown';
+                        $event_array['time_ago'] = 'Unknown';
+                    }
+                    
+                    if (!empty($event->updated_at)) {
+                        $event_array['updated_at_formatted'] = date('M d, Y H:i', strtotime($event->updated_at));
+                    } else {
+                        $event_array['updated_at_formatted'] = 'Unknown';
+                    }
 
-            // Use timestamps instead of Carbon formatting (faster)
-            $event_array['created_at_formatted'] = date('M d, Y H:i', strtotime($event->created_at));
-            $event_array['updated_at_formatted'] = date('M d, Y H:i', strtotime($event->updated_at));
-            $event_array['time_ago'] = $this->timeAgo(strtotime($event->created_at));
+                    $data[] = $event_array;
+                    
+                } catch (\Exception $e) {
+                    // Log error but continue processing other events
+                    Log::error("Error processing event ID {$event->id}: " . $e->getMessage());
+                    continue;
+                }
+            }
 
-            $data[] = $event_array;
+            return Utils::response([
+                'status' => 1,
+                'message' => "Success. Retrieved " . count($data) . " events.",
+                'data' => $data,
+                'pagination' => [
+                    'current_page' => $page,
+                    'per_page' => $per_page,
+                    'total' => $total,
+                    'last_page' => $last_page,
+                    'has_more' => $has_more,
+                    'from' => $total > 0 ? $offset + 1 : 0,
+                    'to' => min($offset + $per_page, $total)
+                ],
+                'filters_applied' => [
+                    'search' => $search,
+                    'event_type' => $event_type,
+                    'category' => $category,
+                    'animal_id' => $animal_id,
+                    'e_id' => $e_id,
+                    'v_id' => $v_id, 
+                    'date_from' => $date_from,
+                    'date_to' => $date_to
+                ]
+            ]);
+            
+        } catch (\Exception $e) {
+            // Catch any unexpected errors
+            Log::error("Unexpected error in events_online: " . $e->getMessage());
+            return Utils::response([
+                'status' => 0,
+                'message' => "An unexpected error occurred. Please try again later.",
+                'data' => [],
+                'error_code' => 'UNEXPECTED_ERROR'
+            ]);
         }
-
-        return Utils::response([
-            'status' => 1,
-            'message' => "Success. Retrieved " . count($data) . " events.",
-            'data' => $data,
-            'pagination' => [
-                'current_page' => $page,
-                'per_page' => $per_page,
-                'total' => $total,
-                'last_page' => $last_page,
-                'has_more' => $has_more,
-                'from' => $total > 0 ? $offset + 1 : 0,
-                'to' => min($offset + $per_page, $total)
-            ],
-            'filters_applied' => [
-                'search' => $search,
-                'event_type' => $event_type,
-                'category' => $category,
-                'animal_id' => $animal_id,
-                'e_id' => $e_id,
-                'v_id' => $v_id, 
-                'date_from' => $date_from,
-                'date_to' => $date_to
-            ]
-        ]);
     }
 
     /**
-     * Helper function to generate human-readable time ago
+     * Helper function to generate human-readable time ago string
+     * 
+     * @param int $timestamp Unix timestamp
+     * @return string Human-readable time difference
      */
     private function timeAgo($timestamp)
     {
+        // Validate timestamp
+        if (!is_numeric($timestamp) || $timestamp <= 0) {
+            return 'Unknown';
+        }
+        
         $diff = time() - $timestamp;
+
+        // Handle future dates
+        if ($diff < 0) {
+            return 'Just now';
+        }
 
         if ($diff < 60) return $diff . ' seconds ago';
         if ($diff < 3600) return floor($diff / 60) . ' minutes ago';
