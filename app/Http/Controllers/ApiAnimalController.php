@@ -4469,6 +4469,12 @@ class ApiAnimalController extends Controller
             ]);
         }
 
+        return Utils::response([
+            'status' => 0,
+            'message' => "This endpoint is deprecated. Please use events_v4 instead.",
+            'data' => []
+        ]);
+
         // ===== OPTIMIZATION 1: Fast farm access check with UNION =====
         $farm_ids_query = "
             SELECT id as farm_id FROM farms WHERE administrator_id = ?
