@@ -4510,7 +4510,7 @@ class ApiAnimalController extends Controller
         //check if event_type is set
         if ($request->has('event_type')) {
             $event_type = trim($request->input('event_type', ''));
-            if(strlen($event_type) < 2){
+            if (strlen($event_type) < 2) {
                 $event_type = null;
             }
         }
@@ -4587,18 +4587,12 @@ class ApiAnimalController extends Controller
             $bind_params[] = "%{$v_id}%";
         }
 
-        // Session filter
-        if (!empty($session_id)) {
-            $where_clauses[] = "session_id = ?";
-            $bind_params[] = $session_id;
-        }
-
         // Date filters
-        if (!empty($date_from)) {
+        if (!empty($date_from) && strlen($date_from) >= 5) {
             $where_clauses[] = "DATE(created_at) >= ?";
             $bind_params[] = $date_from;
         }
-        if (!empty($date_to)) {
+        if (!empty($date_to) && strlen($date_to) >= 5) {
             $where_clauses[] = "DATE(created_at) <= ?";
             $bind_params[] = $date_to;
         }
