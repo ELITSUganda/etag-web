@@ -4506,7 +4506,14 @@ class ApiAnimalController extends Controller
 
         // ===== OPTIMIZATION 3: Search/filter parameters =====
         $search = trim($request->input('search', ''));
-        $event_type = trim($request->input('event_type', ''));
+        $event_type = null;
+        //check if event_type is set
+        if ($request->has('event_type')) {
+            $event_type = trim($request->input('event_type', ''));
+            if(strlen($event_type) < 2){
+                $event_type = null;
+            }
+        }
         $category = trim($request->input('category', ''));
         $animal_id = intval($request->input('animal_id', 0));
         $e_id = trim($request->input('e_id', ''));
@@ -4530,9 +4537,9 @@ class ApiAnimalController extends Controller
         }
 
         // Event type filter
-        if (!empty($event_type)) {
-            $where_clauses[] = "type LIKE ?";
-            $bind_params[] = "%{$event_type}%";
+        if ($event_type !== null) {
+            $where_clauses[] = "type = ?";
+            $bind_params[] = $event_type;
         }
 
         // Category filter (sanitary vs production)
