@@ -4517,8 +4517,7 @@ class ApiAnimalController extends Controller
         $category = trim($request->input('category', ''));
         $animal_id = intval($request->input('animal_id', 0));
         $e_id = trim($request->input('e_id', ''));
-        $v_id = trim($request->input('v_id', ''));
-        $session_id = trim($request->input('session_id', ''));
+        $v_id = trim($request->input('v_id', '')); 
         $date_from = $request->input('date_from', '');
         $date_to = $request->input('date_to', '');
 
@@ -4632,8 +4631,7 @@ class ApiAnimalController extends Controller
                 v_id,
                 status,
                 vaccination,
-                photo,
-                session_id,
+                photo, 
                 is_present,
                 price
             FROM events 
@@ -4686,8 +4684,7 @@ class ApiAnimalController extends Controller
                 'category' => $category,
                 'animal_id' => $animal_id,
                 'e_id' => $e_id,
-                'v_id' => $v_id,
-                'session_id' => $session_id,
+                'v_id' => $v_id, 
                 'date_from' => $date_from,
                 'date_to' => $date_to
             ]
