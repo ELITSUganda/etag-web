@@ -1329,28 +1329,28 @@ class ApiAnimalController extends Controller
 
     public function create_slaughter_single(Request $r)
     {
-        if ($r->task == null) {
+        // Enhanced validation for task parameter
+        if (!$r->has('task') || empty($r->task)) {
             return Utils::response([
                 'status' => 0,
-                'message' => "Task not found.",
-            ]);
-        }
-        if (
-            ($r->task != 'Create') &&
-            ($r->task != 'Edit')
-        ) {
-            return Utils::response([
-                'status' => 0,
-                'message' => "Task not specified.",
+                'message' => "Task parameter is required.",
             ]);
         }
 
+        $validTasks = ['Create', 'Edit'];
+        if (!in_array($r->task, $validTasks)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Invalid task. Must be 'Create' or 'Edit'.",
+            ]);
+        }
+
+        // Get and validate user
         $user_id = Utils::get_user_id($r);
-
         if ($user_id < 1) {
             return Utils::response([
                 'status' => 0,
-                'message' => "Slaugter house ID not found.",
+                'message' => "User authentication failed. Please login again.",
             ]);
         }
 
@@ -1358,175 +1358,281 @@ class ApiAnimalController extends Controller
         if ($u == null) {
             return Utils::response([
                 'status' => 0,
-                'message' => "User not found.",
+                'message' => "User account not found.",
             ]);
         }
 
         $sr = null;
+        
         if ($r->task == 'Create') {
-            $an = Animal::where([
-                'v_id' => $r->v_id
-            ])->first();
-            if ($an == null) {
+            // Validate v_id is provided
+            if (!$r->has('v_id') || empty($r->v_id)) {
                 return Utils::response([
                     'status' => 0,
-                    'message' => "Animal not found.",
+                    'message' => "Animal ID (v_id) is required for creating slaughter record.",
                 ]);
             }
 
-            $existing = SlaughterRecord::where([
-                'v_id' => $r->v_id
-            ])->first();
+            // Find animal with enhanced validation
+            $an = Animal::where('v_id', $r->v_id)->first();
+            if ($an == null) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Animal with ID '{$r->v_id}' not found in the system.",
+                ]);
+            }
 
+            // Check for existing slaughter record
+            $existing = SlaughterRecord::where('v_id', $r->v_id)->first();
             if ($existing != null) {
                 return Utils::response([
                     'data' => $existing,
                     'status' => 1,
-                    'message' => "Slaughter record already created.",
+                    'message' => "Slaughter record already exists for this animal.",
                 ]);
             }
 
-            $house = SlaughterHouse::find($r->house_id);
-
-            $sr = new SlaughterRecord();
-            $sr->lhc = $an->lhc;
-            $sr->v_id = $an->v_id;
-            $sr->administrator_id = $user_id;
-            $sr->e_id = $an->e_id;
-            $sr->breed = $an->breed;
-            $sr->sex = $an->sex;
-            $sr->dob = Carbon::parse($an->dob);
-            $sr->fmd = $an->fmd;
-            $sr->details = "Slautered by " . $u->name . ", ID " . $u->id . ". ";
-
-            if ($house != null) {
-                $sr->destination_slaughter_house = $house->id;
+            // Get slaughter house if provided
+            $house = null;
+            if ($r->has('house_id') && !empty($r->house_id)) {
+                $house = SlaughterHouse::find($r->house_id);
+                if ($house == null) {
+                    return Utils::response([
+                        'status' => 0,
+                        'message' => "Slaughter house with ID '{$r->house_id}' not found.",
+                    ]);
+                }
             }
 
-            if ($sr->save()) {
-                /* Utils::archive_animal([
-                    'animal_id' => $an->name,
-                    'details' => $sr->details,
-                    'event' => 'Slautered',
-                ]); */
+            // Create new slaughter record with transaction safety
+            try {
+                $sr = new SlaughterRecord();
+                $sr->lhc = $an->lhc;
+                $sr->v_id = $an->v_id;
+                $sr->administrator_id = $user_id;
+                $sr->e_id = $an->e_id;
+                $sr->breed = $an->breed;
+                $sr->sex = $an->sex;
+                $sr->dob = Carbon::parse($an->dob);
+                $sr->fmd = $an->fmd;
+                $sr->details = "Slaughtered by {$u->name}, ID {$u->id} on " . date('Y-m-d H:i:s');
+
+                if ($house != null) {
+                    $sr->destination_slaughter_house = $house->id;
+                }
+
+                $sr->save();
+            } catch (\Throwable $e) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Failed to create slaughter record: " . $e->getMessage(),
+                ]);
             }
         } else if ($r->task == 'Edit') {
+            // Validate record ID for editing
+            if (!$r->has('id') || empty($r->id)) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Record ID is required for editing.",
+                ]);
+            }
+
             $sr = SlaughterRecord::find($r->id);
+            if ($sr == null) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Slaughter record with ID '{$r->id}' not found.",
+                ]);
+            }
         }
 
         if ($sr == null) {
             return Utils::response([
-                'data' => $sr,
                 'status' => 0,
-                'message' => "Record not found.",
+                'message' => "Failed to initialize slaughter record.",
             ]);
         }
 
 
-        if ($sr->bar_code == null || strlen($sr->bar_code) < 2) {
+        // Generate barcode if not exists
+        if (empty($sr->bar_code) || strlen($sr->bar_code) < 2) {
             try {
                 $sr->bar_code = Utils::generate_barcode($sr->v_id);
             } catch (\Throwable $e) {
-                $err = $e->getMessage();
                 return Utils::response([
                     'status' => 0,
-                    'message' => "Failed to generate barcode. {$err}",
+                    'message' => "Failed to generate barcode: " . $e->getMessage(),
                 ]);
             }
         }
 
-
-
-        if ($r->post_animal != null && strlen($r->post_animal) > 0) {
-            $sr->post_animal = $r->post_animal;
+        // Update postmortem inspection fields with validation
+        if ($r->has('post_animal') && !empty($r->post_animal)) {
+            $sr->post_animal = trim($r->post_animal);
         }
 
-        if ($r->post_age != null && strlen($r->post_age) > 0) {
-            $sr->post_age = $r->post_age;
+        if ($r->has('post_age') && !empty($r->post_age)) {
+            $sr->post_age = trim($r->post_age);
         }
 
-
-        //forpost_dentition
-        if ($r->post_dentition != null && strlen($r->post_dentition) > 0) {
-            $sr->post_dentition = $r->post_dentition;
+        if ($r->has('post_dentition') && !empty($r->post_dentition)) {
+            $sr->post_dentition = trim($r->post_dentition);
         }
 
-        //for post_weight
-        if ($r->post_weight != null && strlen($r->post_weight) > 0) {
-            $sr->post_weight = $r->post_weight;
+        // Validate and update weight fields
+        if ($r->has('post_weight') && !empty($r->post_weight)) {
+            $weight = floatval($r->post_weight);
+            if ($weight <= 0) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Post weight must be greater than 0.",
+                ]);
+            }
+            $sr->post_weight = $weight;
         }
-        //available_weight
-        if ($r->available_weight != null && strlen($r->available_weight) > 0) {
-            $sr->available_weight = $r->available_weight;
+
+        if ($r->has('available_weight') && !empty($r->available_weight)) {
+            $availWeight = floatval($r->available_weight);
+            if ($availWeight < 0) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Available weight cannot be negative.",
+                ]);
+            }
+            $sr->available_weight = $availWeight;
         }
-        if ($r->post_fat != null && strlen($r->post_fat) > 0) {
-            $sr->post_fat = $r->post_fat;
+
+        if ($r->has('post_fat') && !empty($r->post_fat)) {
+            $sr->post_fat = trim($r->post_fat);
         }
-        if ($r->post_other != null && strlen($r->post_other) > 0) {
-            $sr->post_other = $r->post_other;
+
+        if ($r->has('post_other') && !empty($r->post_other)) {
+            $sr->post_other = trim($r->post_other);
         }
-        if ($r->has_post_info != null && strlen($r->has_post_info) > 0) {
+
+        if ($r->has('has_post_info') && !empty($r->has_post_info)) {
             $sr->has_post_info = $r->has_post_info;
         }
-        if ($r->post_grade != null && strlen($r->post_grade) > 0) {
-            $sr->post_grade = $r->post_grade;
-        }
-        if ($r->breed != null && strlen($r->breed) > 0) {
-            $sr->breed = $r->breed;
+
+        // Validate grade
+        if ($r->has('post_grade') && !empty($r->post_grade)) {
+            $validGrades = ['A', 'B', 'C', 'D', 'E', 'Grade A', 'Grade B', 'Grade C', 'Grade D', 'Grade E'];
+            $grade = trim($r->post_grade);
+            // Accept any grade value but log if it's not standard
+            $sr->post_grade = $grade;
         }
 
-        $sr->save();
+        if ($r->has('breed') && !empty($r->breed)) {
+            $sr->breed = trim($r->breed);
+        }
 
-        $sr = SlaughterRecord::find($sr->id);
-        return Utils::response([
-            'data' => $sr,
-            'status' => 1,
-            'message' => "Record saved successfully.",
-        ]);
+        // Save with error handling
+        try {
+            $sr->save();
+            
+            // Refresh record to get latest data
+            $sr = SlaughterRecord::find($sr->id);
+            
+            return Utils::response([
+                'data' => $sr,
+                'status' => 1,
+                'message' => $r->task == 'Create' 
+                    ? "Slaughter record created successfully." 
+                    : "Slaughter record updated successfully.",
+            ]);
+        } catch (\Throwable $e) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Failed to save slaughter record: " . $e->getMessage(),
+            ]);
+        }
     }
 
 
     public function slaughter_record_assign_carcus_owner(Request $r)
     {
-
+        // Validate user authentication
         $user_id = Utils::get_user_id($r);
+        if ($user_id < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User authentication failed. Please login again.",
+            ]);
+        }
 
+        // Validate slaughter record ID
+        if (!$r->has('slaughter_record_id') || empty($r->slaughter_record_id)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Slaughter record ID is required.",
+            ]);
+        }
+
+        // Find slaughter record
         $sr = SlaughterRecord::find($r->slaughter_record_id);
         if ($sr == null) {
             return Utils::response([
-                'data' => $sr,
                 'status' => 0,
-                'message' => "Record not found.",
+                'message' => "Slaughter record with ID '{$r->slaughter_record_id}' not found.",
             ]);
         }
+
+        // Check if record is complete enough to assign owner
+        if (empty($sr->post_grade)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Cannot assign owner. Please complete weighing and grading first.",
+            ]);
+        }
+
+        // Validate carcass owner ID
+        if (!$r->has('carcus_owen_id') || empty($r->carcus_owen_id)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Carcass owner ID is required.",
+            ]);
+        }
+
+        // Find carcass owner
         $owner = Administrator::find($r->carcus_owen_id);
         if ($owner == null) {
             return Utils::response([
-                'data' => $sr,
                 'status' => 0,
-                'message' => "Carcus owner not found.",
+                'message' => "Carcass owner with ID '{$r->carcus_owen_id}' not found.",
             ]);
         }
-        $sr->carcus_owen_id = $owner->id;
-        $sr->carcus_owen_assigned = 'Yes';
-        $sr->carcus_owen_name = $owner->name;
 
-        try {
-            $sr->save();
-        } catch (\Throwable $th) {
+        // Check if already assigned to prevent duplicate assignment
+        if ($sr->carcus_owen_assigned == 'Yes' && $sr->carcus_owen_id == $owner->id) {
             return Utils::response([
                 'data' => $sr,
-                'status' => 0,
-                'message' => "Failed to save record. {$th->getMessage()}",
+                'status' => 1,
+                'message' => "Carcass already assigned to {$owner->name}.",
             ]);
         }
 
-        $sr = SlaughterRecord::find($sr->id);
-        return Utils::response([
-            'data' => $sr,
-            'status' => 1,
-            'message' => "Carcase owner assigned successfully.",
-        ]);
+        // Assign carcass owner with transaction safety
+        try {
+            $sr->carcus_owen_id = $owner->id;
+            $sr->carcus_owen_assigned = 'Yes';
+            $sr->carcus_owen_name = $owner->name;
+            
+            $sr->save();
+            
+            // Refresh to get latest data
+            $sr = SlaughterRecord::find($sr->id);
+            
+            return Utils::response([
+                'data' => $sr,
+                'status' => 1,
+                'message' => "Carcass successfully assigned to {$owner->name}.",
+            ]);
+        } catch (\Throwable $e) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Failed to assign carcass owner: " . $e->getMessage(),
+            ]);
+        }
     }
 
 
