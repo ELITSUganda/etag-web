@@ -178,7 +178,18 @@ class AnimalController extends AdminController
             foreach ($farms_data as $farm) {
                 $farms[$farm->id] = $farm->district_text . ", " . $farm->sub_county_text . " - " . $farm->holding_code;
             }
+
+            $groups = Group::where([
+                'administrator_id' => Auth::user()->id
+            ])
+                ->orderBy('name', 'desc')
+                ->get();
+
+
             $filter->equal('farm_id', 'Filter by farm')->select($farms);
+
+            //filter by group_id
+            $filter->equal('group_id', 'Filter by group')->select($groups->pluck('name', 'id'));
 
 
             $filter->equal('sex', "Sex")->select([

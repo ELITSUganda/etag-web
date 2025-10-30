@@ -85,6 +85,22 @@ Route::get('archived-animals', [ApiResurceController::class, 'archived_animals']
 Route::get('groups', [ApiResurceController::class, 'groups']);
 Route::get('manifest', [ApiResurceController::class, 'manifest']);
 Route::get('daily-milk-records', [ApiResurceController::class, 'dialy_milk_records']);
+
+// Butcher Records Routes - Must be before api/{model} catch-all
+Route::get('api/butcher-records', [ApiAnimalController::class, 'butcher_records']);
+Route::POST('api/create-butcher-record', [ApiAnimalController::class, 'create_butcher_record']);
+Route::POST('api/butcher-record-batch-create', [ApiAnimalController::class, 'create_butcher_records_batch']);
+Route::POST('api/update-butcher-record', [ApiAnimalController::class, 'update_butcher_record']);
+Route::POST('api/mark-butcher-record-sold', [ApiAnimalController::class, 'mark_butcher_record_sold']);
+
+// Label Printing Routes - Must be before api/{model} catch-all
+Route::get('api/label-printing-tasks', [ApiAnimalController::class, 'label_printing_tasks']);
+Route::POST('api/label-printing-task-create', [ApiAnimalController::class, 'create_label_printing_task']);
+Route::get('api/label-printing-task-details', [ApiAnimalController::class, 'label_printing_task_details']);
+Route::get('api/label-pdf-download', [ApiAnimalController::class, 'download_label_pdf']);
+Route::POST('api/butcher-record-label-reprint', [ApiAnimalController::class, 'reprint_butcher_record_label']);
+Route::get('api/label-template-types', [ApiAnimalController::class, 'label_template_types']);
+
 Route::get('api/{model}', [ApiResurceController::class, 'index']);
 Route::POST('drug-dosages', [ApiResurceController::class, 'save_new_drug_dosage']);
 Route::POST('send-verification-code', [ApiResurceController::class, 'send_verification_code']);
@@ -163,6 +179,22 @@ Route::POST('create-slaughter-distribution-record', [
     ApiAnimalController::class,
     'create_slaughter_distribution_record'
 ]);
+
+// Butcher Records Routes
+Route::get('butcher-records', [ApiAnimalController::class, 'butcher_records']);
+Route::POST('create-butcher-record', [ApiAnimalController::class, 'create_butcher_record']);
+Route::POST('butcher-record-batch-create', [ApiAnimalController::class, 'create_butcher_records_batch']);
+Route::POST('update-butcher-record', [ApiAnimalController::class, 'update_butcher_record']);
+Route::POST('mark-butcher-record-sold', [ApiAnimalController::class, 'mark_butcher_record_sold']);
+
+// Label Printing Routes
+Route::get('label-printing-tasks', [ApiAnimalController::class, 'label_printing_tasks']);
+Route::POST('label-printing-task-create', [ApiAnimalController::class, 'create_label_printing_task']);
+Route::get('label-printing-task-details', [ApiAnimalController::class, 'label_printing_task_details']);
+Route::get('label-pdf-download', [ApiAnimalController::class, 'download_label_pdf']);
+Route::POST('butcher-record-label-reprint', [ApiAnimalController::class, 'reprint_butcher_record_label']);
+Route::get('label-template-types', [ApiAnimalController::class, 'label_template_types']);
+
 // Route::get('animals/{id}', [ApiAnimalController::class, 'show']);
 
 Route::get('events', [ApiAnimalController::class, 'events']);

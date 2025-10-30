@@ -16,6 +16,7 @@ use App\Models\FarmVaccinationRecord;
 use App\Models\Group;
 use App\Models\Image;
 use App\Models\Location;
+use App\Models\MeatCut;
 use App\Models\Movement;
 use App\Models\SlaughterDistributionRecord;
 use App\Models\SlaughterHouse;
@@ -33,6 +34,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Monolog\Handler\Slack\SlackRecord;
 
 class ApiAnimalController extends Controller
@@ -3628,6 +3630,622 @@ class ApiAnimalController extends Controller
         ]);
     }
 
+    // ========== BUTCHER RECORDS API METHODS ==========
+
+    public function butcher_records(Request $request)
+    {
+        $user_id = Utils::get_user_id($request);
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return [];
+        }
+
+        $items = \App\Models\ButcherRecord::where('created_by_id', $user_id)
+            ->limit(4000)
+            ->orderBy('id', 'DESC')
+            ->get();
+            
+        return Utils::response([
+            'status' => 1,
+            'message' => "Success.",
+            'data' => $items
+        ]);
+    }
+
+    public function create_butcher_record(Request $r)
+    {
+        $user_id = Utils::get_user_id($r);
+        if ($user_id < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User ID not found.",
+            ]);
+        }
+
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
+        }
+
+        // Validate required fields
+        if (!$r->has('slaughter_distribution_record_id') || $r->slaughter_distribution_record_id < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Meat cut record is required.",
+            ]);
+        }
+
+        $sdr = SlaughterDistributionRecord::find($r->slaughter_distribution_record_id);
+        if ($sdr == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Meat cut record not found.",
+            ]);
+        }
+
+        // Validate weight
+        $weight = floatval($r->original_weight ?? 0);
+        if ($weight <= 0) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Weight must be greater than 0.",
+            ]);
+        }
+
+        $available = floatval($sdr->current_weight ?? 0);
+        if ($available < $weight) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Weight ({$weight}kg) can't be more than available weight ({$available}kg).",
+            ]);
+        }
+
+        // Validate cut type
+        if (!$r->has('cut_type') || empty($r->cut_type)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Cut type is required (Prime Cut or Offal Cut).",
+            ]);
+        }
+
+        // Validate specific cut type based on cut_type
+        if ($r->cut_type == 'Prime Cut' && empty($r->prime_cut_type)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Prime cut type is required.",
+            ]);
+        }
+
+        if ($r->cut_type == 'Offal Cut' && empty($r->offal_cut_type)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Offal cut type is required.",
+            ]);
+        }
+
+        // Update the meat cut available weight
+        $sdr->current_weight = $available - $weight;
+        
+        // Get buyer info if provided
+        $buyer = null;
+        $is_sold = $r->is_sold ?? 'No';
+        if ($is_sold == 'Yes' && $r->has('buyer_id') && $r->buyer_id > 0) {
+            $buyer = Administrator::find($r->buyer_id);
+        }
+
+        // Create butcher record
+        $rec = new \App\Models\ButcherRecord();
+        $rec->slaughter_distribution_record_id = $sdr->id;
+        $rec->animal_id = $sdr->animal_id;
+        $rec->slaughterhouse_id = $sdr->slaughterhouse_id;
+        $rec->created_by_id = $u->id;
+        $rec->source_type = "Butcher Shop";
+        $rec->source_id = $sdr->id;
+        $rec->source_name = $u->name;
+        $rec->source_phone = $u->phone_number;
+        $rec->source_address = $u->address ?? "";
+        
+        // Sold status and buyer information
+        $rec->is_sold = $is_sold;
+        if ($is_sold == 'Yes') {
+            $rec->sold_date = now();
+            $rec->sold_price = $r->sold_price ?? $r->price ?? "";
+            
+            // Buyer from system
+            if ($buyer != null) {
+                $rec->buyer_id = $buyer->id;
+                $rec->buyer_name = $buyer->name;
+                $rec->buyer_address = $buyer->address ?? "";
+                $rec->buyer_phone = $buyer->phone_number;
+            } else {
+                // Manual buyer info
+                $rec->buyer_name = $r->buyer_name ?? "";
+                $rec->buyer_phone = $r->buyer_phone ?? "";
+                $rec->buyer_address = $r->buyer_address ?? "";
+            }
+        }
+        
+        $rec->lhc = $sdr->lhc;
+        $rec->v_id = $sdr->v_id;
+        $rec->e_id = $sdr->e_id;
+        $rec->animal_owner_id = $sdr->animal_owner_id;
+        $rec->post_fat = $sdr->post_fat;
+        $rec->post_grade = $sdr->post_grade;
+        $rec->post_animal = $sdr->post_animal;
+        $rec->post_age = $sdr->post_age;
+        $rec->original_weight = $weight;
+        $rec->current_weight = $weight;
+        $rec->price = $r->price ?? "";
+        $rec->slaughter_date = $sdr->slaughter_date;
+        $rec->cut_type = $r->cut_type;
+        $rec->prime_cut_type = $r->prime_cut_type ?? "";
+        $rec->offal_cut_type = $r->offal_cut_type ?? "";
+        $rec->notes = $r->notes ?? "";
+
+        try {
+            $rec->save();
+            
+            try {
+                // Generate simple unique codes
+                $cutName = $rec->cut_type == 'Prime Cut' ? $rec->prime_cut_type : $rec->offal_cut_type;
+                $random = strtoupper(substr(md5(uniqid($rec->id, true)), 0, 8));
+                
+                // Simple barcode - just unique code
+                $barcodeData = "BR{$rec->id}{$random}";
+                
+                // Generate ACTUAL BARCODE (not QR code) using generate_barcode
+                $barcodePath = Utils::generate_barcode($barcodeData);
+                $rec->bar_code = $barcodePath;
+                
+                // Professional QR code with essential information
+                $url = url('butcher-record/' . $rec->id);
+                $qrData = "ID: {$rec->id}, V-ID: {$rec->v_id}, Cut: {$cutName}, Weight: {$rec->current_weight}kg, Grade: {$rec->post_grade}, Code: {$barcodeData}, URL: {$url}";
+                $qrPath = Utils::generate_qrcode($qrData);
+                $rec->qr_code = $qrPath;
+                $rec->save();
+                
+                // Update meat cut weight
+                $sdr->save();
+
+                // Send notification to buyer if exists and sold
+                if ($buyer != null && $is_sold == 'Yes') {
+                    $cutName = $rec->cut_type == 'Prime Cut' ? $rec->prime_cut_type : $rec->offal_cut_type;
+                    $msg = "You have purchased {$rec->current_weight}kg of {$cutName} from {$rec->source_name}. Open the App to see more details.";
+                    $title = "MEAT PURCHASE - {$rec->v_id}";
+                    Utils::sendNotification(
+                        $msg,
+                        $buyer->id,
+                        $headings = $title,
+                        $data = [$rec->id]
+                    );
+                }
+
+                // Refresh records
+                $sdr = SlaughterDistributionRecord::find($sdr->id);
+                $rec = \App\Models\ButcherRecord::find($rec->id);
+
+                return Utils::response([
+                    'status' => 1,
+                    'message' => "Butcher record created successfully.",
+                    'data' => [
+                        'sdr' => $sdr,
+                        'butcher_record' => $rec,
+                    ]
+                ]);
+            } catch (\Throwable $e) {
+                $rec->delete();
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Failed to generate QR code. {$e->getMessage()}",
+                ]);
+            }
+        } catch (\Throwable $e) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Failed to save butcher record. {$e->getMessage()}",
+            ]);
+        }
+    }
+
+    public function create_butcher_records_batch(Request $r)
+    {
+        // Get authenticated user
+        $user_id = Utils::get_user_id($r);
+        if ($user_id == null || $user_id < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User ID not found.",
+            ]);
+        }
+
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
+        }
+
+        // Validate slaughter_distribution_record_id (same as single record)
+        if (!$r->has('slaughter_distribution_record_id') || $r->slaughter_distribution_record_id < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Meat cut record is required.",
+            ]);
+        }
+
+        $sdr = SlaughterDistributionRecord::find($r->slaughter_distribution_record_id);
+        if ($sdr == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Meat cut record not found.",
+            ]);
+        }
+
+        // Validate records array
+        if (!$r->has('records') || !is_array($r->records) || empty($r->records)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "At least one record is required for batch creation.",
+            ]);
+        }
+
+        $records = $r->records;
+        $createdRecords = [];
+        $totalWeight = 0;
+        
+        // Calculate total weight needed
+        foreach ($records as $recordData) {
+            $totalWeight += floatval($recordData['original_weight'] ?? 0);
+        }
+
+        // Check if total weight exceeds available
+        $available = floatval($sdr->current_weight ?? 0);
+        if ($totalWeight > $available) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Total weight ({$totalWeight}kg) exceeds available weight ({$available}kg).",
+            ]);
+        }
+
+        // Start database transaction
+        DB::beginTransaction();
+        
+        try {
+            foreach ($records as $index => $recordData) {
+                // Validate weight (using original_weight like single record)
+                $weight = floatval($recordData['original_weight'] ?? 0);
+                if ($weight <= 0) {
+                    DB::rollBack();
+                    return Utils::response([
+                        'status' => 0,
+                        'message' => "Record " . ($index + 1) . ": Weight must be greater than 0.",
+                    ]);
+                }
+
+                // Validate cut type
+                if (!isset($recordData['cut_type']) || empty($recordData['cut_type'])) {
+                    DB::rollBack();
+                    return Utils::response([
+                        'status' => 0,
+                        'message' => "Record " . ($index + 1) . ": Cut type is required (Prime Cut or Offal Cut).",
+                    ]);
+                }
+
+                // Validate specific cut type
+                if ($recordData['cut_type'] == 'Prime Cut' && empty($recordData['prime_cut_type'])) {
+                    DB::rollBack();
+                    return Utils::response([
+                        'status' => 0,
+                        'message' => "Record " . ($index + 1) . ": Prime cut type is required.",
+                    ]);
+                }
+
+                if ($recordData['cut_type'] == 'Offal Cut' && empty($recordData['offal_cut_type'])) {
+                    DB::rollBack();
+                    return Utils::response([
+                        'status' => 0,
+                        'message' => "Record " . ($index + 1) . ": Offal cut type is required.",
+                    ]);
+                }
+
+                // Handle buyer
+                $buyer = null;
+                $is_sold = $recordData['is_sold'] ?? 'No';
+                
+                if ($is_sold == 'Yes' && isset($recordData['buyer_id']) && $recordData['buyer_id'] > 0) {
+                    $buyer = Administrator::find($recordData['buyer_id']);
+                }
+
+                // Create butcher record (matching single record structure exactly)
+                $rec = new \App\Models\ButcherRecord();
+                $rec->slaughter_distribution_record_id = $sdr->id;
+                $rec->animal_id = $sdr->animal_id;
+                $rec->slaughterhouse_id = $sdr->slaughterhouse_id;
+                $rec->created_by_id = $u->id;
+                $rec->source_type = "Butcher Shop";
+                $rec->source_id = $sdr->id;
+                $rec->source_name = $u->name;
+                $rec->source_phone = $u->phone_number;
+                $rec->source_address = $u->address ?? "";
+                
+                // Sold status and buyer information
+                $rec->is_sold = $is_sold;
+                if ($is_sold == 'Yes') {
+                    $rec->sold_date = now();
+                    $rec->sold_price = $recordData['price'] ?? "";
+                    
+                    if ($buyer != null) {
+                        $rec->buyer_id = $buyer->id;
+                        $rec->buyer_name = $buyer->name;
+                        $rec->buyer_address = $buyer->address ?? "";
+                        $rec->buyer_phone = $buyer->phone_number;
+                    } else {
+                        $rec->buyer_name = $recordData['buyer_name'] ?? "";
+                        $rec->buyer_phone = $recordData['buyer_phone'] ?? "";
+                        $rec->buyer_address = $recordData['buyer_address'] ?? "";
+                    }
+                }
+                
+                $rec->lhc = $sdr->lhc;
+                $rec->v_id = $sdr->v_id;
+                $rec->e_id = $sdr->e_id;
+                $rec->animal_owner_id = $sdr->animal_owner_id;
+                $rec->post_fat = $sdr->post_fat;
+                $rec->post_grade = $sdr->post_grade;
+                $rec->post_animal = $sdr->post_animal;
+                $rec->post_age = $sdr->post_age;
+                $rec->original_weight = $weight;
+                $rec->current_weight = $weight;
+                $rec->price = $recordData['price'] ?? "";
+                $rec->slaughter_date = $sdr->slaughter_date;
+                $rec->cut_type = $recordData['cut_type'] ?? 'Prime Cut';
+                $rec->prime_cut_type = $recordData['prime_cut_type'] ?? "";
+                $rec->offal_cut_type = $recordData['offal_cut_type'] ?? "";
+                $rec->notes = $recordData['notes'] ?? "";
+
+                $rec->save();
+
+                // Generate codes
+                $cutName = $rec->cut_type == 'Prime Cut' ? $rec->prime_cut_type : $rec->offal_cut_type;
+                $random = strtoupper(substr(md5(uniqid($rec->id, true)), 0, 8));
+                
+                // Simple barcode
+                $barcodeData = "BR{$rec->id}{$random}";
+                $barcodePath = Utils::generate_barcode($barcodeData);
+                $rec->bar_code = $barcodePath;
+                
+                // Professional QR code
+                $url = url('butcher-record/' . $rec->id);
+                $qrData = "ID: {$rec->id}, V-ID: {$rec->v_id}, Cut: {$cutName}, Weight: {$rec->current_weight}kg, Grade: {$rec->post_grade}, Code: {$barcodeData}, URL: {$url}";
+                $qrPath = Utils::generate_qrcode($qrData);
+                $rec->qr_code = $qrPath;
+                $rec->save();
+
+                // Send notification to buyer if exists and sold
+                if ($buyer != null && $is_sold == 'Yes') {
+                    $msg = "You have purchased {$rec->current_weight}kg of {$cutName}. Open the App to see more details.";
+                    $title = "MEAT PURCHASE - {$rec->v_id}";
+                    Utils::sendNotification(
+                        $msg,
+                        $buyer->id,
+                        $headings = $title,
+                        $data = [$rec->id]
+                    );
+                }
+
+                $createdRecords[] = $rec;
+            }
+
+            // Update SDR weight after all records created
+            $sdr->current_weight = $available - $totalWeight;
+            $sdr->save();
+
+            // Commit transaction
+            DB::commit();
+
+            // Refresh records from database
+            $sdr = SlaughterDistributionRecord::find($sdr->id);
+            foreach ($createdRecords as $key => $rec) {
+                $createdRecords[$key] = \App\Models\ButcherRecord::find($rec->id);
+            }
+
+            return Utils::response([
+                'status' => 1,
+                'message' => count($createdRecords) . " butcher record(s) created successfully.",
+                'data' => [
+                    'sdr' => $sdr,
+                    'butcher_records' => $createdRecords,
+                    'created_count' => count($createdRecords),
+                ]
+            ]);
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return Utils::response([
+                'status' => 0,
+                'message' => "Batch creation failed: {$e->getMessage()}",
+            ]);
+        }
+    }
+
+    public function update_butcher_record(Request $r)
+    {
+        $user_id = Utils::get_user_id($r);
+        if ($user_id < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User ID not found.",
+            ]);
+        }
+
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
+        }
+
+        if (!$r->has('id') || $r->id < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Butcher record ID is required.",
+            ]);
+        }
+
+        $rec = \App\Models\ButcherRecord::find($r->id);
+        if ($rec == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Butcher record not found.",
+            ]);
+        }
+
+        // Only creator can update
+        if ($rec->created_by_id != $user_id) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "You don't have permission to update this record.",
+            ]);
+        }
+
+        // Update allowed fields
+        if ($r->has('price')) {
+            $rec->price = $r->price;
+        }
+        if ($r->has('notes')) {
+            $rec->notes = $r->notes;
+        }
+        if ($r->has('receiver_id') && $r->receiver_id > 0) {
+            $receiver = Administrator::find($r->receiver_id);
+            if ($receiver != null) {
+                $rec->receiver_id = $receiver->id;
+                $rec->receiver_name = $receiver->name;
+                $rec->receiver_address = $receiver->address ?? "";
+                $rec->receiver_phone = $receiver->phone_number;
+            }
+        }
+
+        try {
+            $rec->save();
+            return Utils::response([
+                'status' => 1,
+                'message' => "Butcher record updated successfully.",
+                'data' => $rec
+            ]);
+        } catch (\Throwable $e) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Failed to update record. {$e->getMessage()}",
+            ]);
+        }
+    }
+
+    public function mark_butcher_record_sold(Request $r)
+    {
+        $user_id = Utils::get_user_id($r);
+        if ($user_id < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User ID not found.",
+            ]);
+        }
+
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
+        }
+
+        if (!$r->has('id') || $r->id < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Butcher record ID is required.",
+            ]);
+        }
+
+        $rec = \App\Models\ButcherRecord::find($r->id);
+        if ($rec == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Butcher record not found.",
+            ]);
+        }
+
+        // Only creator can mark as sold
+        if ($rec->created_by_id != $user_id) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "You don't have permission to update this record.",
+            ]);
+        }
+
+        // Validate sold price
+        $sold_price = floatval($r->sold_price ?? 0);
+        if ($sold_price <= 0) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Sold price must be greater than 0.",
+            ]);
+        }
+
+        // Get buyer info if provided
+        $buyer = null;
+        if ($r->has('buyer_id') && $r->buyer_id > 0) {
+            $buyer = Administrator::find($r->buyer_id);
+        }
+
+        $rec->is_sold = 'Yes';
+        $rec->sold_price = $sold_price;
+        $rec->sold_date = now();
+        
+        if ($buyer != null) {
+            $rec->buyer_id = $buyer->id;
+            $rec->buyer_name = $buyer->name;
+            $rec->buyer_phone = $buyer->phone_number;
+            $rec->buyer_address = $buyer->address ?? "";
+        } else {
+            $rec->buyer_name = $r->buyer_name ?? "Walk-in Customer";
+            $rec->buyer_phone = $r->buyer_phone ?? "";
+            $rec->buyer_address = $r->buyer_address ?? "";
+        }
+
+        try {
+            $rec->save();
+
+            // Send notification to buyer if exists
+            if ($buyer != null) {
+                $msg = "You have purchased {$rec->current_weight}kg of {$rec->cut_type} for UGX {$sold_price}. Open the App to see more details.";
+                $title = "PURCHASE CONFIRMED - {$rec->v_id}";
+                Utils::sendNotification(
+                    $msg,
+                    $buyer->id,
+                    $headings = $title,
+                    $data = [$rec->id]
+                );
+            }
+
+            return Utils::response([
+                'status' => 1,
+                'message' => "Butcher record marked as sold successfully.",
+                'data' => $rec
+            ]);
+        } catch (\Throwable $e) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Failed to mark as sold. {$e->getMessage()}",
+            ]);
+        }
+    }
+
+    // ========== END BUTCHER RECORDS API METHODS ==========
+
 
     public function slaughters(Request $request)
     {
@@ -4851,4 +5469,441 @@ class ApiAnimalController extends Controller
         if ($diff < 31536000) return floor($diff / 2592000) . ' months ago';
         return floor($diff / 31536000) . ' years ago';
     }
+
+    /**
+     * =================================================================
+     * LABEL PRINTING TASK APIs
+     * =================================================================
+     */
+
+    /**
+     * Get all label printing tasks (with pagination and filtering)
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function label_printing_tasks(Request $request)
+    {
+        $administrator_id = Utils::get_user_id($request);
+        $u = Administrator::find($administrator_id);
+        
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'User not found.',
+            ], 404);
+        }
+
+        // Get all tasks for this user with creator info
+        $tasks = \App\Models\LabelPrintingTask::where('created_by_id', $administrator_id)
+            ->with('creator')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Enrich with additional computed fields
+        $tasks = $tasks->map(function ($task) {
+            return [
+                'id' => $task->id,
+                'task_number' => $task->task_number,
+                'template_type' => $task->template_type,
+                'total_labels' => $task->total_labels,
+                'generated_labels' => $task->generated_labels,
+                'status' => $task->status,
+                'progress_percentage' => $task->getProgressPercentage(),
+                'pdf_path' => $task->pdf_path,
+                'pdf_url' => $task->getPdfUrl(),
+                'pdf_size' => $task->pdf_size,
+                'error_message' => $task->error_message,
+                'include_qr' => $task->include_qr,
+                'include_barcode' => $task->include_barcode,
+                'include_company_info' => $task->include_company_info,
+                'include_animal_info' => $task->include_animal_info,
+                'created_at' => $task->created_at->toIso8601String(),
+                'created_at_human' => $task->created_at->diffForHumans(),
+                'started_at' => $task->started_at ? $task->started_at->toIso8601String() : null,
+                'completed_at' => $task->completed_at ? $task->completed_at->toIso8601String() : null,
+                'creator_name' => $task->creator ? $task->creator->name : 'Unknown',
+                'butcher_record_ids' => $task->butcher_record_ids,
+            ];
+        });
+
+        return Utils::response([
+            'status' => 1,
+            'message' => 'Success',
+            'data' => $tasks,
+        ]);
+    }
+
+    /**
+     * Create a new label printing task and generate PDF
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function create_label_printing_task(Request $request)
+    {
+        $administrator_id = Utils::get_user_id($request);
+        $u = Administrator::find($administrator_id);
+        
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'User not found.',
+            ], 404);
+        }
+
+        // Validate required fields
+        if (!$request->has('butcher_record_ids')) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Please select at least one butcher record.',
+            ], 400);
+        }
+
+        // Parse butcher record IDs (could be JSON string, array, or comma-separated)
+        $recordIds = $request->input('butcher_record_ids');
+        
+        // If it's a string, try to decode it as JSON first
+        if (is_string($recordIds)) {
+            // Try JSON decode
+            $decoded = json_decode($recordIds, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $recordIds = $decoded;
+            } else {
+                // Try comma-separated values as fallback
+                $recordIds = array_map('trim', explode(',', $recordIds));
+            }
+        }
+        
+        // If it's an object (from JSON parsing), convert to array
+        if (is_object($recordIds)) {
+            $recordIds = (array) $recordIds;
+        }
+
+        // Validate it's an array
+        if (!is_array($recordIds)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Invalid butcher record IDs format. Expected array, got: ' . gettype($request->input('butcher_record_ids')),
+            ], 400);
+        }
+        
+        // Convert to integers and filter out invalid values
+        $recordIds = array_map('intval', $recordIds);
+        $recordIds = array_filter($recordIds, function($id) {
+            return $id > 0;
+        });
+        
+        if (empty($recordIds)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'No valid butcher record IDs provided.',
+            ], 400);
+        }
+
+        // Validate template type
+        $templateTypes = array_keys(\App\Models\LabelPrintingTask::getTemplateTypes());
+        $templateType = $request->template_type ?? 'Standard';
+        
+        if (!in_array($templateType, $templateTypes)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Invalid template type. Choose from: ' . implode(', ', $templateTypes),
+            ], 400);
+        }
+
+        // Verify all butcher records exist
+        $records = \App\Models\ButcherRecord::whereIn('id', $recordIds)->get();
+        if ($records->count() !== count($recordIds)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Some butcher records not found.',
+            ], 404);
+        }
+
+        try {
+            // Create label printing task
+            $task = new \App\Models\LabelPrintingTask();
+            $task->task_number = \App\Models\LabelPrintingTask::generateTaskNumber();
+            $task->butcher_record_ids = $recordIds;
+            $task->template_type = $templateType;
+            $task->include_qr = $request->include_qr ?? 'Yes';
+            $task->include_barcode = $request->include_barcode ?? 'Yes';
+            $task->include_company_info = $request->include_company_info ?? 'Yes';
+            $task->include_animal_info = $request->include_animal_info ?? 'Yes';
+            $task->label_size = 'A6';
+            $task->labels_per_page = 4;
+            $task->total_labels = count($recordIds);
+            $task->generated_labels = 0;
+            $task->status = 'Pending';
+            $task->created_by_id = $administrator_id;
+            $task->save();
+
+            // Generate PDF using service
+            $generator = new \App\Services\LabelPdfGenerator($task);
+            $result = $generator->generate();
+
+            if (!$result['success']) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => 'PDF generation failed: ' . $result['error'],
+                ], 500);
+            }
+
+            // Refresh task from database
+            $task = \App\Models\LabelPrintingTask::find($task->id);
+
+            return Utils::response([
+                'status' => 1,
+                'message' => 'Label printing task created and PDF generated successfully.',
+                'data' => [
+                    'id' => $task->id,
+                    'task_number' => $task->task_number,
+                    'template_type' => $task->template_type,
+                    'total_labels' => $task->total_labels,
+                    'status' => $task->status,
+                    'pdf_url' => $task->getPdfUrl(),
+                    'pdf_size' => $task->pdf_size,
+                    'created_at' => $task->created_at->toIso8601String(),
+                ],
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Label Printing Task Creation Failed: ' . $e->getMessage());
+            
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Failed to create label printing task: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get single label printing task details
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function label_printing_task_details(Request $request)
+    {
+        $administrator_id = Utils::get_user_id($request);
+        $u = Administrator::find($administrator_id);
+        
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'User not found.',
+            ], 404);
+        }
+
+        $taskId = $request->task_id ?? $request->id;
+        
+        if (empty($taskId)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Task ID is required.',
+            ], 400);
+        }
+
+        $task = \App\Models\LabelPrintingTask::with('creator')->find($taskId);
+        
+        if (!$task) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Label printing task not found.',
+            ], 404);
+        }
+
+        // Get butcher records for this task
+        $butcherRecords = $task->butcherRecords()->map(function ($record) {
+            return [
+                'id' => $record->id,
+                'cut_type' => $record->cut_type,
+                'prime_cut_type' => $record->prime_cut_type,
+                'offal_cut_type' => $record->offal_cut_type,
+                'original_weight' => $record->original_weight,
+                'price' => $record->price,
+                'bar_code' => $record->bar_code,
+            ];
+        });
+
+        return Utils::response([
+            'status' => 1,
+            'message' => 'Success',
+            'data' => [
+                'id' => $task->id,
+                'task_number' => $task->task_number,
+                'template_type' => $task->template_type,
+                'total_labels' => $task->total_labels,
+                'generated_labels' => $task->generated_labels,
+                'status' => $task->status,
+                'progress_percentage' => $task->getProgressPercentage(),
+                'pdf_path' => $task->pdf_path,
+                'pdf_url' => $task->getPdfUrl(),
+                'pdf_size' => $task->pdf_size,
+                'error_message' => $task->error_message,
+                'include_qr' => $task->include_qr,
+                'include_barcode' => $task->include_barcode,
+                'include_company_info' => $task->include_company_info,
+                'include_animal_info' => $task->include_animal_info,
+                'label_size' => $task->label_size,
+                'labels_per_page' => $task->labels_per_page,
+                'created_at' => $task->created_at->toIso8601String(),
+                'created_at_human' => $task->created_at->diffForHumans(),
+                'started_at' => $task->started_at ? $task->started_at->toIso8601String() : null,
+                'completed_at' => $task->completed_at ? $task->completed_at->toIso8601String() : null,
+                'creator_name' => $task->creator ? $task->creator->name : 'Unknown',
+                'butcher_records' => $butcherRecords,
+            ],
+        ]);
+    }
+
+    /**
+     * Download label PDF
+     * 
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\JsonResponse
+     */
+    public function download_label_pdf(Request $request)
+    {
+        $administrator_id = Utils::get_user_id($request);
+        $u = Administrator::find($administrator_id);
+        
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'User not found.',
+            ], 404);
+        }
+
+        $taskId = $request->task_id ?? $request->id;
+        
+        if (empty($taskId)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Task ID is required.',
+            ], 400);
+        }
+
+        $task = \App\Models\LabelPrintingTask::find($taskId);
+        
+        if (!$task) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Label printing task not found.',
+            ], 404);
+        }
+
+        if (empty($task->pdf_path) || !Storage::exists($task->pdf_path)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'PDF file not found.',
+            ], 404);
+        }
+
+        // Return file download response
+        return Storage::download($task->pdf_path, 'labels_' . $task->task_number . '.pdf');
+    }
+
+    /**
+     * Reprint single label from butcher record
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function reprint_butcher_record_label(Request $request)
+    {
+        $administrator_id = Utils::get_user_id($request);
+        $u = Administrator::find($administrator_id);
+        
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'User not found.',
+            ], 404);
+        }
+
+        $recordId = $request->butcher_record_id ?? $request->id;
+        
+        if (empty($recordId)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Butcher record ID is required.',
+            ], 400);
+        }
+
+        $record = \App\Models\ButcherRecord::find($recordId);
+        
+        if (!$record) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Butcher record not found.',
+            ], 404);
+        }
+
+        try {
+            // Get options from request
+            $templateType = $request->template_type ?? 'Standard';
+            $options = [
+                'include_qr' => $request->include_qr ?? 'Yes',
+                'include_barcode' => $request->include_barcode ?? 'Yes',
+                'include_company_info' => $request->include_company_info ?? 'Yes',
+                'include_animal_info' => $request->include_animal_info ?? 'Yes',
+            ];
+
+            // Generate single label
+            $result = \App\Services\LabelPdfGenerator::generateSingleLabel($record, $templateType, $options);
+
+            if (!$result['success']) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => 'Label generation failed: ' . $result['error'],
+                ], 500);
+            }
+
+            return Utils::response([
+                'status' => 1,
+                'message' => 'Label generated successfully.',
+                'data' => [
+                    'pdf_url' => url('storage/' . $result['path']),
+                    'pdf_size' => $result['size'],
+                ],
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Single Label Reprint Failed: ' . $e->getMessage());
+            
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Failed to generate label: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Get available template types
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function label_template_types(Request $request)
+    {
+        $templates = \App\Models\LabelPrintingTask::getTemplateTypes();
+        
+        $formatted = [];
+        foreach ($templates as $key => $description) {
+            $formatted[] = [
+                'value' => $key,
+                'label' => $key,
+                'description' => $description,
+            ];
+        }
+
+        return Utils::response([
+            'status' => 1,
+            'message' => 'Success',
+            'data' => $formatted,
+        ]);
+    }
 }
+

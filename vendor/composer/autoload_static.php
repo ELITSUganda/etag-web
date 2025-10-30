@@ -912,6 +912,7 @@ class ComposerStaticInitdcf04bfa0fa314cc280f84f096bc3e7d
         'App\\Models\\ApplicationType' => __DIR__ . '/../..' . '/app/Models/ApplicationType.php',
         'App\\Models\\ArchivedAnimal' => __DIR__ . '/../..' . '/app/Models/ArchivedAnimal.php',
         'App\\Models\\BatchSession' => __DIR__ . '/../..' . '/app/Models/BatchSession.php',
+        'App\\Models\\ButcherRecord' => __DIR__ . '/../..' . '/app/Models/ButcherRecord.php',
         'App\\Models\\CentralTagBatch' => __DIR__ . '/../..' . '/app/Models/CentralTagBatch.php',
         'App\\Models\\ChatHead' => __DIR__ . '/../..' . '/app/Models/ChatHead.php',
         'App\\Models\\ChatMessage' => __DIR__ . '/../..' . '/app/Models/ChatMessage.php',

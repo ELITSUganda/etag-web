@@ -117,6 +117,7 @@ return array(
     'App\\Models\\ApplicationType' => $baseDir . '/app/Models/ApplicationType.php',
     'App\\Models\\ArchivedAnimal' => $baseDir . '/app/Models/ArchivedAnimal.php',
     'App\\Models\\BatchSession' => $baseDir . '/app/Models/BatchSession.php',
+    'App\\Models\\ButcherRecord' => $baseDir . '/app/Models/ButcherRecord.php',
     'App\\Models\\CentralTagBatch' => $baseDir . '/app/Models/CentralTagBatch.php',
     'App\\Models\\ChatHead' => $baseDir . '/app/Models/ChatHead.php',
     'App\\Models\\ChatMessage' => $baseDir . '/app/Models/ChatMessage.php',
