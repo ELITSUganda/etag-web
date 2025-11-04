@@ -256,6 +256,7 @@ class LabelPrintingTask extends Model
         if (empty($this->pdf_path)) {
             return null;
         }
-        return url('storage/' . $this->pdf_path);
+        // pdf_path already includes 'storage/images/' so just prepend base URL
+        return url($this->pdf_path);
     }
 }

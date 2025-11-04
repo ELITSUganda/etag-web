@@ -6011,5 +6011,100 @@ class ApiAnimalController extends Controller
             'data' => $formatted,
         ]);
     }
+
+    /**
+     * Regenerate label printing task
+     * Creates a new task with the same configuration and generates a fresh PDF
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function regenerate_label_printing_task(Request $request)
+    {
+        $administrator_id = Utils::get_user_id($request);
+        $u = Administrator::find($administrator_id);
+        
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'User not found.',
+            ], 404);
+        }
+
+        $taskId = $request->task_id ?? $request->id;
+        
+        if (empty($taskId)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Task ID is required.',
+            ], 400);
+        }
+
+        // Get original task
+        $originalTask = \App\Models\LabelPrintingTask::find($taskId);
+        
+        if (!$originalTask) {
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Original task not found.',
+            ], 404);
+        }
+
+        try {
+            // Create new task with same configuration
+            $newTask = new \App\Models\LabelPrintingTask();
+            $newTask->task_number = \App\Models\LabelPrintingTask::generateTaskNumber();
+            $newTask->butcher_record_ids = $originalTask->butcher_record_ids;
+            $newTask->template_type = $originalTask->template_type;
+            $newTask->include_qr = $originalTask->include_qr;
+            $newTask->include_barcode = $originalTask->include_barcode;
+            $newTask->include_company_info = $originalTask->include_company_info;
+            $newTask->include_animal_info = $originalTask->include_animal_info;
+            $newTask->label_size = $originalTask->label_size;
+            $newTask->labels_per_page = $originalTask->labels_per_page;
+            $newTask->total_labels = $originalTask->total_labels;
+            $newTask->generated_labels = 0;
+            $newTask->status = 'Pending';
+            $newTask->created_by_id = $administrator_id;
+            $newTask->save();
+
+            // Generate PDF using service
+            $generator = new \App\Services\LabelPdfGenerator($newTask);
+            $result = $generator->generate();
+
+            if (!$result['success']) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => 'PDF generation failed: ' . $result['error'],
+                ], 500);
+            }
+
+            // Refresh task from database
+            $newTask = \App\Models\LabelPrintingTask::find($newTask->id);
+
+            return Utils::response([
+                'status' => 1,
+                'message' => 'Label printing task regenerated successfully.',
+                'data' => [
+                    'id' => $newTask->id,
+                    'task_number' => $newTask->task_number,
+                    'template_type' => $newTask->template_type,
+                    'total_labels' => $newTask->total_labels,
+                    'status' => $newTask->status,
+                    'pdf_url' => $newTask->getPdfUrl(),
+                    'pdf_size' => $newTask->pdf_size,
+                    'created_at' => $newTask->created_at->toIso8601String(),
+                ],
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Label Printing Task Regeneration Failed: ' . $e->getMessage());
+            
+            return Utils::response([
+                'status' => 0,
+                'message' => 'Failed to regenerate label printing task: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }
 

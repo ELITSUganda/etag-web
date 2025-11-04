@@ -96,6 +96,7 @@ Route::POST('api/mark-butcher-record-sold', [ApiAnimalController::class, 'mark_b
 // Label Printing Routes - Must be before api/{model} catch-all
 Route::get('api/label-printing-tasks', [ApiAnimalController::class, 'label_printing_tasks']);
 Route::POST('api/label-printing-task-create', [ApiAnimalController::class, 'create_label_printing_task']);
+Route::POST('api/label-printing-task-regenerate', [ApiAnimalController::class, 'regenerate_label_printing_task']);
 Route::get('api/label-printing-task-details', [ApiAnimalController::class, 'label_printing_task_details']);
 Route::get('api/label-pdf-download', [ApiAnimalController::class, 'download_label_pdf']);
 Route::POST('api/butcher-record-label-reprint', [ApiAnimalController::class, 'reprint_butcher_record_label']);
@@ -190,6 +191,7 @@ Route::POST('mark-butcher-record-sold', [ApiAnimalController::class, 'mark_butch
 // Label Printing Routes
 Route::get('label-printing-tasks', [ApiAnimalController::class, 'label_printing_tasks']);
 Route::POST('label-printing-task-create', [ApiAnimalController::class, 'create_label_printing_task']);
+Route::POST('label-printing-task-regenerate', [ApiAnimalController::class, 'regenerate_label_printing_task']);
 Route::get('label-printing-task-details', [ApiAnimalController::class, 'label_printing_task_details']);
 Route::get('label-pdf-download', [ApiAnimalController::class, 'download_label_pdf']);
 Route::POST('butcher-record-label-reprint', [ApiAnimalController::class, 'reprint_butcher_record_label']);
