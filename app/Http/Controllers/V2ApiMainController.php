@@ -975,6 +975,10 @@ class V2ApiMainController extends Controller
         ])->get();
         return $this->success($pregnant_animals);
     }
+    /**
+     * Legacy animal view - returns basic animal data only
+     * Kept for backward compatibility
+     */
     public function animal_view(Request $r)
     {
         $an = Animal::find($r->id);
@@ -997,5 +1001,349 @@ class V2ApiMainController extends Controller
             return $this->error("Animal not found  for id #" . $r->id);
         }
         return $this->success($an);
+    }
+
+    /**
+     * 360° Animal Detail View
+     * Returns comprehensive animal information including:
+     * - Basic info
+     * - Relationships (mother, sire, offspring)
+     * - Photos & Documents
+     * - Events & Health Records
+     * - Movements & Transfers
+     * - Performance metrics
+     * 
+     * GET /api/animals/{id}/detail
+     */
+    public function animal_detail(Request $r, $id)
+    {
+        // Find animal by ID, local_id, v_id, or e_id
+        $animal = Animal::find($id);
+        if ($animal == null) {
+            $animal = Animal::where('local_id', $id)
+                ->orWhere('v_id', $id)
+                ->orWhere('e_id', $id)
+                ->first();
+        }
+
+        if ($animal == null) {
+            return $this->error("Animal not found");
+        }
+
+        // Prepare comprehensive response
+        $data = [
+            // Basic Information
+            'basic_info' => [
+                'id' => $animal->id,
+                'local_id' => $animal->local_id,
+                'e_id' => $animal->e_id,
+                'v_id' => $animal->v_id,
+                'lhc' => $animal->lhc,
+                'type' => $animal->type,
+                'breed' => $animal->breed,
+                'sex' => $animal->sex,
+                'status' => $animal->status,
+                'dob' => $animal->dob,
+                'age' => $animal->age,
+                'stage' => $animal->stage,
+                'color' => $animal->color,
+                'weight' => $animal->weight,
+                'weight_text' => $animal->weight_text,
+                'photo' => $animal->photo ? url($animal->photo) : null,
+                'created_at' => $animal->created_at,
+                'updated_at' => $animal->updated_at,
+            ],
+
+            // Farm & Location
+            'location' => [
+                'farm_id' => $animal->farm_id,
+                'farm_text' => $animal->farm_text,
+                'district_id' => $animal->district_id,
+                'district_text' => $animal->district_text,
+                'sub_county_id' => $animal->sub_county_id,
+                'sub_county_text' => $animal->sub_county_text,
+                'group_id' => $animal->group_id,
+                'group_text' => $animal->group_text,
+            ],
+
+            // Relationships
+            'relationships' => $this->getAnimalRelationships($animal),
+
+            // Photos & Media
+            'photos' => $this->getAnimalPhotos($animal),
+
+            // Events & Records
+            'events' => $this->getAnimalEvents($animal),
+
+            // Health & Vaccinations  
+            'health' => $this->getAnimalHealth($animal),
+
+            // Performance Metrics
+            'performance' => $this->getAnimalPerformance($animal),
+
+            // Additional Info
+            'additional_info' => [
+                'conception' => $animal->conception,
+                'fmd' => $animal->fmd,
+                'has_produced_before' => $animal->has_produced_before,
+                'is_weaned_off' => $animal->is_weaned_off,
+                'weight_at_birth' => $animal->weight_at_birth,
+                'purchase_date' => $animal->purchase_date,
+                'purchase_price' => $animal->purchase_price,
+                'current_price' => $animal->current_price,
+                'comments' => $animal->comments,
+            ],
+        ];
+
+        return $this->success($data, "Animal details retrieved successfully");
+    }
+
+    /**
+     * Get animal relationships (mother, sire, offspring)
+     */
+    private function getAnimalRelationships($animal)
+    {
+        $relationships = [
+            'has_parent' => $animal->has_parent == 'Yes',
+            'mother' => null,
+            'sire' => null,
+            'offspring' => [],
+        ];
+
+        // Mother (parent_id)
+        if ($animal->parent_id) {
+            $mother = Animal::find($animal->parent_id);
+            if ($mother) {
+                $relationships['mother'] = [
+                    'id' => $mother->id,
+                    'e_id' => $mother->e_id,
+                    'v_id' => $mother->v_id,
+                    'breed' => $mother->breed,
+                    'photo' => $mother->photo ? url($mother->photo) : null,
+                ];
+            }
+        }
+
+        // Sire (genetic_donor / sire_id if available)
+        if (isset($animal->sire_id) && $animal->sire_id) {
+            $sire = Animal::find($animal->sire_id);
+            if ($sire) {
+                $relationships['sire'] = [
+                    'id' => $sire->id,
+                    'e_id' => $sire->e_id,
+                    'v_id' => $sire->v_id,
+                    'breed' => $sire->breed,
+                    'photo' => $sire->photo ? url($sire->photo) : null,
+                ];
+            }
+        }
+
+        // Offspring (animals where this animal is the parent)
+        $offspring = Animal::where('parent_id', $animal->id)
+            ->select('id', 'e_id', 'v_id', 'breed', 'sex', 'dob', 'photo', 'status')
+            ->limit(50)
+            ->get();
+
+        $relationships['offspring'] = $offspring->map(function($child) {
+            return [
+                'id' => $child->id,
+                'e_id' => $child->e_id,
+                'v_id' => $child->v_id,
+                'breed' => $child->breed,
+                'sex' => $child->sex,
+                'dob' => $child->dob,
+                'status' => $child->status,
+                'photo' => $child->photo ? url($child->photo) : null,
+            ];
+        })->toArray();
+
+        $relationships['offspring_count'] = count($relationships['offspring']);
+
+        return $relationships;
+    }
+
+    /**
+     * Get animal photos
+     */
+    private function getAnimalPhotos($animal)
+    {
+        $photos = Image::where('parent_id', $animal->id)
+            ->where('parent_endpoint', 'api/animals')
+            ->orderBy('id', 'desc')
+            ->limit(50)
+            ->get();
+
+        return $photos->map(function($photo) {
+            return [
+                'id' => $photo->id,
+                'thumbnail' => url($photo->thumbnail),
+                'src' => url($photo->src),
+                'size' => $photo->size,
+                'created_at' => $photo->created_at,
+            ];
+        })->toArray();
+    }
+
+    /**
+     * Get animal events (milking, weight checks, etc.)
+     */
+    private function getAnimalEvents($animal)
+    {
+        $events = \App\Models\Event::where('animal_id', $animal->id)
+            ->orderBy('created_at', 'desc')
+            ->limit(100)
+            ->get();
+
+        $grouped = [
+            'milking' => [],
+            'weight' => [],
+            'breeding' => [],
+            'treatment' => [],
+            'other' => [],
+        ];
+
+        foreach ($events as $event) {
+            $eventData = [
+                'id' => $event->id,
+                'type' => $event->type,
+                'detail' => $event->detail,
+                'created_at' => $event->created_at,
+                'milk' => $event->milk,
+                'weight' => $event->weight,
+            ];
+
+            if ($event->type == 'Milking') {
+                $grouped['milking'][] = $eventData;
+            } elseif ($event->type == 'Weight check') {
+                $grouped['weight'][] = $eventData;
+            } elseif (in_array($event->type, ['Breeding', 'Pregnancy', 'Birth'])) {
+                $grouped['breeding'][] = $eventData;
+            } elseif (in_array($event->type, ['Treatment', 'Vaccination', 'Disease'])) {
+                $grouped['treatment'][] = $eventData;
+            } else {
+                $grouped['other'][] = $eventData;
+            }
+        }
+
+        return [
+            'total_count' => $events->count(),
+            'by_category' => $grouped,
+            'latest' => $events->take(10)->map(function($event) {
+                return [
+                    'id' => $event->id,
+                    'type' => $event->type,
+                    'detail' => $event->detail,
+                    'created_at' => $event->created_at,
+                ];
+            })->toArray(),
+        ];
+    }
+
+    /**
+     * Get animal health records
+     */
+    private function getAnimalHealth($animal)
+    {
+        // Get vaccination records
+        $vaccinations = \App\Models\Event::where('animal_id', $animal->id)
+            ->where('type', 'Vaccination')
+            ->orderBy('created_at', 'desc')
+            ->limit(20)
+            ->get();
+
+        // Get disease records  
+        $diseases = \App\Models\Event::where('animal_id', $animal->id)
+            ->where('type', 'Disease')
+            ->orderBy('created_at', 'desc')
+            ->limit(20)
+            ->get();
+
+        // Check if animal is in sick_animals table
+        $sickRecord = \App\Models\SickAnimal::where('animal_id', $animal->id)
+            ->where('current_results', 'Positive')
+            ->first();
+
+        // Check if animal is pregnant
+        $pregnancyRecord = PregnantAnimal::where('animal_id', $animal->id)
+            ->whereIn('current_status', ['Pregnant', 'Confirmed'])
+            ->first();
+
+        return [
+            'is_sick' => $sickRecord != null,
+            'is_pregnant' => $pregnancyRecord != null,
+            'pregnancy' => $pregnancyRecord ? [
+                'status' => $pregnancyRecord->current_status,
+                'conception_date' => $pregnancyRecord->conception_date,
+                'expected_calving_date' => $pregnancyRecord->expected_calving_date,
+                'fertilization_method' => $pregnancyRecord->fertilization_method,
+            ] : null,
+            'vaccinations' => $vaccinations->map(function($v) {
+                return [
+                    'id' => $v->id,
+                    'detail' => $v->detail,
+                    'date' => $v->created_at,
+                ];
+            })->toArray(),
+            'diseases' => $diseases->map(function($d) {
+                return [
+                    'id' => $d->id,
+                    'detail' => $d->detail,
+                    'date' => $d->created_at,
+                ];
+            })->toArray(),
+        ];
+    }
+
+    /**
+     * Get animal performance metrics
+     */
+    private function getAnimalPerformance($animal)
+    {
+        // Milk production
+        $milkEvents = \App\Models\Event::where('animal_id', $animal->id)
+            ->where('type', 'Milking')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $totalMilk = $milkEvents->sum('milk');
+        $avgMilk = $milkEvents->count() > 0 ? $totalMilk / $milkEvents->count() : 0;
+
+        // Weight tracking
+        $weightEvents = \App\Models\Event::where('animal_id', $animal->id)
+            ->where('type', 'Weight check')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $latestWeight = $weightEvents->first();
+        $firstWeight = $weightEvents->last();
+        $weightGain = 0;
+        if ($latestWeight && $firstWeight && $latestWeight->id != $firstWeight->id) {
+            $weightGain = $latestWeight->weight - $firstWeight->weight;
+        }
+
+        return [
+            'milk_production' => [
+                'total_records' => $milkEvents->count(),
+                'total_liters' => round($totalMilk, 2),
+                'average_per_session' => round($avgMilk, 2),
+                'latest' => $milkEvents->take(5)->map(function($m) {
+                    return [
+                        'liters' => $m->milk,
+                        'date' => $m->created_at,
+                    ];
+                })->toArray(),
+            ],
+            'weight_tracking' => [
+                'total_records' => $weightEvents->count(),
+                'current_weight' => $latestWeight ? $latestWeight->weight : $animal->weight,
+                'weight_gain' => round($weightGain, 2),
+                'history' => $weightEvents->take(5)->map(function($w) {
+                    return [
+                        'weight' => $w->weight,
+                        'date' => $w->created_at,
+                    ];
+                })->toArray(),
+            ],
+        ];
     }
 }

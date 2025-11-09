@@ -2,6 +2,7 @@
 //rominah j
 use App\Admin\Controllers\FarmController;
 use App\Admin\Controllers\VaccinationScheduleController;
+use App\Http\Controllers\AnimalOfflineChangeController;
 use App\Http\Controllers\ApiAnimalController;
 use App\Http\Controllers\ApiEventController;
 use App\Http\Controllers\ApiFarmController;
@@ -52,6 +53,7 @@ Route::POST('v2-pregnant-animals-create', [V2ApiMainController::class, 'v2_pregn
 Route::GET('v2-pregnant-animals', [V2ApiMainController::class, 'v2_pregnant_animals_list']);
 Route::GET('v2-farm-reports', [V2ApiMainController::class, 'v2_farm_reports']);
 Route::get('animals/{id}', [V2ApiMainController::class, 'animal_view']);
+Route::get('animals/{id}/detail', [V2ApiMainController::class, 'animal_detail']);
 Route::post('farm-analysis', [FarmAnalysisController::class, 'farm_analysis']);
 
 // CONSOLIDATED DASHBOARD API ENDPOINTS (2 endpoints only as requested)
@@ -198,6 +200,12 @@ Route::POST('butcher-record-label-reprint', [ApiAnimalController::class, 'reprin
 Route::get('label-template-types', [ApiAnimalController::class, 'label_template_types']);
 
 // Route::get('animals/{id}', [ApiAnimalController::class, 'show']);
+
+// Animal Offline Changes Routes
+Route::get('animal-offline-changes', [AnimalOfflineChangeController::class, 'index']);
+Route::POST('animal-offline-changes', [AnimalOfflineChangeController::class, 'store']);
+Route::POST('animal-offline-changes/process/{id}', [AnimalOfflineChangeController::class, 'process']);
+Route::delete('animal-offline-changes/{id}', [AnimalOfflineChangeController::class, 'destroy']);
 
 Route::get('events', [ApiAnimalController::class, 'events']);
 Route::get('drug-reports', [ApiAnimalController::class, 'drug_reports']);

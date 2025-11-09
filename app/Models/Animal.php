@@ -26,6 +26,10 @@ class Animal extends Model
         'dob',
         'color',
         'farm_id',
+        'current_worth',
+        'conception_method',
+        'sire_id',
+        'parent_id',
     ];
     public static function boot()
     {

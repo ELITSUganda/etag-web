@@ -1579,18 +1579,17 @@ duplicate_results
     public static function response($data = [])
     {
         header('Content-Type: application/json; charset=utf-8');
-        $resp['status'] = "1";
+        $resp['code'] = "1";
         $resp['message'] = "Success";
         $resp['data'] = null;
-        if (isset($data['status'])) {
-            $resp['status'] = $data['status'] . "";
+        
+        // Check for 'code' field (new standard)
+        if (isset($data['code'])) {
+            $resp['code'] = $data['code'] . "";
         }
-        if ($resp['status'] == '1' || $resp['status'] == 1) {
-            $resp['code'] = "1";
-            $resp['status'] = "1";
-        } else {
-            $resp['code'] = "0";
-            $resp['status'] = "0";
+        // For backward compatibility, also check for 'status' field (deprecated)
+        elseif (isset($data['status'])) {
+            $resp['code'] = $data['status'] . "";
         }
 
         if (isset($data['message'])) {

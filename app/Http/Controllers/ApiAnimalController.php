@@ -3597,7 +3597,6 @@ class ApiAnimalController extends Controller
             SELECT 
                 id,
                 created_at,
-                updated_at,
                 administrator_id,
                 farm_id,
                 status,
@@ -3609,13 +3608,10 @@ class ApiAnimalController extends Controller
                 sex,
                 price,
                 weight,
-                stage,
-                average_milk,
                 group_id,
                 local_id,
                 age,
                 group_id,
-                for_sale,
                 parent_id,
                 photo
             FROM animals 
@@ -3659,7 +3655,6 @@ class ApiAnimalController extends Controller
 
             // Use raw timestamps instead of Carbon parsing (10x faster)
             $animal_array['posted'] = strtotime($animal->created_at);
-            $animal_array['updated_at_text'] = strtotime($animal->updated_at);
 
             $data[] = $animal_array;
         }
