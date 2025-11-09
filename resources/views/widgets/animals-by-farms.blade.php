@@ -39,8 +39,6 @@ $subTitle = isset($_subTitle) ? $_subTitle : 'As of November, 2017';
 
     function my_function_2() {
 
-
-
         var url = window.location.href;
         var parts = url.split('/');
         var last_part = parts[parts.length - 1];
@@ -49,47 +47,35 @@ $subTitle = isset($_subTitle) ? $_subTitle : 'As of November, 2017';
             return;
         }
 
+        var chartData = JSON.parse('<?= json_encode($data) ?>');
+        
+        // Debug: Log data to console
+        console.log('Chart Data:', chartData);
+
         const chartInstance = new CanvasJS.Chart("animals-by-farms", {
-            theme: "light2",
             animationEnabled: true,
-            animationDuration: 800,
+            theme: "light2",
             backgroundColor: "transparent",
+            height: 470,
             axisX: {
                 interval: 1,
-                labelFontSize: 11,
-                labelFontColor: "#495057",
+                labelFontSize: 10,
                 labelAngle: -45,
-                labelWrap: false,
-                lineThickness: 1,
-                lineColor: "#dee2e6"
+                labelMaxWidth: 100
             },
             axisY: {
                 title: "Livestock Count",
                 titleFontSize: 14,
-                titleFontWeight: "600",
-                labelFontSize: 12,
-                labelFontColor: "#495057",
-                gridColor: "#e9ecef",
+                includeZero: true,
                 gridThickness: 1,
-                lineColor: "#dee2e6",
-                includeZero: true
+                gridColor: "#e9ecef"
             },
             toolTip: {
-                shared: false,
-                backgroundColor: "rgba(255,255,255,0.98)",
-                borderColor: "#e9ecef",
-                borderThickness: 2,
-                cornerRadius: 6,
-                fontColor: "#495057",
-                fontSize: 14,
                 content: "<b>{label}</b><br/>Count: {y}"
             },
             data: [{
                 type: "column",
-                indexLabelFontSize: 10,
-                indexLabelPlacement: "outside",
-                indexLabelFontColor: "#495057",
-                dataPoints: JSON.parse('<?= json_encode($data) ?>'),
+                dataPoints: chartData
             }]
         });
 
