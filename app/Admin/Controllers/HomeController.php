@@ -744,34 +744,35 @@ class HomeController extends Controller
     {
         $dis = Farm::where([])
             ->orderBy('cattle_count', 'desc')
-            ->limit(30)
+            ->limit(15)
             ->get();
 
         // Define color palette for bars
         $colors = [
             "#5A8DEE", "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0",
-            "#9966FF", "#FF9F40", "#FF6384", "#C9CBCF", "#4BC0C0",
-            "#FF9F40", "#36A2EB", "#FFCE56", "#9966FF", "#5A8DEE",
-            "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF",
-            "#FF9F40", "#FF6384", "#C9CBCF", "#4BC0C0", "#FF9F40",
-            "#36A2EB", "#FFCE56", "#9966FF", "#5A8DEE", "#FF6384"
+            "#9966FF", "#FF9F40", "#E74C3C", "#2ECC71", "#3498DB",
+            "#F39C12", "#9B59B6", "#1ABC9C", "#E67E22", "#95A5A6"
         ];
 
         $data = [];
         $i = 0;
         $total = $dis->sum('cattle_count');
         foreach ($dis as $key => $value) {
-            $i++;
             $percent = 0;
             if ($total > 0) {
                 $percent = ($value->cattle_count / $total) * 100;
             }
             $percent = number_format($percent, 2);
+            
+            // Shorten the label - just use farm name without holding code
+            $farmName = strlen($value->name) > 25 ? substr($value->name, 0, 22) . '...' : $value->name;
+            
             $data[] = [
-                'label' => $i . ". " . $value->name . " - " . $value->holding_code,
-                'y' => $value->cattle_count,
-                'color' => $colors[$i - 1]
+                'label' => $farmName,
+                'y' => (int)$value->cattle_count,
+                'color' => $colors[$i]
             ];
+            $i++;
         }
 
         //reverse $data
@@ -779,7 +780,7 @@ class HomeController extends Controller
         return view('widgets.animals-by-farms', [
             'data' => $data,
             '_title' => 'Livestock Count by Farms',
-            '_subTitle' => 'Top 30 districts by number of farms.',
+            '_subTitle' => 'Top 15 farms by livestock count.',
         ]);
     }
 }
