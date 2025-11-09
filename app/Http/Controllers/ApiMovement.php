@@ -951,6 +951,63 @@ class ApiMovement extends Controller
         ]);
     }
 
+    public function butcher_users(Request $request)
+    {
+        try {
+            // Get the role slug from request, default to 'butchery'
+            $role_slug = $request->get('role_slug', 'butchery');
+            
+            // Get the roles table name
+            $roles_table = config('admin.database.roles_table', 'admin_roles');
+            $role_users_table = config('admin.database.role_users_table', 'admin_role_users');
+            $users_table = (new Administrator())->getTable();
+            
+            // First, get the role ID based on slug
+            $role = DB::table($roles_table)
+                ->where('slug', $role_slug)
+                ->first();
+            
+            if (!$role) {
+                return Utils::response([
+                    'status' => 0,
+                    'data' => [],
+                    'message' => "Role with slug '{$role_slug}' not found"
+                ]);
+            }
+            
+            // Get users with this role
+            $sql = "SELECT DISTINCT 
+                        u.id,
+                        u.name,
+                        u.phone_number,
+                        u.email,
+                        u.first_name,
+                        u.last_name,
+                        u.avatar,
+                        u.status
+                    FROM {$users_table} u
+                    INNER JOIN {$role_users_table} ru ON u.id = ru.user_id
+                    WHERE ru.role_id = ? 
+                    AND u.status = 'Active'
+                    ORDER BY u.name ASC";
+            
+            $data = DB::select($sql, [$role->id]);
+            
+            return Utils::response([
+                'status' => 1,
+                'data' => $data,
+                'message' => 'Success'
+            ]);
+            
+        } catch (\Exception $e) {
+            return Utils::response([
+                'status' => 0,
+                'data' => [],
+                'message' => 'Failed to fetch butcher users: ' . $e->getMessage()
+            ]);
+        }
+    }
+
     public function routes(Request $request)
     {
         $data = [];

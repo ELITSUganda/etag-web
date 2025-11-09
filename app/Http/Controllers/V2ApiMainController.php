@@ -1030,6 +1030,23 @@ class V2ApiMainController extends Controller
             return $this->error("Animal not found");
         }
 
+        // Load farm, district, and sub-county names
+        $farm = null;
+        $district = null;
+        $subCounty = null;
+        
+        if ($animal->farm_id > 0) {
+            $farm = \App\Models\Farm::find($animal->farm_id);
+        }
+        
+        if ($animal->district_id > 0) {
+            $district = \App\Models\Location::find($animal->district_id);
+        }
+        
+        if ($animal->sub_county_id > 0) {
+            $subCounty = \App\Models\Location::find($animal->sub_county_id);
+        }
+
         // Prepare comprehensive response
         $data = [
             // Basic Information
@@ -1057,11 +1074,11 @@ class V2ApiMainController extends Controller
             // Farm & Location
             'location' => [
                 'farm_id' => $animal->farm_id,
-                'farm_text' => $animal->farm_text,
+                'farm_text' => $farm ? $farm->name : ($animal->farm_text ?: $animal->lhc),
                 'district_id' => $animal->district_id,
-                'district_text' => $animal->district_text,
+                'district_text' => $district ? $district->name : $animal->district_text,
                 'sub_county_id' => $animal->sub_county_id,
-                'sub_county_text' => $animal->sub_county_text,
+                'sub_county_text' => $subCounty ? $subCounty->name : $animal->sub_county_text,
                 'group_id' => $animal->group_id,
                 'group_text' => $animal->group_text,
             ],

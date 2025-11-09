@@ -11,6 +11,7 @@ use App\Http\Controllers\ApiMovement;
 use App\Http\Controllers\ApiProductController;
 use App\Http\Controllers\ApiResurceController;
 use App\Http\Controllers\ApiShopController;
+use App\Http\Controllers\ApiUserManagementController;
 use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\UtilsController;
 use App\Http\Controllers\ApiUserController;
@@ -242,6 +243,7 @@ Route::get('movements', [ApiMovement::class, 'index']);
 Route::get('user-roles', [ApiMovement::class, 'user_roles']);
 Route::get('movement-routes', [ApiMovement::class, 'routes']);
 Route::get('system-users', [ApiMovement::class, 'system_users']);
+Route::get('butcher-users', [ApiMovement::class, 'butcher_users']);
 Route::get('vet-drugs', [ApiMovement::class, 'vet_drugs']);
 
 
@@ -278,6 +280,31 @@ Route::POST('login/create-account', [ApiLoginController::class, 'create_account'
 Route::get('dynamic-list', [ApiLoginController::class, 'dynamic_list']);
 // ========== lofin ends ============== //
 
+
+// ========== USER MANAGEMENT API - Comprehensive endpoints ============== //
+
+// Profile Management
+Route::get('user/profile', [ApiUserManagementController::class, 'getProfile']);
+Route::post('user/update-profile', [ApiUserManagementController::class, 'updateProfile']);
+Route::post('user/change-password', [ApiUserManagementController::class, 'changePassword']);
+
+// User Listing & Search
+Route::get('users/list', [ApiUserManagementController::class, 'listUsers']);
+Route::get('users/{id}', [ApiUserManagementController::class, 'getUserDetails']);
+Route::get('users/by-role/{roleSlug}', [ApiUserManagementController::class, 'getUsersByRole']);
+Route::get('users/statistics', [ApiUserManagementController::class, 'getUserStatistics']);
+
+// User Management (Admin functions)
+Route::post('users/{id}/status', [ApiUserManagementController::class, 'updateUserStatus']);
+Route::post('users/{id}/reset-password', [ApiUserManagementController::class, 'resetPassword']);
+
+// Role Management
+Route::get('roles/list', [ApiUserManagementController::class, 'listRoles']);
+Route::post('users/{id}/roles', [ApiUserManagementController::class, 'updateUserRoles']);
+Route::post('users/{id}/roles/add', [ApiUserManagementController::class, 'addRoleToUser']);
+Route::post('users/{id}/roles/remove', [ApiUserManagementController::class, 'removeRoleFromUser']);
+
+// ========== USER MANAGEMENT API ends ============== //
 
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
