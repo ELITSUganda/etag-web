@@ -50,70 +50,45 @@ $subTitle = isset($_subTitle) ? $_subTitle : 'As of November, 2017';
         }
 
         const chartInstance = new CanvasJS.Chart("animals-by-farms", {
-            theme: "light3",
+            theme: "light2",
             animationEnabled: true,
             animationDuration: 800,
             backgroundColor: "transparent",
             axisX: {
-                title: "Months",
-                titleFontSize: 14,
-                titleFontWeight: "600",
-                labelFontSize: 13,
-                labelFontColor: "#6c757d",
-                lineThickness: 0,
-                tickLength: 0,
-                margin: 12,
-                valueFormatString: "Q#",
-                interval: 1
+                interval: 1,
+                labelFontSize: 11,
+                labelFontColor: "#495057",
+                labelAngle: -45,
+                labelWrap: false,
+                lineThickness: 1,
+                lineColor: "#dee2e6"
             },
             axisY: {
-                title: "Marketplace Sales",
+                title: "Livestock Count",
                 titleFontSize: 14,
                 titleFontWeight: "600",
-                labelFontSize: 13,
-                labelFontColor: "#6c757d",
-                gridColor: "#f1f3f5",
+                labelFontSize: 12,
+                labelFontColor: "#495057",
+                gridColor: "#e9ecef",
+                gridThickness: 1,
                 lineColor: "#dee2e6",
-                includeZero: true,
-                margin: 20
+                includeZero: true
             },
             toolTip: {
-                shared: true,
+                shared: false,
                 backgroundColor: "rgba(255,255,255,0.98)",
                 borderColor: "#e9ecef",
                 borderThickness: 2,
                 cornerRadius: 6,
                 fontColor: "#495057",
                 fontSize: 14,
-                animationEnabled: false
-            },
-            legend: {
-                verticalAlign: "top",
-                horizontalAlign: "center",
-                fontSize: 14,
-                itemTextFormatter: e => e.dataSeries.name.replace(/([A-Z])/g, ' $1').trim()
-            },
-
-            backgroundColor: "transparent",
-            axisX: {
-                lineThickness: 0,
-                tickLength: 0,
-                labelFormatter: function(e) {
-                    return "";
-                }
-            },
-            axisY: {
-                lineThickness: 5,
-                gridThickness: 0,
-                tickLength: 1,
+                content: "<b>{label}</b><br/>Count: {y}"
             },
             data: [{
-                type: "bar",
-                startAngle: 40,
-                toolTipContent: "<b>{label}</b>: {y}",
-                indexLabelFontSize: 12,
-                indexLabel: "{label} ({y})",
-                labelFontSize: 20,
+                type: "column",
+                indexLabelFontSize: 10,
+                indexLabelPlacement: "outside",
+                indexLabelFontColor: "#495057",
                 dataPoints: JSON.parse('<?= json_encode($data) ?>'),
             }]
         });
