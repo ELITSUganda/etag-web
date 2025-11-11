@@ -1,0 +1,482 @@
+{
+	"info": {
+		"_postman_id": "animals-collection-002",
+		"name": "02 - Animals Management",
+		"description": "Complete animal management endpoints including creating, updating, listing, archiving animals, and change tags.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Animals List",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/animals?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["animals"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of all animals for the authenticated user"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Animals V2 (Detailed)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/animals-v2?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["animals-v2"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get detailed list of animals with additional information"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Animals Small (Minimal Data)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/animals-small?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["animals-small"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get minimal animal data for faster loading"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Animal by ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/animals/{{animal_id}}?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["animals", "{{animal_id}}"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get detailed information about a specific animal"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Animal",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    var jsonData = pm.response.json();",
+							"    if (jsonData.data && jsonData.data.id) {",
+							"        pm.environment.set('animal_id', jsonData.data.id);",
+							"    }",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"type\": \"Cattle\",\n    \"e_id\": \"UG001234567890\",\n    \"v_id\": \"VID123456\",\n    \"lhc\": \"LHC001\",\n    \"breed\": \"Ankole\",\n    \"sex\": \"Male\",\n    \"dob\": \"2020-01-15\",\n    \"color\": \"Brown\",\n    \"farm_id\": \"{{farm_id}}\",\n    \"details\": \"Healthy animal\",\n    \"status\": \"Active\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/animals",
+					"host": ["{{base_url}}"],
+					"path": ["animals"]
+				},
+				"description": "Create a new animal record. Animal ID is saved to environment on success."
+			},
+			"response": []
+		},
+		{
+			"name": "Update Animal",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"id\": \"{{animal_id}}\",\n    \"type\": \"Cattle\",\n    \"breed\": \"Friesian\",\n    \"color\": \"Black and White\",\n    \"details\": \"Updated information\",\n    \"status\": \"Active\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/animals-update",
+					"host": ["{{base_url}}"],
+					"path": ["animals-update"]
+				},
+				"description": "Update existing animal information"
+			},
+			"response": []
+		},
+		{
+			"name": "Change Animal Tag",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"new_e_id\": \"UG099999999999\",\n    \"new_v_id\": \"VID999999\",\n    \"reason\": \"Tag damaged or lost\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/change-tag/{{animal_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["change-tag", "{{animal_id}}"]
+				},
+				"description": "Change animal tag (E-ID or V-ID)"
+			},
+			"response": []
+		},
+		{
+			"name": "Archive Animal",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"reason\": \"Animal died\",\n    \"details\": \"Natural causes\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/archive-animal/{{animal_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["archive-animal", "{{animal_id}}"]
+				},
+				"description": "Archive an animal (death, sale, etc.)"
+			},
+			"response": []
+		},
+		{
+			"name": "Cancel Delete Request",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/cancel-delete-request/{{animal_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["cancel-delete-request", "{{animal_id}}"]
+				},
+				"description": "Cancel a pending animal deletion request"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Archived Animals",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/archived-animals?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["archived-animals"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of archived animals"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Sale",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"animal_id\": \"{{animal_id}}\",\n    \"buyer_name\": \"John Buyer\",\n    \"buyer_phone\": \"0700000001\",\n    \"price\": 1500000,\n    \"date\": \"2025-11-10\",\n    \"details\": \"Sale to local buyer\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/create-sale",
+					"host": ["{{base_url}}"],
+					"path": ["create-sale"]
+				},
+				"description": "Record animal sale transaction"
+			},
+			"response": []
+		},
+		{
+			"name": "Transfer Animal",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"to_farm_id\": \"2\",\n    \"reason\": \"Transfer to another farm\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/transfer-animal/{{animal_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["transfer-animal", "{{animal_id}}"]
+				},
+				"description": "Transfer animal to another farm"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Animal Images",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/images-v2?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["images-v2"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get all animal images"
+			},
+			"response": []
+		},
+		{
+			"name": "Upload Animal Media",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}",
+							"type": "text"
+						},
+						{
+							"key": "animal_id",
+							"value": "{{animal_id}}",
+							"type": "text"
+						},
+						{
+							"key": "photo",
+							"type": "file",
+							"src": []
+						},
+						{
+							"key": "type",
+							"value": "animal_image",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/post-media-upload",
+					"host": ["{{base_url}}"],
+					"path": ["post-media-upload"]
+				},
+				"description": "Upload animal photo/media"
+			},
+			"response": []
+		},
+		{
+			"name": "Upload Animal Media V2",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}",
+							"type": "text"
+						},
+						{
+							"key": "animal_id",
+							"value": "{{animal_id}}",
+							"type": "text"
+						},
+						{
+							"key": "photo",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/post-media-upload-v2",
+					"host": ["{{base_url}}"],
+					"path": ["post-media-upload-v2"]
+				},
+				"description": "Upload animal media (V2 endpoint)"
+			},
+			"response": []
+		},
+		{
+			"name": "V2 Post Media Upload",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}",
+							"type": "text"
+						},
+						{
+							"key": "parent_id",
+							"value": "{{animal_id}}",
+							"type": "text"
+						},
+						{
+							"key": "photo",
+							"type": "file",
+							"src": []
+						},
+						{
+							"key": "type",
+							"value": "animal",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/v2-post-media-upload",
+					"host": ["{{base_url}}"],
+					"path": ["v2-post-media-upload"]
+				},
+				"description": "Upload media for animals or other entities (V2)"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Photo Downloads",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/photos-downloads?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["photos-downloads"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of photo downloads"
+			},
+			"response": []
+		},
+		{
+			"name": "Connect Parent Animal",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"animal_id\": \"{{animal_id}}\",\n    \"parent_id\": \"2\",\n    \"parent_type\": \"Father\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/animal-connect-parent",
+					"host": ["{{base_url}}"],
+					"path": ["animal-connect-parent"]
+				},
+				"description": "Connect parent animal (mother or father) to offspring"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Transporters",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/transporters-v2?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["transporters-v2"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of animal transporters"
+			},
+			"response": []
+		}
+	]
+}

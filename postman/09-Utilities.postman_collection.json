@@ -1,0 +1,494 @@
+{
+	"info": {
+		"_postman_id": "utilities-collection-009",
+		"name": "09 - Utilities & Reference Data",
+		"description": "Locations, districts, sub-counties, diseases, AJAX endpoints, notifications, and other utility endpoints.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Locations",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/locations?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["locations"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of all locations (districts, sub-counties, parishes)"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Sub Counties",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/sub_counties?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["sub_counties"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of sub-counties"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Districts",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/districts?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["districts"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of districts"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Parishes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/parishes?administrator_id={{administrator_id}}&sub_county_id=1",
+					"host": ["{{base_url}}"],
+					"path": ["parishes"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						},
+						{
+							"key": "sub_county_id",
+							"value": "1"
+						}
+					]
+				},
+				"description": "Get parishes for a specific sub-county"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Diseases",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/diseases?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["diseases"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of animal diseases"
+			},
+			"response": []
+		},
+		{
+			"name": "AJAX Search - Animals",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/ajax-animals?q=UG001&administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["ajax-animals"],
+					"query": [
+						{
+							"key": "q",
+							"value": "UG001"
+						},
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Search animals by E-ID or V-ID (AJAX autocomplete)"
+			},
+			"response": []
+		},
+		{
+			"name": "AJAX Search - Farms",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/ajax-farms?q=FRM",
+					"host": ["{{base_url}}"],
+					"path": ["ajax-farms"],
+					"query": [
+						{
+							"key": "q",
+							"value": "FRM"
+						}
+					]
+				},
+				"description": "Search farms by holding code (AJAX autocomplete)"
+			},
+			"response": []
+		},
+		{
+			"name": "AJAX Search - Users",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/ajax-users?q=John",
+					"host": ["{{base_url}}"],
+					"path": ["ajax-users"],
+					"query": [
+						{
+							"key": "q",
+							"value": "John"
+						}
+					]
+				},
+				"description": "Search users by name (AJAX autocomplete)"
+			},
+			"response": []
+		},
+		{
+			"name": "AJAX Search - Sub Counties",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/sub-counties?q=Kampala",
+					"host": ["{{base_url}}"],
+					"path": ["sub-counties"],
+					"query": [
+						{
+							"key": "q",
+							"value": "Kampala"
+						}
+					]
+				},
+				"description": "Search sub-counties (AJAX autocomplete)"
+			},
+			"response": []
+		},
+		{
+			"name": "AJAX Search - Districts",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/districts?q=Kampala",
+					"host": ["{{base_url}}"],
+					"path": ["districts"],
+					"query": [
+						{
+							"key": "q",
+							"value": "Kampala"
+						}
+					]
+				},
+				"description": "Search districts (AJAX autocomplete)"
+			},
+			"response": []
+		},
+		{
+			"name": "AJAX Search - Wholesalers",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/wholesellers?q=0700",
+					"host": ["{{base_url}}"],
+					"path": ["wholesellers"],
+					"query": [
+						{
+							"key": "q",
+							"value": "0700"
+						}
+					]
+				},
+				"description": "Search drug wholesalers (AJAX autocomplete)"
+			},
+			"response": []
+		},
+		{
+			"name": "AJAX Generic Search",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/ajax?model=Farm&search_by_1=name&search_by_2=holding_code&q=Green",
+					"host": ["{{base_url}}"],
+					"path": ["ajax"],
+					"query": [
+						{
+							"key": "model",
+							"value": "Farm"
+						},
+						{
+							"key": "search_by_1",
+							"value": "name"
+						},
+						{
+							"key": "search_by_2",
+							"value": "holding_code"
+						},
+						{
+							"key": "q",
+							"value": "Green"
+						}
+					]
+				},
+				"description": "Generic AJAX search for any model"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Notifications",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/notifications?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["notifications"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get user notifications"
+			},
+			"response": []
+		},
+		{
+			"name": "Mark Notification as Read",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"id\": \"1\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/notifications-read",
+					"host": ["{{base_url}}"],
+					"path": ["notifications-read"]
+				},
+				"description": "Mark a notification as read"
+			},
+			"response": []
+		},
+		{
+			"name": "Dynamic List (Generic Endpoint)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/dynamic-list?administrator_id={{administrator_id}}&model=Animal&page=1&per_page=20",
+					"host": ["{{base_url}}"],
+					"path": ["dynamic-list"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						},
+						{
+							"key": "model",
+							"value": "Animal"
+						},
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "per_page",
+							"value": "20"
+						}
+					]
+				},
+				"description": "Generic dynamic list endpoint for any model with pagination"
+			},
+			"response": []
+		},
+		{
+			"name": "Generic API Resource - GET",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/Animal?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["api", "Animal"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Generic GET endpoint for any model (replace 'Animal' with your model name)"
+			},
+			"response": []
+		},
+		{
+			"name": "Generic API Resource - POST",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"field1\": \"value1\",\n    \"field2\": \"value2\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/ModelName",
+					"host": ["{{base_url}}"],
+					"path": ["api", "ModelName"]
+				},
+				"description": "Generic POST endpoint to create records"
+			},
+			"response": []
+		},
+		{
+			"name": "Generic API Resource - PUT",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"id\": \"1\",\n    \"field1\": \"updated_value\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/ModelName",
+					"host": ["{{base_url}}"],
+					"path": ["api", "ModelName"]
+				},
+				"description": "Generic PUT endpoint to update records"
+			},
+			"response": []
+		},
+		{
+			"name": "Generic API Resource - DELETE",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"id\": \"1\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/ModelName",
+					"host": ["{{base_url}}"],
+					"path": ["api", "ModelName"]
+				},
+				"description": "Generic DELETE endpoint to delete records"
+			},
+			"response": []
+		},
+		{
+			"name": "Save Drug Dosage",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"drug_name\": \"Ivermectin\",\n    \"animal_type\": \"Cattle\",\n    \"dosage\": \"1ml per 50kg\",\n    \"frequency\": \"Once\",\n    \"notes\": \"Administer subcutaneously\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/drug-dosages",
+					"host": ["{{base_url}}"],
+					"path": ["drug-dosages"]
+				},
+				"description": "Save a drug dosage guideline"
+			},
+			"response": []
+		},
+		{
+			"name": "Test OneSignal",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"user_id\": \"{{administrator_id}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/test-onesignal",
+					"host": ["{{base_url}}"],
+					"path": ["test-onesignal"]
+				},
+				"description": "Test OneSignal notification connection"
+			},
+			"response": []
+		},
+		{
+			"name": "Process Pending Images",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/process-pending-images",
+					"host": ["{{base_url}}"],
+					"path": ["process-pending-images"]
+				},
+				"description": "Process pending image uploads (background job)"
+			},
+			"response": []
+		}
+	]
+}

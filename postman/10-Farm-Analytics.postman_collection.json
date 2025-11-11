@@ -1,0 +1,346 @@
+{
+	"info": {
+		"_postman_id": "farm-analytics-collection-010",
+		"name": "10 - Farm Analytics & Dashboard",
+		"description": "Dashboard KPIs, farm analytics, graphs, and reporting endpoints for data visualization.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Dashboard KPIs",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/dashboard-kpis?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["dashboard-kpis"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get dashboard key performance indicators: total animals, farms, movement permits, products, etc."
+			},
+			"response": []
+		},
+		{
+			"name": "Dashboard Graphs",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/dashboard-graphs?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["dashboard-graphs"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get dashboard graphs data: animals by type, events timeline, movement trends, vaccination schedules"
+			},
+			"response": []
+		},
+		{
+			"name": "Farm Analytics Report",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/farm-analytics?farm_id=1&administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["farm-analytics"],
+					"query": [
+						{
+							"key": "farm_id",
+							"value": "1"
+						},
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get comprehensive analytics for a specific farm including animal counts, health status, production metrics"
+			},
+			"response": []
+		},
+		{
+			"name": "Animals Growth Trend",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/analytics/animals-growth?administrator_id={{administrator_id}}&period=monthly",
+					"host": ["{{base_url}}"],
+					"path": ["analytics", "animals-growth"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						},
+						{
+							"key": "period",
+							"value": "monthly",
+							"description": "Options: daily, weekly, monthly, yearly"
+						}
+					]
+				},
+				"description": "Get animal growth trend over time (registrations, births, deaths, transfers)"
+			},
+			"response": []
+		},
+		{
+			"name": "Movement Statistics",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/analytics/movement-stats?administrator_id={{administrator_id}}&start_date=2024-01-01&end_date=2024-12-31",
+					"host": ["{{base_url}}"],
+					"path": ["analytics", "movement-stats"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						},
+						{
+							"key": "start_date",
+							"value": "2024-01-01"
+						},
+						{
+							"key": "end_date",
+							"value": "2024-12-31"
+						}
+					]
+				},
+				"description": "Get movement permit statistics within date range"
+			},
+			"response": []
+		},
+		{
+			"name": "Health Events Summary",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/analytics/health-events?administrator_id={{administrator_id}}&farm_id=1",
+					"host": ["{{base_url}}"],
+					"path": ["analytics", "health-events"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						},
+						{
+							"key": "farm_id",
+							"value": "1",
+							"description": "Optional: filter by farm"
+						}
+					]
+				},
+				"description": "Get summary of health events: treatments, diseases, vaccinations by type and date"
+			},
+			"response": []
+		},
+		{
+			"name": "Vaccination Coverage Report",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/analytics/vaccination-coverage?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["analytics", "vaccination-coverage"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get vaccination coverage statistics: percentage vaccinated, upcoming schedules, overdue vaccinations"
+			},
+			"response": []
+		},
+		{
+			"name": "Financial Analytics",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/analytics/financial?administrator_id={{administrator_id}}&period=monthly",
+					"host": ["{{base_url}}"],
+					"path": ["analytics", "financial"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						},
+						{
+							"key": "period",
+							"value": "monthly"
+						}
+					]
+				},
+				"description": "Get financial analytics: revenue from product sales, expenses on drugs, services revenue"
+			},
+			"response": []
+		},
+		{
+			"name": "Slaughter Analytics",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/analytics/slaughter?administrator_id={{administrator_id}}&start_date=2024-01-01&end_date=2024-12-31",
+					"host": ["{{base_url}}"],
+					"path": ["analytics", "slaughter"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						},
+						{
+							"key": "start_date",
+							"value": "2024-01-01"
+						},
+						{
+							"key": "end_date",
+							"value": "2024-12-31"
+						}
+					]
+				},
+				"description": "Get slaughter analytics: total slaughtered, meat distribution, carcass weights, revenue"
+			},
+			"response": []
+		},
+		{
+			"name": "Farm Performance Comparison",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/analytics/farm-comparison?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["analytics", "farm-comparison"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Compare performance across multiple farms: animal counts, health status, productivity metrics"
+			},
+			"response": []
+		},
+		{
+			"name": "Top Performing Farms",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/analytics/top-farms?administrator_id={{administrator_id}}&limit=10&sort_by=animal_count",
+					"host": ["{{base_url}}"],
+					"path": ["analytics", "top-farms"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						},
+						{
+							"key": "limit",
+							"value": "10"
+						},
+						{
+							"key": "sort_by",
+							"value": "animal_count",
+							"description": "Options: animal_count, production, health_status"
+						}
+					]
+				},
+				"description": "Get top performing farms based on selected criteria"
+			},
+			"response": []
+		},
+		{
+			"name": "Disease Outbreak Tracking",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/analytics/disease-outbreaks?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["analytics", "disease-outbreaks"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Track disease outbreaks: affected animals, locations, trends, containment status"
+			},
+			"response": []
+		},
+		{
+			"name": "Export Analytics Data (Excel)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/analytics/export?administrator_id={{administrator_id}}&type=dashboard&format=excel",
+					"host": ["{{base_url}}"],
+					"path": ["analytics", "export"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						},
+						{
+							"key": "type",
+							"value": "dashboard",
+							"description": "Options: dashboard, farm, movement, health, financial"
+						},
+						{
+							"key": "format",
+							"value": "excel",
+							"description": "Options: excel, pdf, csv"
+						}
+					]
+				},
+				"description": "Export analytics data in various formats (Excel, PDF, CSV)"
+			},
+			"response": []
+		},
+		{
+			"name": "Generate Custom Report",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"report_type\": \"custom\",\n    \"metrics\": [\"animal_count\", \"health_events\", \"movements\"],\n    \"start_date\": \"2024-01-01\",\n    \"end_date\": \"2024-12-31\",\n    \"filters\": {\n        \"animal_type\": \"Cattle\",\n        \"district_id\": \"1\"\n    },\n    \"group_by\": \"month\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/analytics/custom-report",
+					"host": ["{{base_url}}"],
+					"path": ["analytics", "custom-report"]
+				},
+				"description": "Generate a custom analytics report with specific metrics and filters"
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,430 @@
+{
+	"info": {
+		"_postman_id": "farms-collection-003",
+		"name": "03 - Farms Management",
+		"description": "Farm management endpoints including creating farms, updating GPS coordinates, farm reports, and managing farm details.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Farms List",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/farms?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["farms"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of all farms for the authenticated user"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Farm by ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/farms/{{farm_id}}?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["farms", "{{farm_id}}"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get detailed information about a specific farm"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Farm",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    var jsonData = pm.response.json();",
+							"    if (jsonData.data && jsonData.data.id) {",
+							"        pm.environment.set('farm_id', jsonData.data.id);",
+							"    }",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"name\": \"Green Valley Farm\",\n    \"size\": \"50 Acres\",\n    \"location_id\": \"1\",\n    \"sub_county_id\": \"1\",\n    \"parish_id\": \"1\",\n    \"village\": \"Nakasongola\",\n    \"address\": \"Plot 123, Main Road\",\n    \"holding_code\": \"UG-FRM-001\",\n    \"latitude\": \"0.3476\",\n    \"longitude\": \"32.5825\",\n    \"details\": \"Mixed farming with cattle and crops\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/farms",
+					"host": ["{{base_url}}"],
+					"path": ["farms"]
+				},
+				"description": "Create a new farm. Farm ID is saved to environment on success."
+			},
+			"response": []
+		},
+		{
+			"name": "V2 Create Farm",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"name\": \"Modern Dairy Farm\",\n    \"size\": \"100 Acres\",\n    \"sub_county_id\": \"1\",\n    \"village\": \"Kampala\",\n    \"holding_code\": \"UG-FRM-002\",\n    \"gps_latitude\": \"0.3476\",\n    \"gps_longitude\": \"32.5825\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/v2-farms-create",
+					"host": ["{{base_url}}"],
+					"path": ["v2-farms-create"]
+				},
+				"description": "Create farm using V2 endpoint"
+			},
+			"response": []
+		},
+		{
+			"name": "Update Farm GPS",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"farm_id\": \"{{farm_id}}\",\n    \"latitude\": \"0.3500\",\n    \"longitude\": \"32.5900\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/farms-gps-update",
+					"host": ["{{base_url}}"],
+					"path": ["farms-gps-update"]
+				},
+				"description": "Update farm GPS coordinates"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Farm Reports",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/v2-farm-reports?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["v2-farm-reports"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of farm reports"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Farm Report",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"farm_id\": \"{{farm_id}}\",\n    \"start_date\": \"2025-11-01\",\n    \"end_date\": \"2025-11-10\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/v2-farm-report-create",
+					"host": ["{{base_url}}"],
+					"path": ["v2-farm-report-create"]
+				},
+				"description": "Create a farm report for a specific date range (minimum 3 days)"
+			},
+			"response": []
+		},
+		{
+			"name": "Get My Drugs",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/my-drugs?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["my-drugs"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get drugs inventory for user's farms"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Groups",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/groups?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["groups"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get farm animal groups"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Group",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"name\": \"Dairy Cows Group A\",\n    \"farm_id\": \"{{farm_id}}\",\n    \"description\": \"High producing dairy cows\",\n    \"animal_ids\": [1, 2, 3, 4]\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/group-create",
+					"host": ["{{base_url}}"],
+					"path": ["group-create"]
+				},
+				"description": "Create a new animal group"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Roll Calls",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/roll-calls?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["roll-calls"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get farm roll call records"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Daily Milk Records",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/daily-milk-records?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["daily-milk-records"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get daily milk production records"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Milk Records",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/milk?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["milk"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get milk production records"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Manifest",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/manifest?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["manifest"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get farm manifest data"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Workers",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/workers?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["workers"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get farm workers list"
+			},
+			"response": []
+		},
+		{
+			"name": "Register Worker",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"name\": \"John Worker\",\n    \"phone_number\": \"0700000002\",\n    \"password\": \"worker123\",\n    \"role\": \"Farm Manager\",\n    \"farm_id\": \"{{farm_id}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/workers-register",
+					"host": ["{{base_url}}"],
+					"path": ["workers-register"]
+				},
+				"description": "Register a new farm worker"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Worker",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"worker_id\": \"5\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/workers-delete",
+					"host": ["{{base_url}}"],
+					"path": ["workers-delete"]
+				},
+				"description": "Delete a farm worker"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Personal Settings",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/v2-personal-settings?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["v2-personal-settings"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get user's personal settings"
+			},
+			"response": []
+		},
+		{
+			"name": "Update Personal Settings",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"language\": \"en\",\n    \"notifications_enabled\": true,\n    \"theme\": \"light\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/v2-personal-settings",
+					"host": ["{{base_url}}"],
+					"path": ["v2-personal-settings"]
+				},
+				"description": "Update user's personal settings"
+			},
+			"response": []
+		}
+	]
+}

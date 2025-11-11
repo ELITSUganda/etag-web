@@ -1,0 +1,616 @@
+{
+	"info": {
+		"_postman_id": "products-collection-006",
+		"name": "06 - Products, Shop & Orders",
+		"description": "Marketplace products, orders, drugs/veterinary products, payments, and shop management.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Products",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/products?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["products"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of all products in the marketplace"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Product",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"name\": \"Friesian Bull\",\n    \"category\": \"Livestock\",\n    \"price\": 2500000,\n    \"description\": \"Healthy 2-year-old bull\",\n    \"location\": \"Kampala\",\n    \"quantity\": 1\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/product-create",
+					"host": ["{{base_url}}"],
+					"path": ["product-create"]
+				},
+				"description": "Create a new product listing"
+			},
+			"response": []
+		},
+		{
+			"name": "Upload Product",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"name\": \"Dairy Cow\",\n    \"price\": 3000000,\n    \"description\": \"High milk producing cow\",\n    \"category_id\": \"1\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/product-upload",
+					"host": ["{{base_url}}"],
+					"path": ["product-upload"]
+				},
+				"description": "Upload a product (alternative endpoint)"
+			},
+			"response": []
+		},
+		{
+			"name": "Upload Product Image",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}",
+							"type": "text"
+						},
+						{
+							"key": "product_id",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "photo",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/product-image-upload",
+					"host": ["{{base_url}}"],
+					"path": ["product-image-upload"]
+				},
+				"description": "Upload product image"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Product",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"product_id\": \"1\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/products-delete",
+					"host": ["{{base_url}}"],
+					"path": ["products-delete"]
+				},
+				"description": "Delete a product"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Product Request",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"product_name\": \"Ankole Cow\",\n    \"quantity\": \"1\",\n    \"description\": \"Looking for pure Ankole breed\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/products-create-request",
+					"host": ["{{base_url}}"],
+					"path": ["products-create-request"]
+				},
+				"description": "Create a product purchase request"
+			},
+			"response": []
+		},
+		{
+			"name": "Decline Product Request",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"request_id\": \"1\",\n    \"reason\": \"Product not available\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/products-decline-request",
+					"host": ["{{base_url}}"],
+					"path": ["products-decline-request"]
+				},
+				"description": "Decline a product request"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Vet Drugs",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/vet-drugs?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["vet-drugs"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of veterinary drugs"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Product Drugs",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/product-drugs?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["product-drugs"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of drug products"
+			},
+			"response": []
+		},
+		{
+			"name": "Upload Drug Product",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"name\": \"Ivermectin 1%\",\n    \"category_id\": \"1\",\n    \"price\": 25000,\n    \"description\": \"Antiparasitic drug\",\n    \"quantity_in_stock\": 50\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/product-drugs-upload",
+					"host": ["{{base_url}}"],
+					"path": ["product-drugs-upload"]
+				},
+				"description": "Upload a drug product"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Drug Product",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"name\": \"Penicillin Injection\",\n    \"category_id\": \"1\",\n    \"unit_price\": 15000,\n    \"description\": \"Antibiotic for cattle\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/drug-product-create",
+					"host": ["{{base_url}}"],
+					"path": ["drug-product-create"]
+				},
+				"description": "Create a drug product"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Drug Categories",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/drug-categories?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["drug-categories"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get drug categories"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Drug Category",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"name\": \"Antibiotics\",\n    \"description\": \"Antibiotic medications for livestock\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/drug-categories",
+					"host": ["{{base_url}}"],
+					"path": ["drug-categories"]
+				},
+				"description": "Create a drug category"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Orders",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/orders?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["orders"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of all orders"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Product Order",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"product_id\": \"1\",\n    \"quantity\": \"1\",\n    \"delivery_address\": \"Kampala, Uganda\",\n    \"phone_number\": \"{{phone_number}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/product-order",
+					"host": ["{{base_url}}"],
+					"path": ["product-order"]
+				},
+				"description": "Create a product order"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Drugs Order",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"drug_id\": \"1\",\n    \"quantity\": \"10\",\n    \"delivery_address\": \"Farm location\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/drugs-order",
+					"host": ["{{base_url}}"],
+					"path": ["drugs-order"]
+				},
+				"description": "Create a drug order"
+			},
+			"response": []
+		},
+		{
+			"name": "Generate Payment Link",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"order_id\": \"1\",\n    \"phone_number\": \"{{phone_number}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/product-order-payment-link-create",
+					"host": ["{{base_url}}"],
+					"path": ["product-order-payment-link-create"]
+				},
+				"description": "Generate payment link for product order"
+			},
+			"response": []
+		},
+		{
+			"name": "Verify Product Order Payment",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"order_id\": \"1\",\n    \"transaction_id\": \"TXN123456\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/product-order-verify",
+					"host": ["{{base_url}}"],
+					"path": ["product-order-verify"]
+				},
+				"description": "Verify payment for product order"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Finance Categories",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/fiance-categories?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["fiance-categories"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get finance categories"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Finance Category",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"name\": \"Feed Purchase\",\n    \"type\": \"Expense\",\n    \"description\": \"Animal feed expenses\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/finance-categories",
+					"host": ["{{base_url}}"],
+					"path": ["finance-categories"]
+				},
+				"description": "Create a finance category"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Finance Report",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/fiance-report?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["fiance-report"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get financial report"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Reports",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/reports?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["reports"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get various reports"
+			},
+			"response": []
+		},
+		{
+			"name": "Become Vendor",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"business_name\": \"Green Farm Supplies\",\n    \"business_address\": \"Kampala\",\n    \"business_phone\": \"{{phone_number}}\",\n    \"business_license\": \"BL123456\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/become-vendor",
+					"host": ["{{base_url}}"],
+					"path": ["become-vendor"]
+				},
+				"description": "Register as a vendor/seller"
+			},
+			"response": []
+		},
+		{
+			"name": "Chat Send Message",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"receiver_id\": \"2\",\n    \"message\": \"Is the product still available?\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/chat-send",
+					"host": ["{{base_url}}"],
+					"path": ["chat-send"]
+				},
+				"description": "Send a chat message"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Chat Heads",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/chat-heads?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["chat-heads"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of chat conversations"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Chat Messages",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/chat-messages?administrator_id={{administrator_id}}&chat_head_id=1",
+					"host": ["{{base_url}}"],
+					"path": ["chat-messages"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						},
+						{
+							"key": "chat_head_id",
+							"value": "1"
+						}
+					]
+				},
+				"description": "Get messages in a conversation"
+			},
+			"response": []
+		},
+		{
+			"name": "Mark Chat as Read",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"chat_head_id\": \"1\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/chat-mark-as-read",
+					"host": ["{{base_url}}"],
+					"path": ["chat-mark-as-read"]
+				},
+				"description": "Mark chat messages as read"
+			},
+			"response": []
+		}
+	]
+}

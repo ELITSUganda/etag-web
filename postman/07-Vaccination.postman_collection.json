@@ -1,0 +1,259 @@
+{
+	"info": {
+		"_postman_id": "vaccination-collection-007",
+		"name": "07 - Vaccination Management",
+		"description": "Vaccination programs, schedules, orders, district vaccine stocks, and vaccination records.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Vaccination Programs",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/vaccination-programs?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["vaccination-programs"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of vaccination programs"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Vaccination Program",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"name\": \"FMD Vaccination Campaign 2025\",\n    \"disease\": \"Foot and Mouth Disease\",\n    \"vaccine_name\": \"FMD Vaccine\",\n    \"start_date\": \"2025-12-01\",\n    \"end_date\": \"2025-12-31\",\n    \"target_animals\": 1000,\n    \"description\": \"Annual FMD vaccination\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/create-vaccination-programs",
+					"host": ["{{base_url}}"],
+					"path": ["create-vaccination-programs"]
+				},
+				"description": "Create a new vaccination program"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Vaccination Schedules",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/vaccination-schedules-list?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["vaccination-schedules-list"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of vaccination schedules"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Vaccination Schedule",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"program_id\": \"1\",\n    \"farm_id\": \"{{farm_id}}\",\n    \"scheduled_date\": \"2025-12-05\",\n    \"vet_id\": \"2\",\n    \"notes\": \"Morning session\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/create-vaccination-schedules",
+					"host": ["{{base_url}}"],
+					"path": ["create-vaccination-schedules"]
+				},
+				"description": "Create a vaccination schedule"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Farm Vaccination Records",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/farm-vaccination-records?administrator_id={{administrator_id}}&farm_id={{farm_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["farm-vaccination-records"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						},
+						{
+							"key": "farm_id",
+							"value": "{{farm_id}}"
+						}
+					]
+				},
+				"description": "Get vaccination records for a specific farm"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Farm Vaccination Record",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"farm_id\": \"{{farm_id}}\",\n    \"program_id\": \"1\",\n    \"animal_id\": \"{{animal_id}}\",\n    \"vaccine_name\": \"FMD Vaccine\",\n    \"vaccination_date\": \"2025-11-10\",\n    \"dose\": \"2ml\",\n    \"batch_number\": \"BATCH001\",\n    \"vet_name\": \"Dr. John Vet\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/farm-vaccination-records-create",
+					"host": ["{{base_url}}"],
+					"path": ["farm-vaccination-records-create"]
+				},
+				"description": "Create a farm vaccination record"
+			},
+			"response": []
+		},
+		{
+			"name": "Submit Vaccination Session",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"schedule_id\": \"1\",\n    \"animals_vaccinated\": 50,\n    \"vaccines_used\": 50,\n    \"session_notes\": \"All animals vaccinated successfully\",\n    \"completion_date\": \"2025-11-10\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/vaccination-session-submit",
+					"host": ["{{base_url}}"],
+					"path": ["vaccination-session-submit"]
+				},
+				"description": "Submit vaccination session report"
+			},
+			"response": []
+		},
+		{
+			"name": "Get District Vaccine Stocks",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/district-vaccine-stocks?administrator_id={{administrator_id}}&district_id=1",
+					"host": ["{{base_url}}"],
+					"path": ["district-vaccine-stocks"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						},
+						{
+							"key": "district_id",
+							"value": "1"
+						}
+					]
+				},
+				"description": "Get vaccine stock levels for a district"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Vaccination Order",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"vaccine_name\": \"Anthrax Vaccine\",\n    \"quantity\": 100,\n    \"farm_id\": \"{{farm_id}}\",\n    \"delivery_address\": \"Farm location\",\n    \"phone_number\": \"{{phone_number}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/vaccination-order-create",
+					"host": ["{{base_url}}"],
+					"path": ["vaccination-order-create"]
+				},
+				"description": "Create a vaccination order"
+			},
+			"response": []
+		},
+		{
+			"name": "Generate Vaccination Payment Link",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"order_id\": \"1\",\n    \"phone_number\": \"{{phone_number}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/vaccination-product-order-payment-link-create",
+					"host": ["{{base_url}}"],
+					"path": ["vaccination-product-order-payment-link-create"]
+				},
+				"description": "Generate payment link for vaccination order"
+			},
+			"response": []
+		},
+		{
+			"name": "Verify Vaccination Order Payment",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"order_id\": \"1\",\n    \"transaction_id\": \"TXN789456\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/vaccination-order-verify",
+					"host": ["{{base_url}}"],
+					"path": ["vaccination-order-verify"]
+				},
+				"description": "Verify payment for vaccination order"
+			},
+			"response": []
+		}
+	]
+}

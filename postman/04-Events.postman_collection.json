@@ -1,0 +1,342 @@
+{
+	"info": {
+		"_postman_id": "events-collection-004",
+		"name": "04 - Animal Events & Records",
+		"description": "Animal events including treatments, vaccinations, weight records, breeding, disease reports, and all health-related activities.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Events List",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/events?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["events"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of all animal events"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Events V2",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/events-v2?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["events-v2"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get events with more details (V2)"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Events V3",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/events-v3?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["events-v3"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get events with enhanced data (V3)"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Events V4 (Memory Optimized)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/events-v4?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["events-v4"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Memory-optimized endpoint (max 500 records)"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Events Paginated",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/events-paginated?administrator_id={{administrator_id}}&page=1&per_page=50",
+					"host": ["{{base_url}}"],
+					"path": ["events-paginated"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						},
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "per_page",
+							"value": "50"
+						}
+					]
+				},
+				"description": "Get events with pagination, search and filters"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Event",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"animal_id\": \"{{animal_id}}\",\n    \"type\": \"Treatment\",\n    \"disease\": \"Foot and Mouth Disease\",\n    \"medicine\": \"Penicillin\",\n    \"detail\": \"Animal treated for FMD\",\n    \"date\": \"2025-11-10\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/events",
+					"host": ["{{base_url}}"],
+					"path": ["events"]
+				},
+				"description": "Create a new animal event"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Event V2",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"animal_id\": \"{{animal_id}}\",\n    \"type\": \"Vaccination\",\n    \"vaccine_name\": \"Anthrax Vaccine\",\n    \"detail\": \"Annual vaccination\",\n    \"date\": \"2025-11-10\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/events-v2",
+					"host": ["{{base_url}}"],
+					"path": ["events-v2"]
+				},
+				"description": "Create event using V2 endpoint"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Event V3 (Animal Records)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"animal_id\": \"{{animal_id}}\",\n    \"type\": \"Weight\",\n    \"weight\": \"350\",\n    \"detail\": \"Monthly weight check\",\n    \"date\": \"2025-11-10\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/v3-animal-records",
+					"host": ["{{base_url}}"],
+					"path": ["v3-animal-records"]
+				},
+				"description": "Create animal record (V3) - weight, treatment, etc."
+			},
+			"response": []
+		},
+		{
+			"name": "Create Batch Events",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"events\": [\n        {\n            \"animal_id\": \"1\",\n            \"type\": \"Vaccination\",\n            \"vaccine_name\": \"Anthrax\",\n            \"date\": \"2025-11-10\"\n        },\n        {\n            \"animal_id\": \"2\",\n            \"type\": \"Vaccination\",\n            \"vaccine_name\": \"Anthrax\",\n            \"date\": \"2025-11-10\"\n        }\n    ]\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/batch-events",
+					"host": ["{{base_url}}"],
+					"path": ["batch-events"]
+				},
+				"description": "Create multiple events at once"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Batch Events V2",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"animal_ids\": [\"1\", \"2\", \"3\"],\n    \"type\": \"Deworming\",\n    \"medicine\": \"Albendazole\",\n    \"date\": \"2025-11-10\",\n    \"detail\": \"Regular deworming\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/batch-events-create",
+					"host": ["{{base_url}}"],
+					"path": ["batch-events-create"]
+				},
+				"description": "Create batch events for multiple animals (V2)"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Drug Reports",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/drug-reports?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["drug-reports"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get drug usage reports"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Drug Report",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"animal_id\": \"{{animal_id}}\",\n    \"drug_name\": \"Ivermectin\",\n    \"quantity\": \"10ml\",\n    \"date\": \"2025-11-10\",\n    \"reason\": \"Parasite treatment\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/drug-report-create",
+					"host": ["{{base_url}}"],
+					"path": ["drug-report-create"]
+				},
+				"description": "Create a drug usage report"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Pregnant Animals",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/v2-pregnant-animals?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["v2-pregnant-animals"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of pregnant animals"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Pregnant Animal Record",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"animal_id\": \"{{animal_id}}\",\n    \"breeding_date\": \"2025-08-10\",\n    \"expected_delivery_date\": \"2026-05-10\",\n    \"breeding_method\": \"Natural\",\n    \"sire_id\": \"2\",\n    \"notes\": \"First pregnancy\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/v2-pregnant-animals-create",
+					"host": ["{{base_url}}"],
+					"path": ["v2-pregnant-animals-create"]
+				},
+				"description": "Record a pregnant animal"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Animals V2 (Create Animals)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"type\": \"Cattle\",\n    \"e_id\": \"UG111222333444\",\n    \"v_id\": \"VID777\",\n    \"breed\": \"Friesian\",\n    \"sex\": \"Female\",\n    \"dob\": \"2023-05-15\",\n    \"farm_id\": \"{{farm_id}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/v2-animals-create",
+					"host": ["{{base_url}}"],
+					"path": ["v2-animals-create"]
+				},
+				"description": "Create animal using V2 endpoint"
+			},
+			"response": []
+		}
+	]
+}

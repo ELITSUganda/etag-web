@@ -1,0 +1,209 @@
+{
+	"info": {
+		"_postman_id": "slaughter-collection-008",
+		"name": "08 - Slaughter Management",
+		"description": "Slaughter houses, slaughter records, carcass distribution, and meat traceability.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Slaughter Houses",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/slaughter-houses?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["slaughter-houses"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of registered slaughter houses"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Slaughter Records",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/slaughters?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["slaughters"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of slaughter records"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Slaughter Record (Batch)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"slaughter_house_id\": \"1\",\n    \"animal_ids\": [\"1\", \"2\", \"3\"],\n    \"slaughter_date\": \"2025-11-10\",\n    \"inspector_name\": \"Dr. Smith\",\n    \"inspector_license\": \"INS123\",\n    \"notes\": \"All animals passed inspection\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/create-slaughter",
+					"host": ["{{base_url}}"],
+					"path": ["create-slaughter"]
+				},
+				"description": "Create slaughter records for multiple animals"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Slaughter Record (Single)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"slaughter_house_id\": \"1\",\n    \"animal_id\": \"{{animal_id}}\",\n    \"slaughter_date\": \"2025-11-10\",\n    \"carcass_weight\": \"250\",\n    \"meat_grade\": \"A\",\n    \"inspector_name\": \"Dr. Jane\",\n    \"inspection_status\": \"Passed\",\n    \"notes\": \"Healthy carcass\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/create-slaughter-single",
+					"host": ["{{base_url}}"],
+					"path": ["create-slaughter-single"]
+				},
+				"description": "Create a single slaughter record"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Cut by ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/cut-by-id?administrator_id={{administrator_id}}&slaughter_id=1",
+					"host": ["{{base_url}}"],
+					"path": ["cut-by-id"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						},
+						{
+							"key": "slaughter_id",
+							"value": "1"
+						}
+					]
+				},
+				"description": "Get meat cut details for a slaughter record"
+			},
+			"response": []
+		},
+		{
+			"name": "Assign Carcass Owner",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"slaughter_record_id\": \"1\",\n    \"owner_id\": \"2\",\n    \"owner_name\": \"John Butcher\",\n    \"owner_phone\": \"0700000005\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/slaughter-record-assign-carcus-owner",
+					"host": ["{{base_url}}"],
+					"path": ["slaughter-record-assign-carcus-owner"]
+				},
+				"description": "Assign carcass owner/buyer"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Slaughter Distributions",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/slaughter-distributions?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["slaughter-distributions"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get meat distribution records"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Slaughter Distribution Record",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"slaughter_record_id\": \"1\",\n    \"buyer_name\": \"ABC Butchery\",\n    \"buyer_phone\": \"0700000006\",\n    \"buyer_address\": \"Kampala\",\n    \"meat_weight\": \"50\",\n    \"price_per_kg\": 15000,\n    \"total_amount\": 750000,\n    \"distribution_date\": \"2025-11-10\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/create-slaughter-distribution-record",
+					"host": ["{{base_url}}"],
+					"path": ["create-slaughter-distribution-record"]
+				},
+				"description": "Create a meat distribution record"
+			},
+			"response": []
+		},
+		{
+			"name": "Slaughter Session",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"slaughter_house_id\": \"1\",\n    \"session_date\": \"2025-11-10\",\n    \"session_type\": \"Morning\",\n    \"inspector_id\": \"2\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/slaughter-session",
+					"host": ["{{base_url}}"],
+					"path": ["slaughter-session"]
+				},
+				"description": "Create or manage a slaughter session"
+			},
+			"response": []
+		}
+	]
+}

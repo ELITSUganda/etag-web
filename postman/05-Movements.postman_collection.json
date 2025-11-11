@@ -1,0 +1,317 @@
+{
+	"info": {
+		"_postman_id": "movements-collection-005",
+		"name": "05 - Movement Permits & Tracking",
+		"description": "Livestock movement permits (LMPR), transportation tracking, checkpoints, trips, and movement verification.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Movements List",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/movements?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["movements"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of all movement permits"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Movement by ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/movements/{{movement_id}}?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["movements", "{{movement_id}}"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get detailed information about a specific movement"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Movement Permit",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"from_farm_id\": \"{{farm_id}}\",\n    \"to_farm_id\": \"2\",\n    \"animal_ids\": [\"1\", \"2\", \"3\"],\n    \"vehicle_reg\": \"UAG 123A\",\n    \"driver_name\": \"John Driver\",\n    \"driver_phone\": \"0700000003\",\n    \"reason\": \"Sale to another farm\",\n    \"movement_date\": \"2025-11-12\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/movements",
+					"host": ["{{base_url}}"],
+					"path": ["movements"]
+				},
+				"description": "Create a new movement permit"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Movement V2",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"destination\": \"To slaughter\",\n    \"sub_county_from\": \"1\",\n    \"village_from\": \"Nakasongola\",\n    \"destination_slaughter_house\": \"1\",\n    \"transportation_route\": \"Kampala-Masaka Road\",\n    \"vehicle\": \"UAG 456B\",\n    \"transporter_name\": \"Jane Transport\",\n    \"transporter_nin\": \"CM9876543210ABC\",\n    \"transporter_Phone\": \"0700000004\",\n    \"animals\": [\"1\", \"2\"]\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/movements-v2",
+					"host": ["{{base_url}}"],
+					"path": ["movements-v2"]
+				},
+				"description": "Create movement permit using V2 endpoint"
+			},
+			"response": []
+		},
+		{
+			"name": "Review Movement Permit",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"status\": \"Approved\",\n    \"comments\": \"All documents verified\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/movements-review/{{movement_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["movements-review", "{{movement_id}}"]
+				},
+				"description": "Review and approve/reject movement permit"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Movement Routes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/movement-routes?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["movement-routes"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of available movement routes"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Checkpoint Records",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/check-point-records?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["check-point-records"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get checkpoint verification records"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Checkpoint Record",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"movement_id\": \"{{movement_id}}\",\n    \"checkpoint_id\": \"1\",\n    \"status\": \"Verified\",\n    \"comments\": \"All animals accounted for\",\n    \"date\": \"2025-11-11\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/check-point-records",
+					"host": ["{{base_url}}"],
+					"path": ["check-point-records"]
+				},
+				"description": "Create a checkpoint verification record"
+			},
+			"response": []
+		},
+		{
+			"name": "Checkpoint Verification",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"movement_id\": \"{{movement_id}}\",\n    \"checkpoint_code\": \"CP001\",\n    \"verification_status\": \"Pass\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/checkpoint-verification",
+					"host": ["{{base_url}}"],
+					"path": ["checkpoint-verification"]
+				},
+				"description": "Verify movement at checkpoint"
+			},
+			"response": []
+		},
+		{
+			"name": "Checkpoint Session",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"checkpoint_id\": \"1\",\n    \"action\": \"start\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/checkpoint-session/{{movement_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["checkpoint-session", "{{movement_id}}"]
+				},
+				"description": "Start or end checkpoint session"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Trips V2",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/trips-v2?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["trips-v2"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of trips"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Trip V2",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"movement_id\": \"{{movement_id}}\",\n    \"vehicle_reg\": \"UAG 789C\",\n    \"driver_name\": \"Peter Driver\",\n    \"start_location\": \"Kampala\",\n    \"end_location\": \"Mbarara\",\n    \"start_time\": \"2025-11-11 08:00:00\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/trips-v2",
+					"host": ["{{base_url}}"],
+					"path": ["trips-v2"]
+				},
+				"description": "Create a new trip"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Trip Record",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"trip_id\": \"1\",\n    \"location\": \"Masaka\",\n    \"latitude\": \"0.3476\",\n    \"longitude\": \"32.5825\",\n    \"status\": \"In Transit\",\n    \"timestamp\": \"2025-11-11 10:30:00\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/trip-records",
+					"host": ["{{base_url}}"],
+					"path": ["trip-records"]
+				},
+				"description": "Create a trip tracking record"
+			},
+			"response": []
+		},
+		{
+			"name": "End Trip",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"trip_id\": \"1\",\n    \"end_time\": \"2025-11-11 14:00:00\",\n    \"status\": \"Completed\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/trip-end",
+					"host": ["{{base_url}}"],
+					"path": ["trip-end"]
+				},
+				"description": "End a trip"
+			},
+			"response": []
+		}
+	]
+}

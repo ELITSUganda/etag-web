@@ -1,0 +1,321 @@
+{
+	"info": {
+		"_postman_id": "auth-collection-001",
+		"name": "01 - Authentication & User Management",
+		"description": "All authentication and user management endpoints including login, registration, profile updates, and role management.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {",
+							"    var jsonData = pm.response.json();",
+							"    if (jsonData.data && jsonData.data.token) {",
+							"        pm.environment.set('token', jsonData.data.token);",
+							"        pm.environment.set('user_id', jsonData.data.id);",
+							"        pm.environment.set('administrator_id', jsonData.data.id);",
+							"        console.log('Token saved:', jsonData.data.token);",
+							"    }",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"phone_number\": \"{{phone_number}}\",\n    \"password\": \"{{password}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/login",
+					"host": ["{{base_url}}"],
+					"path": ["login"]
+				},
+				"description": "Login with phone number and password. On success, token is automatically saved to environment."
+			},
+			"response": []
+		},
+		{
+			"name": "Create Account",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"John Doe\",\n    \"phone_number\": \"0700000000\",\n    \"password\": \"12345678\",\n    \"phone_number_2\": \"\",\n    \"address\": \"Kampala\",\n    \"email\": \"johndoe@example.com\",\n    \"nin\": \"CM1234567890ABC\",\n    \"user_type\": \"Farmer\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/login/create-account",
+					"host": ["{{base_url}}"],
+					"path": ["login", "create-account"]
+				},
+				"description": "Create a new user account. user_type can be: Farmer, Trader, etc."
+			},
+			"response": []
+		},
+		{
+			"name": "Get User Profile (Me)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/me?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["me"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get current user profile information"
+			},
+			"response": []
+		},
+		{
+			"name": "Users Me (Alternative)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/users/me?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["users", "me"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Alternative endpoint to get user profile"
+			},
+			"response": []
+		},
+		{
+			"name": "Update Profile",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"name\": \"Updated Name\",\n    \"email\": \"newemail@example.com\",\n    \"address\": \"New Address\",\n    \"phone_number_2\": \"0700000001\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/update-profile",
+					"host": ["{{base_url}}"],
+					"path": ["update-profile"]
+				},
+				"description": "Update user profile information"
+			},
+			"response": []
+		},
+		{
+			"name": "Update Roles",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"roles\": [\"farmer\", \"trader\"]\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/update-roles",
+					"host": ["{{base_url}}"],
+					"path": ["update-roles"]
+				},
+				"description": "Update user roles"
+			},
+			"response": []
+		},
+		{
+			"name": "Vet Profile",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"bio\": \"Experienced veterinary doctor\",\n    \"services\": [1, 2, 3],\n    \"years_of_experience\": 5\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/vet-profile",
+					"host": ["{{base_url}}"],
+					"path": ["vet-profile"]
+				},
+				"description": "Update veterinary professional profile"
+			},
+			"response": []
+		},
+		{
+			"name": "Remove Vet Role",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/remove-vet-role",
+					"host": ["{{base_url}}"],
+					"path": ["remove-vet-role"]
+				},
+				"description": "Remove veterinary role from user"
+			},
+			"response": []
+		},
+		{
+			"name": "Send Verification Code",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"phone_number\": \"0700000000\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/send-verification-code",
+					"host": ["{{base_url}}"],
+					"path": ["send-verification-code"]
+				},
+				"description": "Send verification code to phone number for password reset"
+			},
+			"response": []
+		},
+		{
+			"name": "Reset Password",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"phone_number\": \"0700000000\",\n    \"code\": \"123456\",\n    \"password\": \"newpassword123\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/reset-password",
+					"host": ["{{base_url}}"],
+					"path": ["reset-password"]
+				},
+				"description": "Reset user password using verification code"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Account",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": \"{{administrator_id}}\",\n    \"reason\": \"No longer need the account\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/delete-account",
+					"host": ["{{base_url}}"],
+					"path": ["delete-account"]
+				},
+				"description": "Request account deletion"
+			},
+			"response": []
+		},
+		{
+			"name": "Get User Roles",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/user-roles?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["user-roles"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of available user roles"
+			},
+			"response": []
+		},
+		{
+			"name": "Get System Users",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/system-users?administrator_id={{administrator_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["system-users"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "{{administrator_id}}"
+						}
+					]
+				},
+				"description": "Get list of system users"
+			},
+			"response": []
+		}
+	]
+}

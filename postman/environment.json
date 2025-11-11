@@ -1,0 +1,75 @@
+{
+	"id": "etag-environment",
+	"name": "E-TAG Livestock Management API Environment",
+	"values": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8888/etag-web/api",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "base_url_production",
+			"value": "https://u-lits.com/api",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "secret",
+			"enabled": true
+		},
+		{
+			"key": "user_id",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "administrator_id",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "farm_id",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "animal_id",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "movement_id",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "event_id",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "phone_number",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "password",
+			"value": "",
+			"type": "secret",
+			"enabled": true
+		}
+	],
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2025-11-11T00:00:00.000Z",
+	"_postman_exported_using": "Postman/11.0.0"
+}
