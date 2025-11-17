@@ -1797,6 +1797,233 @@ class ApiAnimalController extends Controller
         }
     }
 
+    public function create_slaughter_distribution_records_bulk(Request $r)
+    {
+        $user_id = Utils::get_user_id($r);
+
+        if ($user_id < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User ID not found.",
+            ]);
+        }
+
+        $u = Administrator::find($user_id);
+        if ($u == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User not found.",
+            ]);
+        }
+
+        // Validate slaughter record
+        $sr = SlaughterRecord::find($r->source_id);
+        if ($sr == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Slaughter record not found.",
+            ]);
+        }
+
+        // Validate quarters data
+        if (!$r->has('quarters') || !is_array($r->quarters) || count($r->quarters) == 0) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Please provide at least one quarter to create.",
+            ]);
+        }
+
+        // Initialize available weight
+        if ($sr->available_weight == null || (strlen($sr->available_weight) < 1)) {
+            $sr->available_weight = $sr->post_weight;
+            $sr->save();
+        }
+
+        $available = ((float)($sr->available_weight));
+        if ($available < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "No available weight remaining in carcass.",
+            ]);
+        }
+
+        // Calculate total weight
+        $totalWeight = 0;
+        foreach ($r->quarters as $quarter) {
+            if (!isset($quarter['original_weight'])) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Each quarter must have original_weight specified.",
+                ]);
+            }
+            $weight = ((float)($quarter['original_weight']));
+            if ($weight <= 0) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Weight must be greater than 0 for each quarter.",
+                ]);
+            }
+            $totalWeight += $weight;
+        }
+
+        // Validate total weight doesn't exceed available
+        if ($totalWeight > $available) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Total weight ({$totalWeight} KGs) exceeds available weight ({$available} KGs).",
+            ]);
+        }
+
+        // Validate quarter sections
+        $validSections = [
+            'Fore-1/4 - Right',
+            'Fore-1/4 - Left',
+            'Hind-1/4 - Right',
+            'Hind-1/4 - Left'
+        ];
+
+        $usedSections = [];
+        foreach ($r->quarters as $quarter) {
+            if (!isset($quarter['source_address'])) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Each quarter must have source_address specified.",
+                ]);
+            }
+
+            $section = $quarter['source_address'];
+            if (!in_array($section, $validSections)) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Invalid quarter section: {$section}",
+                ]);
+            }
+
+            // Check for duplicates
+            if (in_array($section, $usedSections)) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Duplicate quarter section: {$section}",
+                ]);
+            }
+            $usedSections[] = $section;
+        }
+
+        // Get animal_id from slaughter record or use administrator_id as fallback
+        $animal_id = $sr->administrator_id ?? $sr->id;
+        if (empty($animal_id) || $animal_id < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Unable to determine animal ID from slaughter record.",
+            ]);
+        }
+
+        // Start creating records
+        $createdRecords = [];
+        $failedRecords = [];
+
+        DB::beginTransaction();
+
+        try {
+            foreach ($r->quarters as $quarter) {
+                $weight = ((float)($quarter['original_weight']));
+                $sourceAddress = $quarter['source_address'];
+
+                $rec = new SlaughterDistributionRecord();
+                $rec->animal_id = $animal_id;
+                $rec->slaughterhouse_id = $sr->id;
+                $rec->created_by_id = $u->id;
+                $rec->source_type = "Slaughter House";
+                $rec->source_id = $sr->id;
+                $rec->source_name = $u->name;
+                $rec->source_phone = $u->phone_number;
+                $rec->receiver_id = 1;
+                $rec->receiver_type = "Trader";
+                $rec->receiver_name = "Unknown";
+                $rec->receiver_address = "Unknown";
+                $rec->receiver_phone = "Unknown";
+                $rec->lhc = $sr->lhc;
+                $rec->v_id = $sr->v_id;
+                $rec->e_id = $sr->e_id;
+                $rec->animal_owner_id = 1;
+                $rec->source_address = $sourceAddress;
+                $rec->bar_code = $sr->bar_code;
+                $rec->post_fat = $sr->post_fat;
+                $rec->post_grade = $sr->post_grade;
+                $rec->post_animal = $sr->post_animal;
+                $rec->post_age = $sr->post_age;
+                $rec->original_weight = $weight;
+                $rec->current_weight = $weight;
+                $rec->price = 'Quarter';
+                $rec->slaughter_date = $sr->created_at;
+
+                $rec->save();
+
+                // Generate QR code
+                try {
+                    $url = url('sdr/' . $rec->id);
+                    $data =
+                        'ID: ' . $rec->id .
+                        ', Meat Grade: ' . $rec->post_grade .
+                        ', More Details: ' . $url;
+                    $path = Utils::generate_qrcode($data);
+                    $rec->qr_code = $path;
+                    $rec->save();
+                } catch (\Throwable $e) {
+                    // Log but don't fail if QR code generation fails
+                    \Log::error("Failed to generate QR code for record {$rec->id}: " . $e->getMessage());
+                }
+
+                $createdRecords[] = $rec;
+            }
+
+            // Update available weight
+            $sr->available_weight = $available - $totalWeight;
+            $sr->save();
+
+            DB::commit();
+
+            // Send notification
+            try {
+                $msg = "Successfully created " . count($createdRecords) . " quarter(s) from carcass {$sr->v_id}.";
+                $title = "QUARTERS CREATED - {$sr->v_id}";
+                Utils::sendNotification(
+                    $msg,
+                    $u->id,
+                    $headings = $title,
+                    $data = [$sr->animal_id]
+                );
+            } catch (\Throwable $e) {
+                // Log but don't fail if notification fails
+                \Log::error("Failed to send notification: " . $e->getMessage());
+            }
+
+            // Reload data
+            $sr = SlaughterRecord::find($sr->id);
+            $records = [];
+            foreach ($createdRecords as $rec) {
+                $records[] = SlaughterDistributionRecord::find($rec->id);
+            }
+
+            return Utils::response([
+                'status' => 1,
+                'message' => "Successfully created " . count($records) . " quarter(s).",
+                'data' => [
+                    'carcass' => $sr,
+                    'records' => $records,
+                    'total_weight' => $totalWeight,
+                    'remaining_weight' => $sr->available_weight,
+                ]
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return Utils::response([
+                'status' => 0,
+                'message' => "Failed to create quarters: " . $e->getMessage(),
+            ]);
+        }
+    }
+
 
 
     public function archive_animal(Request $r, $id)

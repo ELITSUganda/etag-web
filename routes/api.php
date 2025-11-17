@@ -183,6 +183,10 @@ Route::POST('create-slaughter-distribution-record', [
     ApiAnimalController::class,
     'create_slaughter_distribution_record'
 ]);
+Route::POST('create-slaughter-distribution-records-bulk', [
+    ApiAnimalController::class,
+    'create_slaughter_distribution_records_bulk'
+]);
 
 // Butcher Records Routes
 Route::get('butcher-records', [ApiAnimalController::class, 'butcher_records']);
