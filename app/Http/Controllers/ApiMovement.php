@@ -988,7 +988,6 @@ class ApiMovement extends Controller
                     FROM {$users_table} u
                     INNER JOIN {$role_users_table} ru ON u.id = ru.user_id
                     WHERE ru.role_id = ? 
-                    AND u.status = 'Active'
                     ORDER BY u.name ASC";
             
             $data = DB::select($sql, [$role->id]);
