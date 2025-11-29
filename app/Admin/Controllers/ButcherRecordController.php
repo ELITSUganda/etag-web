@@ -36,7 +36,7 @@ class ButcherRecordController extends AdminController
                 return "<span class='label label-warning'>Offal Cut</span><br><small>{$this->offal_cut_type}</small>";
             }
             return $c;
-        })->sortable()->filter(['Prime Cut' => 'Prime Cut', 'Offal Cut' => 'Offal Cut']);
+        })->sortable();
         $grid->column('source_address', __('Section'))->sortable();
         $grid->column('original_weight', __('Weight'))->display(function ($w) {
             $current = floatval($this->current_weight);

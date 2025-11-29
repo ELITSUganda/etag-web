@@ -41,9 +41,7 @@ class SlaughterDistributionRecordController extends AdminController
             $color = $distributed > 0 ? 'green' : 'gray';
             return $w . ' Kgs<br><small style="color:'.$color.'">(' . $distributed . ' Kgs distributed)</small>';
         })->sortable();
-        $grid->column('bar_code', __('Barcode'))->display(function ($b) {
-            return $b ? '<code>' . substr($b, 0, 15) . '...</code>' : 'N/A';
-        });
+        $grid->column('bar_code', __('Barcode'))->lightbox(['width' => 200, 'height' => 200]);
         $grid->column('animal_id', __('Animal'))->display(function ($a) {
             return $a ? "#{$a}" : 'N/A';
         });
