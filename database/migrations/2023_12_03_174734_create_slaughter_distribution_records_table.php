@@ -16,7 +16,6 @@ class CreateSlaughterDistributionRecordsTable extends Migration
      */
     public function up()
     {
-        return; 
         Schema::create('slaughter_distribution_records', function (Blueprint $table) {
             $table->id();
             $table->timestamps();

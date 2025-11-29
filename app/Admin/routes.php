@@ -50,7 +50,9 @@ Route::group([
     $router->resource('medicines', MedicineController::class);
     $router->resource('vaccines', VaccineController::class);
     $router->resource('movement-items', MovementsItemsController::class);
+    $router->get('butchery-dashboard', 'ButcheryDashboardController@index')->name('butchery-dashboard');
     $router->resource('slaughter-records', SlaughterRecordController::class);
+    $router->resource('slaughter-distributions', SlaughterDistributionRecordController::class);
     $router->resource('archived-animals', ArchivedAnimalController::class);
     $router->resource('sales', AnimalSalesController::class);
     $router->resource('check-points', CheckPointController::class);
@@ -73,6 +75,7 @@ Route::group([
     $router->resource('transactions', TransactionController::class);
     $router->resource('milk', MilkController::class);
     $router->resource('slaughter-houses', SlaughterHouseController::class);
+    $router->resource('butcher-records', ButcherRecordController::class);
     $router->resource('admin-role-users', AdminRoleUserController::class);
     $router->resource('user-management', UserManagementController::class);
     $router->resource('checkpoint-sessions', CheckpointSessionController::class);
