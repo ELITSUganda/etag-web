@@ -25,13 +25,13 @@ class ButcheryDashboardController extends AdminController
         $totalSlaughters = SlaughterRecord::count();
         $completedSlaughters = SlaughterRecord::where('breed', 'Done')->count();
         $ongoingSlaughters = SlaughterRecord::where('breed', '!=', 'Done')->count();
-        $totalCarcassWeight = SlaughterRecord::sum(DB::raw('CAST(post_weight AS DECIMAL(10,2))'));
-        $availableCarcassWeight = SlaughterRecord::sum(DB::raw('CAST(available_weight AS DECIMAL(10,2))'));
+        $totalCarcassWeight = SlaughterRecord::sum('post_weight') ?? 0;
+        $availableCarcassWeight = SlaughterRecord::sum('available_weight') ?? 0;
         
         // Distribution Statistics  
         $totalDistributions = SlaughterDistributionRecord::count();
-        $totalDistributedWeight = SlaughterDistributionRecord::sum(DB::raw('CAST(original_weight AS DECIMAL(10,2))'));
-        $remainingDistWeight = SlaughterDistributionRecord::sum(DB::raw('CAST(current_weight AS DECIMAL(10,2))'));
+        $totalDistributedWeight = SlaughterDistributionRecord::sum('original_weight') ?? 0;
+        $remainingDistWeight = SlaughterDistributionRecord::sum('current_weight') ?? 0;
         
         // Butcher Records Statistics
         $totalButcherRecords = ButcherRecord::count();
@@ -46,20 +46,23 @@ class ButcheryDashboardController extends AdminController
         
         // Financial Statistics
         $totalRevenue = ButcherRecord::where('is_sold', 'Yes')
-            ->sum(DB::raw('CAST(sold_price AS DECIMAL(10,2))'));
+            ->sum('sold_price') ?? 0;
         $primeRevenue = ButcherRecord::where('cut_type', 'Prime Cut')
             ->where('is_sold', 'Yes')
-            ->sum(DB::raw('CAST(sold_price AS DECIMAL(10,2))'));
+            ->sum('sold_price') ?? 0;
         $offalRevenue = ButcherRecord::where('cut_type', 'Offal Cut')
             ->where('is_sold', 'Yes')
-            ->sum(DB::raw('CAST(sold_price AS DECIMAL(10,2))'));
+            ->sum('sold_price') ?? 0;
         
         // Weight Statistics
-        $totalButcherWeight = ButcherRecord::sum(DB::raw('CAST(original_weight AS DECIMAL(10,2))'));
+        $totalButcherWeight = ButcherRecord::sum('original_weight') ?? 0;
         $soldWeight = ButcherRecord::where('is_sold', 'Yes')
-            ->sum(DB::raw('CAST(original_weight AS DECIMAL(10,2)) - CAST(current_weight AS DECIMAL(10,2))'));
+            ->get()
+            ->sum(function($record) {
+                return floatval($record->original_weight) - floatval($record->current_weight);
+            });
         $availableWeight = ButcherRecord::where('is_sold', 'No')
-            ->sum(DB::raw('CAST(current_weight AS DECIMAL(10,2))'));
+            ->sum('current_weight') ?? 0;
         
         // Recent Records
         $recentSlaughters = SlaughterRecord::orderBy('created_at', 'desc')->limit(10)->get();
@@ -69,7 +72,8 @@ class ButcheryDashboardController extends AdminController
             ->get();
         
         // Top Cut Types
-        $topPrimeCuts = ButcherRecord::select('prime_cut_type', DB::raw('count(*) as total'))
+        $topPrimeCuts = ButcherRecord::select('prime_cut_type')
+            ->selectRaw('count(*) as total')
             ->where('cut_type', 'Prime Cut')
             ->whereNotNull('prime_cut_type')
             ->groupBy('prime_cut_type')
@@ -77,7 +81,8 @@ class ButcheryDashboardController extends AdminController
             ->limit(5)
             ->get();
             
-        $topOffalCuts = ButcherRecord::select('offal_cut_type', DB::raw('count(*) as total'))
+        $topOffalCuts = ButcherRecord::select('offal_cut_type')
+            ->selectRaw('count(*) as total')
             ->where('cut_type', 'Offal Cut')
             ->whereNotNull('offal_cut_type')
             ->groupBy('offal_cut_type')
