@@ -1,0 +1,55 @@
+\contentsline {section}{\numberline {1}Introduction}{4}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Process Overview}{4}{subsection.1.1}%
+\contentsline {section}{\numberline {2}Movement Permit}{4}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Purpose}{4}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Process}{4}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Key Information Tracked}{4}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Requirements}{5}{subsection.2.4}%
+\contentsline {section}{\numberline {3}Slaughter House Operations}{5}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Animal Reception}{5}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Antemortem Inspection}{6}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Slaughter Process}{6}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Postmortem Inspection}{7}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}Recording}{7}{subsection.3.5}%
+\contentsline {section}{\numberline {4}Butchery Process}{7}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Stage 1: Quartering (Primary Breakdown)}{7}{subsection.4.1}%
+\contentsline {subsubsection}{\numberline {4.1.1}Quarter Processing}{8}{subsubsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.2}Stage 2: Cuts (Secondary Breakdown)}{8}{subsection.4.2}%
+\contentsline {subsubsection}{\numberline {4.2.1}Primal Cuts (29 types)}{9}{subsubsection.4.2.1}%
+\contentsline {subsubsection}{\numberline {4.2.2}Offal Cuts (4 types)}{9}{subsubsection.4.2.2}%
+\contentsline {subsubsection}{\numberline {4.2.3}Cut Recording}{10}{subsubsection.4.2.3}%
+\contentsline {subsection}{\numberline {4.3}Stage 3: Final Packaging (Butcher Records)}{10}{subsection.4.3}%
+\contentsline {subsubsection}{\numberline {4.3.1}Sales Recording}{11}{subsubsection.4.3.1}%
+\contentsline {section}{\numberline {5}Data Relationships}{12}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Weight Flow}{12}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Practical Example}{14}{subsection.5.2}%
+\contentsline {subsubsection}{\numberline {5.2.1}Initial Slaughter}{14}{subsubsection.5.2.1}%
+\contentsline {subsubsection}{\numberline {5.2.2}After Quartering}{14}{subsubsection.5.2.2}%
+\contentsline {subsubsection}{\numberline {5.2.3}Processing Fore-Right Quarter (62 kg)}{14}{subsubsection.5.2.3}%
+\contentsline {subsubsection}{\numberline {5.2.4}Final Packaging}{15}{subsubsection.5.2.4}%
+\contentsline {section}{\numberline {6}User Roles}{16}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Farmer/Trader}{16}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}District Veterinary Officer}{16}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Checkpoint Inspector}{16}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}Slaughter House Officer}{16}{subsection.6.4}%
+\contentsline {subsection}{\numberline {6.5}Butcher}{16}{subsection.6.5}%
+\contentsline {subsection}{\numberline {6.6}System Administrator}{16}{subsection.6.6}%
+\contentsline {section}{\numberline {7}System Features}{17}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Mobile Application}{17}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Web Portal}{17}{subsection.7.2}%
+\contentsline {section}{\numberline {8}Traceability}{17}{section.8}%
+\contentsline {subsection}{\numberline {8.1}QR Code Information}{18}{subsection.8.1}%
+\contentsline {section}{\numberline {9}Quality Assurance}{18}{section.9}%
+\contentsline {section}{\numberline {10}Business Rules}{18}{section.10}%
+\contentsline {subsection}{\numberline {10.1}Movement Permits}{18}{subsection.10.1}%
+\contentsline {subsection}{\numberline {10.2}Slaughter Records}{19}{subsection.10.2}%
+\contentsline {subsection}{\numberline {10.3}Quarters}{19}{subsection.10.3}%
+\contentsline {subsection}{\numberline {10.4}Cuts}{19}{subsection.10.4}%
+\contentsline {subsection}{\numberline {10.5}Butcher Records}{19}{subsection.10.5}%
+\contentsline {section}{\numberline {11}System Benefits}{19}{section.11}%
+\contentsline {subsection}{\numberline {11.1}For Farmers}{19}{subsection.11.1}%
+\contentsline {subsection}{\numberline {11.2}For Slaughter Houses}{19}{subsection.11.2}%
+\contentsline {subsection}{\numberline {11.3}For Butchers}{20}{subsection.11.3}%
+\contentsline {subsection}{\numberline {11.4}For Consumers}{20}{subsection.11.4}%
+\contentsline {subsection}{\numberline {11.5}For Government}{20}{subsection.11.5}%
+\contentsline {section}{\numberline {12}Conclusion}{20}{section.12}%
