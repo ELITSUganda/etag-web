@@ -124,10 +124,5 @@ Route::group([
 
     $router->resource('personal-settings', PersonalSettingController::class);
     $router->resource('animals-all', AnimalNewController::class);
-    /* 
-    - pregnancy
-    - abortion
-    - calving
-    - weaning
-    */
+    $router->resource('slaughter-records', SlaughterRecordController::class);
 });

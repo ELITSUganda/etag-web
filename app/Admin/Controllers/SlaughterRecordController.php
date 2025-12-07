@@ -27,98 +27,179 @@ class SlaughterRecordController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new SlaughterRecord());
+        
+        // Search and Filters
+        $grid->quickSearch('e_id', 'v_id', 'lhc')->placeholder('Search by E-ID, V-ID or LHC');
         $grid->filter(function ($filter) {
             $filter->disableIdFilter();
-            $filter->like('e_id', 'EID');
+            $filter->like('e_id', 'E-ID');
+            $filter->like('v_id', 'V-ID');
             $filter->like('lhc', 'LHC');
-            //created_at range
-            $filter->between('created_at', 'Date');
-            $filter->between('dob', 'DoB');
+            $filter->between('created_at', 'Slaughter Date');
+            $filter->equal('post_grade', 'Meat Grade')->select([
+                'Grade A' => 'Grade A',
+                'Grade B' => 'Grade B',
+                'Grade C' => 'Grade C',
+                'Grade D' => 'Grade D',
+                'Grade E' => 'Grade E',
+            ]);
+            $filter->equal('carcus_owen_assigned', 'Carcass Assignment')->select([
+                'Yes' => 'Assigned',
+                'No' => 'Not Assigned',
+            ]);
+            $filter->equal('sex', 'Sex')->select([
+                'Male' => 'Male',
+                'Female' => 'Female',
+            ]);
         });
 
-
         $grid->model()->orderBy('id', 'DESC');
-        $grid->column('created_at', __('Date'))
+
+        // 1. Slaughter Date
+        $grid->column('created_at', __('Slaughter Date'))
             ->display(function ($f) {
-                return Carbon::parse($f)->toFormattedDateString();
-            })->sortable();
-        $grid->column('lhc', __('LHC'))->sortable()->hide();
-        $grid->column('v_id', __('V ID'))->hide();
-        $grid->column('e_id', __('E-ID'))->sortable();
-        $grid->column('breed', __('Satus'))
-            ->display(function ($f) {
-                $isDone = false;
-                if (strtolower($f) == 'done') {
-                    $isDone = true;
-                }
-                return $isDone ? "<span class='label label-success'>Completed</span>" : "<span class='label label-danger'>Ongoing</span>";
-            })->sortable();
-        $grid->column('sex', __('Sex'))->sortable();
-        $grid->column('dob', __('Dob'))->sortable();
-        $grid->column('fmd', __('Last FMD'))->sortable()
-            ->display(function ($f) {
-                if ($f == null || strlen($f) < 4) {
-                    return "N/A";
-                }
-                return Carbon::parse($f)->toFormattedDateString();
-            });
-        $grid->column('destination_slaughter_house', __('Destination slaughter house'))
-            ->display(function ($f) {
-                return $f;
-            })->sortable()
-            ->hide();
-        $grid->column('details', __('Details'))->hide();
+                return Carbon::parse($f)->format('d M Y');
+            })
+            ->sortable();
+
+        // 2. E-ID
+        $grid->column('e_id', __('E-ID'))
+            ->sortable();
+
+        // 3. Slaughtered By
         $grid->column('administrator_id', __('Slaughtered By'))
             ->display(function ($f) {
                 $u = Administrator::find($f);
                 if ($u == null) {
-                    return "N/A";
+                    return 'N/A';
                 }
                 return $u->name;
-            })->sortable();
-        /*         $grid->column('bar_code', __('Bar Code'))
-            ->lightbox(['width' => 50, 'height' => 50]); */
-        $grid->column('post_grade', __('Meat Grade'))
+            })
+            ->sortable();
+
+        // 4. Ante-mortem Findings
+        $grid->column('has_post_info', __('Ante-mortem Findings'))
             ->display(function ($f) {
-                return $f;
-            })->sortable();
-        $grid->column('post_age', __('Animal\'s Age'))
+                if (empty($f) || $f == 'null' || strtolower($f) == 'no') {
+                    return 'No findings';
+                }
+                
+                // Try to parse as JSON array
+                $data = json_decode($f);
+                if ($data !== null && is_array($data) && count($data) > 0) {
+                    $findings = array_filter($data);
+                    if (count($findings) > 0) {
+                        $text = implode(', ', $findings);
+                        return '<span title="' . htmlspecialchars($text) . '">' . 
+                               htmlspecialchars(substr($text, 0, 60)) . 
+                               (strlen($text) > 60 ? '...' : '') . '</span>';
+                    }
+                }
+                
+                // If just "Yes", show generic message
+                if (strtolower($f) == 'yes') {
+                    return 'Findings recorded';
+                }
+                
+                // Otherwise display as is
+                return htmlspecialchars($f);
+            });
+
+        // 5. Post-mortem Findings
+        $grid->column('post_other', __('Post-mortem Findings'))
             ->display(function ($f) {
-                $dob = Carbon::parse($this->dob);
-                $now = Carbon::parse($this->created_at);
-                return $dob->diffInMonths($now) . " months";
-            })->sortable();
+                if (empty($f) || $f == 'null') {
+                    return 'No findings';
+                }
+                
+                // Try to parse as JSON
+                $data = json_decode($f);
+                if ($data !== null && is_array($data) && count($data) > 0) {
+                    $findings = array_filter($data);
+                    if (count($findings) > 0) {
+                        $text = implode(', ', $findings);
+                        return '<span title="' . htmlspecialchars($text) . '">' . 
+                               htmlspecialchars(substr($text, 0, 50)) . 
+                               (strlen($text) > 50 ? '...' : '') . '</span>';
+                    }
+                }
+                
+                // If not JSON, display as is
+                $text = trim($f);
+                return '<span title="' . htmlspecialchars($text) . '">' . 
+                       htmlspecialchars(substr($text, 0, 50)) . 
+                       (strlen($text) > 50 ? '...' : '') . '</span>';
+            });
+
+        // 6. Dentition
         $grid->column('post_dentition', __('Dentition'))
             ->display(function ($f) {
-                return $f;
-            })->sortable();
-        $grid->column('post_weight', __('Weight'))
-            ->display(function ($f) {
-                return $f . " Kgs";
-            })->sortable();
-        $grid->column('post_fat', __('Post fat'))
-            ->display(function ($f) {
-                return $f . " mm";
-            })->sortable();
-        $grid->column('post_other', __('Premortem Findings'))
-            ->display(function ($f) {
-                //from json
-                $data = json_decode($f);
-                if ($data == null) {
-                    return "N/A";
+                if (empty($f) || $f == 'null') {
+                    return '-';
                 }
-                $dp = "";
-                foreach ($data as $key => $value) {
-                    //separator ,
-                    $dp .=  $value . ", "; 
-                }
-                return $dp;
-            })->sortable()
-            ->filter('like');
+                return htmlspecialchars($f);
+            })
+            ->sortable();
 
+        // 7. Carcass Weight
+        $grid->column('post_weight', __('Carcass Weight (kg)'))
+            ->display(function ($f) {
+                if (empty($f) || $f == 'null') {
+                    return 'N/A';
+                }
+                return $f;
+            })
+            ->sortable();
+
+        // 8. Carcass Grade
+        $grid->column('post_grade', __('Carcass Grade'))
+            ->display(function ($f) {
+                if (empty($f) || $f == 'null') {
+                    return 'Not Graded';
+                }
+                return htmlspecialchars($f);
+            })
+            ->sortable();
+
+        // 9. Assigned To
+        $grid->column('carcus_owen_name', __('Assigned To'))
+            ->display(function ($f) {
+                if (empty($f) || $f == 'null') {
+                    return '-';
+                }
+                return $f;
+            })
+            ->sortable();
+
+        // 10. Status
+        $grid->column('breed', __('Status'))
+            ->display(function ($f) {
+                $isDone = strtolower($f) == 'done';
+                return $isDone ? 'Completed' : 'Ongoing';
+            })
+            ->sortable();
+
+        // Additional Details (Hidden - can be shown via column selector)
+        $grid->column('v_id', __('V-ID'))->hide();
+        $grid->column('lhc', __('LHC'))->hide();
+        $grid->column('sex', __('Sex'))->hide();
+        $grid->column('post_age', __('Age'))->hide();
+        $grid->column('post_fat', __('Fat (mm)'))->hide();
+        $grid->column('dob', __('Date of Birth'))->hide();
+        $grid->column('fmd', __('Last FMD'))->hide();
+        $grid->column('available_weight', __('Available Weight'))->hide();
+        $grid->column('destination_slaughter_house', __('Slaughter House'))->hide();
+
+        // Actions
+        $grid->actions(function ($actions) {
+            $actions->disableDelete();
+            $actions->disableEdit();
+        });
 
         $grid->disableCreateButton();
         $grid->disableBatchActions();
+        $grid->disableExport();
+        
         return $grid;
     }
 
