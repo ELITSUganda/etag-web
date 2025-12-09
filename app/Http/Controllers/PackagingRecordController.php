@@ -7,6 +7,7 @@ use App\Models\SlaughterRecord;
 use App\Models\SlaughterDistributionRecord;
 use App\Models\Animal;
 use App\Models\Utils;
+use Encore\Admin\Auth\Database\Administrator;
 use App\Services\PackagingRecordPdfService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,15 +23,18 @@ class PackagingRecordController extends Controller
      */
     public function index(Request $r)
     {
-        // Validate required administrator_id
-        if (!$r->has('administrator_id') || empty($r->administrator_id)) {
+        $user_id = Utils::get_user_id($r);
+        $u = Administrator::find($user_id);
+        
+        if ($u == null) {
             return Utils::response([
                 'status' => 0,
-                'message' => 'Administrator ID is required.',
+                'message' => 'User not found.',
             ]);
         }
 
-        $query = PackagingRecord::with(['slaughterRecord', 'animal', 'packager']);
+        $query = PackagingRecord::with(['slaughterRecord', 'animal', 'packager'])
+            ->where('packaged_by', $user_id);
 
         // Apply filters
         if ($r->has('slaughter_record_id') && !empty($r->slaughter_record_id)) {
@@ -64,9 +68,8 @@ class PackagingRecordController extends Controller
             });
         }
 
-        // Pagination
-        $perPage = $r->get('per_page', 20);
-        $records = $query->orderBy('id', 'desc')->paginate($perPage);
+        // Get all records without pagination (consistent with other endpoints)
+        $records = $query->orderBy('id', 'desc')->get();
 
         return Utils::response([
             'status' => 1,
@@ -82,11 +85,13 @@ class PackagingRecordController extends Controller
      */
     public function show(Request $r, $id)
     {
-        // Validate required administrator_id
-        if (!$r->has('administrator_id') || empty($r->administrator_id)) {
+        $user_id = Utils::get_user_id($r);
+        $u = Administrator::find($user_id);
+        
+        if ($u == null) {
             return Utils::response([
                 'status' => 0,
-                'message' => 'Administrator ID is required.',
+                'message' => 'User not found.',
             ]);
         }
 
