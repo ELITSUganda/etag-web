@@ -1,0 +1,253 @@
+{
+	"info": {
+		"_postman_id": "packaging-records-api",
+		"name": "11. Packaging Records API",
+		"description": "Complete API endpoints for PackagingRecord module - meat packaging labels with Prime Cuts (27 types) and Offal (10 types)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. List All Packaging Records",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/packaging-records?administrator_id=1&per_page=20",
+					"host": ["{{base_url}}"],
+					"path": ["api", "packaging-records"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "1",
+							"description": "Required - Admin user ID"
+						},
+						{
+							"key": "per_page",
+							"value": "20",
+							"description": "Optional - Items per page (default 50)"
+						},
+						{
+							"key": "package_type",
+							"value": "Prime Cut",
+							"description": "Optional - Filter by Prime Cut or Offal",
+							"disabled": true
+						},
+						{
+							"key": "status",
+							"value": "Active",
+							"description": "Optional - Active, Sold, Expired, Discarded",
+							"disabled": true
+						},
+						{
+							"key": "search",
+							"value": "PKG-000001",
+							"description": "Optional - Search V-ID, E-ID, barcode, package code",
+							"disabled": true
+						},
+						{
+							"key": "packaging_date_from",
+							"value": "2025-12-01",
+							"description": "Optional - Start date",
+							"disabled": true
+						},
+						{
+							"key": "packaging_date_to",
+							"value": "2025-12-31",
+							"description": "Optional - End date",
+							"disabled": true
+						}
+					]
+				},
+				"description": "Get paginated list of all packaging records with optional filters"
+			},
+			"response": []
+		},
+		{
+			"name": "2. Get Single Packaging Record",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/packaging-records/1?administrator_id=1",
+					"host": ["{{base_url}}"],
+					"path": ["api", "packaging-records", "1"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "1",
+							"description": "Required - Admin user ID"
+						}
+					]
+				},
+				"description": "Get detailed information about a specific packaging record including cut breakdown"
+			},
+			"response": []
+		},
+		{
+			"name": "3. Create Packaging Record (Prime Cut)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": 1,\n    \"slaughter_record_id\": 1,\n    \"package_type\": \"Prime Cut\",\n    \"packaging_date\": \"2025-12-09\",\n    \"expiry_date\": \"2026-01-08\",\n    \"packaged_by\": 1,\n    \"beef_boneless\": 10.5,\n    \"fillet\": 3.2,\n    \"sirloin_striploin\": 5.7,\n    \"t_bone\": 4.3,\n    \"rump_steak\": 6.8,\n    \"ribeye\": 2.9,\n    \"brisket\": 5.4,\n    \"notes\": \"Premium quality prime cuts\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/packaging-records/create",
+					"host": ["{{base_url}}"],
+					"path": ["api", "packaging-records", "create"]
+				},
+				"description": "Create new Prime Cut packaging record with weights. PDF label is auto-generated."
+			},
+			"response": []
+		},
+		{
+			"name": "4. Create Packaging Record (Offal)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": 1,\n    \"slaughter_record_id\": 1,\n    \"package_type\": \"Offal\",\n    \"packaging_date\": \"2025-12-09\",\n    \"expiry_date\": \"2025-12-16\",\n    \"packaged_by\": 1,\n    \"heart\": 1.2,\n    \"kidneys\": 0.8,\n    \"liver\": 2.5,\n    \"tongue\": 1.1,\n    \"tail\": 0.9,\n    \"tripe\": 3.2,\n    \"intestines\": 4.5,\n    \"lungs\": 1.8,\n    \"notes\": \"Fresh offal package\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/packaging-records/create",
+					"host": ["{{base_url}}"],
+					"path": ["api", "packaging-records", "create"]
+				},
+				"description": "Create new Offal packaging record with weights. Note: Offal typically has shorter shelf life (7 days)"
+			},
+			"response": []
+		},
+		{
+			"name": "5. Update Packaging Record",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": 1,\n    \"id\": 1,\n    \"beef_boneless\": 12.0,\n    \"fillet\": 4.0,\n    \"notes\": \"Updated weights after re-weighing\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/packaging-records/update",
+					"host": ["{{base_url}}"],
+					"path": ["api", "packaging-records", "update"]
+				},
+				"description": "Update existing packaging record. Cannot update if status is 'Sold'. PDF is regenerated on update."
+			},
+			"response": []
+		},
+		{
+			"name": "6. Mark Package as Sold",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": 1,\n    \"id\": 1,\n    \"sold_date\": \"2025-12-09\",\n    \"buyer_info\": \"Sunshine Supermarket - Kampala Branch\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/packaging-records/mark-sold",
+					"host": ["{{base_url}}"],
+					"path": ["api", "packaging-records", "mark-sold"]
+				},
+				"description": "Mark package as sold. Status changes to 'Sold' and record becomes read-only."
+			},
+			"response": []
+		},
+		{
+			"name": "7. Delete Packaging Record",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": 1,\n    \"id\": 5\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/packaging-records/delete",
+					"host": ["{{base_url}}"],
+					"path": ["api", "packaging-records", "delete"]
+				},
+				"description": "Delete packaging record. Cannot delete if status is 'Sold'. PDF file is also removed from storage."
+			},
+			"response": []
+		},
+		{
+			"name": "8. Generate/Regenerate PDF Label",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"administrator_id\": 1,\n    \"id\": 1\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/packaging-records/generate-pdf",
+					"host": ["{{base_url}}"],
+					"path": ["api", "packaging-records", "generate-pdf"]
+				},
+				"description": "Force regenerate PDF label for packaging record. Useful if PDF is corrupted or needs to be recreated."
+			},
+			"response": []
+		},
+		{
+			"name": "9. Get Packages by Slaughter Record",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/slaughter-records/1/packaging-records?administrator_id=1",
+					"host": ["{{base_url}}"],
+					"path": ["api", "slaughter-records", "1", "packaging-records"],
+					"query": [
+						{
+							"key": "administrator_id",
+							"value": "1",
+							"description": "Required - Admin user ID"
+						}
+					]
+				},
+				"description": "Get all packaging records for a specific slaughter record"
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8888/etag-web",
+			"type": "string"
+		}
+	]
+}

@@ -76,6 +76,7 @@ Route::group([
     $router->resource('milk', MilkController::class);
     $router->resource('slaughter-houses', SlaughterHouseController::class);
     $router->resource('butcher-records', ButcherRecordController::class);
+    $router->resource('packaging-records', PackagingRecordController::class);
     $router->resource('admin-role-users', AdminRoleUserController::class);
     $router->resource('user-management', UserManagementController::class);
     $router->resource('checkpoint-sessions', CheckpointSessionController::class);

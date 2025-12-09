@@ -60,5 +60,10 @@ class AdminButcheryMenuSeeder extends Seeder
             ['title' => 'Offal Cuts', 'uri' => 'butcher-records?cut_type=Offal Cut'],
             ['parent_id' => $parent->id, 'icon' => 'fa-heart', 'order' => 6]
         );
+
+        Menu::firstOrCreate(
+            ['title' => 'Packaging Records', 'uri' => 'packaging-records'],
+            ['parent_id' => $parent->id, 'icon' => 'fa-archive', 'order' => 7]
+        );
     }
 }

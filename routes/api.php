@@ -96,6 +96,16 @@ Route::POST('api/butcher-record-batch-create', [ApiAnimalController::class, 'cre
 Route::POST('api/update-butcher-record', [ApiAnimalController::class, 'update_butcher_record']);
 Route::POST('api/mark-butcher-record-sold', [ApiAnimalController::class, 'mark_butcher_record_sold']);
 
+// Packaging Records Routes - Must be before api/{model} catch-all
+Route::get('api/packaging-records', [\App\Http\Controllers\PackagingRecordController::class, 'index']);
+Route::get('api/packaging-records/{id}', [\App\Http\Controllers\PackagingRecordController::class, 'show']);
+Route::POST('api/packaging-records/create', [\App\Http\Controllers\PackagingRecordController::class, 'store']);
+Route::POST('api/packaging-records/update', [\App\Http\Controllers\PackagingRecordController::class, 'update']);
+Route::POST('api/packaging-records/mark-sold', [\App\Http\Controllers\PackagingRecordController::class, 'markSold']);
+Route::POST('api/packaging-records/delete', [\App\Http\Controllers\PackagingRecordController::class, 'destroy']);
+Route::POST('api/packaging-records/generate-pdf', [\App\Http\Controllers\PackagingRecordController::class, 'generatePdf']);
+Route::get('api/slaughter-records/{id}/packaging-records', [\App\Http\Controllers\PackagingRecordController::class, 'getBySlaughterRecord']);
+
 // Label Printing Routes - Must be before api/{model} catch-all
 Route::get('api/label-printing-tasks', [ApiAnimalController::class, 'label_printing_tasks']);
 Route::POST('api/label-printing-task-create', [ApiAnimalController::class, 'create_label_printing_task']);
