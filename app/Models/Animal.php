@@ -133,13 +133,13 @@ class Animal extends Model
             }
 
             //check for duplicate of v_id or e_id
-            if ($model->v_id != null && strlen($model->v_id) > 3) {
+            /* if ($model->v_id != null && strlen($model->v_id) > 3) {
                 $animal = Animal::where('v_id', $model->v_id)->where('id', '!=', $model->id)->first();
                 if ($animal != null) {
                     throw new Exception("Animal with same v-ID ($model->v_id) aready exist in the system.");
                     return false;
                 }
-            }
+            } */ 
             if ($model->e_id != null && strlen($model->e_id) > 3) {
                 $animal = Animal::where('e_id', $model->e_id)->where('id', '!=', $model->id)->first();
                 if ($animal != null) {
