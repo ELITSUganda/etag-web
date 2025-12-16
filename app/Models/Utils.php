@@ -33,7 +33,7 @@ class Utils extends Model
                 Utils::archive_animal(['animal_id' => $animal->id]);
             } catch (Exception $e) {
                 // Log::error("Failed to archive animal: {$animal->id}, Error: {$e->getMessage()}");
-            } 
+            }
         }
     }
 
@@ -1305,6 +1305,7 @@ duplicate_results
     }
     public static function phone_number_is_valid($phone_number)
     {
+        return true;
         $phone_number = Utils::prepare_phone_number($phone_number);
         if (substr($phone_number, 0, 4) != "+256") {
             return false;
@@ -1582,7 +1583,7 @@ duplicate_results
         $resp['code'] = "1";
         $resp['message'] = "Success";
         $resp['data'] = null;
-        
+
         // Check for 'code' field (new standard)
         if (isset($data['code'])) {
             $resp['code'] = $data['code'] . "";

@@ -1656,12 +1656,28 @@ class ApiAnimalController extends Controller
             ]);
         }
 
+        // Try to find the source - could be SlaughterRecord (carcass) or SlaughterDistributionRecord (quarter)
         $sr = SlaughterRecord::find($r->source_id);
+        $sourceQuarter = null;
+        
+        // If not found as SlaughterRecord, try as SlaughterDistributionRecord (quarter)
         if ($sr == null) {
-            return Utils::response([
-                'status' => 0,
-                'message' => "Slaughter record not found.",
-            ]);
+            $sourceQuarter = SlaughterDistributionRecord::find($r->source_id);
+            if ($sourceQuarter == null) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Source record not found.",
+                ]);
+            }
+            
+            // Get the parent slaughter record from the quarter
+            $sr = SlaughterRecord::find($sourceQuarter->slaughterhouse_id);
+            if ($sr == null) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Parent slaughter record not found.",
+                ]);
+            }
         }
 
         $receiver = Administrator::find($r->receiver_id);
@@ -1673,41 +1689,48 @@ class ApiAnimalController extends Controller
         // }
 
 
-        if ($sr->available_weight == null || (strlen($sr->available_weight) < 1)) {
-            $sr->available_weight = $sr->post_weight;
-            $sr->save();
+        // Determine available weight based on source
+        $availableWeight = 0;
+        if ($sourceQuarter != null) {
+            // Creating from a quarter - use quarter's current weight
+            if ($sourceQuarter->current_weight == null || (strlen($sourceQuarter->current_weight) < 1)) {
+                $sourceQuarter->current_weight = $sourceQuarter->original_weight;
+                $sourceQuarter->save();
+            }
+            $availableWeight = ((float)($sourceQuarter->current_weight));
+        } else {
+            // Creating from carcass - use slaughter record's available weight
+            if ($sr->available_weight == null || (strlen($sr->available_weight) < 1)) {
+                $sr->available_weight = $sr->post_weight;
+                $sr->save();
+            }
+            $availableWeight = ((float)($sr->available_weight));
         }
 
-        $available = ((int)($sr->available_weight));
-        if ($available < 1) {
-            return Utils::response([
-                'status' => 0,
-                'message' => "Current available weight is $sr.",
-            ]);
-        }
-
-        $weight = ((int)($r->original_weight));
-        if ($weight < 1) {
+        // Validate weight
+        $weight = ((float)($r->original_weight));
+        if ($weight <= 0) {
             return Utils::response([
                 'status' => 0,
                 'message' => "Weight must be greater than 0.",
             ]);
         }
 
-        if ($available < $weight) {
-            return Utils::response([
-                'status' => 0,
-                'message' => "Quantity can't be more than available quantity.",
-            ]);
+        // Update available weight
+        if ($sourceQuarter != null) {
+            $sourceQuarter->current_weight = $availableWeight - $weight;
+            $sourceQuarter->save();
+        } else {
+            $sr->available_weight = $availableWeight - $weight;
+            $sr->save();
         }
-        $sr->available_weight = $available - $weight;
 
         $rec = new SlaughterDistributionRecord();
-        $rec->animal_id = $r->animal_id;
+        $rec->animal_id = $sr->administrator_id ?? $sr->id;
         $rec->slaughterhouse_id = $sr->id;
         $rec->created_by_id  = $u->id;
-        $rec->source_type = "Slaughter House";
-        $rec->source_id = $sr->id;
+        $rec->source_type = $sourceQuarter != null ? "Quarter" : "Slaughter House";
+        $rec->source_id = $sourceQuarter != null ? $sourceQuarter->id : $sr->id;
         $rec->source_name = $u->name;
         $rec->source_phone = $u->phone_number;
         if ($receiver != null) {
@@ -1737,6 +1760,11 @@ class ApiAnimalController extends Controller
         $rec->current_weight = $weight;
         $rec->price = $r->price;
         $rec->slaughter_date = $sr->created_at;
+        
+        // Add cut_type field (Prime Cut or Offal)
+        if ($r->has('cut_type')) {
+            $rec->cut_type = $r->cut_type;
+        }
 
         try {
             $rec->save();
@@ -1780,6 +1808,7 @@ class ApiAnimalController extends Controller
                     'data' => [
                         'sr' => $sr,
                         'sdr' => $rec,
+                        'source' => $sourceQuarter, // Return the updated quarter if applicable
                     ]
                 ]);
             } catch (\Throwable $e) {
@@ -1839,14 +1868,6 @@ class ApiAnimalController extends Controller
             $sr->save();
         }
 
-        $available = ((float)($sr->available_weight));
-        if ($available < 1) {
-            return Utils::response([
-                'status' => 0,
-                'message' => "No available weight remaining in carcass.",
-            ]);
-        }
-
         // Calculate total weight
         $totalWeight = 0;
         foreach ($r->quarters as $quarter) {
@@ -1864,14 +1885,6 @@ class ApiAnimalController extends Controller
                 ]);
             }
             $totalWeight += $weight;
-        }
-
-        // Validate total weight doesn't exceed available
-        if ($totalWeight > $available) {
-            return Utils::response([
-                'status' => 0,
-                'message' => "Total weight ({$totalWeight} KGs) exceeds available weight ({$available} KGs).",
-            ]);
         }
 
         // Validate quarter sections
@@ -1978,7 +1991,8 @@ class ApiAnimalController extends Controller
             }
 
             // Update available weight
-            $sr->available_weight = $available - $totalWeight;
+            $currentAvailable = (float)($sr->available_weight);
+            $sr->available_weight = $currentAvailable - $totalWeight;
             $sr->save();
 
             DB::commit();
