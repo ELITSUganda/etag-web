@@ -1644,7 +1644,7 @@ class ApiAnimalController extends Controller
         if ($user_id < 1) {
             return Utils::response([
                 'status' => 0,
-                'message' => "Slaugter house ID not found.",
+                'message' => "User ID not found.",
             ]);
         }
 
@@ -1690,9 +1690,12 @@ class ApiAnimalController extends Controller
 
 
         // Determine available weight based on source
+        // NEW ARCHITECTURE: For cuts (Prime/Offal), they belong directly to carcass, don't deduct from quarter
         $availableWeight = 0;
-        if ($sourceQuarter != null) {
-            // Creating from a quarter - use quarter's current weight
+        $isCut = $r->has('cut_type') && in_array($r->cut_type, ['Prime', 'Offal']);
+        
+        if ($sourceQuarter != null && !$isCut) {
+            // Creating from a quarter (non-cut distribution) - use quarter's current weight
             if ($sourceQuarter->current_weight == null || (strlen($sourceQuarter->current_weight) < 1)) {
                 $sourceQuarter->current_weight = $sourceQuarter->original_weight;
                 $sourceQuarter->save();
@@ -1717,7 +1720,8 @@ class ApiAnimalController extends Controller
         }
 
         // Update available weight
-        if ($sourceQuarter != null) {
+        // NEW: For cuts, deduct from carcass, not quarter
+        if ($sourceQuarter != null && !$isCut) {
             $sourceQuarter->current_weight = $availableWeight - $weight;
             $sourceQuarter->save();
         } else {
@@ -1729,10 +1733,20 @@ class ApiAnimalController extends Controller
         $rec->animal_id = $sr->administrator_id ?? $sr->id;
         $rec->slaughterhouse_id = $sr->id;
         $rec->created_by_id  = $u->id;
-        $rec->source_type = $sourceQuarter != null ? "Quarter" : "Slaughter House";
-        $rec->source_id = $sourceQuarter != null ? $sourceQuarter->id : $sr->id;
-        $rec->source_name = $u->name;
+        
+        // NEW: For cuts, source_id always points to carcass (SlaughterRecord)
+        if ($isCut) {
+            $rec->source_type = "Carcass";
+            $rec->source_id = $sr->id;  // Always carcass ID for cuts
+        } else {
+            $rec->source_type = $sourceQuarter != null ? "Quarter" : "Slaughter House";
+            $rec->source_id = $sourceQuarter != null ? $sourceQuarter->id : $sr->id;
+        }
+        
+        // Use source_name from request if provided (for cut names like "Beef boneless", "T-Bone", etc.)
+        $rec->source_name = $r->has('source_name') ? $r->source_name : $u->name;
         $rec->source_phone = $u->phone_number;
+        
         if ($receiver != null) {
             $rec->receiver_id = $receiver->id;
             $rec->receiver_type = "Trader";
