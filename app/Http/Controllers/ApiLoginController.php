@@ -479,6 +479,7 @@ class ApiLoginController extends Controller
 
             return Utils::response([
                 'status' => 0,
+                'code' => 0,
                 'message' => "User with same phone number already exist."
             ]);
         }

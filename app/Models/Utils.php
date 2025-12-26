@@ -1599,6 +1599,12 @@ duplicate_results
         if (isset($data['data'])) {
             $resp['data'] = $data['data'];
         }
+        //check if status is not set, but data has status
+        if (!isset($data['status'])) {
+            if (isset($resp['code'])) {
+                $data['status'] = $resp['code'];
+            }
+        }
         return $resp;
     }
 
