@@ -1581,16 +1581,19 @@ duplicate_results
     {
         header('Content-Type: application/json; charset=utf-8');
         $resp['code'] = "1";
+        $resp['status'] = "1";
         $resp['message'] = "Success";
         $resp['data'] = null;
 
         // Check for 'code' field (new standard)
         if (isset($data['code'])) {
             $resp['code'] = $data['code'] . "";
+            $resp['status'] = $data['code'] . ""; // Keep both in sync
         }
         // For backward compatibility, also check for 'status' field (deprecated)
         elseif (isset($data['status'])) {
             $resp['code'] = $data['status'] . "";
+            $resp['status'] = $data['status'] . ""; // Keep both in sync
         }
 
         if (isset($data['message'])) {
@@ -1599,12 +1602,7 @@ duplicate_results
         if (isset($data['data'])) {
             $resp['data'] = $data['data'];
         }
-        //check if status is not set, but data has status
-        if (!isset($data['status'])) {
-            if (isset($resp['code'])) {
-                $data['status'] = $resp['code'];
-            }
-        }
+
         return $resp;
     }
 
