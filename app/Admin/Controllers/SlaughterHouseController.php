@@ -32,14 +32,14 @@ class SlaughterHouseController extends AdminController
         $grid->model()->orderBy('id', 'desc');
         $grid->column('name', __('Name'))->sortable();
         $grid->column('district_id', __('District'))->display(function () {
-            return $this->district->name;
+            return $this->district ? $this->district->name : 'N/A';
         })->sortable();
         $grid->column('subcounty_id', __('Subcounty'))->display(function () {
-            return $this->subcounty->name;
+            return $this->subcounty ? $this->subcounty->name : 'N/A';
         })->sortable();
 
         $grid->column('administrator_id', __('Administrator'))->display(function () {
-            return $this->admin->name;
+            return $this->admin ? $this->admin->name : 'N/A';
         })->sortable();
 
         $grid->column('details', __('Details'));
@@ -97,7 +97,11 @@ class SlaughterHouseController extends AdminController
             if ($v->owner == null) {
                 continue;
             }
-            $houses[$v->user_id] = $v->owner->name . " - " . $v->owner->username . ' - #' . $v->owner->id;
+            // Additional safety check for owner properties
+            $ownerName = $v->owner->name ?? 'Unknown';
+            $ownerUsername = $v->owner->username ?? 'unknown';
+            $ownerId = $v->owner->id ?? 0;
+            $houses[$v->user_id] = $ownerName . " - " . $ownerUsername . ' - #' . $ownerId;
         }
 
         $form->select('administrator_id', 'Abattoir administrator')->options(
