@@ -1795,17 +1795,6 @@ class ApiAnimalController extends Controller
                 $rec->save();
                 $sr->save();
 
-                //Reciever message
-                $msg = "You have received {$rec->current_weight}kg of meat from {$rec->source_name}. Open the App to see more details.";
-                $title = "MEAT RECEIVED - {$rec->v_id}";
-                Utils::sendNotification(
-                    $msg,
-                    $u->id,
-                    $headings =  $title,
-                    $data = [$rec->animal_id]
-                );
-
-
                 $sr = SlaughterRecord::find($sr->id);
                 $rec = SlaughterDistributionRecord::find($rec->id);
                 if ($sr == null) {
@@ -2010,21 +1999,6 @@ class ApiAnimalController extends Controller
             $sr->save();
 
             DB::commit();
-
-            // Send notification
-            try {
-                $msg = "Successfully created " . count($createdRecords) . " quarter(s) from carcass {$sr->v_id}.";
-                $title = "QUARTERS CREATED - {$sr->v_id}";
-                Utils::sendNotification(
-                    $msg,
-                    $u->id,
-                    $headings = $title,
-                    $data = [$sr->animal_id]
-                );
-            } catch (\Throwable $e) {
-                // Log but don't fail if notification fails
-                \Log::error("Failed to send notification: " . $e->getMessage());
-            }
 
             // Reload data
             $sr = SlaughterRecord::find($sr->id);
