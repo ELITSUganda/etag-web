@@ -505,10 +505,13 @@ class PackagingRecordController extends Controller
      */
     public function getBySlaughterRecord(Request $r, $id)
     {
-        if (!$r->has('administrator_id') || empty($r->administrator_id)) {
+        $user_id = Utils::get_user_id($r);
+        $u = Administrator::find($user_id);
+        
+        if ($u == null) {
             return Utils::response([
                 'status' => 0,
-                'message' => 'Administrator ID is required.',
+                'message' => 'User not found.',
             ]);
         }
 
