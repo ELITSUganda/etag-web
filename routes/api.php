@@ -96,6 +96,9 @@ Route::POST('api/butcher-record-batch-create', [ApiAnimalController::class, 'cre
 Route::POST('api/update-butcher-record', [ApiAnimalController::class, 'update_butcher_record']);
 Route::POST('api/mark-butcher-record-sold', [ApiAnimalController::class, 'mark_butcher_record_sold']);
 
+// Quarters Batch Creation Route - matches mobile app endpoint
+Route::POST('api/create-slaughter-distribution-records-bulk', [ApiAnimalController::class, 'create_slaughter_distribution_records_bulk']);
+
 // Packaging Records Routes - Must be before api/{model} catch-all
 Route::get('packaging-records', [\App\Http\Controllers\PackagingRecordController::class, 'index']);
 Route::get('packaging-records/{id}', [\App\Http\Controllers\PackagingRecordController::class, 'show']);

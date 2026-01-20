@@ -1782,19 +1782,12 @@ class ApiAnimalController extends Controller
 
         try {
             $rec->save();
+            $sr->save();
+
+            // QR code will be generated later on demand
+            // No need to generate codes during creation for better performance
 
             try {
-                $url = url('sdr/' . $rec->id);
-                $data =
-                    'ID: ' . $rec->id .
-                    ', Meat Grade: ' . $rec->post_grade .
-                    /*                     '\nSource: ' . $rec->source_name; */
-                    ', More Details: ' . $url;
-                $path = Utils::generate_qrcode($data);
-                $rec->qr_code = $path;
-                $rec->save();
-                $sr->save();
-
                 $sr = SlaughterRecord::find($sr->id);
                 $rec = SlaughterDistributionRecord::find($rec->id);
                 if ($sr == null) {
@@ -1890,39 +1883,14 @@ class ApiAnimalController extends Controller
             $totalWeight += $weight;
         }
 
-        // Validate quarter sections
-        $validSections = [
-            'Fore-1/4 - Right',
-            'Fore-1/4 - Left',
-            'Hind-1/4 - Right',
-            'Hind-1/4 - Left'
-        ];
-
-        $usedSections = [];
+        // Validate that source_address is provided
         foreach ($r->quarters as $quarter) {
-            if (!isset($quarter['source_address'])) {
+            if (!isset($quarter['source_address']) || empty($quarter['source_address'])) {
                 return Utils::response([
                     'status' => 0,
-                    'message' => "Each quarter must have source_address specified.",
+                    'message' => "Each record must have source_address specified.",
                 ]);
             }
-
-            $section = $quarter['source_address'];
-            if (!in_array($section, $validSections)) {
-                return Utils::response([
-                    'status' => 0,
-                    'message' => "Invalid quarter section: {$section}",
-                ]);
-            }
-
-            // Check for duplicates
-            if (in_array($section, $usedSections)) {
-                return Utils::response([
-                    'status' => 0,
-                    'message' => "Duplicate quarter section: {$section}",
-                ]);
-            }
-            $usedSections[] = $section;
         }
 
         // Get animal_id from slaughter record or use administrator_id as fallback
@@ -1938,60 +1906,57 @@ class ApiAnimalController extends Controller
         $createdRecords = [];
         $failedRecords = [];
 
+        // OPTIMIZATION: Prepare bulk insert data
+        $insertData = [];
+        $now = now();
+        
+        foreach ($r->quarters as $quarter) {
+            $weight = ((float)($quarter['original_weight']));
+            $sourceAddress = $quarter['source_address'];
+
+            $insertData[] = [
+                'animal_id' => $animal_id,
+                'slaughterhouse_id' => $sr->id,
+                'created_by_id' => $u->id,
+                'source_type' => "Slaughter House",
+                'source_id' => $sr->id,
+                'source_name' => $u->name,
+                'source_phone' => $u->phone_number,
+                'receiver_id' => 1,
+                'receiver_type' => "Trader",
+                'receiver_name' => "Unknown",
+                'receiver_address' => "Unknown",
+                'receiver_phone' => "Unknown",
+                'lhc' => $sr->lhc,
+                'v_id' => $sr->v_id,
+                'e_id' => $sr->e_id,
+                'animal_owner_id' => 1,
+                'source_address' => $sourceAddress,
+                'bar_code' => $sr->bar_code,
+                'post_fat' => $sr->post_fat,
+                'post_grade' => $sr->post_grade,
+                'post_animal' => $sr->post_animal,
+                'post_age' => $sr->post_age,
+                'original_weight' => $weight,
+                'current_weight' => $weight,
+                'price' => 'Quarter',
+                'slaughter_date' => $sr->created_at,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        }
+
         DB::beginTransaction();
 
         try {
-            foreach ($r->quarters as $quarter) {
-                $weight = ((float)($quarter['original_weight']));
-                $sourceAddress = $quarter['source_address'];
+            // OPTIMIZATION: Single bulk insert instead of N individual inserts
+            DB::table('slaughter_distribution_records')->insert($insertData);
 
-                $rec = new SlaughterDistributionRecord();
-                $rec->animal_id = $animal_id;
-                $rec->slaughterhouse_id = $sr->id;
-                $rec->created_by_id = $u->id;
-                $rec->source_type = "Slaughter House";
-                $rec->source_id = $sr->id;
-                $rec->source_name = $u->name;
-                $rec->source_phone = $u->phone_number;
-                $rec->receiver_id = 1;
-                $rec->receiver_type = "Trader";
-                $rec->receiver_name = "Unknown";
-                $rec->receiver_address = "Unknown";
-                $rec->receiver_phone = "Unknown";
-                $rec->lhc = $sr->lhc;
-                $rec->v_id = $sr->v_id;
-                $rec->e_id = $sr->e_id;
-                $rec->animal_owner_id = 1;
-                $rec->source_address = $sourceAddress;
-                $rec->bar_code = $sr->bar_code;
-                $rec->post_fat = $sr->post_fat;
-                $rec->post_grade = $sr->post_grade;
-                $rec->post_animal = $sr->post_animal;
-                $rec->post_age = $sr->post_age;
-                $rec->original_weight = $weight;
-                $rec->current_weight = $weight;
-                $rec->price = 'Quarter';
-                $rec->slaughter_date = $sr->created_at;
-
-                $rec->save();
-
-                // Generate QR code
-                try {
-                    $url = url('sdr/' . $rec->id);
-                    $data =
-                        'ID: ' . $rec->id .
-                        ', Meat Grade: ' . $rec->post_grade .
-                        ', More Details: ' . $url;
-                    $path = Utils::generate_qrcode($data);
-                    $rec->qr_code = $path;
-                    $rec->save();
-                } catch (\Throwable $e) {
-                    // Log but don't fail if QR code generation fails
-                    \Log::error("Failed to generate QR code for record {$rec->id}: " . $e->getMessage());
-                }
-
-                $createdRecords[] = $rec;
-            }
+            // OPTIMIZATION: Get all created records in one query with eager loading
+            $createdRecords = SlaughterDistributionRecord::where('source_id', $sr->id)
+                ->where('created_at', $now)
+                ->orderBy('id')
+                ->get();
 
             // Update available weight
             $currentAvailable = (float)($sr->available_weight);
@@ -2000,12 +1965,12 @@ class ApiAnimalController extends Controller
 
             DB::commit();
 
-            // Reload data
+            // QR codes will be generated later on demand
+            // No need to generate codes during creation for better performance
+
+            // OPTIMIZATION: No need to reload - we already have fresh data
             $sr = SlaughterRecord::find($sr->id);
-            $records = [];
-            foreach ($createdRecords as $rec) {
-                $records[] = SlaughterDistributionRecord::find($rec->id);
-            }
+            $records = $createdRecords->all();
 
             return Utils::response([
                 'status' => 1,
@@ -4117,28 +4082,12 @@ class ApiAnimalController extends Controller
 
         try {
             $rec->save();
+            $sdr->save();
+            
+            // QR codes and barcodes will be generated later on demand
+            // No need to generate codes during creation for better performance
             
             try {
-                // Generate simple unique codes
-                $cutName = $rec->cut_type == 'Prime Cut' ? $rec->prime_cut_type : $rec->offal_cut_type;
-                $random = strtoupper(substr(md5(uniqid($rec->id, true)), 0, 8));
-                
-                // Simple barcode - just unique code
-                $barcodeData = "BR{$rec->id}{$random}";
-                
-                // Generate ACTUAL BARCODE (not QR code) using generate_barcode
-                $barcodePath = Utils::generate_barcode($barcodeData);
-                $rec->bar_code = $barcodePath;
-                
-                // Professional QR code with essential information
-                $url = url('butcher-record/' . $rec->id);
-                $qrData = "ID: {$rec->id}, V-ID: {$rec->v_id}, Cut: {$cutName}, Weight: {$rec->current_weight}kg, Grade: {$rec->post_grade}, Code: {$barcodeData}, URL: {$url}";
-                $qrPath = Utils::generate_qrcode($qrData);
-                $rec->qr_code = $qrPath;
-                $rec->save();
-                
-                // Update meat cut weight
-                $sdr->save();
 
                 // Send notification to buyer if exists and sold
                 if ($buyer != null && $is_sold == 'Yes') {
@@ -4241,147 +4190,169 @@ class ApiAnimalController extends Controller
             ]);
         }
 
+        // OPTIMIZATION: Prepare all records and validations first
+        $recordsToCreate = [];
+        $buyersToNotify = [];
+        
+        foreach ($records as $index => $recordData) {
+            // Validate weight (using original_weight like single record)
+            $weight = floatval($recordData['original_weight'] ?? 0);
+            if ($weight <= 0) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Record " . ($index + 1) . ": Weight must be greater than 0.",
+                ]);
+            }
+
+            // Validate cut type
+            if (!isset($recordData['cut_type']) || empty($recordData['cut_type'])) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Record " . ($index + 1) . ": Cut type is required (Prime Cut or Offal Cut).",
+                ]);
+            }
+
+            // Validate specific cut type
+            if ($recordData['cut_type'] == 'Prime Cut' && empty($recordData['prime_cut_type'])) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Record " . ($index + 1) . ": Prime cut type is required.",
+                ]);
+            }
+
+            if ($recordData['cut_type'] == 'Offal Cut' && empty($recordData['offal_cut_type'])) {
+                return Utils::response([
+                    'status' => 0,
+                    'message' => "Record " . ($index + 1) . ": Offal cut type is required.",
+                ]);
+            }
+
+            // Handle buyer
+            $buyer = null;
+            $is_sold = $recordData['is_sold'] ?? 'No';
+            
+            if ($is_sold == 'Yes' && isset($recordData['buyer_id']) && $recordData['buyer_id'] > 0) {
+                $buyer = Administrator::find($recordData['buyer_id']);
+            }
+
+            // Prepare record data
+            $recordsToCreate[] = [
+                'data' => $recordData,
+                'weight' => $weight,
+                'buyer' => $buyer,
+                'is_sold' => $is_sold,
+            ];
+        }
+
         // Start database transaction
         DB::beginTransaction();
         
         try {
-            foreach ($records as $index => $recordData) {
-                // Validate weight (using original_weight like single record)
-                $weight = floatval($recordData['original_weight'] ?? 0);
-                if ($weight <= 0) {
-                    DB::rollBack();
-                    return Utils::response([
-                        'status' => 0,
-                        'message' => "Record " . ($index + 1) . ": Weight must be greater than 0.",
-                    ]);
-                }
+            // OPTIMIZATION: Prepare bulk insert data
+            $insertData = [];
+            $now = now();
+            
+            foreach ($recordsToCreate as $preparedRecord) {
+                $recordData = $preparedRecord['data'];
+                $weight = $preparedRecord['weight'];
+                $buyer = $preparedRecord['buyer'];
+                $is_sold = $preparedRecord['is_sold'];
 
-                // Validate cut type
-                if (!isset($recordData['cut_type']) || empty($recordData['cut_type'])) {
-                    DB::rollBack();
-                    return Utils::response([
-                        'status' => 0,
-                        'message' => "Record " . ($index + 1) . ": Cut type is required (Prime Cut or Offal Cut).",
-                    ]);
-                }
+                $insertRow = [
+                    'slaughter_distribution_record_id' => $sdr->id,
+                    'animal_id' => $sdr->animal_id,
+                    'slaughterhouse_id' => $sdr->slaughterhouse_id,
+                    'created_by_id' => $u->id,
+                    'source_type' => "Butcher Shop",
+                    'source_id' => $sdr->id,
+                    'source_name' => $u->name,
+                    'source_phone' => $u->phone_number,
+                    'source_address' => $u->address ?? "",
+                    'is_sold' => $is_sold,
+                    'lhc' => $sdr->lhc,
+                    'v_id' => $sdr->v_id,
+                    'e_id' => $sdr->e_id,
+                    'animal_owner_id' => $sdr->animal_owner_id,
+                    'post_fat' => $sdr->post_fat,
+                    'post_grade' => $sdr->post_grade,
+                    'post_animal' => $sdr->post_animal,
+                    'post_age' => $sdr->post_age,
+                    'original_weight' => $weight,
+                    'current_weight' => $weight,
+                    'price' => $recordData['price'] ?? "",
+                    'slaughter_date' => $sdr->slaughter_date,
+                    'cut_type' => $recordData['cut_type'] ?? 'Prime Cut',
+                    'prime_cut_type' => $recordData['prime_cut_type'] ?? "",
+                    'offal_cut_type' => $recordData['offal_cut_type'] ?? "",
+                    'notes' => $recordData['notes'] ?? "",
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
 
-                // Validate specific cut type
-                if ($recordData['cut_type'] == 'Prime Cut' && empty($recordData['prime_cut_type'])) {
-                    DB::rollBack();
-                    return Utils::response([
-                        'status' => 0,
-                        'message' => "Record " . ($index + 1) . ": Prime cut type is required.",
-                    ]);
-                }
-
-                if ($recordData['cut_type'] == 'Offal Cut' && empty($recordData['offal_cut_type'])) {
-                    DB::rollBack();
-                    return Utils::response([
-                        'status' => 0,
-                        'message' => "Record " . ($index + 1) . ": Offal cut type is required.",
-                    ]);
-                }
-
-                // Handle buyer
-                $buyer = null;
-                $is_sold = $recordData['is_sold'] ?? 'No';
-                
-                if ($is_sold == 'Yes' && isset($recordData['buyer_id']) && $recordData['buyer_id'] > 0) {
-                    $buyer = Administrator::find($recordData['buyer_id']);
-                }
-
-                // Create butcher record (matching single record structure exactly)
-                $rec = new \App\Models\ButcherRecord();
-                $rec->slaughter_distribution_record_id = $sdr->id;
-                $rec->animal_id = $sdr->animal_id;
-                $rec->slaughterhouse_id = $sdr->slaughterhouse_id;
-                $rec->created_by_id = $u->id;
-                $rec->source_type = "Butcher Shop";
-                $rec->source_id = $sdr->id;
-                $rec->source_name = $u->name;
-                $rec->source_phone = $u->phone_number;
-                $rec->source_address = $u->address ?? "";
-                
                 // Sold status and buyer information
-                $rec->is_sold = $is_sold;
                 if ($is_sold == 'Yes') {
-                    $rec->sold_date = now();
-                    $rec->sold_price = $recordData['price'] ?? "";
+                    $insertRow['sold_date'] = now();
+                    $insertRow['sold_price'] = $recordData['price'] ?? "";
                     
                     if ($buyer != null) {
-                        $rec->buyer_id = $buyer->id;
-                        $rec->buyer_name = $buyer->name;
-                        $rec->buyer_address = $buyer->address ?? "";
-                        $rec->buyer_phone = $buyer->phone_number;
+                        $insertRow['buyer_id'] = $buyer->id;
+                        $insertRow['buyer_name'] = $buyer->name;
+                        $insertRow['buyer_address'] = $buyer->address ?? "";
+                        $insertRow['buyer_phone'] = $buyer->phone_number;
+                        
+                        // Store for later notification (after commit)
+                        $buyersToNotify[] = [
+                            'buyer' => $buyer,
+                            'cut_name' => $recordData['cut_type'] == 'Prime Cut' ? $recordData['prime_cut_type'] : $recordData['offal_cut_type'],
+                            'weight' => $weight,
+                        ];
                     } else {
-                        $rec->buyer_name = $recordData['buyer_name'] ?? "";
-                        $rec->buyer_phone = $recordData['buyer_phone'] ?? "";
-                        $rec->buyer_address = $recordData['buyer_address'] ?? "";
+                        $insertRow['buyer_name'] = $recordData['buyer_name'] ?? "";
+                        $insertRow['buyer_phone'] = $recordData['buyer_phone'] ?? "";
+                        $insertRow['buyer_address'] = $recordData['buyer_address'] ?? "";
                     }
                 }
-                
-                $rec->lhc = $sdr->lhc;
-                $rec->v_id = $sdr->v_id;
-                $rec->e_id = $sdr->e_id;
-                $rec->animal_owner_id = $sdr->animal_owner_id;
-                $rec->post_fat = $sdr->post_fat;
-                $rec->post_grade = $sdr->post_grade;
-                $rec->post_animal = $sdr->post_animal;
-                $rec->post_age = $sdr->post_age;
-                $rec->original_weight = $weight;
-                $rec->current_weight = $weight;
-                $rec->price = $recordData['price'] ?? "";
-                $rec->slaughter_date = $sdr->slaughter_date;
-                $rec->cut_type = $recordData['cut_type'] ?? 'Prime Cut';
-                $rec->prime_cut_type = $recordData['prime_cut_type'] ?? "";
-                $rec->offal_cut_type = $recordData['offal_cut_type'] ?? "";
-                $rec->notes = $recordData['notes'] ?? "";
 
-                $rec->save();
-
-                // Generate codes
-                $cutName = $rec->cut_type == 'Prime Cut' ? $rec->prime_cut_type : $rec->offal_cut_type;
-                $random = strtoupper(substr(md5(uniqid($rec->id, true)), 0, 8));
-                
-                // Simple barcode
-                $barcodeData = "BR{$rec->id}{$random}";
-                $barcodePath = Utils::generate_barcode($barcodeData);
-                $rec->bar_code = $barcodePath;
-                
-                // Professional QR code
-                $url = url('butcher-record/' . $rec->id);
-                $qrData = "ID: {$rec->id}, V-ID: {$rec->v_id}, Cut: {$cutName}, Weight: {$rec->current_weight}kg, Grade: {$rec->post_grade}, Code: {$barcodeData}, URL: {$url}";
-                $qrPath = Utils::generate_qrcode($qrData);
-                $rec->qr_code = $qrPath;
-                $rec->save();
-
-                // Send notification to buyer if exists and sold
-                if ($buyer != null && $is_sold == 'Yes') {
-                    $msg = "You have purchased {$rec->current_weight}kg of {$cutName}. Open the App to see more details.";
-                    $title = "MEAT PURCHASE - {$rec->v_id}";
-                    Utils::sendNotification(
-                        $msg,
-                        $buyer->id,
-                        $headings = $title,
-                        $data = [$rec->id]
-                    );
-                }
-
-                $createdRecords[] = $rec;
+                $insertData[] = $insertRow;
             }
 
-            // Update SDR weight after all records created
+            // OPTIMIZATION: Single bulk insert instead of N individual inserts
+            DB::table('butcher_records')->insert($insertData);
+
+            // OPTIMIZATION: Get all created records in one query
+            $createdRecords = \App\Models\ButcherRecord::where('slaughter_distribution_record_id', $sdr->id)
+                ->where('created_at', $now)
+                ->orderBy('id')
+                ->get();
+
+            // Update SDR weight
             $sdr->current_weight = $available - $totalWeight;
             $sdr->save();
 
-            // Commit transaction
+            // Commit transaction BEFORE generating codes (to reduce lock time)
             DB::commit();
 
-            // Refresh records from database
-            $sdr = SlaughterDistributionRecord::find($sdr->id);
-            foreach ($createdRecords as $key => $rec) {
-                $createdRecords[$key] = \App\Models\ButcherRecord::find($rec->id);
+            // QR codes and barcodes will be generated later on demand
+            // No need to generate codes during creation for better performance
+
+            // OPTIMIZATION: Send notifications AFTER all processing (non-blocking)
+            foreach ($buyersToNotify as $notif) {
+                try {
+                    $msg = "You have purchased {$notif['weight']}kg of {$notif['cut_name']}. Open the App to see more details.";
+                    $title = "MEAT PURCHASE - {$sdr->v_id}";
+                    Utils::sendNotification(
+                        $msg,
+                        $notif['buyer']->id,
+                        $headings = $title,
+                        $data = [$sdr->id]
+                    );
+                } catch (\Throwable $e) {
+                    \Log::error("Failed to send notification: " . $e->getMessage());
+                }
             }
+
+            // OPTIMIZATION: No need to reload from database - we already have fresh data
+            $sdr = SlaughterDistributionRecord::find($sdr->id);
 
             return Utils::response([
                 'status' => 1,

@@ -179,6 +179,22 @@ class SlaughterRecordController extends AdminController
             })
             ->sortable();
 
+        // 11. Number of Cuts
+        $grid->column('cuts_count', __('Cuts'))
+            ->display(function () {
+                $count = \App\Models\SlaughterDistributionRecord::where('source_id', $this->id)->count();
+                return '<span class="badge badge-info">' . $count . '</span>';
+            })
+            ->sortable();
+
+        // 12. Show Details Column
+        $grid->column('details', __('Details'))
+            ->display(function () {
+                return '<a href="' . admin_url('slaughter-records/' . $this->id) . '" class="btn btn-sm btn-primary">
+                    <i class="fa fa-file-text-o"></i> Show Details
+                </a>';
+            });
+
         // Additional Details (Hidden - can be shown via column selector)
         $grid->column('v_id', __('V-ID'))->hide();
         $grid->column('lhc', __('LHC'))->hide();
@@ -194,6 +210,7 @@ class SlaughterRecordController extends AdminController
         $grid->actions(function ($actions) {
             $actions->disableDelete();
             $actions->disableEdit();
+            $actions->disableView();
         });
 
         $grid->disableCreateButton();
@@ -207,38 +224,213 @@ class SlaughterRecordController extends AdminController
      * Make a show builder.
      *
      * @param mixed $id
-     * @return Show
+     * @return View
      */
     protected function detail($id)
     {
-        $show = new Show(SlaughterRecord::findOrFail($id));
+        $record = SlaughterRecord::findOrFail($id);
+        
+        // Get all quarters (distribution records)
+        $quarters = \App\Models\SlaughterDistributionRecord::where('source_id', $id)
+            ->whereIn('source_address', [
+                'Fore-1/4 - Right',
+                'Fore-1/4 - Left',
+                'Hind-1/4 - Right',
+                'Hind-1/4 - Left'
+            ])
+            ->get();
+        
+        // Get prime cuts grouped by quarter
+        $primeCuts = \App\Models\SlaughterDistributionRecord::where('source_id', $id)
+            ->where('source_address', 'like', '%-%')
+            ->where('source_address', 'not like', 'Fore-1/4%')
+            ->where('source_address', 'not like', 'Hind-1/4%')
+            ->where('source_address', 'not like', 'Offal%')
+            ->get();
+        
+        // Get offal cuts
+        $offalCuts = \App\Models\SlaughterDistributionRecord::where('source_address', 'like', 'Offal%')
+            ->where('source_id', $id)
+            ->get();
 
-        $show->field('id', __('Id'));
-        $show->field('created_at', __('Created at'));
-        $show->field('updated_at', __('Updated at'));
-        $show->field('lhc', __('Lhc'));
-        $show->field('v_id', __('V id'));
-        $show->field('e_id', __('E id'));
+        // Calculate quarter weights
+        $foreRight = $quarters->where('source_address', 'Fore-1/4 - Right')->first();
+        $foreLeft = $quarters->where('source_address', 'Fore-1/4 - Left')->first();
+        $hindRight = $quarters->where('source_address', 'Hind-1/4 - Right')->first();
+        $hindLeft = $quarters->where('source_address', 'Hind-1/4 - Left')->first();
+        
+        $foreRightWeight = $foreRight ? $foreRight->original_weight : 0;
+        $foreLeftWeight = $foreLeft ? $foreLeft->original_weight : 0;
+        $hindRightWeight = $hindRight ? $hindRight->original_weight : 0;
+        $hindLeftWeight = $hindLeft ? $hindLeft->original_weight : 0;
+        
+        $qTotal = $foreRightWeight + $foreLeftWeight + $hindRightWeight + $hindLeftWeight;
+
+        // Return custom Blade view with all data
+        return view('admin.slaughter-record-report', compact(
+            'record',
+            'quarters',
+            'primeCuts',
+            'offalCuts',
+            'foreRightWeight',
+            'foreLeftWeight',
+            'hindRightWeight',
+            'hindLeftWeight',
+            'qTotal'
+        ));
+
+        /* Original Laravel-Admin Show implementation (commented out)
+        $show = new Show($record);
+
+        // === Carcass Information ===
+        $show->panel()
+            ->title('Carcass Information')
+            ->style('primary')
+            ->tools(function ($tools) {
+                $tools->disableEdit();
+                $tools->disableDelete();
+            });
+
+        $show->divider();
+
+        $show->field('v_id', __('V-ID'))->badge('success');
+        $show->field('e_id', __('E-ID'))->badge('info');
+        $show->field('lhc', __('LHC'))->badge('warning');
+        $show->field('bar_code', __('Bar Code'));
+        
+        $show->divider();
+        
         $show->field('breed', __('Breed'));
         $show->field('sex', __('Sex'));
-        $show->field('dob', __('Dob'));
-        $show->field('fmd', __('Fmd'));
-        $show->field('destination_slaughter_house', __('Destination slaughter house'));
-        $show->field('details', __('Details'));
-        $show->field('administrator_id', __('Administrator id'));
-        $show->field('type', __('Type'));
-        $show->field('bar_code', __('Bar code'));
-        $show->field('post_grade', __('Post grade'));
-        $show->field('post_animal', __('Post animal'));
-        $show->field('post_age', __('Post age'));
-        $show->field('post_dentition', __('Post dentition'));
-        $show->field('post_weight', __('Post weight'));
-        $show->field('post_fat', __('Post fat'));
-        $show->field('post_other', __('Post other'));
-        $show->field('has_post_info', __('Has post info'));
-        $show->field('available_weight', __('Available weight'));
+        $show->field('dob', __('Date of Birth'));
+        $show->field('post_age', __('Age'));
+        $show->field('post_dentition', __('Dentition'));
+        
+        $show->divider();
+        
+        $show->field('destination_slaughter_house', __('Slaughter House'));
+        $show->field('created_at', __('Slaughter Date'));
+        $show->field('administrator_id', __('Administrator ID'));
+        
+        // === Post-Slaughter Details ===
+        $show->panel()
+            ->title('Post-Slaughter Assessment')
+            ->style('success');
+            
+        $show->field('post_weight', __('Carcass Weight (KGs)'))->badge('danger');
+        $show->field('available_weight', __('Available Weight (KGs)'))->badge('warning');
+        $show->field('post_grade', __('Grade'));
+        $show->field('post_animal', __('Animal Type'));
+        $show->field('post_fat', __('Fat Score'));
+        $show->field('post_other', __('Other Notes'))->unescape();
+
+        // Build Quarter Table HTML
+        $foreRight = $quarters->where('source_address', 'Fore-1/4 - Right')->first();
+        $foreLeft = $quarters->where('source_address', 'Fore-1/4 - Left')->first();
+        $hindRight = $quarters->where('source_address', 'Hind-1/4 - Right')->first();
+        $hindLeft = $quarters->where('source_address', 'Hind-1/4 - Left')->first();
+        
+        $foreRightWeight = $foreRight ? $foreRight->original_weight : 0;
+        $foreLeftWeight = $foreLeft ? $foreLeft->original_weight : 0;
+        $hindRightWeight = $hindRight ? $hindRight->original_weight : 0;
+        $hindLeftWeight = $hindLeft ? $hindLeft->original_weight : 0;
+        
+        $qTotal = $foreRightWeight + $foreLeftWeight + $hindRightWeight + $hindLeftWeight;
+        
+        $quarterHtml = '<div style="margin-top: 20px;"><div class="box box-info"><div class="box-header with-border"><h3 class="box-title">Quarter Record</h3></div><div class="box-body">';
+        $quarterHtml .= '<table class="table table-bordered"><thead class="bg-primary"><tr>';
+        $quarterHtml .= '<th>EID: ' . $record->e_id . '</th><th colspan="4" class="text-center">Weight in KGs</th><th>Totals</th>';
+        $quarterHtml .= '</tr><tr><th></th><th>Fore Right</th><th>Fore Left</th><th>Hind Right</th><th>Hind Left</th><th></th>';
+        $quarterHtml .= '</tr></thead><tbody><tr><td><strong>Quarters</strong></td>';
+        $quarterHtml .= '<td class="text-center"><span class="badge badge-success">' . $foreRightWeight . '</span></td>';
+        $quarterHtml .= '<td class="text-center"><span class="badge badge-success">' . $foreLeftWeight . '</span></td>';
+        $quarterHtml .= '<td class="text-center"><span class="badge badge-success">' . $hindRightWeight . '</span></td>';
+        $quarterHtml .= '<td class="text-center"><span class="badge badge-success">' . $hindLeftWeight . '</span></td>';
+        $quarterHtml .= '<td class="text-center"><strong class="text-danger">' . $qTotal . '</strong></td>';
+        $quarterHtml .= '</tr></tbody></table></div></div></div>';
+        
+        $show->divider();
+        $show->html($quarterHtml);
+
+        // Build Fore Quarters Primal Cuts HTML
+        $foreCuts = ['Beef boneless', 'Beef Stew', 'Bones', 'Brisket', 'Chops', 'Chuck ribs', 'Family Steak', 'Fore rib', 'Leg Cut'];
+        $foreHtml = '<div style="margin-top: 20px;"><div class="box box-warning"><div class="box-header with-border"><h3 class="box-title">Fore Quarters - Primal Cuts Record</h3></div><div class="box-body">';
+        $foreHtml .= '<table class="table table-bordered"><thead class="bg-warning"><tr><th>Primal Cuts</th><th>FL KGs</th><th>FR KGs</th><th>Totals</th></tr></thead><tbody>';
+        
+        $totalFL = 0;
+        $totalFR = 0;
+        foreach ($foreCuts as $cut) {
+            $fl = $primeCuts->where('source_address', 'like', "%Fore%Left%$cut%")->first();
+            $fr = $primeCuts->where('source_address', 'like', "%Fore%Right%$cut%")->first();
+            $flW = $fl ? $fl->original_weight : 0;
+            $frW = $fr ? $fr->original_weight : 0;
+            $totalFL += $flW;
+            $totalFR += $frW;
+            $foreHtml .= '<tr><td><strong>' . $cut . '</strong></td>';
+            $foreHtml .= '<td class="text-center">' . ($flW > 0 ? '<span class="badge badge-primary">' . $flW . '</span>' : '-') . '</td>';
+            $foreHtml .= '<td class="text-center">' . ($frW > 0 ? '<span class="badge badge-primary">' . $frW . '</span>' : '-') . '</td>';
+            $foreHtml .= '<td class="text-center">' . ($flW + $frW) . '</td></tr>';
+        }
+        $foreHtml .= '<tr class="bg-light"><td><strong>TOTALS</strong></td>';
+        $foreHtml .= '<td class="text-center"><strong class="text-danger">' . $totalFL . '</strong></td>';
+        $foreHtml .= '<td class="text-center"><strong class="text-danger">' . $totalFR . '</strong></td>';
+        $foreHtml .= '<td class="text-center"><strong class="text-danger">' . ($totalFL + $totalFR) . '</strong></td></tr>';
+        $foreHtml .= '</tbody></table></div></div></div>';
+        
+        $show->divider();
+        $show->html($foreHtml);
+
+        // Build Hind Quarters Primal Cuts HTML
+        $hindCuts = ['Fillet', 'Oxtail', 'Rib eye', 'Rolled loin', 'Rump', 'Silver side', 'Sirloin / Striploin', 'T Bone', 'Topside /Beef Roast', 'Veal Steak'];
+        $hindHtml = '<div style="margin-top: 20px;"><div class="box box-danger"><div class="box-header with-border"><h3 class="box-title">Hind Quarters - Primal Cuts Record</h3></div><div class="box-body">';
+        $hindHtml .= '<table class="table table-bordered"><thead class="bg-danger text-white"><tr><th>Primal Cuts</th><th>HL KGs</th><th>HR KGs</th><th>Totals</th></tr></thead><tbody>';
+        
+        $totalHL = 0;
+        $totalHR = 0;
+        foreach ($hindCuts as $cut) {
+            $hl = $primeCuts->where('source_address', 'like', "%Hind%Left%$cut%")->first();
+            $hr = $primeCuts->where('source_address', 'like', "%Hind%Right%$cut%")->first();
+            $hlW = $hl ? $hl->original_weight : 0;
+            $hrW = $hr ? $hr->original_weight : 0;
+            $totalHL += $hlW;
+            $totalHR += $hrW;
+            $hindHtml .= '<tr><td><strong>' . $cut . '</strong></td>';
+            $hindHtml .= '<td class="text-center">' . ($hlW > 0 ? '<span class="badge badge-success">' . $hlW . '</span>' : '-') . '</td>';
+            $hindHtml .= '<td class="text-center">' . ($hrW > 0 ? '<span class="badge badge-success">' . $hrW . '</span>' : '-') . '</td>';
+            $hindHtml .= '<td class="text-center">' . ($hlW + $hrW) . '</td></tr>';
+        }
+        $hindHtml .= '<tr class="bg-light"><td><strong>TOTALS</strong></td>';
+        $hindHtml .= '<td class="text-center"><strong class="text-danger">' . $totalHL . '</strong></td>';
+        $hindHtml .= '<td class="text-center"><strong class="text-danger">' . $totalHR . '</strong></td>';
+        $hindHtml .= '<td class="text-center"><strong class="text-danger">' . ($totalHL + $totalHR) . '</strong></td></tr>';
+        $hindHtml .= '</tbody></table></div></div></div>';
+        
+        $show->divider();
+        $show->html($hindHtml);
+
+        // Build Offals HTML
+        $offalTypes = ['Heart', 'Kidneys', 'Liver', 'Brain', 'Tongue', 'Tripe', 'Tail', 'Head', 'Other'];
+        $offalHtml = '<div style="margin-top: 20px;"><div class="box box-success"><div class="box-header with-border"><h3 class="box-title">Offals Record</h3></div><div class="box-body">';
+        $offalHtml .= '<table class="table table-bordered"><thead class="bg-success text-white"><tr><th>EID: ' . $record->e_id . '</th>';
+        foreach ($offalTypes as $type) {
+            $offalHtml .= '<th>' . $type . '</th>';
+        }
+        $offalHtml .= '<th>Totals</th></tr></thead><tbody><tr><td><strong>Weight (KGs)</strong></td>';
+        
+        $offalTotal = 0;
+        foreach ($offalTypes as $type) {
+            $offal = $offalCuts->where('source_address', 'like', "%$type%")->first();
+            $weight = $offal ? $offal->original_weight : 0;
+            $offalTotal += $weight;
+            $offalHtml .= '<td class="text-center">' . ($weight > 0 ? '<span class="badge badge-info">' . $weight . '</span>' : '-') . '</td>';
+        }
+        $offalHtml .= '<td class="text-center"><strong class="text-danger">' . $offalTotal . '</strong></td></tr></tbody></table></div></div></div>';
+        
+        $show->divider();
+        $show->html($offalHtml);
 
         return $show;
+        */
     }
 
     /**

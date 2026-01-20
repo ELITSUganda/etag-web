@@ -1,0 +1,521 @@
+/* ============================================
+   Slaughter Record Report - Professional Document
+   ============================================ */
+
+/* Reset & Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.4;
+    color: #333;
+    background: #f5f5f5;
+    padding: 15px;
+    font-size: 11pt;
+}
+
+/* Container */
+.report-container {
+    max-width: 210mm;
+    margin: 0 auto;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+}
+
+/* ============================================
+   Header Section
+   ============================================ */
+.report-header {
+    background: #8B4513;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid #654321;
+}
+
+.logo-section {
+    flex: 1;
+}
+
+.company-name {
+    font-size: 18pt;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.report-subtitle {
+    font-size: 9pt;
+    opacity: 0.95;
+    font-weight: 400;
+}
+
+.report-meta {
+    text-align: right;
+}
+
+.meta-item {
+    margin-bottom: 3px;
+    font-size: 9pt;
+}
+
+.meta-label {
+    opacity: 0.9;
+    margin-right: 5px;
+}
+
+.meta-value {
+    font-weight: 600;
+}
+
+/* ============================================
+   Actions Bar
+   ============================================ */
+.actions-bar {
+    background: #f8f9fa;
+    padding: 8px 20px;
+    display: flex;
+    gap: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.btn {
+    padding: 6px 15px;
+    border: none;
+    border-radius: 3px;
+    font-size: 10pt;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: #8B4513;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #654321;
+}
+
+.btn-secondary {
+    background: white;
+    color: #8B4513;
+    border: 1px solid #8B4513;
+}
+
+.btn-secondary:hover {
+    background: #8B4513;
+    color: white;
+}
+
+/* ============================================
+   Section Cards
+   ============================================ */
+.section-card {
+    margin: 12px 0;
+    border: none;
+    border-radius: 0;
+    overflow: visible;
+    box-shadow: none;
+}
+
+.section-header {
+    background: #f5f5f5;
+    padding: 8px 12px;
+    border-left: 3px solid #8B4513;
+    border-bottom: 1px solid #ddd;
+}
+
+.section-title {
+    font-size: 12pt;
+    font-weight: 700;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.section-icon {
+    font-size: 14pt;
+}
+
+.section-body {
+    padding: 15px;
+}
+
+/* ============================================
+   Info Table - 2 Column Layout
+   ============================================ */
+.info-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9pt;
+    border: 1px solid #ddd;
+}
+
+.info-table tr {
+    border-bottom: 1px solid #ddd;
+}
+
+.info-table tr:last-child {
+    border-bottom: none;
+}
+
+.info-table td {
+    padding: 8px 10px;
+    vertical-align: top;
+    border-right: 1px solid #ddd;
+}
+
+.info-table td:last-child {
+    border-right: none;
+}
+
+.info-table .label-col {
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    font-size: 8pt;
+    letter-spacing: 0.3px;
+    width: 18%;
+    background: #f9f9f9;
+}
+
+.info-table .value-col {
+    color: #333;
+    font-weight: 500;
+    width: 32%;
+}
+
+.info-table .value-col.strong {
+    font-weight: 700;
+    font-size: 10pt;
+    color: #000;
+}
+
+.info-table .value-col.weight-highlight {
+    font-weight: 700;
+    color: #8B4513;
+    font-size: 10pt;
+}
+
+/* Barcode Display */
+.barcode-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+}
+
+.barcode-image {
+    max-width: 200px;
+    height: auto;
+}
+
+.barcode-text {
+    font-size: 9pt;
+    font-weight: 600;
+    color: #333;
+    letter-spacing: 1px;
+}
+
+/* ============================================
+   Data Tables
+   ============================================ */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9pt;
+    background: white;
+    border: 1px solid #333;
+}
+
+.data-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.data-table th {
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    font-size: 8pt;
+    color: white;
+    border: 1px solid #333;
+}
+
+.table-header-primary,
+.table-header-warning,
+.table-header-danger,
+.table-header-success {
+    background: #8B4513;
+}
+
+.data-table tbody tr {
+    border-bottom: 1px solid #ddd;
+}
+
+.data-table tbody tr:hover {
+    background-color: #fafafa;
+}
+
+.data-table tbody tr:last-child {
+    border-bottom: 1px solid #333;
+}
+
+.data-table td {
+    padding: 6px 10px;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.row-label {
+    font-weight: 600;
+    color: #333;
+}
+
+.total-row {
+    background: #f5f5f5;
+    border-top: 2px solid #333;
+    font-weight: 700;
+}
+
+.total-col {
+    font-weight: 700;
+}
+
+th.total-col {
+    background: #8B4513 !important;
+}
+
+td.total-col {
+    background: #f5f5f5;
+}
+
+.total-value {
+    font-weight: 700;
+    font-size: 10pt;
+}
+
+/* ============================================
+   Badges
+   ============================================ */
+.badge {
+    display: inline-block;
+    padding: 2px 6px;
+    font-weight: 600;
+    font-size: 9pt;
+    color: #333;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+}
+
+.badge-primary,
+.badge-success,
+.badge-info,
+.badge-warning {
+    background: #f5f5f5;
+    color: #333;
+}
+
+/* ============================================
+   Utilities
+   ============================================ */
+.text-center {
+    text-align: center;
+}
+
+.text-muted {
+    color: #999;
+    font-size: 9pt;
+}
+
+.mt-20 {
+    margin-top: 10px;
+}
+
+/* ============================================
+   Offals Table
+   ============================================ */
+.offals-table {
+    font-size: 8pt;
+}
+
+.offals-table th {
+    padding: 5px 6px;
+    font-size: 7pt;
+}
+
+.offals-table td {
+    padding: 5px 6px;
+}
+
+/* ============================================
+   Report Footer
+   ============================================ */
+.report-footer {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: white;
+    border-top: 2px solid #8B4513;
+}
+
+.footer-line {
+    height: 1px;
+    background: #ddd;
+    margin-bottom: 8px;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-text {
+    font-size: 8pt;
+    color: #666;
+    margin: 2px 0;
+}
+
+.footer-left {
+    text-align: left;
+}
+
+.footer-right {
+    text-align: right;
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+@media print {
+    body {
+        background: white;
+        padding: 0;
+        margin: 0;
+    }
+
+    .report-container {
+        box-shadow: none;
+        max-width: 100%;
+        margin: 0;
+        padding: 10mm;
+    }
+
+    .actions-bar,
+    .no-print {
+        display: none !important;
+    }
+
+    .section-card {
+        page-break-inside: avoid;
+        margin: 10px 0;
+    }
+
+    .report-header {
+        background: #8B4513 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        padding: 12px 15px;
+    }
+
+    .data-table thead,
+    .info-table .label-col {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .data-table,
+    .data-table th,
+    .data-table td,
+    .info-table,
+    .info-table td {
+        border: 1px solid #000;
+    }
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+@media (max-width: 768px) {
+    .report-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 12px 15px;
+    }
+
+    .report-meta {
+        text-align: center;
+        margin-top: 8px;
+    }
+
+    .company-name {
+        font-size: 16pt;
+    }
+
+    .info-table {
+        font-size: 8pt;
+    }
+
+    .info-table td {
+        display: block;
+        width: 100% !important;
+        border-right: none;
+    }
+
+    .info-table .label-col {
+        border-bottom: none;
+        padding-bottom: 2px;
+    }
+
+    .info-table .value-col {
+        padding-top: 2px;
+    }
+
+    .data-table {
+        font-size: 8pt;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 4px 5px;
+    }
+
+    .actions-bar {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 6px;
+    }
+
+    .footer-right {
+        text-align: center;
+    }
+}
