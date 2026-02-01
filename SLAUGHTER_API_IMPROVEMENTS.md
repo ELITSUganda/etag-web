@@ -37,10 +37,7 @@ POST /api/create-slaughter-single
 {"status": 0, "message": "Slaughter house with ID '5' not found."}
 ```
 
-#### 3. **Weight Validation**
-- ✅ Post weight must be greater than 0
-- ✅ Available weight cannot be negative
-- ✅ Clear validation error messages
+ 
 
 #### 4. **Grade Validation**
 - ✅ Accepts standard grades (A, B, C, D, E)

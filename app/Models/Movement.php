@@ -265,7 +265,12 @@ class Movement extends Model
         $ans = [];
         $animals = DB::table('animals')
             ->join('movement_has_movement_animals', 'animals.id', '=', 'movement_has_movement_animals.movement_animal_id')
+            ->leftJoin('slaughter_records', function($join) {
+                $join->on('animals.v_id', '=', 'slaughter_records.v_id')
+                     ->where('slaughter_records.is_complete', '=', 'Yes');
+            })
             ->where('movement_has_movement_animals.movement_id', $this->id)
+            ->whereNull('slaughter_records.id')  // Exclude animals with completed slaughter
             ->select('animals.id', 'animals.v_id', 'animals.e_id', 'animals.photo')
             ->get();
         foreach ($animals as $animal) {

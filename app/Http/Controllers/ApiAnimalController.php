@@ -1363,7 +1363,7 @@ class ApiAnimalController extends Controller
         }
 
         $sr = null;
-        
+
         if ($r->task == 'Create') {
             // Validate v_id is provided
             if (!$r->has('v_id') || empty($r->v_id)) {
@@ -1491,16 +1491,14 @@ class ApiAnimalController extends Controller
             $sr->post_weight = $weight;
         }
 
-        if ($r->has('available_weight') && !empty($r->available_weight)) {
+
+        try {
             $availWeight = floatval($r->available_weight);
-            if ($availWeight < 0) {
-                return Utils::response([
-                    'status' => 0,
-                    'message' => "Available weight cannot be negative.",
-                ]);
-            }
             $sr->available_weight = $availWeight;
+        } catch (\Throwable $th) {
+            //throw $th;
         }
+
 
         if ($r->has('post_fat') && !empty($r->post_fat)) {
             $sr->post_fat = trim($r->post_fat);
@@ -1529,15 +1527,15 @@ class ApiAnimalController extends Controller
         // Save with error handling
         try {
             $sr->save();
-            
+
             // Refresh record to get latest data
             $sr = SlaughterRecord::find($sr->id);
-            
+
             return Utils::response([
                 'data' => $sr,
                 'status' => 1,
-                'message' => $r->task == 'Create' 
-                    ? "Slaughter record created successfully." 
+                'message' => $r->task == 'Create'
+                    ? "Slaughter record created successfully."
                     : "Slaughter record updated successfully.",
             ]);
         } catch (\Throwable $e) {
@@ -1616,12 +1614,12 @@ class ApiAnimalController extends Controller
             $sr->carcus_owen_id = $owner->id;
             $sr->carcus_owen_assigned = 'Yes';
             $sr->carcus_owen_name = $owner->name;
-            
+
             $sr->save();
-            
+
             // Refresh to get latest data
             $sr = SlaughterRecord::find($sr->id);
-            
+
             return Utils::response([
                 'data' => $sr,
                 'status' => 1,
@@ -1631,6 +1629,68 @@ class ApiAnimalController extends Controller
             return Utils::response([
                 'status' => 0,
                 'message' => "Failed to assign carcass owner: " . $e->getMessage(),
+            ]);
+        }
+    }
+
+
+    public function slaughter_record_mark_complete(Request $r)
+    {
+        // Validate user authentication
+        $user_id = Utils::get_user_id($r);
+        if ($user_id < 1) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "User authentication failed. Please login again.",
+            ]);
+        }
+
+        // Validate slaughter record ID
+        if (!$r->has('slaughter_record_id') || empty($r->slaughter_record_id)) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Slaughter record ID is required.",
+            ]);
+        }
+
+        // Find slaughter record
+        $sr = SlaughterRecord::find($r->slaughter_record_id);
+        if ($sr == null) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Slaughter record with ID '{$r->slaughter_record_id}' not found.",
+            ]);
+        }
+
+        // Check if already marked as complete
+        if ($sr->is_complete == 'Yes') {
+            return Utils::response([
+                'data' => $sr,
+                'status' => 1,
+                'message' => "Slaughter record already marked as complete.",
+            ]);
+        }
+
+
+
+
+        // Mark as complete with transaction safety
+        try {
+            $sr->is_complete = 'Yes';
+            $sr->save();
+
+            // Refresh to get latest data
+            $sr = SlaughterRecord::find($sr->id);
+
+            return Utils::response([
+                'data' => $sr,
+                'status' => 1,
+                'message' => "Slaughter record successfully marked as complete.",
+            ]);
+        } catch (\Throwable $e) {
+            return Utils::response([
+                'status' => 0,
+                'message' => "Failed to mark as complete: " . $e->getMessage(),
             ]);
         }
     }
@@ -1659,7 +1719,7 @@ class ApiAnimalController extends Controller
         // Try to find the source - could be SlaughterRecord (carcass) or SlaughterDistributionRecord (quarter)
         $sr = SlaughterRecord::find($r->source_id);
         $sourceQuarter = null;
-        
+
         // If not found as SlaughterRecord, try as SlaughterDistributionRecord (quarter)
         if ($sr == null) {
             $sourceQuarter = SlaughterDistributionRecord::find($r->source_id);
@@ -1669,7 +1729,7 @@ class ApiAnimalController extends Controller
                     'message' => "Source record not found.",
                 ]);
             }
-            
+
             // Get the parent slaughter record from the quarter
             $sr = SlaughterRecord::find($sourceQuarter->slaughterhouse_id);
             if ($sr == null) {
@@ -1693,7 +1753,7 @@ class ApiAnimalController extends Controller
         // NEW ARCHITECTURE: For cuts (Prime/Offal), they belong directly to carcass, don't deduct from quarter
         $availableWeight = 0;
         $isCut = $r->has('cut_type') && in_array($r->cut_type, ['Prime', 'Offal']);
-        
+
         if ($sourceQuarter != null && !$isCut) {
             // Creating from a quarter (non-cut distribution) - use quarter's current weight
             if ($sourceQuarter->current_weight == null || (strlen($sourceQuarter->current_weight) < 1)) {
@@ -1733,7 +1793,7 @@ class ApiAnimalController extends Controller
         $rec->animal_id = $sr->administrator_id ?? $sr->id;
         $rec->slaughterhouse_id = $sr->id;
         $rec->created_by_id  = $u->id;
-        
+
         // NEW: For cuts, source_id always points to carcass (SlaughterRecord)
         if ($isCut) {
             $rec->source_type = "Carcass";
@@ -1742,11 +1802,11 @@ class ApiAnimalController extends Controller
             $rec->source_type = $sourceQuarter != null ? "Quarter" : "Slaughter House";
             $rec->source_id = $sourceQuarter != null ? $sourceQuarter->id : $sr->id;
         }
-        
+
         // Use source_name from request if provided (for cut names like "Beef boneless", "T-Bone", etc.)
         $rec->source_name = $r->has('source_name') ? $r->source_name : $u->name;
         $rec->source_phone = $u->phone_number;
-        
+
         if ($receiver != null) {
             $rec->receiver_id = $receiver->id;
             $rec->receiver_type = "Trader";
@@ -1774,7 +1834,7 @@ class ApiAnimalController extends Controller
         $rec->current_weight = $weight;
         $rec->price = $r->price;
         $rec->slaughter_date = $sr->created_at;
-        
+
         // Add cut_type field (Prime Cut or Offal)
         if ($r->has('cut_type')) {
             $rec->cut_type = $r->cut_type;
@@ -1909,7 +1969,10 @@ class ApiAnimalController extends Controller
         // OPTIMIZATION: Prepare bulk insert data
         $insertData = [];
         $now = now();
-        
+
+        // Get cut_type if provided (for cuts, not quarters)
+        $cutType = $r->has('cut_type') ? $r->cut_type : '';
+
         foreach ($r->quarters as $quarter) {
             $weight = ((float)($quarter['original_weight']));
             $sourceAddress = $quarter['source_address'];
@@ -1941,6 +2004,7 @@ class ApiAnimalController extends Controller
                 'current_weight' => $weight,
                 'price' => 'Quarter',
                 'slaughter_date' => $sr->created_at,
+                'cut_type' => $cutType, // Store cut_type ('Prime' or 'Offal' for cuts, empty for quarters)
                 'created_at' => $now,
                 'updated_at' => $now,
             ];
@@ -3939,7 +4003,7 @@ class ApiAnimalController extends Controller
             ->limit(4000)
             ->orderBy('id', 'DESC')
             ->get();
-            
+
         return Utils::response([
             'status' => 1,
             'message' => "Success.",
@@ -4023,7 +4087,7 @@ class ApiAnimalController extends Controller
 
         // Update the meat cut available weight
         $sdr->current_weight = $available - $weight;
-        
+
         // Get buyer info if provided
         $buyer = null;
         $is_sold = $r->is_sold ?? 'No';
@@ -4042,13 +4106,13 @@ class ApiAnimalController extends Controller
         $rec->source_name = $u->name;
         $rec->source_phone = $u->phone_number;
         $rec->source_address = $u->address ?? "";
-        
+
         // Sold status and buyer information
         $rec->is_sold = $is_sold;
         if ($is_sold == 'Yes') {
             $rec->sold_date = now();
             $rec->sold_price = $r->sold_price ?? $r->price ?? "";
-            
+
             // Buyer from system
             if ($buyer != null) {
                 $rec->buyer_id = $buyer->id;
@@ -4062,7 +4126,7 @@ class ApiAnimalController extends Controller
                 $rec->buyer_address = $r->buyer_address ?? "";
             }
         }
-        
+
         $rec->lhc = $sdr->lhc;
         $rec->v_id = $sdr->v_id;
         $rec->e_id = $sdr->e_id;
@@ -4083,10 +4147,10 @@ class ApiAnimalController extends Controller
         try {
             $rec->save();
             $sdr->save();
-            
+
             // QR codes and barcodes will be generated later on demand
             // No need to generate codes during creation for better performance
-            
+
             try {
 
                 // Send notification to buyer if exists and sold
@@ -4175,7 +4239,7 @@ class ApiAnimalController extends Controller
         $records = $r->records;
         $createdRecords = [];
         $totalWeight = 0;
-        
+
         // Calculate total weight needed
         foreach ($records as $recordData) {
             $totalWeight += floatval($recordData['original_weight'] ?? 0);
@@ -4193,7 +4257,7 @@ class ApiAnimalController extends Controller
         // OPTIMIZATION: Prepare all records and validations first
         $recordsToCreate = [];
         $buyersToNotify = [];
-        
+
         foreach ($records as $index => $recordData) {
             // Validate weight (using original_weight like single record)
             $weight = floatval($recordData['original_weight'] ?? 0);
@@ -4230,7 +4294,7 @@ class ApiAnimalController extends Controller
             // Handle buyer
             $buyer = null;
             $is_sold = $recordData['is_sold'] ?? 'No';
-            
+
             if ($is_sold == 'Yes' && isset($recordData['buyer_id']) && $recordData['buyer_id'] > 0) {
                 $buyer = Administrator::find($recordData['buyer_id']);
             }
@@ -4246,12 +4310,12 @@ class ApiAnimalController extends Controller
 
         // Start database transaction
         DB::beginTransaction();
-        
+
         try {
             // OPTIMIZATION: Prepare bulk insert data
             $insertData = [];
             $now = now();
-            
+
             foreach ($recordsToCreate as $preparedRecord) {
                 $recordData = $preparedRecord['data'];
                 $weight = $preparedRecord['weight'];
@@ -4293,13 +4357,13 @@ class ApiAnimalController extends Controller
                 if ($is_sold == 'Yes') {
                     $insertRow['sold_date'] = now();
                     $insertRow['sold_price'] = $recordData['price'] ?? "";
-                    
+
                     if ($buyer != null) {
                         $insertRow['buyer_id'] = $buyer->id;
                         $insertRow['buyer_name'] = $buyer->name;
                         $insertRow['buyer_address'] = $buyer->address ?? "";
                         $insertRow['buyer_phone'] = $buyer->phone_number;
-                        
+
                         // Store for later notification (after commit)
                         $buyersToNotify[] = [
                             'buyer' => $buyer,
@@ -4363,7 +4427,6 @@ class ApiAnimalController extends Controller
                     'created_count' => count($createdRecords),
                 ]
             ]);
-
         } catch (\Throwable $e) {
             DB::rollBack();
             return Utils::response([
@@ -4505,7 +4568,7 @@ class ApiAnimalController extends Controller
         $rec->is_sold = 'Yes';
         $rec->sold_price = $sold_price;
         $rec->sold_date = now();
-        
+
         if ($buyer != null) {
             $rec->buyer_id = $buyer->id;
             $rec->buyer_name = $buyer->name;
@@ -5458,22 +5521,22 @@ class ApiAnimalController extends Controller
             // ===== OPTIMIZATION 2: Pagination parameters with validation =====
             $page = max(1, intval($request->input('page', 1)));
             $per_page = min(50, max(5, intval($request->input('per_page', 25))));
-            
+
             // Prevent excessive offset (security measure)
             if ($page > 10000) {
                 $page = 10000;
             }
-            
+
             $offset = ($page - 1) * $per_page;
 
             // ===== OPTIMIZATION 3: Search/filter parameters with validation =====
             $search = trim($request->input('search', ''));
-            
+
             // Prevent SQL injection via excessively long search strings
             if (strlen($search) > 200) {
                 $search = substr($search, 0, 200);
             }
-            
+
             $event_type = null;
             if ($request->has('event_type')) {
                 $event_type = trim($request->input('event_type', ''));
@@ -5482,33 +5545,33 @@ class ApiAnimalController extends Controller
                     $event_type = null;
                 }
             }
-            
+
             $category = trim($request->input('category', ''));
             // Validate category - only allow specific values
             if (!in_array(strtolower($category), ['sanitary', 'production', ''])) {
                 $category = '';
             }
-            
+
             $animal_id = intval($request->input('animal_id', 0));
             // Validate animal_id is reasonable
             if ($animal_id < 0) {
                 $animal_id = 0;
             }
-            
+
             $e_id = trim($request->input('e_id', ''));
             if (strlen($e_id) > 100) {
                 $e_id = substr($e_id, 0, 100);
             }
-            
+
             $v_id = trim($request->input('v_id', ''));
             if (strlen($v_id) > 100) {
                 $v_id = substr($v_id, 0, 100);
             }
-            
+
             // Validate and sanitize date inputs
             $date_from = $request->input('date_from', '');
             $date_to = $request->input('date_to', '');
-            
+
             // Validate date format (YYYY-MM-DD)
             if (!empty($date_from) && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date_from)) {
                 $date_from = '';
@@ -5516,7 +5579,7 @@ class ApiAnimalController extends Controller
             if (!empty($date_to) && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date_to)) {
                 $date_to = '';
             }
-            
+
             // Ensure date_from is not after date_to
             if (!empty($date_from) && !empty($date_to) && strtotime($date_from) > strtotime($date_to)) {
                 $temp = $date_from;
@@ -5531,63 +5594,63 @@ class ApiAnimalController extends Controller
             $where_clauses = ["farm_id IN ($farm_ids_str)"];
             $bind_params = [];
 
-        // Search filter
-        if (!empty($search)) {
-            $where_clauses[] = "(e_id LIKE ? OR v_id LIKE ? OR type LIKE ? OR description LIKE ? OR detail LIKE ?)";
-            $search_param = "%{$search}%";
-            $bind_params = array_merge($bind_params, [$search_param, $search_param, $search_param, $search_param, $search_param]);
-        }
-
-        // Event type filter
-        if ($event_type !== null) {
-            $where_clauses[] = "type = ?";
-            $bind_params[] = $event_type;
-        }
-
-        // Category filter (sanitary vs production)
-        if (!empty($category)) {
-            $sanitary_types = [
-                'Treatment',
-                'Vaccination',
-                'Batch Treatment',
-                'Temperature check',
-                'Death',
-                'Disease test',
-                'Disease',
-                'Abortion',
-                'Sample taken',
-                'Sample result',
-                'Test conducted',
-                'Test result',
-                'Mortality'
-            ];
-
-            if (strtolower($category) === 'sanitary') {
-                $types_str = "'" . implode("','", $sanitary_types) . "'";
-                $where_clauses[] = "type IN ($types_str)";
-            } else if (strtolower($category) === 'production') {
-                $types_str = "'" . implode("','", $sanitary_types) . "'";
-                $where_clauses[] = "type NOT IN ($types_str)";
+            // Search filter
+            if (!empty($search)) {
+                $where_clauses[] = "(e_id LIKE ? OR v_id LIKE ? OR type LIKE ? OR description LIKE ? OR detail LIKE ?)";
+                $search_param = "%{$search}%";
+                $bind_params = array_merge($bind_params, [$search_param, $search_param, $search_param, $search_param, $search_param]);
             }
-        }
 
-        // Animal ID filter
-        if ($animal_id > 0) {
-            $where_clauses[] = "animal_id = ?";
-            $bind_params[] = $animal_id;
-        }
+            // Event type filter
+            if ($event_type !== null) {
+                $where_clauses[] = "type = ?";
+                $bind_params[] = $event_type;
+            }
 
-        // E-ID filter
-        if (!empty($e_id)) {
-            $where_clauses[] = "e_id LIKE ?";
-            $bind_params[] = "%{$e_id}%";
-        }
+            // Category filter (sanitary vs production)
+            if (!empty($category)) {
+                $sanitary_types = [
+                    'Treatment',
+                    'Vaccination',
+                    'Batch Treatment',
+                    'Temperature check',
+                    'Death',
+                    'Disease test',
+                    'Disease',
+                    'Abortion',
+                    'Sample taken',
+                    'Sample result',
+                    'Test conducted',
+                    'Test result',
+                    'Mortality'
+                ];
 
-        // V-ID filter
-        if (!empty($v_id)) {
-            $where_clauses[] = "v_id LIKE ?";
-            $bind_params[] = "%{$v_id}%";
-        }
+                if (strtolower($category) === 'sanitary') {
+                    $types_str = "'" . implode("','", $sanitary_types) . "'";
+                    $where_clauses[] = "type IN ($types_str)";
+                } else if (strtolower($category) === 'production') {
+                    $types_str = "'" . implode("','", $sanitary_types) . "'";
+                    $where_clauses[] = "type NOT IN ($types_str)";
+                }
+            }
+
+            // Animal ID filter
+            if ($animal_id > 0) {
+                $where_clauses[] = "animal_id = ?";
+                $bind_params[] = $animal_id;
+            }
+
+            // E-ID filter
+            if (!empty($e_id)) {
+                $where_clauses[] = "e_id LIKE ?";
+                $bind_params[] = "%{$e_id}%";
+            }
+
+            // V-ID filter
+            if (!empty($v_id)) {
+                $where_clauses[] = "v_id LIKE ?";
+                $bind_params[] = "%{$v_id}%";
+            }
 
             // Date filters - with proper validation
             if (!empty($date_from) && strlen($date_from) >= 10) {
@@ -5615,7 +5678,7 @@ class ApiAnimalController extends Controller
                     'error_code' => 'QUERY_ERROR'
                 ]);
             }
-            
+
             $last_page = $total > 0 ? ceil($total / $per_page) : 1;
             $has_more = $page < $last_page;
 
@@ -5656,7 +5719,6 @@ class ApiAnimalController extends Controller
 
                 $bind_params_with_limit = array_merge($bind_params, [$per_page, $offset]);
                 $events = DB::select($events_query, $bind_params_with_limit);
-                
             } catch (\Exception $e) {
                 Log::error("Events query failed: " . $e->getMessage());
                 return Utils::response([
@@ -5689,7 +5751,7 @@ class ApiAnimalController extends Controller
                         $event_array['created_at_formatted'] = 'Unknown';
                         $event_array['time_ago'] = 'Unknown';
                     }
-                    
+
                     if (!empty($event->updated_at)) {
                         $event_array['updated_at_formatted'] = date('M d, Y H:i', strtotime($event->updated_at));
                     } else {
@@ -5697,7 +5759,6 @@ class ApiAnimalController extends Controller
                     }
 
                     $data[] = $event_array;
-                    
                 } catch (\Exception $e) {
                     // Log error but continue processing other events
                     Log::error("Error processing event ID {$event->id}: " . $e->getMessage());
@@ -5724,12 +5785,11 @@ class ApiAnimalController extends Controller
                     'category' => $category,
                     'animal_id' => $animal_id,
                     'e_id' => $e_id,
-                    'v_id' => $v_id, 
+                    'v_id' => $v_id,
                     'date_from' => $date_from,
                     'date_to' => $date_to
                 ]
             ]);
-            
         } catch (\Exception $e) {
             // Catch any unexpected errors
             Log::error("Unexpected error in events_online: " . $e->getMessage());
@@ -5754,7 +5814,7 @@ class ApiAnimalController extends Controller
         if (!is_numeric($timestamp) || $timestamp <= 0) {
             return 'Unknown';
         }
-        
+
         $diff = time() - $timestamp;
 
         // Handle future dates
@@ -5787,7 +5847,7 @@ class ApiAnimalController extends Controller
     {
         $administrator_id = Utils::get_user_id($request);
         $u = Administrator::find($administrator_id);
-        
+
         if ($u == null) {
             return Utils::response([
                 'status' => 0,
@@ -5845,7 +5905,7 @@ class ApiAnimalController extends Controller
     {
         $administrator_id = Utils::get_user_id($request);
         $u = Administrator::find($administrator_id);
-        
+
         if ($u == null) {
             return Utils::response([
                 'status' => 0,
@@ -5863,7 +5923,7 @@ class ApiAnimalController extends Controller
 
         // Parse butcher record IDs (could be JSON string, array, or comma-separated)
         $recordIds = $request->input('butcher_record_ids');
-        
+
         // If it's a string, try to decode it as JSON first
         if (is_string($recordIds)) {
             // Try JSON decode
@@ -5875,7 +5935,7 @@ class ApiAnimalController extends Controller
                 $recordIds = array_map('trim', explode(',', $recordIds));
             }
         }
-        
+
         // If it's an object (from JSON parsing), convert to array
         if (is_object($recordIds)) {
             $recordIds = (array) $recordIds;
@@ -5888,13 +5948,13 @@ class ApiAnimalController extends Controller
                 'message' => 'Invalid butcher record IDs format. Expected array, got: ' . gettype($request->input('butcher_record_ids')),
             ], 400);
         }
-        
+
         // Convert to integers and filter out invalid values
         $recordIds = array_map('intval', $recordIds);
-        $recordIds = array_filter($recordIds, function($id) {
+        $recordIds = array_filter($recordIds, function ($id) {
             return $id > 0;
         });
-        
+
         if (empty($recordIds)) {
             return Utils::response([
                 'status' => 0,
@@ -5905,7 +5965,7 @@ class ApiAnimalController extends Controller
         // Validate template type
         $templateTypes = array_keys(\App\Models\LabelPrintingTask::getTemplateTypes());
         $templateType = $request->template_type ?? 'Standard';
-        
+
         if (!in_array($templateType, $templateTypes)) {
             return Utils::response([
                 'status' => 0,
@@ -5968,10 +6028,9 @@ class ApiAnimalController extends Controller
                     'created_at' => $task->created_at->toIso8601String(),
                 ],
             ]);
-
         } catch (\Exception $e) {
             Log::error('Label Printing Task Creation Failed: ' . $e->getMessage());
-            
+
             return Utils::response([
                 'status' => 0,
                 'message' => 'Failed to create label printing task: ' . $e->getMessage(),
@@ -5989,7 +6048,7 @@ class ApiAnimalController extends Controller
     {
         $administrator_id = Utils::get_user_id($request);
         $u = Administrator::find($administrator_id);
-        
+
         if ($u == null) {
             return Utils::response([
                 'status' => 0,
@@ -5998,7 +6057,7 @@ class ApiAnimalController extends Controller
         }
 
         $taskId = $request->task_id ?? $request->id;
-        
+
         if (empty($taskId)) {
             return Utils::response([
                 'status' => 0,
@@ -6007,7 +6066,7 @@ class ApiAnimalController extends Controller
         }
 
         $task = \App\Models\LabelPrintingTask::with('creator')->find($taskId);
-        
+
         if (!$task) {
             return Utils::response([
                 'status' => 0,
@@ -6069,7 +6128,7 @@ class ApiAnimalController extends Controller
     {
         $administrator_id = Utils::get_user_id($request);
         $u = Administrator::find($administrator_id);
-        
+
         if ($u == null) {
             return Utils::response([
                 'status' => 0,
@@ -6078,7 +6137,7 @@ class ApiAnimalController extends Controller
         }
 
         $taskId = $request->task_id ?? $request->id;
-        
+
         if (empty($taskId)) {
             return Utils::response([
                 'status' => 0,
@@ -6087,7 +6146,7 @@ class ApiAnimalController extends Controller
         }
 
         $task = \App\Models\LabelPrintingTask::find($taskId);
-        
+
         if (!$task) {
             return Utils::response([
                 'status' => 0,
@@ -6116,7 +6175,7 @@ class ApiAnimalController extends Controller
     {
         $administrator_id = Utils::get_user_id($request);
         $u = Administrator::find($administrator_id);
-        
+
         if ($u == null) {
             return Utils::response([
                 'status' => 0,
@@ -6125,7 +6184,7 @@ class ApiAnimalController extends Controller
         }
 
         $recordId = $request->butcher_record_id ?? $request->id;
-        
+
         if (empty($recordId)) {
             return Utils::response([
                 'status' => 0,
@@ -6134,7 +6193,7 @@ class ApiAnimalController extends Controller
         }
 
         $record = \App\Models\ButcherRecord::find($recordId);
-        
+
         if (!$record) {
             return Utils::response([
                 'status' => 0,
@@ -6170,10 +6229,9 @@ class ApiAnimalController extends Controller
                     'pdf_size' => $result['size'],
                 ],
             ]);
-
         } catch (\Exception $e) {
             Log::error('Single Label Reprint Failed: ' . $e->getMessage());
-            
+
             return Utils::response([
                 'status' => 0,
                 'message' => 'Failed to generate label: ' . $e->getMessage(),
@@ -6190,7 +6248,7 @@ class ApiAnimalController extends Controller
     public function label_template_types(Request $request)
     {
         $templates = \App\Models\LabelPrintingTask::getTemplateTypes();
-        
+
         $formatted = [];
         foreach ($templates as $key => $description) {
             $formatted[] = [
@@ -6218,7 +6276,7 @@ class ApiAnimalController extends Controller
     {
         $administrator_id = Utils::get_user_id($request);
         $u = Administrator::find($administrator_id);
-        
+
         if ($u == null) {
             return Utils::response([
                 'status' => 0,
@@ -6227,7 +6285,7 @@ class ApiAnimalController extends Controller
         }
 
         $taskId = $request->task_id ?? $request->id;
-        
+
         if (empty($taskId)) {
             return Utils::response([
                 'status' => 0,
@@ -6237,7 +6295,7 @@ class ApiAnimalController extends Controller
 
         // Get original task
         $originalTask = \App\Models\LabelPrintingTask::find($taskId);
-        
+
         if (!$originalTask) {
             return Utils::response([
                 'status' => 0,
@@ -6291,10 +6349,9 @@ class ApiAnimalController extends Controller
                     'created_at' => $newTask->created_at->toIso8601String(),
                 ],
             ]);
-
         } catch (\Exception $e) {
             Log::error('Label Printing Task Regeneration Failed: ' . $e->getMessage());
-            
+
             return Utils::response([
                 'status' => 0,
                 'message' => 'Failed to regenerate label printing task: ' . $e->getMessage(),
@@ -6302,4 +6359,3 @@ class ApiAnimalController extends Controller
         }
     }
 }
-

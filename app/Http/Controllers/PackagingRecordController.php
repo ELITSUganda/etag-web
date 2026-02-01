@@ -134,22 +134,11 @@ class PackagingRecordController extends Controller
             'slaughter_distribution_record_id' => 'nullable|exists:slaughter_distribution_records,id',
             'package_type' => 'required|in:Prime Cut,Offal',
             'packaging_date' => 'required|date',
-            'shelf_life_days' => 'required|integer|min:1|max:365',
+            'packages' => 'required|array|min:1',
+            'packages.*.cut_name' => 'required|string',
+            'packages.*.weight' => 'required|numeric|min:0.01|max:9999.99',
             'notes' => 'nullable|string|max:1000',
         ]);
-
-        // Add weight validation rules dynamically
-        if ($r->package_type === 'Prime Cut') {
-            $primeCuts = PackagingRecord::getPrimeCutFields();
-            foreach ($primeCuts as $cut) {
-                $validator->addRules([$cut => 'nullable|numeric|min:0|max:9999.99']);
-            }
-        } else {
-            $offals = PackagingRecord::getOffalFields();
-            foreach ($offals as $offal) {
-                $validator->addRules([$offal => 'nullable|numeric|min:0|max:9999.99']);
-            }
-        }
 
         if ($validator->fails()) {
             return Utils::response([
@@ -176,7 +165,7 @@ class PackagingRecordController extends Controller
                 'slaughter_distribution_record_id' => $r->slaughter_distribution_record_id,
                 'package_type' => $r->package_type,
                 'packaging_date' => $r->packaging_date,
-                'expiry_date' => Carbon::parse($r->packaging_date)->addDays($r->shelf_life_days),
+                'expiry_date' => null, // No longer using expiry date
                 'packaged_by' => $r->administrator_id,
                 'notes' => $r->notes,
             ];
@@ -198,16 +187,31 @@ class PackagingRecordController extends Controller
                 }
             }
 
-            // Add weight fields based on package type
+            // Process packages array
+            $cutFieldMap = $this->getCutFieldMapping();
+            
+            // Initialize all cut fields to 0
             if ($r->package_type === 'Prime Cut') {
                 $primeCuts = PackagingRecord::getPrimeCutFields();
                 foreach ($primeCuts as $cut) {
-                    $data[$cut] = $r->$cut ?? 0;
+                    $data[$cut] = 0;
                 }
             } else {
                 $offals = PackagingRecord::getOffalFields();
                 foreach ($offals as $offal) {
-                    $data[$offal] = $r->$offal ?? 0;
+                    $data[$offal] = 0;
+                }
+            }
+            
+            // Add weights from packages array
+            foreach ($r->packages as $package) {
+                $cutName = $package['cut_name'];
+                $weight = $package['weight'];
+                
+                // Map cut name to field name
+                $fieldName = $cutFieldMap[$cutName] ?? null;
+                if ($fieldName && isset($data[$fieldName])) {
+                    $data[$fieldName] += $weight; // Accumulate if same cut appears multiple times
                 }
             }
 
@@ -242,7 +246,6 @@ class PackagingRecordController extends Controller
                     'id' => $packagingRecord->id,
                     'package_code' => $packagingRecord->package_code,
                     'total_weight' => $packagingRecord->total_weight,
-                    'expiry_date' => $packagingRecord->expiry_date->format('Y-m-d'),
                     'pdf_generated' => $packagingRecord->pdf_generated,
                     'pdf_url' => $packagingRecord->pdf_url,
                 ],
@@ -505,10 +508,15 @@ class PackagingRecordController extends Controller
      */
     public function getBySlaughterRecord(Request $r, $id)
     {
+        \Log::info("📦 [getBySlaughterRecord] Called with ID: {$id}");
+        
         $user_id = Utils::get_user_id($r);
+        \Log::info("📦 [getBySlaughterRecord] User ID: {$user_id}");
+        
         $u = Administrator::find($user_id);
         
         if ($u == null) {
+            \Log::warning("📦 [getBySlaughterRecord] User not found");
             return Utils::response([
                 'status' => 0,
                 'message' => 'User not found.',
@@ -517,6 +525,7 @@ class PackagingRecordController extends Controller
 
         $slaughterRecord = SlaughterRecord::find($id);
         if (!$slaughterRecord) {
+            \Log::warning("📦 [getBySlaughterRecord] Slaughter record {$id} not found");
             return Utils::response([
                 'status' => 0,
                 'message' => "Slaughter record with ID '{$id}' not found.",
@@ -528,7 +537,10 @@ class PackagingRecordController extends Controller
             ->orderBy('id', 'desc')
             ->get();
 
-        return Utils::response([
+        \Log::info("📦 [getBySlaughterRecord] Found {$packagingRecords->count()} packaging records");
+        \Log::info("📦 [getBySlaughterRecord] Total weight: {$packagingRecords->sum('total_weight')}");
+
+        $response = Utils::response([
             'status' => 1,
             'message' => 'Success',
             'data' => [
@@ -538,6 +550,10 @@ class PackagingRecordController extends Controller
                 'total_weight' => $packagingRecords->sum('total_weight'),
             ],
         ]);
+        
+        \Log::info("📦 [getBySlaughterRecord] Response code: " . $response['code']);
+        
+        return $response;
     }
 
     /**
@@ -597,5 +613,54 @@ class PackagingRecordController extends Controller
                 'message' => 'Failed to generate PDF: ' . $e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * Map cut names from mobile app to database field names
+     */
+    private function getCutFieldMapping()
+    {
+        return [
+            // Prime Cuts
+            'Beef Boneless' => 'beef_boneless',
+            'Beef Stew' => 'beef_stew',
+            'Bones' => 'bones',
+            'Brisket' => 'brisket',
+            'Chops' => 'chops',
+            'Chuck Ribs' => 'chuck_ribs',
+            'Family Steak' => 'family_steak',
+            'Fore Rib' => 'fore_rib',
+            'Leg Cut' => 'leg_cut',
+            'Middle Rib' => 'middle_rib',
+            'Minced Meat' => 'minced_meat',
+            'Neck' => 'neck',
+            'Ossubucco' => 'ossubucco',
+            'Oxtail' => 'oxtail',
+            'Ribs' => 'ribs',
+            'Shin' => 'shin',
+            'Staff Meat' => 'staff_meat',
+            'Thick Flank' => 'thick_flank',
+            'Fillet' => 'fillet',
+            'Rib Eye' => 'rib_eye',
+            'Rolled Loin' => 'rolled_loin',
+            'Rump' => 'rump',
+            'Silver Side' => 'silver_side',
+            'Sirloin/Striploin' => 'sirloin_striploin',
+            'T-Bone' => 't_bone',
+            'Topside/Beef Roast' => 'topside_beef_roast',
+            'Veal Steak' => 'veal_steak',
+            
+            // Offal Cuts
+            'Heart' => 'heart',
+            'Kidneys' => 'kidneys',
+            'Liver' => 'liver',
+            'Tongue' => 'tongue',
+            'Lungs' => 'lungs',
+            'Tripe' => 'tripe',
+            'Tail' => 'tail',
+            'Head' => 'head',
+            'Feet' => 'feet',
+            'Testicles' => 'testicles',
+        ];
     }
 }
