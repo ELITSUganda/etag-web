@@ -3,12 +3,15 @@
 namespace App\Admin\Controllers;
 
 use App\Models\SlaughterRecord;
+use App\Models\SlaughterDistributionRecord;
 use Carbon\Carbon;
 use Encore\Admin\Auth\Database\Administrator;
 use Encore\Admin\Controllers\AdminController;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Show;
+use Encore\Admin\Widgets\InfoBox;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class SlaughterRecordController extends AdminController
 {
@@ -27,6 +30,53 @@ class SlaughterRecordController extends AdminController
     protected function grid()
     {
         $grid = new Grid(new SlaughterRecord());
+        
+        // Statistics Header
+        $grid->header(function ($query) {
+            // Time-based statistics
+            $today = Carbon::today();
+            $weekStart = Carbon::now()->startOfWeek();
+            $monthStart = Carbon::now()->startOfMonth();
+            
+            $todayCount = SlaughterRecord::whereDate('created_at', $today)->count();
+            $weekCount = SlaughterRecord::where('created_at', '>=', $weekStart)->count();
+            $monthCount = SlaughterRecord::where('created_at', '>=', $monthStart)->count();
+            $totalCount = SlaughterRecord::count();
+            
+            // Weight statistics
+            $totalWeight = SlaughterRecord::sum('post_weight') ?? 0;
+            $avgWeight = $totalCount > 0 ? round($totalWeight / $totalCount, 1) : 0;
+            $availableWeight = SlaughterRecord::sum('available_weight') ?? 0;
+            
+            // Status statistics
+            $completedCount = SlaughterRecord::where('breed', 'Done')->count();
+            $ongoingCount = SlaughterRecord::where('breed', '!=', 'Done')->count();
+            $completionRate = $totalCount > 0 ? round(($completedCount / $totalCount) * 100) : 0;
+            
+            // Grade distribution
+            $gradeA = SlaughterRecord::where('post_grade', 'Grade A')->count();
+            $gradeB = SlaughterRecord::where('post_grade', 'Grade B')->count();
+            $gradeC = SlaughterRecord::where('post_grade', 'Grade C')->count();
+            $gradeOther = SlaughterRecord::whereNotIn('post_grade', ['Grade A', 'Grade B', 'Grade C'])
+                ->whereNotNull('post_grade')
+                ->where('post_grade', '!=', '')
+                ->count();
+            $notGraded = SlaughterRecord::whereNull('post_grade')
+                ->orWhere('post_grade', '')
+                ->count();
+            
+            // Cuts statistics
+            $totalCuts = SlaughterDistributionRecord::count();
+            $cutsWeight = SlaughterDistributionRecord::sum('original_weight') ?? 0;
+            
+            return view('admin.slaughter-stats', compact(
+                'todayCount', 'weekCount', 'monthCount', 'totalCount',
+                'totalWeight', 'avgWeight', 'availableWeight',
+                'completedCount', 'ongoingCount', 'completionRate',
+                'gradeA', 'gradeB', 'gradeC', 'gradeOther', 'notGraded',
+                'totalCuts', 'cutsWeight'
+            ));
+        });
         
         // Search and Filters
         $grid->quickSearch('e_id', 'v_id', 'lhc')->placeholder('Search by E-ID, V-ID or LHC');
@@ -230,28 +280,34 @@ class SlaughterRecordController extends AdminController
     {
         $record = SlaughterRecord::findOrFail($id);
         
-        // Get all quarters (distribution records)
-        $quarters = \App\Models\SlaughterDistributionRecord::where('source_id', $id)
-            ->whereIn('source_address', [
+        // Get ALL distribution records for this slaughter record
+        $allDistributions = \App\Models\SlaughterDistributionRecord::where('source_id', $id)->get();
+        
+        // Filter quarters (exact matches for quarter types)
+        $quarters = $allDistributions->filter(function($item) {
+            return in_array($item->source_address, [
                 'Fore-1/4 - Right',
-                'Fore-1/4 - Left',
+                'Fore-1/4 - Left', 
                 'Hind-1/4 - Right',
                 'Hind-1/4 - Left'
-            ])
-            ->get();
+            ]);
+        });
         
-        // Get prime cuts grouped by quarter
-        $primeCuts = \App\Models\SlaughterDistributionRecord::where('source_id', $id)
-            ->where('source_address', 'like', '%-%')
-            ->where('source_address', 'not like', 'Fore-1/4%')
-            ->where('source_address', 'not like', 'Hind-1/4%')
-            ->where('source_address', 'not like', 'Offal%')
-            ->get();
+        // Filter prime cuts (Fore/Hind Left/Right - CutName format, exclude quarters and offal)
+        $primeCuts = $allDistributions->filter(function($item) {
+            $addr = $item->source_address;
+            // Include if contains Fore/Hind and Left/Right but is NOT a quarter
+            $isQuarter = in_array($addr, ['Fore-1/4 - Right', 'Fore-1/4 - Left', 'Hind-1/4 - Right', 'Hind-1/4 - Left']);
+            $isOffal = str_contains($addr, 'Offal');
+            $isPrime = (str_contains($addr, 'Fore') || str_contains($addr, 'Hind')) && 
+                       (str_contains($addr, 'Left') || str_contains($addr, 'Right'));
+            return $isPrime && !$isQuarter && !$isOffal;
+        });
         
-        // Get offal cuts
-        $offalCuts = \App\Models\SlaughterDistributionRecord::where('source_address', 'like', 'Offal%')
-            ->where('source_id', $id)
-            ->get();
+        // Filter offal cuts
+        $offalCuts = $allDistributions->filter(function($item) {
+            return str_contains($item->source_address, 'Offal');
+        });
 
         // Calculate quarter weights
         $foreRight = $quarters->where('source_address', 'Fore-1/4 - Right')->first();
@@ -259,12 +315,75 @@ class SlaughterRecordController extends AdminController
         $hindRight = $quarters->where('source_address', 'Hind-1/4 - Right')->first();
         $hindLeft = $quarters->where('source_address', 'Hind-1/4 - Left')->first();
         
-        $foreRightWeight = $foreRight ? $foreRight->original_weight : 0;
-        $foreLeftWeight = $foreLeft ? $foreLeft->original_weight : 0;
-        $hindRightWeight = $hindRight ? $hindRight->original_weight : 0;
-        $hindLeftWeight = $hindLeft ? $hindLeft->original_weight : 0;
+        $foreRightWeight = $foreRight ? floatval($foreRight->original_weight) : 0;
+        $foreLeftWeight = $foreLeft ? floatval($foreLeft->original_weight) : 0;
+        $hindRightWeight = $hindRight ? floatval($hindRight->original_weight) : 0;
+        $hindLeftWeight = $hindLeft ? floatval($hindLeft->original_weight) : 0;
         
         $qTotal = $foreRightWeight + $foreLeftWeight + $hindRightWeight + $hindLeftWeight;
+
+        // Get packaging records for this slaughter record
+        $packagingRecords = \App\Models\PackagingRecord::where('slaughter_record_id', $id)->get();
+        
+        // Group packaging by cut type and quarter
+        $forePackages = [];
+        $hindPackages = [];
+        $offalPackages = [];
+        
+        foreach ($packagingRecords as $pkg) {
+            // Get the distribution record to determine quarter
+            $distRecord = $pkg->distributionRecord;
+            $sourceAddress = $distRecord ? $distRecord->source_address : '';
+            
+            // Get cut breakdown for this package
+            $breakdown = $pkg->getCutBreakdown();
+            
+            foreach ($breakdown as $cut) {
+                $cutLabel = $cut['label'];
+                $weight = $cut['weight'];
+                
+                if ($pkg->package_type === 'Offal') {
+                    // Offal packages
+                    if (!isset($offalPackages[$cutLabel])) {
+                        $offalPackages[$cutLabel] = ['weights' => [], 'total' => 0];
+                    }
+                    $offalPackages[$cutLabel]['weights'][] = $weight;
+                    $offalPackages[$cutLabel]['total'] += $weight;
+                } elseif (str_contains($sourceAddress, 'Fore')) {
+                    // Fore quarter packages
+                    if (!isset($forePackages[$cutLabel])) {
+                        $forePackages[$cutLabel] = ['weights' => [], 'total' => 0];
+                    }
+                    $forePackages[$cutLabel]['weights'][] = $weight;
+                    $forePackages[$cutLabel]['total'] += $weight;
+                } elseif (str_contains($sourceAddress, 'Hind')) {
+                    // Hind quarter packages
+                    if (!isset($hindPackages[$cutLabel])) {
+                        $hindPackages[$cutLabel] = ['weights' => [], 'total' => 0];
+                    }
+                    $hindPackages[$cutLabel]['weights'][] = $weight;
+                    $hindPackages[$cutLabel]['total'] += $weight;
+                }
+            }
+        }
+        
+        // Calculate max columns needed for weights display
+        $maxForeWeights = 0;
+        $maxHindWeights = 0;
+        $maxOffalWeights = 0;
+        foreach ($forePackages as $data) {
+            $maxForeWeights = max($maxForeWeights, count($data['weights']));
+        }
+        foreach ($hindPackages as $data) {
+            $maxHindWeights = max($maxHindWeights, count($data['weights']));
+        }
+        foreach ($offalPackages as $data) {
+            $maxOffalWeights = max($maxOffalWeights, count($data['weights']));
+        }
+        // Ensure at least 5 columns for weights
+        $maxForeWeights = max($maxForeWeights, 5);
+        $maxHindWeights = max($maxHindWeights, 5);
+        $maxOffalWeights = max($maxOffalWeights, 5);
 
         // Return custom Blade view with all data
         return view('admin.slaughter-record-report', compact(
@@ -276,7 +395,13 @@ class SlaughterRecordController extends AdminController
             'foreLeftWeight',
             'hindRightWeight',
             'hindLeftWeight',
-            'qTotal'
+            'qTotal',
+            'forePackages',
+            'hindPackages',
+            'offalPackages',
+            'maxForeWeights',
+            'maxHindWeights',
+            'maxOffalWeights'
         ));
 
         /* Original Laravel-Admin Show implementation (commented out)
@@ -465,5 +590,141 @@ class SlaughterRecordController extends AdminController
         $form->textarea('available_weight', __('Available weight'));
 
         return $form;
+    }
+
+    /**
+     * Export slaughter record to PDF
+     *
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function exportPdf($id)
+    {
+        $record = SlaughterRecord::findOrFail($id);
+        
+        // Get ALL distribution records for this slaughter record
+        $allDistributions = SlaughterDistributionRecord::where('source_id', $id)->get();
+        
+        // Filter quarters (exact matches for quarter types)
+        $quarters = $allDistributions->filter(function($item) {
+            return in_array($item->source_address, [
+                'Fore-1/4 - Right',
+                'Fore-1/4 - Left', 
+                'Hind-1/4 - Right',
+                'Hind-1/4 - Left'
+            ]);
+        });
+        
+        // Filter prime cuts (Fore/Hind Left/Right - CutName format, exclude quarters and offal)
+        $primeCuts = $allDistributions->filter(function($item) {
+            $addr = $item->source_address;
+            $isQuarter = in_array($addr, ['Fore-1/4 - Right', 'Fore-1/4 - Left', 'Hind-1/4 - Right', 'Hind-1/4 - Left']);
+            $isOffal = str_contains($addr, 'Offal');
+            $isPrime = (str_contains($addr, 'Fore') || str_contains($addr, 'Hind')) && 
+                       (str_contains($addr, 'Left') || str_contains($addr, 'Right'));
+            return $isPrime && !$isQuarter && !$isOffal;
+        });
+        
+        // Filter offal cuts
+        $offalCuts = $allDistributions->filter(function($item) {
+            return str_contains($item->source_address, 'Offal');
+        });
+
+        // Calculate quarter weights
+        $foreRight = $quarters->where('source_address', 'Fore-1/4 - Right')->first();
+        $foreLeft = $quarters->where('source_address', 'Fore-1/4 - Left')->first();
+        $hindRight = $quarters->where('source_address', 'Hind-1/4 - Right')->first();
+        $hindLeft = $quarters->where('source_address', 'Hind-1/4 - Left')->first();
+        
+        $foreRightWeight = $foreRight ? floatval($foreRight->original_weight) : 0;
+        $foreLeftWeight = $foreLeft ? floatval($foreLeft->original_weight) : 0;
+        $hindRightWeight = $hindRight ? floatval($hindRight->original_weight) : 0;
+        $hindLeftWeight = $hindLeft ? floatval($hindLeft->original_weight) : 0;
+        
+        $qTotal = $foreRightWeight + $foreLeftWeight + $hindRightWeight + $hindLeftWeight;
+
+        // Get packaging records for this slaughter record
+        $packagingRecords = \App\Models\PackagingRecord::where('slaughter_record_id', $id)->get();
+        
+        // Group packaging by cut type and quarter
+        $forePackages = [];
+        $hindPackages = [];
+        $offalPackages = [];
+        
+        foreach ($packagingRecords as $pkg) {
+            $distRecord = $pkg->distributionRecord;
+            $sourceAddress = $distRecord ? $distRecord->source_address : '';
+            $breakdown = $pkg->getCutBreakdown();
+            
+            foreach ($breakdown as $cut) {
+                $cutLabel = $cut['label'];
+                $weight = $cut['weight'];
+                
+                if ($pkg->package_type === 'Offal') {
+                    if (!isset($offalPackages[$cutLabel])) {
+                        $offalPackages[$cutLabel] = ['weights' => [], 'total' => 0];
+                    }
+                    $offalPackages[$cutLabel]['weights'][] = $weight;
+                    $offalPackages[$cutLabel]['total'] += $weight;
+                } elseif (str_contains($sourceAddress, 'Fore')) {
+                    if (!isset($forePackages[$cutLabel])) {
+                        $forePackages[$cutLabel] = ['weights' => [], 'total' => 0];
+                    }
+                    $forePackages[$cutLabel]['weights'][] = $weight;
+                    $forePackages[$cutLabel]['total'] += $weight;
+                } elseif (str_contains($sourceAddress, 'Hind')) {
+                    if (!isset($hindPackages[$cutLabel])) {
+                        $hindPackages[$cutLabel] = ['weights' => [], 'total' => 0];
+                    }
+                    $hindPackages[$cutLabel]['weights'][] = $weight;
+                    $hindPackages[$cutLabel]['total'] += $weight;
+                }
+            }
+        }
+        
+        $maxForeWeights = 5;
+        $maxHindWeights = 5;
+        $maxOffalWeights = 5;
+        foreach ($forePackages as $data) {
+            $maxForeWeights = max($maxForeWeights, count($data['weights']));
+        }
+        foreach ($hindPackages as $data) {
+            $maxHindWeights = max($maxHindWeights, count($data['weights']));
+        }
+        foreach ($offalPackages as $data) {
+            $maxOffalWeights = max($maxOffalWeights, count($data['weights']));
+        }
+
+        // Prepare data for PDF
+        $data = compact(
+            'record',
+            'quarters',
+            'primeCuts',
+            'offalCuts',
+            'foreRightWeight',
+            'foreLeftWeight',
+            'hindRightWeight',
+            'hindLeftWeight',
+            'qTotal',
+            'forePackages',
+            'hindPackages',
+            'offalPackages',
+            'maxForeWeights',
+            'maxHindWeights',
+            'maxOffalWeights'
+        );
+
+        // Generate PDF
+        $pdf = Pdf::loadView('pdf.slaughter-record', $data)
+            ->setPaper('a4', 'portrait')
+            ->setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true,
+            ]);
+
+        // Generate filename
+        $filename = 'SlaughterRecord_' . ($record->v_id ?? $record->id) . '_' . date('Ymd') . '.pdf';
+
+        return $pdf->download($filename);
     }
 }
