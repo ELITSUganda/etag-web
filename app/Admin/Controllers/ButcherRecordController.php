@@ -31,7 +31,7 @@ class ButcherRecordController extends AdminController
         })->sortable();
         $grid->column('cut_type', __('Cut Type'))->display(function ($c) {
             if ($c == 'Prime Cut') {
-                return "<span class='label label-primary'>Prime Cut</span><br><small>{$this->prime_cut_type}</small>";
+                return "<span class='label label-primary'>Primal Cuts</span><br><small>{$this->prime_cut_type}</small>";
             } else if ($c == 'Offal Cut') {
                 return "<span class='label label-warning'>Offal Cut</span><br><small>{$this->offal_cut_type}</small>";
             }
@@ -60,7 +60,7 @@ class ButcherRecordController extends AdminController
             $filter->like('e_id', 'E-ID');
             $filter->like('bar_code', 'Bar code');
             $filter->like('buyer_name', 'Buyer');
-            $filter->equal('cut_type', 'Cut Type')->select(['Prime Cut' => 'Prime Cut', 'Offal Cut' => 'Offal Cut']);
+            $filter->equal('cut_type', 'Cut Type')->select(['Prime Cut' => 'Primal Cuts', 'Offal Cut' => 'Offal Cut']);
             $filter->equal('is_sold', 'Is sold')->select(['Yes' => 'Yes', 'No' => 'No']);
             $filter->between('created_at', 'Date');
         });

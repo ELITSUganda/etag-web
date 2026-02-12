@@ -1,73 +1,91 @@
 <style>
-    .bd-container { padding: 0; }
+    .bd-container { 
+        padding: 0;
+        background: linear-gradient(135deg, #f9f6f3 0%, #ffffff 100%);
+    }
     .bd-stat-box {
-        background: #fff;
-        border: 1px solid #e0e0e0;
+        background: linear-gradient(135deg, #ffffff 0%, #faf8f6 100%);
+        border: 2px solid #6B3C00;
+        border-left: 5px solid #6B3C00;
         padding: 15px;
         margin-bottom: 12px;
         min-height: 95px;
         display: flex;
         flex-direction: column;
         justify-content: center;
+        box-shadow: 0 2px 8px rgba(107, 60, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    .bd-stat-box:hover {
+        box-shadow: 0 4px 12px rgba(107, 60, 0, 0.2);
+        transform: translateY(-2px);
+        border-left-width: 8px;
     }
     .bd-stat-box .icon {
-        font-size: 28px;
+        font-size: 32px;
         color: #6B3C00;
         margin-bottom: 8px;
+        text-shadow: 0 2px 4px rgba(107, 60, 0, 0.1);
     }
     .bd-stat-box .value {
-        font-size: 26px;
+        font-size: 28px;
         font-weight: 700;
-        color: #333;
+        color: #6B3C00;
         line-height: 1.1;
     }
     .bd-stat-box .label {
         font-size: 11px;
-        color: #666;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-        margin-top: 3px;
-    }
-    .bd-stat-box .sublabel {
-        font-size: 10px;
-        color: #888;
-        margin-top: 2px;
-    }
-    .bd-section-title {
-        font-size: 13px;
-        font-weight: 700;
         color: #6B3C00;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        margin: 20px 0 12px 0;
-        padding-bottom: 6px;
-        border-bottom: 2px solid #6B3C00;
+        margin-top: 3px;
+        font-weight: 600;
+    }
+    .bd-stat-box .sublabel {
+        font-size: 10px;
+        color: #8B5A1B;
+        margin-top: 2px;
+    }
+    .bd-section-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #fff;
+        background: #6B3C00;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin: 20px 0 15px 0;
+        padding: 12px 15px;
+        box-shadow: 0 2px 8px rgba(107, 60, 0, 0.2);
     }
     .bd-panel {
         background: #fff;
-        border: 1px solid #e0e0e0;
+        border: 2px solid #6B3C00;
+        border-top: 5px solid #6B3C00;
         padding: 15px;
         margin-bottom: 15px;
+        box-shadow: 0 2px 8px rgba(107, 60, 0, 0.1);
     }
     .bd-panel-header {
         font-size: 12px;
         font-weight: 700;
-        color: #333;
+        color: #6B3C00;
         margin-bottom: 12px;
         padding-bottom: 8px;
-        border-bottom: 1px solid #e0e0e0;
+        border-bottom: 2px solid #6B3C00;
     }
     .bd-panel-header i {
         color: #6B3C00;
-        margin-right: 6px;
+        margin-right: 8px;
+        font-size: 14px;
     }
     .bd-grade-bar {
         display: flex;
-        height: 28px;
+        height: 32px;
         overflow: hidden;
         background: #f5f5f5;
-        border: 1px solid #e0e0e0;
+        border: 2px solid #6B3C00;
         margin-bottom: 10px;
+        box-shadow: 0 2px 4px rgba(107, 60, 0, 0.1);
     }
     .bd-grade-bar .seg {
         display: flex;
@@ -79,47 +97,65 @@
     }
     .bd-legend {
         font-size: 10px;
-        color: #666;
-        padding: 5px 0;
+        color: #6B3C00;
+        padding: 8px 0;
+        font-weight: 600;
     }
     .bd-legend span {
         display: inline-block;
-        width: 12px;
-        height: 12px;
-        margin-right: 4px;
+        width: 14px;
+        height: 14px;
+        margin-right: 5px;
         vertical-align: middle;
-        border: 1px solid rgba(0,0,0,0.1);
+        border: 2px solid #6B3C00;
     }
     .bd-table {
         width: 100%;
         font-size: 11px;
         border-collapse: collapse;
+        border: 2px solid #6B3C00;
     }
     .bd-table th {
         background: #6B3C00;
         color: #fff;
-        padding: 8px 10px;
+        padding: 10px;
         text-align: left;
         font-weight: 600;
         font-size: 10px;
         text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
     .bd-table td {
-        padding: 7px 10px;
-        border-bottom: 1px solid #e0e0e0;
+        padding: 8px 10px;
+        border-bottom: 1px solid #d4b89c;
+        background: #fff;
     }
-    .bd-table tr:hover { background: #f9f9f9; }
+    .bd-table tr:hover td { 
+        background: #faf8f6;
+    }
     .bd-alert {
-        background: #fff3cd;
-        border: 1px solid #e0d4a8;
-        padding: 10px 12px;
+        background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+        border: 2px solid #6B3C00;
+        border-left: 5px solid #6B3C00;
+        padding: 12px 15px;
         margin-bottom: 10px;
         font-size: 11px;
-        color: #856404;
+        color: #6B3C00;
+        font-weight: 600;
+        box-shadow: 0 2px 6px rgba(107, 60, 0, 0.1);
     }
-    .bd-alert i { margin-right: 6px; }
-    .bd-trend-up { color: #28a745; }
-    .bd-trend-down { color: #dc3545; }
+    .bd-alert i { 
+        margin-right: 8px;
+        font-size: 14px;
+    }
+    .bd-trend-up { 
+        color: #28a745;
+        font-weight: 700;
+    }
+    .bd-trend-down { 
+        color: #dc3545;
+        font-weight: 700;
+    }
     .bd-trend-neutral { color: #888; }
 </style>
 
@@ -401,96 +437,17 @@
     </div>
     @endif
 
-    <!-- TOP FACILITIES & DEMOGRAPHICS -->
-    <div class="row">
-        <div class="col-md-6">
-            <div class="bd-panel">
-                <div class="bd-panel-header">
-                    <i class="fa fa-building"></i> TOP PERFORMING FACILITIES
-                </div>
-                @if($topFacilities->count() > 0)
-                    <table class="bd-table">
-                        <thead>
-                            <tr>
-                                <th>Facility</th>
-                                <th style="text-align:right;">Records</th>
-                                <th style="text-align:right;">Total Weight</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($topFacilities as $facility)
-                            <tr>
-                                <td>{{ $facility->destination_slaughter_house }}</td>
-                                <td style="text-align:right;"><strong>{{ number_format($facility->total) }}</strong></td>
-                                <td style="text-align:right;">{{ number_format($facility->total_weight, 0) }} kg</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                @else
-                    <div style="padding:30px;text-align:center;color:#999;font-size:11px;">No facility data available</div>
-                @endif
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="bd-panel">
-                <div class="bd-panel-header">
-                    <i class="fa fa-pie-chart"></i> ANIMAL DEMOGRAPHICS
-                </div>
-                <table class="bd-table">
-                    <tr>
-                        <td><strong>Sex Distribution</strong></td>
-                        <td>Male: {{ $maleCount }} | Female: {{ $femaleCount }}
-                            @if($unknownSex > 0) | Unknown: {{ $unknownSex }}@endif
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><strong>Average Carcass Weight</strong></td>
-                        <td>{{ number_format($avgCarcassWeight, 1) }} kg</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Total Processed Weight</strong></td>
-                        <td>{{ number_format($totalCarcassWeight, 0) }} kg</td>
-                    </tr>
-                </table>
-                
-                @if($ageDistribution->count() > 0)
-                <div style="margin-top:15px;">
-                    <div style="font-size:11px;font-weight:600;margin-bottom:8px;">AGE DISTRIBUTION</div>
-                    <table class="bd-table">
-                        <thead>
-                            <tr>
-                                <th>Age</th>
-                                <th style="text-align:right;">Count</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($ageDistribution->take(5) as $age)
-                            <tr>
-                                <td>{{ $age->post_age }}</td>
-                                <td style="text-align:right;">{{ $age->count }}</td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                @endif
-            </div>
-        </div>
-    </div>
-
     <!-- QUICK ACTIONS -->
-    <div class="row" style="margin-top:15px;">
+    <div class="row" style="margin-top:20px;">
         <div class="col-md-12">
-            <div style="background:#f9f9f9;border:1px solid #e0e0e0;padding:15px;text-align:center;">
-                <a href="{{ admin_url('slaughter-records') }}" class="btn btn-sm" style="background:#6B3C00;color:#fff;margin:3px;">
+            <div style="background:linear-gradient(135deg, #6B3C00 0%, #8B5A1B 100%);border:3px solid #6B3C00;padding:20px;text-align:center;box-shadow: 0 4px 12px rgba(107, 60, 0, 0.3);">
+                <a href="{{ admin_url('slaughter-records') }}" class="btn btn-sm" style="background:#fff;color:#6B3C00;margin:5px;padding:10px 20px;font-weight:600;border:2px solid #fff;">
                     <i class="fa fa-list"></i> View All Slaughter Records
                 </a>
-                <a href="{{ admin_url('butchery-records') }}" class="btn btn-sm" style="background:#6B3C00;color:#fff;margin:3px;">
+                <a href="{{ admin_url('butchery-records') }}" class="btn btn-sm" style="background:#fff;color:#6B3C00;margin:5px;padding:10px 20px;font-weight:600;border:2px solid #fff;">
                     <i class="fa fa-table"></i> View Butchery Records
                 </a>
-                <a href="{{ admin_url('packaging-records') }}" class="btn btn-sm" style="background:#6B3C00;color:#fff;margin:3px;">
+                <a href="{{ admin_url('packaging-records') }}" class="btn btn-sm" style="background:#fff;color:#6B3C00;margin:5px;padding:10px 20px;font-weight:600;border:2px solid #fff;">
                     <i class="fa fa-archive"></i> View Packaging Records
                 </a>
             </div>
