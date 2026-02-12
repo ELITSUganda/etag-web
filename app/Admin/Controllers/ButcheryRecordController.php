@@ -28,6 +28,19 @@ class ButcheryRecordController extends AdminController
             ->body($this->grid());
     }
 
+    /**
+     * Show interface with custom detailed view
+     */
+    public function show($id, Content $content)
+    {
+        $record = SlaughterRecord::findOrFail($id);
+        
+        return $content
+            ->title('Butchery Record Details')
+            ->description('Complete processing and inspection information')
+            ->body(view('admin.butchery-record-show', compact('record')));
+    }
+
     protected function grid()
     {
         $grid = new Grid(new SlaughterRecord());

@@ -139,63 +139,10 @@
         </div>
     </div>
 
-    <!-- GRADE DISTRIBUTION -->
-    <div class="row" style="display:block; margin-top: 10px;">
-        <div class="col-md-12">
-            <div style="background:#fff; border: 1px solid #e0e0e0; padding: 12px 15px;">
-                <div style="font-size:11px; font-weight:600; color:#333; margin-bottom:8px;">CARCASS GRADE DISTRIBUTION</div>
-                @php
-                    $gradeTotal = $gradeA + $gradeB + $gradeC + $gradeOther + $notGraded;
-                    $pctA = $gradeTotal > 0 ? ($gradeA / $gradeTotal) * 100 : 0;
-                    $pctB = $gradeTotal > 0 ? ($gradeB / $gradeTotal) * 100 : 0;
-                    $pctC = $gradeTotal > 0 ? ($gradeC / $gradeTotal) * 100 : 0;
-                    $pctOther = $gradeTotal > 0 ? ($gradeOther / $gradeTotal) * 100 : 0;
-                    $pctNone = $gradeTotal > 0 ? ($notGraded / $gradeTotal) * 100 : 0;
-                @endphp
-                <div class="br-grade-bar">
-                    @if($pctA > 0)
-                        <div class="seg" style="width:{{ $pctA }}%;background:#6B3C00;" title="Grade A: {{ $gradeA }}">
-                            @if($pctA > 8)A: {{ $gradeA }}@endif
-                        </div>
-                    @endif
-                    @if($pctB > 0)
-                        <div class="seg" style="width:{{ $pctB }}%;background:#8B5A1B;" title="Grade B: {{ $gradeB }}">
-                            @if($pctB > 8)B: {{ $gradeB }}@endif
-                        </div>
-                    @endif
-                    @if($pctC > 0)
-                        <div class="seg" style="width:{{ $pctC }}%;background:#A67C3D;" title="Grade C: {{ $gradeC }}">
-                            @if($pctC > 8)C: {{ $gradeC }}@endif
-                        </div>
-                    @endif
-                    @if($pctOther > 0)
-                        <div class="seg" style="width:{{ $pctOther }}%;background:#999;" title="Other Grades: {{ $gradeOther }}">
-                            @if($pctOther > 8)Other: {{ $gradeOther }}@endif
-                        </div>
-                    @endif
-                    @if($pctNone > 0)
-                        <div class="seg" style="width:{{ $pctNone }}%;background:#ccc;color:#666;" title="Not Graded: {{ $notGraded }}">
-                            @if($pctNone > 8)None: {{ $notGraded }}@endif
-                        </div>
-                    @endif
-                </div>
-                <div class="br-grade-legend">
-                    <span style="background:#6B3C00;"></span>Grade A: {{ $gradeA }} ({{ number_format($pctA, 1) }}%) &nbsp;
-                    <span style="background:#8B5A1B;"></span>Grade B: {{ $gradeB }} ({{ number_format($pctB, 1) }}%) &nbsp;
-                    <span style="background:#A67C3D;"></span>Grade C: {{ $gradeC }} ({{ number_format($pctC, 1) }}%) &nbsp;
-                    @if($gradeOther > 0)
-                        <span style="background:#999;"></span>Other: {{ $gradeOther }} ({{ number_format($pctOther, 1) }}%) &nbsp;
-                    @endif
-                    @if($notGraded > 0)
-                        <span style="background:#ccc;"></span>Not Graded: {{ $notGraded }} ({{ number_format($pctNone, 1) }}%)
-                    @endif
-                </div>
-            </div>
-        </div>
-    </div>
+ 
 
     <!-- PROCESSING STATISTICS -->
-    <div class="br-section-title" style="margin-top:20px;">Processing Statistics</div>
+    <div class="br-section-title" style="margin-top:0px;">Processing Statistics</div>
     <div class="row">
         <div class="col-md-2 col-sm-4 col-xs-6">
             <div class="br-stat-box">
@@ -239,71 +186,10 @@
             </div>
         </div>
     </div>
-
-    <!-- TOP PERFORMERS & RECENT ACTIVITY -->
-    <div class="row" style="margin-top:15px;">
-        <!-- Most Common Cut Types -->
-        <div class="col-md-6">
-            <div style="background:#fff; border: 1px solid #e0e0e0; padding: 12px 15px;">
-                <div style="font-size:11px; font-weight:600; color:#333; margin-bottom:10px;">
-                    <i class="fa fa-cut"></i> MOST COMMON CUT TYPES
-                </div>
-                @if($topCutTypes->count() > 0)
-                    <table class="br-table">
-                        <thead>
-                            <tr>
-                                <th>Cut Type</th>
-                                <th style="text-align:right;">Count</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($topCutTypes as $cut)
-                            <tr>
-                                <td>{{ $cut->source_address }}</td>
-                                <td style="text-align:right;"><strong>{{ number_format($cut->total) }}</strong></td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                @else
-                    <div style="padding:20px;text-align:center;color:#999;font-size:11px;">No cut data available</div>
-                @endif
-            </div>
-        </div>
-
-        <!-- Top Slaughter Houses -->
-        <div class="col-md-6">
-            <div style="background:#fff; border: 1px solid #e0e0e0; padding: 12px 15px;">
-                <div style="font-size:11px; font-weight:600; color:#333; margin-bottom:10px;">
-                    <i class="fa fa-building"></i> TOP PERFORMING FACILITIES
-                </div>
-                @if($topHouses->count() > 0)
-                    <table class="br-table">
-                        <thead>
-                            <tr>
-                                <th>Facility</th>
-                                <th style="text-align:right;">Records</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($topHouses as $house)
-                            <tr>
-                                <td>{{ $house->destination_slaughter_house ?? 'N/A' }}</td>
-                                <td style="text-align:right;"><strong>{{ number_format($house->total) }}</strong></td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                @else
-                    <div style="padding:20px;text-align:center;color:#999;font-size:11px;">No facility data available</div>
-                @endif
-            </div>
-        </div>
-    </div>
-
+ 
     <!-- RECENT HIGH-GRADE CARCASSES -->
     @if($recentHighGrade->count() > 0)
-    <div class="row" style="margin-top:15px;">
+    <div class="row" style="margin-top:0px;">
         <div class="col-md-12">
             <div style="background:#fff; border: 1px solid #e0e0e0; padding: 12px 15px;">
                 <div style="font-size:11px; font-weight:600; color:#333; margin-bottom:10px;">

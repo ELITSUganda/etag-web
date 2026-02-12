@@ -55,6 +55,36 @@ Route::group([
     $router->get('slaughter-records/{id}/export-pdf', 'SlaughterRecordController@exportPdf')->name('slaughter-records.export-pdf');
     $router->resource('butchery-records', ButcheryRecordController::class);
     $router->resource('slaughter-distributions', SlaughterDistributionRecordController::class);
+    
+    // New Butchery Controllers
+    $router->resource('carcasses', CarcassesController::class);
+    $router->resource('carcass-quarters', CarcassQuartersController::class);
+    $router->get('primal-cuts-fore-quarters', 'PrimalCutsForeQuartersController@index')->name('primal-cuts-fore-quarters');
+    $router->get('primal-cuts-hind-quarters', 'PrimalCutsHindQuartersController@index')->name('primal-cuts-hind-quarters');
+    $router->resource('offals', OffalsController::class);
+    
+    // Butchery Packaging - Three different types using same controller
+    $router->get('packaging-fore-quarters', 'ButcheryPackagingController@index')->name('packaging-fore-quarters')->defaults('type', 'fore-quarters');
+    $router->get('packaging-fore-quarters/create', 'ButcheryPackagingController@create')->name('packaging-fore-quarters.create');
+    $router->post('packaging-fore-quarters', 'ButcheryPackagingController@store')->name('packaging-fore-quarters.store');
+    $router->get('packaging-fore-quarters/{id}', 'ButcheryPackagingController@show')->name('packaging-fore-quarters.show');
+    $router->get('packaging-fore-quarters/{id}/edit', 'ButcheryPackagingController@edit')->name('packaging-fore-quarters.edit');
+    $router->put('packaging-fore-quarters/{id}', 'ButcheryPackagingController@update')->name('packaging-fore-quarters.update');
+    
+    $router->get('packaging-hind-quarters', 'ButcheryPackagingController@index')->name('packaging-hind-quarters')->defaults('type', 'hind-quarters');
+    $router->get('packaging-hind-quarters/create', 'ButcheryPackagingController@create')->name('packaging-hind-quarters.create');
+    $router->post('packaging-hind-quarters', 'ButcheryPackagingController@store')->name('packaging-hind-quarters.store');
+    $router->get('packaging-hind-quarters/{id}', 'ButcheryPackagingController@show')->name('packaging-hind-quarters.show');
+    $router->get('packaging-hind-quarters/{id}/edit', 'ButcheryPackagingController@edit')->name('packaging-hind-quarters.edit');
+    $router->put('packaging-hind-quarters/{id}', 'ButcheryPackagingController@update')->name('packaging-hind-quarters.update');
+    
+    $router->get('packaging-offals', 'ButcheryPackagingController@index')->name('packaging-offals')->defaults('type', 'offals');
+    $router->get('packaging-offals/create', 'ButcheryPackagingController@create')->name('packaging-offals.create');
+    $router->post('packaging-offals', 'ButcheryPackagingController@store')->name('packaging-offals.store');
+    $router->get('packaging-offals/{id}', 'ButcheryPackagingController@show')->name('packaging-offals.show');
+    $router->get('packaging-offals/{id}/edit', 'ButcheryPackagingController@edit')->name('packaging-offals.edit');
+    $router->put('packaging-offals/{id}', 'ButcheryPackagingController@update')->name('packaging-offals.update');
+    
     $router->resource('archived-animals', ArchivedAnimalController::class);
     $router->resource('sales', AnimalSalesController::class);
     $router->resource('check-points', CheckPointController::class);
