@@ -1,0 +1,557 @@
+/* ============================================
+   U-LITS PROFESSIONAL THEME
+   Primary Color: #6B3C00 (Brown)
+   Design: Square corners, minimal padding, clean
+   ============================================ */
+
+/* GLOBAL RESETS & BASE STYLES */
+* {
+    border-radius: 0 !important; /* Square corners everywhere */
+}
+
+.btn, .form-control, .input-group-addon, .panel, .box, 
+.modal-content, .modal-header, .modal-body, .modal-footer,
+.table, .nav-tabs, .dropdown-menu, .pagination, .label,
+.badge, .alert, .well, .thumbnail, .progress, .list-group-item,
+.input-group-btn .btn {
+    border-radius: 0 !important;
+}
+
+/* PRIMARY COLOR CUSTOMIZATION */
+.bg-primary, .btn-primary, .label-primary, .badge-primary,
+.panel-primary > .panel-heading, .nav-pills > li.active > a {
+    background-color: #6B3C00 !important;
+    border-color: #6B3C00 !important;
+    color: #fff !important;
+}
+
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+    background-color: #5A3200 !important;
+    border-color: #5A3200 !important;
+}
+
+.text-primary, a.text-primary {
+    color: #6B3C00 !important;
+}
+
+.border-primary {
+    border-color: #6B3C00 !important;
+}
+
+/* BUTTONS */
+.btn {
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    border-width: 1px;
+    transition: all 0.2s ease;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.btn-xs {
+    padding: 4px 8px;
+    font-size: 11px;
+}
+
+.btn-lg {
+    padding: 10px 20px;
+    font-size: 14px;
+}
+
+/* CARDS & BOXES */
+.box, .panel {
+    border: 1px solid #e0e0e0;
+    box-shadow: none;
+    margin-bottom: 15px;
+}
+
+.box-header, .panel-heading {
+    background: #f9f9f9;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 12px 15px;
+}
+
+.box-title, .panel-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.box-body, .panel-body {
+    padding: 15px;
+}
+
+/* FORMS */
+.form-control {
+    border: 1px solid #d0d0d0;
+    padding: 8px 12px;
+    font-size: 13px;
+    height: auto;
+    box-shadow: none;
+}
+
+.form-control:focus {
+    border-color: #6B3C00;
+    box-shadow: 0 0 0 2px rgba(107, 60, 0, 0.1);
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.control-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+select.form-control {
+    padding: 7px 12px;
+}
+
+/* TABLES */
+.table {
+    font-size: 12px;
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background: #6B3C00;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    padding: 10px 12px;
+    border: none;
+}
+
+.table tbody td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #e0e0e0;
+    vertical-align: middle;
+}
+
+.table tbody tr:hover {
+    background: #f9f9f9;
+}
+
+.table-bordered {
+    border: 1px solid #e0e0e0;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background: transparent;
+}
+
+/* GRID STYLES (Laravel Admin) */
+.grid-box {
+    border: 1px solid #e0e0e0;
+    margin-bottom: 15px;
+}
+
+.grid-box .box-header {
+    background: #f9f9f9;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 10px 15px;
+}
+
+.grid-box .box-body {
+    padding: 0;
+}
+
+.grid-box table {
+    margin-bottom: 0;
+}
+
+/* PAGINATION */
+.pagination {
+    margin: 10px 0;
+}
+
+.pagination > li > a,
+.pagination > li > span {
+    padding: 6px 12px;
+    font-size: 12px;
+    border: 1px solid #e0e0e0;
+    color: #333;
+}
+
+.pagination > li.active > a,
+.pagination > li.active > span {
+    background: #6B3C00;
+    border-color: #6B3C00;
+    color: #fff;
+}
+
+.pagination > li > a:hover {
+    background: #f5f5f5;
+    border-color: #d0d0d0;
+}
+
+/* LABELS & BADGES */
+.label, .badge {
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+}
+
+.label-success, .badge-success { background: #6B3C00; }
+.label-warning, .badge-warning { background: #f0ad4e; }
+.label-danger, .badge-danger { background: #d9534f; }
+.label-info, .badge-info { background: #5bc0de; }
+.label-default, .badge-default { background: #999; }
+
+/* ALERTS */
+.alert {
+    padding: 12px 15px;
+    font-size: 12px;
+    border-width: 1px;
+    border-left-width: 3px;
+}
+
+.alert-success {
+    background: #fff;
+    border-color: #6B3C00;
+    border-left-color: #6B3C00;
+    color: #333;
+}
+
+.alert-warning {
+    background: #fff;
+    border-color: #f0ad4e;
+    border-left-color: #f0ad4e;
+    color: #333;
+}
+
+.alert-danger {
+    background: #fff;
+    border-color: #d9534f;
+    border-left-color: #d9534f;
+    color: #333;
+}
+
+.alert-info {
+    background: #fff;
+    border-color: #5bc0de;
+    border-left-color: #5bc0de;
+    color: #333;
+}
+
+/* NAVIGATION */
+.nav-tabs {
+    border-bottom: 2px solid #6B3C00;
+}
+
+.nav-tabs > li > a {
+    padding: 10px 15px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    border: none;
+    margin-right: 2px;
+}
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:hover,
+.nav-tabs > li.active > a:focus {
+    background: #6B3C00;
+    color: #fff;
+    border: none;
+}
+
+.nav-tabs > li > a:hover {
+    background: #f5f5f5;
+    border: none;
+}
+
+/* NAVBAR (Admin Header) */
+.main-header .navbar {
+    background: #6B3C00 !important;
+}
+
+.main-header .logo {
+    background: #5A3200 !important;
+}
+
+.main-header .navbar-nav > li > a {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.main-header .navbar-nav > li > a:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+/* SIDEBAR */
+.main-sidebar {
+    background: #2c2c2c !important;
+}
+
+.sidebar-menu > li.active > a {
+    background: #6B3C00 !important;
+    border-left: 3px solid #8B5A1B !important;
+}
+
+.sidebar-menu > li > a:hover {
+    background: #3A3A3A !important;
+}
+
+/* INFO BOX */
+.info-box {
+    border: 1px solid #e0e0e0;
+    box-shadow: none;
+}
+
+.info-box-icon {
+    background: #6B3C00 !important;
+}
+
+/* SMALL BOX */
+.small-box {
+    border: 1px solid #e0e0e0;
+    box-shadow: none;
+}
+
+.small-box > .inner {
+    padding: 15px;
+}
+
+.small-box .icon {
+    color: rgba(0, 0, 0, 0.1);
+}
+
+.bg-aqua, .bg-blue { background: #6B3C00 !important; }
+.bg-green { background: #6B3C00 !important; }
+.bg-yellow { background: #8B5A1B !important; }
+.bg-red { background: #d9534f !important; }
+.bg-purple { background: #A67C3D !important; }
+.bg-orange { background: #f0ad4e !important; }
+
+/* MODAL */
+.modal-header {
+    background: #f9f9f9;
+    border-bottom: 2px solid #6B3C00;
+    padding: 12px 15px;
+}
+
+.modal-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.modal-body {
+    padding: 15px;
+}
+
+.modal-footer {
+    padding: 12px 15px;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* DROPDOWN */
+.dropdown-menu {
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 5px 0;
+}
+
+.dropdown-menu > li > a {
+    padding: 8px 15px;
+    font-size: 12px;
+    color: #333;
+}
+
+.dropdown-menu > li > a:hover {
+    background: #f5f5f5;
+    color: #6B3C00;
+}
+
+/* PROGRESS BARS */
+.progress {
+    height: 20px;
+    background: #f5f5f5;
+    box-shadow: none;
+}
+
+.progress-bar {
+    background: #6B3C00;
+    font-size: 11px;
+    line-height: 20px;
+}
+
+/* INPUT GROUPS */
+.input-group-addon {
+    background: #f5f5f5;
+    border: 1px solid #d0d0d0;
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+.input-group-btn .btn {
+    padding: 8px 12px;
+}
+
+/* UTILITIES */
+.text-muted { color: #888 !important; }
+.text-bold { font-weight: 600 !important; }
+.mb-0 { margin-bottom: 0 !important; }
+.mt-0 { margin-top: 0 !important; }
+.p-0 { padding: 0 !important; }
+
+/* SPACING ADJUSTMENTS */
+.row {
+    margin-left: -7px;
+    margin-right: -7px;
+}
+
+[class*='col-'] {
+    padding-left: 7px;
+    padding-right: 7px;
+}
+
+/* REMOVE EMOJIS - Replace with Icons */
+.emoji {
+    display: none !important;
+}
+
+/* PROFESSIONAL ICON STYLING */
+i.fa, i.fas, i.far, i.fal {
+    font-style: normal;
+    font-weight: 400;
+}
+
+/* CHART CONTAINERS */
+.chart-container {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    padding: 15px;
+}
+
+/* DATA TABLES STYLING */
+.dataTable thead th {
+    background: #6B3C00 !important;
+    color: #fff !important;
+    font-size: 11px !important;
+    text-transform: uppercase;
+}
+
+.dataTable tbody td {
+    font-size: 12px;
+    padding: 8px 12px !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: #6B3C00 !important;
+    border-color: #6B3C00 !important;
+    color: #fff !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: #8B5A1B !important;
+    border-color: #8B5A1B !important;
+    color: #fff !important;
+}
+
+/* CUSTOM PROFESSIONAL WIDGETS */
+.stat-widget {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-left: 3px solid #6B3C00;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.stat-widget .value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #333;
+    line-height: 1;
+}
+
+.stat-widget .label {
+    font-size: 11px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-top: 5px;
+}
+
+/* RESPONSIVE ADJUSTMENTS */
+@media (max-width: 768px) {
+    .btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+    
+    .table {
+        font-size: 11px;
+    }
+    
+    .box-header, .panel-heading {
+        padding: 10px 12px;
+    }
+    
+    .box-body, .panel-body {
+        padding: 12px;
+    }
+}
+
+/* PRINT STYLES */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    * {
+        box-shadow: none !important;
+    }
+}
+
+/* ACCESSIBILITY */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
+/* LOADING STATES */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #6B3C00;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

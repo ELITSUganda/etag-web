@@ -23,4 +23,15 @@ class SlaughterRecord extends Model
         $sum = SlaughterDistributionRecord::where('source_id', $this->id)->sum('original_weight');
         return  $this->original_weight - $sum;
     } */
+    
+    // Relationships
+    public function distributions()
+    {
+        return $this->hasMany(SlaughterDistributionRecord::class, 'source_id');
+    }
+
+    public function packagingRecords()
+    {
+        return $this->hasMany(PackagingRecord::class, 'slaughter_record_id');
+    }
 }

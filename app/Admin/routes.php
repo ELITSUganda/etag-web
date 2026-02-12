@@ -53,6 +53,7 @@ Route::group([
     $router->get('butchery-dashboard', 'ButcheryDashboardController@index')->name('butchery-dashboard');
     $router->resource('slaughter-records', SlaughterRecordController::class);
     $router->get('slaughter-records/{id}/export-pdf', 'SlaughterRecordController@exportPdf')->name('slaughter-records.export-pdf');
+    $router->resource('butchery-records', ButcheryRecordController::class);
     $router->resource('slaughter-distributions', SlaughterDistributionRecordController::class);
     $router->resource('archived-animals', ArchivedAnimalController::class);
     $router->resource('sales', AnimalSalesController::class);
