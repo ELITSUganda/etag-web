@@ -132,7 +132,7 @@ class PackagingRecordController extends Controller
             'administrator_id' => 'required|exists:admin_users,id',
             'slaughter_record_id' => 'required|exists:slaughter_records,id',
             'slaughter_distribution_record_id' => 'nullable|exists:slaughter_distribution_records,id',
-            'package_type' => 'required|in:Prime Cut,Offal',
+            'package_type' => 'required|in:Prime Cut,Primal Cut,Offal',
             'packaging_date' => 'required|date',
             'packages' => 'required|array|min:1',
             'packages.*.cut_name' => 'required|string',
@@ -191,7 +191,7 @@ class PackagingRecordController extends Controller
             $cutFieldMap = $this->getCutFieldMapping();
             
             // Initialize all cut fields to 0
-            if ($r->package_type === 'Prime Cut') {
+            if ($r->package_type === 'Prime Cut' || $r->package_type === 'Primal Cut') {
                 $primeCuts = PackagingRecord::getPrimeCutFields();
                 foreach ($primeCuts as $cut) {
                     $data[$cut] = 0;
@@ -204,6 +204,7 @@ class PackagingRecordController extends Controller
             }
             
             // Add weights from packages array
+            $seenCuts = [];
             foreach ($r->packages as $package) {
                 $cutName = $package['cut_name'];
                 $weight = $package['weight'];
@@ -211,7 +212,11 @@ class PackagingRecordController extends Controller
                 // Map cut name to field name
                 $fieldName = $cutFieldMap[$cutName] ?? null;
                 if ($fieldName && isset($data[$fieldName])) {
-                    $data[$fieldName] += $weight; // Accumulate if same cut appears multiple times
+                    // Use latest weight if same cut submitted twice
+                    $data[$fieldName] = isset($seenCuts[$fieldName])
+                        ? $data[$fieldName] + $weight
+                        : $weight;
+                    $seenCuts[$fieldName] = true;
                 }
             }
 
@@ -271,14 +276,14 @@ class PackagingRecordController extends Controller
         $validator = Validator::make($r->all(), [
             'administrator_id' => 'required|exists:admin_users,id',
             'id' => 'required|exists:packaging_records,id',
-            'package_type' => 'required|in:Prime Cut,Offal',
+            'package_type' => 'required|in:Prime Cut,Primal Cut,Offal',
             'packaging_date' => 'required|date',
             'shelf_life_days' => 'required|integer|min:1|max:365',
             'notes' => 'nullable|string|max:1000',
         ]);
 
         // Add weight validation rules dynamically
-        if ($r->package_type === 'Prime Cut') {
+        if ($r->package_type === 'Prime Cut' || $r->package_type === 'Primal Cut') {
             $primeCuts = PackagingRecord::getPrimeCutFields();
             foreach ($primeCuts as $cut) {
                 $validator->addRules([$cut => 'nullable|numeric|min:0|max:9999.99']);
@@ -323,7 +328,7 @@ class PackagingRecordController extends Controller
             $packagingRecord->notes = $r->notes;
 
             // Reset all weights to 0 first
-            if ($r->package_type === 'Prime Cut') {
+            if ($r->package_type === 'Prime Cut' || $r->package_type === 'Primal Cut') {
                 $primeCuts = PackagingRecord::getPrimeCutFields();
                 foreach ($primeCuts as $cut) {
                     $packagingRecord->$cut = 0;
