@@ -8,6 +8,9 @@ class CreateBlockedIpsTable extends Migration
 {
     public function up()
     {
+        if (Schema::hasTable('blocked_ips')) {
+            return;
+        }
         Schema::create('blocked_ips', function (Blueprint $table) {
             $table->id();
             $table->string('ip_address', 45)->unique();
@@ -18,7 +21,12 @@ class CreateBlockedIpsTable extends Migration
             $table->timestamp('expires_at')->nullable();
             $table->timestamps();
 
-            $table->index('expires_at');
+            try {
+                $table->index('ip_address');
+                $table->index('expires_at');
+            } catch (\Exception $e) {
+                // Handle index creation failure gracefully (e.g., log the error)
+            }
         });
     }
 

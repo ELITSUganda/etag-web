@@ -8,6 +8,9 @@ class CreateRequestLogsTable extends Migration
 {
     public function up()
     {
+        if (Schema::hasTable('request_logs')) {
+            return;
+        }
         Schema::create('request_logs', function (Blueprint $table) {
             $table->id();
             $table->string('ip_address', 45);

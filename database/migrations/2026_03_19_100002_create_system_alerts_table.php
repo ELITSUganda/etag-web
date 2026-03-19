@@ -8,6 +8,9 @@ class CreateSystemAlertsTable extends Migration
 {
     public function up()
     {
+        if (Schema::hasTable('system_alerts')) {
+            return;
+        }
         Schema::create('system_alerts', function (Blueprint $table) {
             $table->id();
             $table->string('type', 50);
@@ -17,10 +20,14 @@ class CreateSystemAlertsTable extends Migration
             $table->timestamp('read_at')->nullable();
             $table->timestamps();
 
-            $table->index('type');
-            $table->index('severity');
-            $table->index('read_at');
-            $table->index('created_at');
+            try {
+                $table->index('type');
+                $table->index('severity');
+                $table->index('read_at');
+                $table->index('created_at');
+            } catch (\Exception $e) {
+                // Handle index creation failure gracefully (e.g., log the error)
+            }
         });
     }
 
