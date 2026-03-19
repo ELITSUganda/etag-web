@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Models\RequestLog;
 use App\Models\BlockedIp;
 use App\Models\SystemAlert;
+use App\Services\GuardianService;
 use Carbon\Carbon;
 
 class GuardianCleanup extends Command
@@ -28,6 +29,11 @@ class GuardianCleanup extends Command
                 ->where('expires_at', '<', Carbon::now())
                 ->delete();
             $this->info("Purged {$deletedBlocks} expired IP blocks.");
+
+            // Rebuild blocked IP cache after purge
+            if ($deletedBlocks > 0) {
+                app(GuardianService::class)->rebuildBlockedIpCache();
+            }
         }
 
         // Delete old resolved alerts

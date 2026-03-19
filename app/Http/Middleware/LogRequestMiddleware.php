@@ -37,16 +37,18 @@ class LogRequestMiddleware
             // Guardian must never break the app
         }
 
-        // Honeypot — instant block for scanners
+        // Honeypot — instant block for scanners (skip admin paths to avoid false positives)
         $path = $request->getPathInfo();
-        foreach (config('guardian.honeypot_paths', []) as $honeypot) {
-            if (str_starts_with($path, $honeypot)) {
-                try {
-                    $guardian = $guardian ?? app(GuardianService::class);
-                    $guardian->blockIp($ip, 'Honeypot path accessed: ' . $path, 1440);
-                    $guardian->createAlert('honeypot', 'warning', "Honeypot triggered by {$ip}: {$path}", ['ip' => $ip, 'path' => $path]);
-                } catch (\Exception $e) {}
-                abort(403, 'Access Denied');
+        if (!str_starts_with($path, '/' . config('admin.route.prefix', 'admin'))) {
+            foreach (config('guardian.honeypot_paths', []) as $honeypot) {
+                if (str_starts_with($path, $honeypot)) {
+                    try {
+                        $guardian = $guardian ?? app(GuardianService::class);
+                        $guardian->blockIp($ip, 'Honeypot path accessed: ' . $path, 1440);
+                        $guardian->createAlert('honeypot', 'warning', "Honeypot triggered by {$ip}: {$path}", ['ip' => $ip, 'path' => $path]);
+                    } catch (\Exception $e) {}
+                    abort(403, 'Access Denied');
+                }
             }
         }
 

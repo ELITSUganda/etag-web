@@ -83,6 +83,7 @@
     .badge-type.bot { background: #9b59b6; }
     .badge-type.resource { background: #2980b9; }
     .badge-type.slow_endpoint { background: #f39c12; }
+    .badge-type.honeypot { background: #c0392b; }
     .btn-block-ip {
         padding: 2px 8px;
         font-size: 11px;
@@ -370,9 +371,12 @@
         <div class="guardian-box">
             <div class="box-title" style="display: flex; justify-content: space-between; align-items: center;">
                 <span>System Alerts ({{ $unreadAlertCount }} unread)</span>
-                @if($unreadAlertCount > 0)
-                    <button class="btn btn-xs btn-default" onclick="markAllAlertsRead()">Mark All Read</button>
-                @endif
+                <span>
+                    <button class="btn btn-xs btn-primary" id="btn-run-analysis" onclick="runAnalysis()"><i class="fa fa-bolt"></i> Run Analysis</button>
+                    @if($unreadAlertCount > 0)
+                        <button class="btn btn-xs btn-default" onclick="markAllAlertsRead()">Mark All Read</button>
+                    @endif
+                </span>
             </div>
             <table class="guardian-table">
                 <thead><tr><th style="width:140px;">Time</th><th style="width:90px;">Type</th><th style="width:70px;">Severity</th><th>Message</th><th style="width:70px;">Action</th></tr></thead>
@@ -512,6 +516,25 @@ function markAllAlertsRead() {
     }, function(resp) {
         toastr.success(resp.message);
         location.reload();
+    });
+}
+
+function runAnalysis() {
+    var btn = $('#btn-run-analysis');
+    btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Analyzing...');
+    $.post('{{ admin_url("guardian/api/run-analysis") }}', {
+        _token: LA.token
+    }, function(resp) {
+        if (resp.code == '1') {
+            toastr.success(resp.message);
+            location.reload();
+        } else {
+            toastr.error(resp.message || 'Analysis failed');
+            btn.prop('disabled', false).html('<i class="fa fa-bolt"></i> Run Analysis');
+        }
+    }).fail(function() {
+        toastr.error('Failed to run analysis');
+        btn.prop('disabled', false).html('<i class="fa fa-bolt"></i> Run Analysis');
     });
 }
 </script>

@@ -18,6 +18,8 @@ return [
         'exclude_paths' => [
             '#^/admin/guardian/api/#',
             '#^/_debugbar#',
+            '#^/favicon\.ico$#',
+            '#^/vendor/#',
         ],
         'retention_days' => 30,
     ],
@@ -119,10 +121,10 @@ return [
     | IP Whitelist (never blocked, never logged)
     |--------------------------------------------------------------------------
     */
-    'ip_whitelist' => [
+    'ip_whitelist' => array_merge([
         '127.0.0.1',
         '::1',
-    ],
+    ], array_filter(explode(',', env('GUARDIAN_IP_WHITELIST', '')))),
 
     /*
     |--------------------------------------------------------------------------

@@ -25,7 +25,7 @@ class GuardianService
     /**
      * Block an IP address.
      */
-    public function blockIp(string $ip, string $reason, int $durationMinutes = null): void
+    public function blockIp(string $ip, string $reason, ?int $durationMinutes = null): void
     {
         BlockedIp::updateOrCreate(
             ['ip_address' => $ip],

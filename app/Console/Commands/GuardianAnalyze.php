@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\RequestLog;
 use App\Models\BlockedIp;
+use App\Models\SystemAlert;
 use App\Services\GuardianService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,11 @@ class GuardianAnalyze extends Command
 
     public function handle()
     {
+        if (!config('guardian.enabled', true)) {
+            $this->info('Guardian is disabled.');
+            return 0;
+        }
+
         $guardian = app(GuardianService::class);
         $now = Carbon::now();
 
@@ -32,9 +38,11 @@ class GuardianAnalyze extends Command
     private function checkRateLimits(GuardianService $guardian, Carbon $now): void
     {
         $config = config('guardian.rate_limits');
+        $whitelist = config('guardian.ip_whitelist', []);
         $oneMinuteAgo = $now->copy()->subMinute();
 
         $violators = RequestLog::where('created_at', '>=', $oneMinuteAgo)
+            ->whereNotIn('ip_address', $whitelist)
             ->select('ip_address', DB::raw('COUNT(*) as hits'))
             ->groupBy('ip_address')
             ->having('hits', '>', $config['requests_per_minute'])
@@ -64,6 +72,12 @@ class GuardianAnalyze extends Command
         $totalLastMinute = RequestLog::where('created_at', '>=', $oneMinuteAgo)->count();
 
         if ($totalLastMinute > $config['requests_per_minute_threshold']) {
+            // Avoid duplicate spike alerts within 10 min
+            $recentSpike = SystemAlert::where('type', 'spike')
+                ->where('created_at', '>=', $now->copy()->subMinutes(10))
+                ->exists();
+            if ($recentSpike) return;
+
             $guardian->createAlert(
                 'spike', 'critical',
                 "Traffic spike: {$totalLastMinute} requests in last minute (threshold: {$config['requests_per_minute_threshold']})",
@@ -88,6 +102,13 @@ class GuardianAnalyze extends Command
             ->get();
 
         foreach ($slowEndpoints as $ep) {
+            // Avoid duplicate alerts: skip if same slow_endpoint alert exists within last 30 min
+            $recentAlert = SystemAlert::where('type', 'slow_endpoint')
+                ->where('message', 'LIKE', "Slow endpoint: {$ep->endpoint}%")
+                ->where('created_at', '>=', $now->copy()->subMinutes(30))
+                ->exists();
+            if ($recentAlert) continue;
+
             $guardian->createAlert(
                 'slow_endpoint', 'info',
                 "Slow endpoint: {$ep->endpoint} avg " . round($ep->avg_time) . "ms ({$ep->hits} hits)",
@@ -99,14 +120,20 @@ class GuardianAnalyze extends Command
     private function checkBadBots(GuardianService $guardian, Carbon $now): void
     {
         $config = config('guardian.bad_bots');
+        $whitelist = config('guardian.ip_whitelist', []);
         $tenMinutesAgo = $now->copy()->subMinutes(10);
 
         // Check suspicious user agents
         foreach ($config['suspicious_agents'] as $pattern) {
-            // Extract regex pattern without delimiters/flags for MySQL REGEXP
-            $mysqlPattern = trim($pattern, '/i');
+            // Extract regex core from PHP pattern like /nmap/i → nmap
+            if (preg_match('#^/(.+)/[a-z]*$#', $pattern, $m)) {
+                $mysqlPattern = $m[1];
+            } else {
+                $mysqlPattern = $pattern;
+            }
             try {
                 $suspiciousIps = RequestLog::where('created_at', '>=', $tenMinutesAgo)
+                    ->whereNotIn('ip_address', $whitelist)
                     ->where('user_agent', 'REGEXP', $mysqlPattern)
                     ->select('ip_address')
                     ->distinct()
@@ -130,6 +157,7 @@ class GuardianAnalyze extends Command
 
         // Check 404 scanners
         $scanners = RequestLog::where('created_at', '>=', $tenMinutesAgo)
+            ->whereNotIn('ip_address', $whitelist)
             ->where('response_status', 404)
             ->select('ip_address', DB::raw('COUNT(*) as count_404'))
             ->groupBy('ip_address')
@@ -157,6 +185,12 @@ class GuardianAnalyze extends Command
     {
         $config = config('guardian.resource_thresholds');
         $metrics = $guardian->getSystemMetrics();
+
+        // Skip if a resource alert was created within last 15 min
+        $recentResourceAlert = SystemAlert::where('type', 'resource')
+            ->where('created_at', '>=', Carbon::now()->subMinutes(15))
+            ->exists();
+        if ($recentResourceAlert) return;
 
         $cpuLoad = $metrics['cpu_load']['1min'];
         if ($cpuLoad >= $config['cpu_load_critical']) {
