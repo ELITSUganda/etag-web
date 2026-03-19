@@ -119,15 +119,43 @@
         gap: 8px;
         margin-bottom: 15px;
     }
-    .manual-block-form input {
-        flex: 1;
+    .manual-block-form input, .manual-block-form select {
         padding: 6px 10px;
         border: 1px solid #ddd;
         border-radius: 3px;
         font-size: 13px;
     }
+    .manual-block-form input { flex: 1; }
     .alert-unread { background: #fffde7; }
+    .guardian-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f5f7fa;
+        border-radius: 4px;
+        padding: 10px 15px;
+        margin-bottom: 20px;
+        border: 1px solid #e4e8ed;
+    }
+    .guardian-toolbar .toolbar-info { color: #666; font-size: 13px; }
+    .guardian-toolbar .toolbar-info strong { color: #333; }
+    .guardian-toolbar .toolbar-actions { display: flex; gap: 8px; }
+    #guardian-refresh-timer { font-size: 11px; color: #999; margin-left: 8px; }
 </style>
+
+{{-- Toolbar --}}
+<div class="guardian-toolbar">
+    <div class="toolbar-info">
+        <i class="fa fa-shield" style="color: #3c8dbc;"></i>
+        <strong>Guardian</strong> is {{ config('guardian.enabled', true) ? 'active' : 'disabled' }}
+        &mdash; Logging requests, analyzing threats every 5 min
+        <span id="guardian-refresh-timer"></span>
+    </div>
+    <div class="toolbar-actions">
+        <button class="btn btn-sm btn-primary" id="btn-run-analysis" onclick="runAnalysis()"><i class="fa fa-bolt"></i> Run Analysis Now</button>
+        <button class="btn btn-sm btn-default" onclick="refreshMetrics()"><i class="fa fa-refresh"></i> Refresh</button>
+    </div>
+</div>
 
 {{-- ROW 1: System Metrics --}}
 <div class="row">
@@ -140,7 +168,7 @@
     </div>
     <div class="col-md-2">
         <div class="metric-card">
-            <div class="metric-value">{{ $systemMetrics['memory']['php_current_mb'] }}<small>MB</small></div>
+            <div class="metric-value" id="php-mem">{{ $systemMetrics['memory']['php_current_mb'] }}<small>MB</small></div>
             <div class="metric-label">PHP Memory</div>
             <div class="metric-sub">Peak: {{ $systemMetrics['memory']['php_peak_mb'] }}MB</div>
         </div>
@@ -160,15 +188,15 @@
         </div>
     </div>
     <div class="col-md-2">
-        <div class="metric-card">
-            <div class="metric-value">{{ $trafficStats['avg_response_time_ms'] }}<small>ms</small></div>
+        <div class="metric-card {{ $trafficStats['error_rate_pct'] > 5 ? 'danger' : '' }}">
+            <div class="metric-value" id="avg-resp">{{ $trafficStats['avg_response_time_ms'] }}<small>ms</small></div>
             <div class="metric-label">Avg Response</div>
-            <div class="metric-sub">Errors: {{ $trafficStats['error_rate_pct'] }}%</div>
+            <div class="metric-sub">Errors: <span id="error-rate">{{ $trafficStats['error_rate_pct'] }}</span>%</div>
         </div>
     </div>
     <div class="col-md-2">
         <div class="metric-card {{ $unreadAlertCount > 0 ? 'danger' : 'success' }}">
-            <div class="metric-value">{{ $unreadAlertCount }}</div>
+            <div class="metric-value" id="unread-alerts">{{ $unreadAlertCount }}</div>
             <div class="metric-label">Unread Alerts</div>
             <div class="metric-sub">Today: {{ number_format($trafficStats['requests_today']) }} req</div>
         </div>
@@ -180,7 +208,9 @@
     <div class="col-md-8">
         <div class="guardian-box">
             <div class="box-title">Requests Per Minute (Last 60 Minutes)</div>
-            <canvas id="guardianTrafficChart" style="width: 100%; height: 280px;"></canvas>
+            <div style="position: relative; height: 280px;">
+                <canvas id="guardianTrafficChart"></canvas>
+            </div>
         </div>
     </div>
     <div class="col-md-4">
@@ -200,6 +230,9 @@
                         </div>
                     @endif
                 @endforeach
+                @if($total <= 1 && empty(array_filter(array_column($statusDist, 'count'))))
+                    <div class="segment" style="width: 100%; background: #ccc;">No data</div>
+                @endif
             </div>
             <div style="margin-top: 15px;">
                 <div class="traffic-stat">
@@ -208,19 +241,19 @@
                 </div>
                 <div class="traffic-stat">
                     <span class="stat-label">Requests/Hour</span>
-                    <span class="stat-value">{{ number_format($trafficStats['requests_last_hour']) }}</span>
+                    <span class="stat-value" id="stat-rph">{{ number_format($trafficStats['requests_last_hour']) }}</span>
                 </div>
                 <div class="traffic-stat">
                     <span class="stat-label">Requests Today</span>
-                    <span class="stat-value">{{ number_format($trafficStats['requests_today']) }}</span>
+                    <span class="stat-value" id="stat-today">{{ number_format($trafficStats['requests_today']) }}</span>
                 </div>
                 <div class="traffic-stat">
                     <span class="stat-label">Avg Response Time</span>
-                    <span class="stat-value">{{ $trafficStats['avg_response_time_ms'] }}ms</span>
+                    <span class="stat-value" id="stat-avg">{{ $trafficStats['avg_response_time_ms'] }}ms</span>
                 </div>
                 <div class="traffic-stat">
                     <span class="stat-label">Error Rate (5xx)</span>
-                    <span class="stat-value" style="color: {{ $trafficStats['error_rate_pct'] > 5 ? '#dd4b39' : '#00a65a' }}">{{ $trafficStats['error_rate_pct'] }}%</span>
+                    <span class="stat-value" id="stat-err" style="color: {{ $trafficStats['error_rate_pct'] > 5 ? '#dd4b39' : '#00a65a' }}">{{ $trafficStats['error_rate_pct'] }}%</span>
                 </div>
                 <div class="traffic-stat">
                     <span class="stat-label">Disk Usage</span>
@@ -235,7 +268,7 @@
 <div class="row">
     <div class="col-md-4">
         <div class="guardian-box">
-            <div class="box-title">Top 10 IPs (Last Hour)</div>
+            <div class="box-title"><i class="fa fa-users"></i> Top 10 IPs (Last Hour)</div>
             <table class="guardian-table">
                 <thead><tr><th>IP Address</th><th>Hits</th><th>Action</th></tr></thead>
                 <tbody>
@@ -243,7 +276,7 @@
                     <tr>
                         <td><code>{{ $ip['ip_address'] }}</code></td>
                         <td><strong>{{ number_format($ip['hits']) }}</strong></td>
-                        <td><button class="btn btn-xs btn-danger btn-block-ip" onclick="blockIp('{{ $ip['ip_address'] }}')">Block</button></td>
+                        <td><button class="btn btn-xs btn-danger btn-block-ip" onclick="blockIp('{{ $ip['ip_address'] }}')"><i class="fa fa-ban"></i> Block</button></td>
                     </tr>
                 @empty
                     <tr><td colspan="3" style="text-align:center; color:#999;">No data yet</td></tr>
@@ -254,7 +287,7 @@
     </div>
     <div class="col-md-4">
         <div class="guardian-box">
-            <div class="box-title">Top 10 Endpoints (Last Hour)</div>
+            <div class="box-title"><i class="fa fa-link"></i> Top 10 Endpoints (Last Hour)</div>
             <table class="guardian-table">
                 <thead><tr><th>Endpoint</th><th>Hits</th><th>Avg Time</th></tr></thead>
                 <tbody>
@@ -273,7 +306,7 @@
     </div>
     <div class="col-md-4">
         <div class="guardian-box">
-            <div class="box-title">Slowest Endpoints (Last Hour)</div>
+            <div class="box-title"><i class="fa fa-clock-o"></i> Slowest Endpoints (Last Hour)</div>
             <table class="guardian-table">
                 <thead><tr><th>Endpoint</th><th>Avg Time</th><th>Hits</th></tr></thead>
                 <tbody>
@@ -296,18 +329,18 @@
 <div class="row">
     <div class="col-md-7">
         <div class="guardian-box">
-            <div class="box-title">Blocked IPs ({{ $blockedIps->count() }} active)</div>
+            <div class="box-title"><i class="fa fa-ban"></i> Blocked IPs ({{ $blockedIps->count() }} active)</div>
             <div class="manual-block-form">
-                <input type="text" id="manual-block-ip" placeholder="Enter IP to block (e.g. 192.168.1.1)">
+                <input type="text" id="manual-block-ip" placeholder="IP address (e.g. 192.168.1.1)">
                 <input type="text" id="manual-block-reason" placeholder="Reason" style="flex: 0.8;">
-                <select id="manual-block-duration" style="padding: 6px; border: 1px solid #ddd; border-radius: 3px;">
+                <select id="manual-block-duration">
                     <option value="15">15 min</option>
                     <option value="60" selected>1 hour</option>
                     <option value="1440">24 hours</option>
                     <option value="10080">7 days</option>
                     <option value="0">Permanent</option>
                 </select>
-                <button class="btn btn-sm btn-danger" onclick="manualBlockIp()">Block</button>
+                <button class="btn btn-sm btn-danger" onclick="manualBlockIp()"><i class="fa fa-ban"></i> Block</button>
             </div>
             <table class="guardian-table">
                 <thead><tr><th>IP</th><th>Reason</th><th>Attempts</th><th>Blocked At</th><th>Expires</th><th>Action</th></tr></thead>
@@ -325,7 +358,7 @@
                                 {{ $blocked->expires_at ? $blocked->expires_at->format('M d H:i') : '-' }}
                             @endif
                         </td>
-                        <td><button class="btn btn-xs btn-success" onclick="unblockIp('{{ $blocked->ip_address }}')">Unblock</button></td>
+                        <td><button class="btn btn-xs btn-success" onclick="unblockIp('{{ $blocked->ip_address }}')"><i class="fa fa-check"></i> Unblock</button></td>
                     </tr>
                 @empty
                     <tr><td colspan="6" style="text-align:center; color:#999;">No blocked IPs</td></tr>
@@ -336,10 +369,10 @@
     </div>
     <div class="col-md-5">
         <div class="guardian-box">
-            <div class="box-title">MySQL Server Stats</div>
+            <div class="box-title"><i class="fa fa-database"></i> MySQL Server Stats</div>
             <div class="traffic-stat">
                 <span class="stat-label">Threads Connected</span>
-                <span class="stat-value">{{ $systemMetrics['mysql']['threads_connected'] }} / {{ $systemMetrics['mysql']['max_connections'] }}</span>
+                <span class="stat-value" id="stat-mysql-conn">{{ $systemMetrics['mysql']['threads_connected'] }} / {{ $systemMetrics['mysql']['max_connections'] }}</span>
             </div>
             <div class="traffic-stat">
                 <span class="stat-label">Uptime</span>
@@ -354,8 +387,8 @@
                 <span class="stat-value" style="color: {{ $systemMetrics['mysql']['slow_queries'] > 0 ? '#f39c12' : '#00a65a' }}">{{ number_format($systemMetrics['mysql']['slow_queries']) }}</span>
             </div>
             <div class="traffic-stat">
-                <span class="stat-label">CPU Load</span>
-                <span class="stat-value">{{ $systemMetrics['cpu_load']['1min'] }} / {{ $systemMetrics['cpu_load']['5min'] }} / {{ $systemMetrics['cpu_load']['15min'] }}</span>
+                <span class="stat-label">CPU Load (1m/5m/15m)</span>
+                <span class="stat-value" id="stat-cpu-all">{{ $systemMetrics['cpu_load']['1min'] }} / {{ $systemMetrics['cpu_load']['5min'] }} / {{ $systemMetrics['cpu_load']['15min'] }}</span>
             </div>
             <div class="traffic-stat">
                 <span class="stat-label">Disk Free</span>
@@ -370,11 +403,10 @@
     <div class="col-md-12">
         <div class="guardian-box">
             <div class="box-title" style="display: flex; justify-content: space-between; align-items: center;">
-                <span>System Alerts ({{ $unreadAlertCount }} unread)</span>
+                <span><i class="fa fa-bell"></i> System Alerts ({{ $unreadAlertCount }} unread)</span>
                 <span>
-                    <button class="btn btn-xs btn-primary" id="btn-run-analysis" onclick="runAnalysis()"><i class="fa fa-bolt"></i> Run Analysis</button>
                     @if($unreadAlertCount > 0)
-                        <button class="btn btn-xs btn-default" onclick="markAllAlertsRead()">Mark All Read</button>
+                        <button class="btn btn-xs btn-warning" onclick="markAllAlertsRead()"><i class="fa fa-check-double"></i> Mark All Read</button>
                     @endif
                 </span>
             </div>
@@ -396,7 +428,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="5" style="text-align:center; color:#999;">No alerts</td></tr>
+                    <tr><td colspan="5" style="text-align:center; color:#999;">No alerts — system is clean</td></tr>
                 @endforelse
                 </tbody>
             </table>
@@ -406,10 +438,27 @@
 
 <script>
 $(function () {
-    // Requests/min chart
+    // Detect Chart.js version (v2 uses xAxes/yAxes arrays, v3+ uses x/y objects)
+    var majorVersion = (Chart.version || '2').split('.')[0];
+    var isV2 = parseInt(majorVersion) < 3;
+
     var ctx = document.getElementById('guardianTrafficChart').getContext('2d');
     var chartData = @json($requestsChart);
-    var trafficChart = new Chart(ctx, {
+
+    var scalesConfig;
+    if (isV2) {
+        scalesConfig = {
+            yAxes: [{ ticks: { beginAtZero: true } }],
+            xAxes: [{ ticks: { maxTicksLimit: 15 } }]
+        };
+    } else {
+        scalesConfig = {
+            y: { beginAtZero: true },
+            x: { ticks: { maxTicksLimit: 15 } }
+        };
+    }
+
+    var chartConfig = {
         type: 'line',
         data: {
             labels: chartData.map(function(d) { return d.minute; }),
@@ -428,33 +477,67 @@ $(function () {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: {
-                yAxes: [{ ticks: { beginAtZero: true } }],
-                xAxes: [{ ticks: { maxTicksLimit: 15 } }]
-            },
-            legend: { display: false }
+            scales: scalesConfig
+        }
+    };
+
+    // v2 legend config vs v3
+    if (isV2) {
+        chartConfig.options.legend = { display: false };
+    } else {
+        chartConfig.options.plugins = { legend: { display: false } };
+    }
+
+    var trafficChart = new Chart(ctx, chartConfig);
+
+    // Auto-refresh countdown
+    var refreshInterval = 30;
+    var countdown = refreshInterval;
+    var timerEl = document.getElementById('guardian-refresh-timer');
+
+    function updateTimer() {
+        if (timerEl) {
+            timerEl.textContent = '(auto-refresh in ' + countdown + 's)';
+        }
+        countdown--;
+        if (countdown < 0) {
+            countdown = refreshInterval;
+            refreshMetrics();
+        }
+    }
+    updateTimer();
+    setInterval(updateTimer, 1000);
+
+    // Make refreshMetrics available globally
+    window._trafficChart = trafficChart;
+});
+
+function refreshMetrics() {
+    $.get('{{ admin_url("guardian/api/live-metrics") }}', function(resp) {
+        if (resp.code == '1') {
+            var s = resp.data.system;
+            var t = resp.data.traffic;
+
+            $('#cpu-load').text(s.cpu_load['1min']);
+            $('#mysql-conn').text(s.mysql.threads_connected);
+            $('#req-per-min').text(t.requests_last_minute);
+            $('#stat-rpm').text(t.requests_last_minute);
+            $('#stat-rph').text(t.requests_last_hour.toLocaleString());
+            $('#stat-today').text(t.requests_today.toLocaleString());
+            $('#stat-avg').text(t.avg_response_time_ms + 'ms');
+            $('#stat-err').text(t.error_rate_pct + '%');
+            $('#stat-mysql-conn').text(s.mysql.threads_connected + ' / ' + s.mysql.max_connections);
+            $('#stat-cpu-all').text(s.cpu_load['1min'] + ' / ' + s.cpu_load['5min'] + ' / ' + s.cpu_load['15min']);
+
+            // Update chart
+            if (resp.data.chart && resp.data.chart.length > 0 && window._trafficChart) {
+                window._trafficChart.data.labels = resp.data.chart.map(function(d) { return d.minute; });
+                window._trafficChart.data.datasets[0].data = resp.data.chart.map(function(d) { return d.count; });
+                window._trafficChart.update();
+            }
         }
     });
-
-    // Auto-refresh every 30 seconds
-    setInterval(function() {
-        $.get('{{ admin_url("guardian/api/live-metrics") }}', function(resp) {
-            if (resp.code == '1') {
-                $('#cpu-load').text(resp.data.system.cpu_load['1min']);
-                $('#mysql-conn').text(resp.data.system.mysql.threads_connected);
-                $('#req-per-min').text(resp.data.traffic.requests_last_minute);
-                $('#stat-rpm').text(resp.data.traffic.requests_last_minute);
-
-                // Update chart
-                if (resp.data.chart && resp.data.chart.length > 0) {
-                    trafficChart.data.labels = resp.data.chart.map(function(d) { return d.minute; });
-                    trafficChart.data.datasets[0].data = resp.data.chart.map(function(d) { return d.count; });
-                    trafficChart.update();
-                }
-            }
-        });
-    }, 30000);
-});
+}
 
 function blockIp(ip) {
     if (!confirm('Block IP ' + ip + ' for 1 hour?')) return;
@@ -526,15 +609,15 @@ function runAnalysis() {
         _token: LA.token
     }, function(resp) {
         if (resp.code == '1') {
-            toastr.success(resp.message);
-            location.reload();
+            toastr.success(resp.message + (resp.output ? ': ' + resp.output : ''));
+            setTimeout(function() { location.reload(); }, 1000);
         } else {
             toastr.error(resp.message || 'Analysis failed');
-            btn.prop('disabled', false).html('<i class="fa fa-bolt"></i> Run Analysis');
+            btn.prop('disabled', false).html('<i class="fa fa-bolt"></i> Run Analysis Now');
         }
     }).fail(function() {
         toastr.error('Failed to run analysis');
-        btn.prop('disabled', false).html('<i class="fa fa-bolt"></i> Run Analysis');
+        btn.prop('disabled', false).html('<i class="fa fa-bolt"></i> Run Analysis Now');
     });
 }
 </script>
