@@ -21,6 +21,6 @@ class AddGuardianAdminMenu extends Migration
 
     public function down()
     {
-        DB::table('admin_menu')->where('uri', 'guardian')->delete();
+        DB::table('admin_menu')->where('uri', 'guardian')->delete();// Adjust the condition as needed to ensure only the intended menu item is removed
     }
 }

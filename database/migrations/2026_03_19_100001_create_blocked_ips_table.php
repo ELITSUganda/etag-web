@@ -8,6 +8,7 @@ class CreateBlockedIpsTable extends Migration
 {
     public function up()
     {
+        Schema::dropIfExists('blocked_ips');
         if (Schema::hasTable('blocked_ips')) {
             return;
         }

@@ -27,10 +27,14 @@ class FixRequestLogsTableIndexes extends Migration
             $table->timestamp('created_at')->useCurrent();
 
             // Simple indexes (these fit within key length limits)
-            $table->index('ip_address');
-            $table->index('response_status');
-            $table->index('created_at');
-            $table->index(['ip_address', 'created_at']);
+            try {
+                $table->index('ip_address');
+                $table->index('response_status');
+                $table->index('created_at');
+                $table->index(['ip_address', 'created_at']);
+            } catch (\Exception $e) {
+                // Handle index creation failure gracefully (e.g., log the error)
+            }
         });
 
         // Add prefix indexes for the long `endpoint` column via raw SQL

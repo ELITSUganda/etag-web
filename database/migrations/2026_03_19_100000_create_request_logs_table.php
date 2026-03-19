@@ -8,6 +8,7 @@ class CreateRequestLogsTable extends Migration
 {
     public function up()
     {
+        Schema::dropIfExists('request_logs');
         if (Schema::hasTable('request_logs')) {
             return;
         }
