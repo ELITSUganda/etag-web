@@ -24,7 +24,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->command('guardian:analyze')->everyMinute();
+        $schedule->command('guardian:cleanup')->daily()->at('03:00');
     }
 
     /**

@@ -158,4 +158,13 @@ Route::group([
     $router->resource('personal-settings', PersonalSettingController::class);
     $router->resource('animals-all', AnimalNewController::class);
     $router->resource('slaughter-records', SlaughterRecordController::class);
+
+    // System Guardian
+    $router->get('guardian', 'GuardianController@index')->name('guardian');
+    $router->post('guardian/block-ip', 'GuardianController@blockIp')->name('guardian.block-ip');
+    $router->post('guardian/unblock-ip', 'GuardianController@unblockIp')->name('guardian.unblock-ip');
+    $router->post('guardian/alert/read', 'GuardianController@markAlertRead')->name('guardian.alert-read');
+    $router->post('guardian/alerts/read-all', 'GuardianController@markAllAlertsRead')->name('guardian.alerts-read-all');
+    $router->get('guardian/api/live-metrics', 'GuardianController@liveMetrics')->name('guardian.live-metrics');
+    $router->post('guardian/api/run-analysis', 'GuardianController@runAnalysis')->name('guardian.run-analysis');
 });
