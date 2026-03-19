@@ -8,7 +8,7 @@ class CreateSystemAlertsTable extends Migration
 {
     public function up()
     {
-                Schema::dropIfExists('system_alerts');
+        Schema::dropIfExists('system_alerts');
         if (Schema::hasTable('system_alerts')) {
             return;
         }

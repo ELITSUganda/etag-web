@@ -1,5 +1,7 @@
 /.env
 .env
+vps-credentials.txt
+*-credentials.txt
 /thumbs
 /public/thumbs
 /public/thumbs/*
