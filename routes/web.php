@@ -1552,19 +1552,17 @@ Route::get('/test', function () {
 });
 
 
+// Old homepage route — replaced by LandingController at line 44
 //Route::get('/', [WebController::class, 'index']);
-Route::get('/', function () {
-    //maaif
-    $url = admin_url();
-    if (Utils::is_maaif()) {
-        $url = 'https://maaif.u-lits.com/admin';
-    }
-    return view('index', [
-        'url' => $url
-    ]);
-    header('Location: ' . admin_url());
-    die();
-});
+//Route::get('/', function () {
+//    $url = admin_url();
+//    if (Utils::is_maaif()) {
+//        $url = 'https://maaif.u-lits.com/admin';
+//    }
+//    return view('index', ['url' => $url]);
+//    header('Location: ' . admin_url());
+//    die();
+//});
 
 Route::get('/process-profile-photos', function () {
     $aniamls = Animal::all();
