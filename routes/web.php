@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\FarmAnalysisController;
+use App\Http\Controllers\LandingController;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\MarketController;
 use App\Http\Controllers\PrintController;
@@ -35,7 +36,19 @@ use Milon\Barcode\DNS1D;
 
 use function PHPUnit\Framework\fileExists;
 
+/**
+ * ================================================================
+ * LANDING PAGE ROUTES
+ * ================================================================
+ */
+Route::get('/', [LandingController::class, 'index'])->name('landing');
+Route::post('/api/contact', [LandingController::class, 'contact'])->name('landing.contact');
 
+/**
+ * ================================================================
+ * LEGACY ROUTES
+ * ================================================================
+ */
 Route::get('archive-soft-deleted-animals', function (Request $request) {
 
     $limit = 100;
